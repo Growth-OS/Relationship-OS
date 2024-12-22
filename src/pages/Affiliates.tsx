@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, DollarSign, Users, Percent, TrendingUp } from "lucide-react";
+import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
 
 const Affiliates = () => {
   const affiliates = [
@@ -25,6 +27,37 @@ const Affiliates = () => {
     },
   ];
 
+  const stats = [
+    {
+      title: "Total Partners",
+      value: "12",
+      trend: "+2 this month",
+      icon: Users,
+      color: "text-blue-500",
+    },
+    {
+      title: "Active Campaigns",
+      value: "8",
+      trend: "5 pending review",
+      icon: TrendingUp,
+      color: "text-green-500",
+    },
+    {
+      title: "Monthly Earnings",
+      value: "$3,800",
+      trend: "+15% vs last month",
+      icon: DollarSign,
+      color: "text-purple-500",
+    },
+    {
+      title: "Avg. Commission",
+      value: "27.5%",
+      trend: "Industry avg: 25%",
+      icon: Percent,
+      color: "text-orange-500",
+    },
+  ];
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
@@ -32,51 +65,42 @@ const Affiliates = () => {
           <h1 className="text-3xl font-bold text-primary mb-2">Affiliate Partners</h1>
           <p className="text-gray-600">Manage your affiliate relationships and track performance</p>
         </div>
-        <Button className="bg-secondary hover:bg-secondary/90">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Partner
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="bg-secondary hover:bg-secondary/90">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Partner
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Add New Partner</DialogTitle>
+            </DialogHeader>
+            <AffiliateForm />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          {
-            title: "Total Partners",
-            value: "12",
-            trend: "+2 this month",
-            color: "bg-blue-500",
-          },
-          {
-            title: "Active Campaigns",
-            value: "8",
-            trend: "5 pending review",
-            color: "bg-green-500",
-          },
-          {
-            title: "Monthly Earnings",
-            value: "$3,800",
-            trend: "+15% vs last month",
-            color: "bg-purple-500",
-          },
-          {
-            title: "Avg. Commission",
-            value: "27.5%",
-            trend: "Industry avg: 25%",
-            color: "bg-orange-500",
-          },
-        ].map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">
-                {stat.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-sm text-gray-600 mt-1">{stat.trend}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {stats.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index}>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-500">
+                    {stat.title}
+                  </CardTitle>
+                  <Icon className={`w-4 h-4 ${stat.color}`} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-sm text-gray-600 mt-1">{stat.trend}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Card>
