@@ -11,6 +11,7 @@ import Reporting from "./pages/Reporting";
 import Substack from "./pages/Substack";
 import AIPrompts from "./pages/AIPrompts";
 import AIPersona from "./pages/AIPersona";
+import ProfileSettings from "./pages/ProfileSettings";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -69,9 +70,10 @@ const App = () => (
               </ProtectedRoute>
             }
           >
+            <Route path="profile" element={<ProfileSettings />} />
             <Route path="ai-prompts" element={<AIPrompts />} />
             <Route path="ai-persona" element={<AIPersona />} />
-            <Route index element={<Navigate to="ai-persona" replace />} />
+            <Route index element={<Navigate to="profile" replace />} />
           </Route>
         </Routes>
         <Toaster />
