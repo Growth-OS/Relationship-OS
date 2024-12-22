@@ -2,7 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const descriptions = [
@@ -19,35 +19,34 @@ const Login = () => {
   const [currentText, setCurrentText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
-  const mountedRef = useRef(true);
-
-  const typeText = useCallback(() => {
-    if (!mountedRef.current) return;
-    
-    const targetText = descriptions[currentIndex];
-    
-    if (isTyping) {
-      if (currentText.length < targetText.length) {
-        setCurrentText(targetText.slice(0, currentText.length + 1));
-      } else {
-        setIsTyping(false);
-        setTimeout(() => {
-          if (!mountedRef.current) return;
-          setIsTyping(true);
-          setCurrentText("");
-          setCurrentIndex((prev) => (prev + 1) % descriptions.length);
-        }, 2000);
-      }
-    }
-  }, [currentText, currentIndex, isTyping]);
 
   useEffect(() => {
-    const interval = setInterval(typeText, 50);
-    return () => {
-      mountedRef.current = false;
-      clearInterval(interval);
+    let timeout: NodeJS.Timeout;
+    
+    const typeNextCharacter = () => {
+      const targetText = descriptions[currentIndex];
+      
+      if (isTyping) {
+        if (currentText.length < targetText.length) {
+          setCurrentText(targetText.slice(0, currentText.length + 1));
+          timeout = setTimeout(typeNextCharacter, 50);
+        } else {
+          setIsTyping(false);
+          timeout = setTimeout(() => {
+            setIsTyping(true);
+            setCurrentText("");
+            setCurrentIndex((prev) => (prev + 1) % descriptions.length);
+          }, 2000);
+        }
+      }
     };
-  }, [typeText]);
+
+    timeout = setTimeout(typeNextCharacter, 50);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [currentText, currentIndex, isTyping]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
