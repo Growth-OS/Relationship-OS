@@ -12,7 +12,7 @@ const Sidebar = () => {
     { icon: Lightbulb, label: "Ideas", path: "/ideas" },
     { icon: BookOpen, label: "Substack", path: "/substack" },
     { icon: Users, label: "Affiliates", path: "/affiliates" },
-    { icon: Wand2, label: "AI Prompts", path: "/ai-prompts" },
+    { icon: Wand2, label: "AI Persona", path: "/ai-prompts" },
     { icon: ChartBar, label: "Reporting", path: "/reporting" },
   ];
 
