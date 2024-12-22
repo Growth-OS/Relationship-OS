@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, DollarSign, Users, Percent, Pencil } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
 import { EditAffiliateForm } from "@/components/affiliates/EditAffiliateForm";
+import { AddEarningForm } from "@/components/affiliates/AddEarningForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
@@ -12,8 +13,9 @@ import { useState } from "react";
 const Affiliates = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState<any>(null);
+  const [addingEarningsForPartner, setAddingEarningsForPartner] = useState<any>(null);
 
-  const { data: affiliates, isLoading } = useQuery({
+  const { data: affiliates, isLoading: isLoadingPartners } = useQuery({
     queryKey: ['affiliatePartners'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -26,6 +28,34 @@ const Affiliates = () => {
     }
   });
 
+  const { data: earnings, isLoading: isLoadingEarnings } = useQuery({
+    queryKey: ['affiliateEarnings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('affiliate_earnings')
+        .select(`
+          *,
+          affiliate_partners (
+            name
+          )
+        `)
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const monthlyEarnings = earnings?.reduce((sum, earning) => {
+    const earningDate = new Date(earning.date);
+    if (earningDate.getMonth() === currentMonth && earningDate.getFullYear() === currentYear) {
+      return sum + Number(earning.amount);
+    }
+    return sum;
+  }, 0) ?? 0;
+
   const stats = [
     {
       title: "Total Partners",
@@ -36,8 +66,8 @@ const Affiliates = () => {
     },
     {
       title: "Monthly Earnings",
-      value: "$3,800",
-      trend: "+15% vs last month",
+      value: `$${monthlyEarnings.toFixed(2)}`,
+      trend: "Current month",
       icon: DollarSign,
       color: "text-purple-500",
     },
@@ -100,7 +130,7 @@ const Affiliates = () => {
           <CardTitle>Partner Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoadingPartners ? (
             <div className="text-center py-4">Loading partners...</div>
           ) : affiliates?.length === 0 ? (
             <div className="text-center py-4 text-gray-500">
@@ -138,27 +168,90 @@ const Affiliates = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <Dialog open={editingPartner?.id === affiliate.id} onOpenChange={(open) => !open && setEditingPartner(null)}>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => setEditingPartner(affiliate)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
-                          <DialogHeader>
-                            <DialogTitle>Edit Partner</DialogTitle>
-                          </DialogHeader>
-                          <EditAffiliateForm 
-                            partner={affiliate} 
-                            onSuccess={() => setEditingPartner(null)} 
-                          />
-                        </DialogContent>
-                      </Dialog>
+                      <div className="flex gap-2">
+                        <Dialog open={editingPartner?.id === affiliate.id} onOpenChange={(open) => !open && setEditingPartner(null)}>
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => setEditingPartner(affiliate)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[600px]">
+                            <DialogHeader>
+                              <DialogTitle>Edit Partner</DialogTitle>
+                            </DialogHeader>
+                            <EditAffiliateForm 
+                              partner={affiliate} 
+                              onSuccess={() => setEditingPartner(null)} 
+                            />
+                          </DialogContent>
+                        </Dialog>
+                        <Dialog 
+                          open={addingEarningsForPartner?.id === affiliate.id} 
+                          onOpenChange={(open) => !open && setAddingEarningsForPartner(null)}
+                        >
+                          <DialogTrigger asChild>
+                            <Button 
+                              variant="ghost"
+                              size="sm"
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <DollarSign className="h-4 w-4 mr-1" />
+                              Add Earnings
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[600px]">
+                            <DialogHeader>
+                              <DialogTitle>Add Earnings for {affiliate.name}</DialogTitle>
+                            </DialogHeader>
+                            <AddEarningForm 
+                              partnerId={affiliate.id}
+                              partnerName={affiliate.name}
+                              onSuccess={() => setAddingEarningsForPartner(null)}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Earnings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoadingEarnings ? (
+            <div className="text-center py-4">Loading earnings...</div>
+          ) : earnings?.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              No earnings recorded yet. Click "Add Earnings" on a partner to get started.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Partner</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Notes</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {earnings?.map((earning) => (
+                  <TableRow key={earning.id}>
+                    <TableCell>{new Date(earning.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{earning.affiliate_partners?.name}</TableCell>
+                    <TableCell>${Number(earning.amount).toFixed(2)}</TableCell>
+                    <TableCell>{earning.notes || '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
