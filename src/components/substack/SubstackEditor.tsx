@@ -36,6 +36,7 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
       const { data, error } = await supabase
         .from("ai_prompts")
         .select("*")
+        .in('category', ['general_prompt', 'character_profile', 'company_info'])
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -140,7 +141,7 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
                   <SelectContent>
                     {prompts?.map((prompt) => (
                       <SelectItem key={prompt.id} value={prompt.id}>
-                        {prompt.title}
+                        {prompt.title} ({prompt.category === 'general_prompt' ? 'AI Prompt' : 'AI Persona'})
                       </SelectItem>
                     ))}
                   </SelectContent>

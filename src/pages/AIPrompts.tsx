@@ -1,6 +1,7 @@
 import { CharacterProfileSection } from "@/components/ai-prompts/CharacterProfileSection";
 import { CompanyInfoSection } from "@/components/ai-prompts/CompanyInfoSection";
 import { WordsToAvoidSection } from "@/components/ai-prompts/WordsToAvoidSection";
+import { GeneralPromptsSection } from "@/components/ai-prompts/GeneralPromptsSection";
 
 const AIPrompts = () => {
   return (
@@ -14,6 +15,7 @@ const AIPrompts = () => {
         <CharacterProfileSection />
         <CompanyInfoSection />
         <WordsToAvoidSection />
+        <GeneralPromptsSection />
       </div>
     </div>
   );
