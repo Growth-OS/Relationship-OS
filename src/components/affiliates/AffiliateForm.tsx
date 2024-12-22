@@ -41,6 +41,13 @@ export function AffiliateForm({ onSuccess }: { onSuccess?: () => void }) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to add a partner");
+        return;
+      }
+
       const { error } = await supabase.from('affiliate_partners').insert({
         name: values.name,
         program: values.program,
@@ -48,6 +55,7 @@ export function AffiliateForm({ onSuccess }: { onSuccess?: () => void }) {
         login_email: values.loginEmail,
         login_password: values.loginPassword,
         dashboard_url: values.dashboardUrl,
+        user_id: user.id
       });
 
       if (error) throw error;
