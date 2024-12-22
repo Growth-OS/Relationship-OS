@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
+import Affiliates from "./pages/Affiliates";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => (
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/affiliates" element={<Affiliates />} />
           </Routes>
         </Layout>
       </BrowserRouter>

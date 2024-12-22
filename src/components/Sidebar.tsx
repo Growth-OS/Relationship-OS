@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
     { icon: Edit, label: "Content", path: "/content" },
     { icon: ListTodo, label: "Tasks", path: "/tasks" },
     { icon: Lightbulb, label: "Ideas", path: "/ideas" },
+    { icon: Users, label: "Affiliates", path: "/affiliates" },
   ];
 
   return (
