@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,12 +15,30 @@ import {
 } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 
-export const CreatePromptForm = () => {
+interface CreatePromptFormProps {
+  promptToEdit?: {
+    id: string;
+    title: string;
+    system_prompt: string;
+    category: string;
+  } | null;
+  onCancelEdit?: () => void;
+}
+
+export const CreatePromptForm = ({ promptToEdit, onCancelEdit }: CreatePromptFormProps) => {
   const [title, setTitle] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [category, setCategory] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (promptToEdit) {
+      setTitle(promptToEdit.title);
+      setSystemPrompt(promptToEdit.system_prompt);
+      setCategory(promptToEdit.category || "");
+    }
+  }, [promptToEdit]);
 
   const createPromptMutation = useMutation({
     mutationFn: async () => {
@@ -28,32 +46,50 @@ export const CreatePromptForm = () => {
       
       if (!user) throw new Error("User not authenticated");
 
-      const { error } = await supabase.from("ai_prompts").insert({
+      const promptData = {
         title,
         system_prompt: systemPrompt,
         category,
         user_id: user.id,
-      });
+      };
 
-      if (error) throw error;
+      if (promptToEdit) {
+        const { error } = await supabase
+          .from("ai_prompts")
+          .update(promptData)
+          .eq("id", promptToEdit.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("ai_prompts")
+          .insert([promptData]);
+
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
-      setTitle("");
-      setSystemPrompt("");
-      setCategory("");
+      if (!promptToEdit) {
+        setTitle("");
+        setSystemPrompt("");
+        setCategory("");
+      }
       toast({
         title: "Success",
-        description: "Prompt created successfully",
+        description: `Prompt ${promptToEdit ? "updated" : "created"} successfully`,
       });
+      if (promptToEdit && onCancelEdit) {
+        onCancelEdit();
+      }
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to create prompt",
+        description: "Failed to save prompt",
         variant: "destructive",
       });
-      console.error("Error creating prompt:", error);
+      console.error("Error saving prompt:", error);
     },
   });
 
@@ -66,9 +102,9 @@ export const CreatePromptForm = () => {
     <form onSubmit={handleSubmit} className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Prompt</CardTitle>
+          <CardTitle>{promptToEdit ? "Edit" : "Create New"} Prompt</CardTitle>
           <CardDescription>
-            Add a new AI prompt template for generating content
+            {promptToEdit ? "Update" : "Add a new"} AI prompt template for generating content
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -97,15 +133,31 @@ export const CreatePromptForm = () => {
             />
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex gap-2">
           <Button
             type="submit"
             disabled={createPromptMutation.isPending}
-            className="w-full"
+            className="flex-1"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            {createPromptMutation.isPending ? "Creating..." : "Create Prompt"}
+            {createPromptMutation.isPending ? (
+              promptToEdit ? "Updating..." : "Creating..."
+            ) : (
+              <>
+                {promptToEdit ? <Save className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                {promptToEdit ? "Update" : "Create"} Prompt
+              </>
+            )}
           </Button>
+          {promptToEdit && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancelEdit}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </form>

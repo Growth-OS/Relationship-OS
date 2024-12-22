@@ -1,25 +1,25 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash } from "lucide-react";
+import { AIPrompt } from "@/components/ai-prompts/types";
 import { Button } from "@/components/ui/button";
+import { Edit2, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
-
-type Prompt = Tables<"ai_prompts">;
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface PromptsListProps {
-  prompts: Prompt[] | undefined;
+  prompts?: AIPrompt[];
   isLoading: boolean;
+  onEditPrompt: (prompt: AIPrompt) => void;
 }
 
-export const PromptsList = ({ prompts, isLoading }: PromptsListProps) => {
+export const PromptsList = ({ prompts, isLoading, onEditPrompt }: PromptsListProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -50,36 +50,55 @@ export const PromptsList = ({ prompts, isLoading }: PromptsListProps) => {
   });
 
   if (isLoading) {
-    return <p>Loading prompts...</p>;
+    return <div>Loading prompts...</div>;
+  }
+
+  if (!prompts?.length) {
+    return <div>No prompts found</div>;
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {prompts?.map((prompt) => (
-        <Card key={prompt.id}>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">{prompt.title}</CardTitle>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => deletePromptMutation.mutate(prompt.id)}
-                disabled={deletePromptMutation.isPending}
-              >
-                <Trash className="w-4 h-4 text-destructive" />
-              </Button>
-            </div>
-            {prompt.category && (
-              <CardDescription>{prompt.category}</CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-              {prompt.system_prompt}
-            </p>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>System Prompt</TableHead>
+            <TableHead className="w-[100px]">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {prompts.map((prompt) => (
+            <TableRow key={prompt.id}>
+              <TableCell className="font-medium">{prompt.title}</TableCell>
+              <TableCell>{prompt.category || "-"}</TableCell>
+              <TableCell className="max-w-[400px] truncate">
+                {prompt.system_prompt}
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEditPrompt(prompt)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => deletePromptMutation.mutate(prompt.id)}
+                    disabled={deletePromptMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
