@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -6,9 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { usePromptForm } from "./hooks/usePromptForm";
+import { usePromptQuery } from "./hooks/usePromptQuery";
 
 interface CharacterProfileForm {
   name: string;
@@ -19,26 +18,10 @@ interface CharacterProfileForm {
 }
 
 export const CharacterProfileSection = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const form = useForm<CharacterProfileForm>();
+  const { handleSubmit: handlePromptSubmit } = usePromptForm();
+  const { data: existingProfile } = usePromptQuery("character_profile");
 
-  // Fetch existing character profile
-  const { data: existingProfile } = useQuery({
-    queryKey: ["aiPrompts", "character_profile"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ai_prompts")
-        .select("*")
-        .eq("category", "character_profile")
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
-  });
-
-  // Set form values when existing profile is loaded
   useEffect(() => {
     if (existingProfile) {
       const systemPrompt = existingProfile.system_prompt;
@@ -54,45 +37,20 @@ export const CharacterProfileSection = () => {
   }, [existingProfile, form]);
 
   const onSubmit = async (data: CharacterProfileForm) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error("No authenticated user found");
-
-      const promptData = {
-        title: `Character Profile: ${data.name}`,
-        system_prompt: `You are ${data.name}, with the following characteristics:
+    const promptData = {
+      title: `Character Profile: ${data.name}`,
+      system_prompt: `You are ${data.name}, with the following characteristics:
 Background: ${data.background}
 Personality: ${data.personality}
 Tone of Voice: ${data.tone}
 Areas of Expertise: ${data.expertise}
 
 Please respond to all prompts in character, maintaining this persona consistently.`,
-        category: "character_profile",
-        user_id: user.id,
-      };
+      category: "character_profile",
+      user_id: "", // Will be set in handlePromptSubmit
+    };
 
-      const { error } = existingProfile 
-        ? await supabase.from("ai_prompts").update(promptData).eq("id", existingProfile.id)
-        : await supabase.from("ai_prompts").insert(promptData);
-
-      if (error) throw error;
-
-      // Invalidate and refetch to update the UI
-      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
-
-      toast({
-        title: "Success",
-        description: `Character profile ${existingProfile ? 'updated' : 'created'} successfully`,
-      });
-    } catch (error) {
-      console.error("Error saving character profile:", error);
-      toast({
-        title: "Error",
-        description: `Failed to ${existingProfile ? 'update' : 'create'} character profile`,
-        variant: "destructive",
-      });
-    }
+    await handlePromptSubmit(promptData, existingProfile?.id);
   };
 
   return (

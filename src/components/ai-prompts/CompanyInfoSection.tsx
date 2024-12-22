@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -6,9 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { Building } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { usePromptForm } from "./hooks/usePromptForm";
+import { usePromptQuery } from "./hooks/usePromptQuery";
 
 interface CompanyInfoForm {
   name: string;
@@ -19,26 +18,10 @@ interface CompanyInfoForm {
 }
 
 export const CompanyInfoSection = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const form = useForm<CompanyInfoForm>();
+  const { handleSubmit: handlePromptSubmit } = usePromptForm();
+  const { data: existingInfo } = usePromptQuery("company_info");
 
-  // Fetch existing company info
-  const { data: existingInfo } = useQuery({
-    queryKey: ["aiPrompts", "company_info"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ai_prompts")
-        .select("*")
-        .eq("category", "company_info")
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
-  });
-
-  // Set form values when existing info is loaded
   useEffect(() => {
     if (existingInfo) {
       const systemPrompt = existingInfo.system_prompt;
@@ -54,45 +37,20 @@ export const CompanyInfoSection = () => {
   }, [existingInfo, form]);
 
   const onSubmit = async (data: CompanyInfoForm) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error("No authenticated user found");
-
-      const promptData = {
-        title: `Company Info: ${data.name}`,
-        system_prompt: `You represent ${data.name}, with the following characteristics:
+    const promptData = {
+      title: `Company Info: ${data.name}`,
+      system_prompt: `You represent ${data.name}, with the following characteristics:
 Company Description: ${data.description}
 Company Values: ${data.values}
 Tone of Voice: ${data.tone}
 Industry: ${data.industry}
 
 Please ensure all responses align with this company profile and maintain consistent branding.`,
-        category: "company_info",
-        user_id: user.id,
-      };
+      category: "company_info",
+      user_id: "", // Will be set in handlePromptSubmit
+    };
 
-      const { error } = existingInfo
-        ? await supabase.from("ai_prompts").update(promptData).eq("id", existingInfo.id)
-        : await supabase.from("ai_prompts").insert(promptData);
-
-      if (error) throw error;
-
-      // Invalidate and refetch to update the UI
-      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
-
-      toast({
-        title: "Success",
-        description: `Company information ${existingInfo ? 'updated' : 'created'} successfully`,
-      });
-    } catch (error) {
-      console.error("Error saving company info:", error);
-      toast({
-        title: "Error",
-        description: `Failed to ${existingInfo ? 'update' : 'create'} company information`,
-        variant: "destructive",
-      });
-    }
+    await handlePromptSubmit(promptData, existingInfo?.id);
   };
 
   return (

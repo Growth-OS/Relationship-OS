@@ -1,13 +1,12 @@
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { Ban } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { usePromptForm } from "./hooks/usePromptForm";
+import { usePromptQuery } from "./hooks/usePromptQuery";
 
 interface WordsToAvoidForm {
   words: string;
@@ -15,26 +14,10 @@ interface WordsToAvoidForm {
 }
 
 export const WordsToAvoidSection = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
   const form = useForm<WordsToAvoidForm>();
+  const { handleSubmit: handlePromptSubmit } = usePromptForm();
+  const { data: existingWords } = usePromptQuery("words_to_avoid");
 
-  // Fetch existing words to avoid
-  const { data: existingWords } = useQuery({
-    queryKey: ["aiPrompts", "words_to_avoid"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ai_prompts")
-        .select("*")
-        .eq("category", "words_to_avoid")
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
-    },
-  });
-
-  // Set form values when existing words are loaded
   useEffect(() => {
     if (existingWords) {
       const systemPrompt = existingWords.system_prompt;
@@ -49,14 +32,9 @@ export const WordsToAvoidSection = () => {
   }, [existingWords, form]);
 
   const onSubmit = async (data: WordsToAvoidForm) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) throw new Error("No authenticated user found");
-
-      const promptData = {
-        title: "Words to Avoid List",
-        system_prompt: `Please avoid using the following words and phrases in your responses:
+    const promptData = {
+      title: "Words to Avoid List",
+      system_prompt: `Please avoid using the following words and phrases in your responses:
 
 Words/Phrases to Avoid:
 ${data.words}
@@ -65,31 +43,11 @@ Reason for Avoidance:
 ${data.reason}
 
 Please ensure all responses exclude these words and phrases, finding appropriate alternatives when needed.`,
-        category: "words_to_avoid",
-        user_id: user.id,
-      };
+      category: "words_to_avoid",
+      user_id: "", // Will be set in handlePromptSubmit
+    };
 
-      const { error } = existingWords
-        ? await supabase.from("ai_prompts").update(promptData).eq("id", existingWords.id)
-        : await supabase.from("ai_prompts").insert(promptData);
-
-      if (error) throw error;
-
-      // Invalidate and refetch to update the UI
-      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
-
-      toast({
-        title: "Success",
-        description: `Words to avoid list ${existingWords ? 'updated' : 'created'} successfully`,
-      });
-    } catch (error) {
-      console.error("Error saving words to avoid list:", error);
-      toast({
-        title: "Error",
-        description: `Failed to ${existingWords ? 'update' : 'create'} words to avoid list`,
-        variant: "destructive",
-      });
-    }
+    await handlePromptSubmit(promptData, existingWords?.id);
   };
 
   return (
