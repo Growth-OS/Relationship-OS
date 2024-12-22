@@ -1,4 +1,5 @@
 import { RouteObject } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import Dashboard from "@/pages/Dashboard";
