@@ -1,4 +1,6 @@
-import { AIPromptManager } from "@/components/substack/AIPromptManager";
+import { CharacterProfileSection } from "@/components/ai-prompts/CharacterProfileSection";
+import { CompanyInfoSection } from "@/components/ai-prompts/CompanyInfoSection";
+import { WordsToAvoidSection } from "@/components/ai-prompts/WordsToAvoidSection";
 
 const AIPrompts = () => {
   return (
@@ -8,7 +10,11 @@ const AIPrompts = () => {
         <p className="text-gray-600">Manage your AI prompt templates</p>
       </div>
       
-      <AIPromptManager />
+      <div className="grid gap-8">
+        <CharacterProfileSection />
+        <CompanyInfoSection />
+        <WordsToAvoidSection />
+      </div>
     </div>
   );
 };

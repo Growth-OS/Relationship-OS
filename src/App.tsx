@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Affiliates from "./pages/Affiliates";
 import Reporting from "./pages/Reporting";
 import Substack from "./pages/Substack";
+import AIPrompts from "./pages/AIPrompts";
 import Login from "./pages/Login";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/affiliates" element={<Affiliates />} />
             <Route path="/reporting" element={<Reporting />} />
             <Route path="/substack" element={<Substack />} />
+            <Route path="/ai-prompts" element={<AIPrompts />} />
           </Route>
         </Routes>
         <Toaster />
