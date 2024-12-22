@@ -9,7 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      affiliate_partners: {
+        Row: {
+          commission_rate: string | null
+          created_at: string
+          dashboard_url: string | null
+          id: string
+          login_email: string | null
+          login_password: string | null
+          name: string
+          program: string
+          user_id: string
+        }
+        Insert: {
+          commission_rate?: string | null
+          created_at?: string
+          dashboard_url?: string | null
+          id?: string
+          login_email?: string | null
+          login_password?: string | null
+          name: string
+          program: string
+          user_id: string
+        }
+        Update: {
+          commission_rate?: string | null
+          created_at?: string
+          dashboard_url?: string | null
+          id?: string
+          login_email?: string | null
+          login_password?: string | null
+          name?: string
+          program?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

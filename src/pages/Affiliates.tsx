@@ -4,34 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, DollarSign, Users, Percent, TrendingUp } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 const Affiliates = () => {
-  const affiliates = [
-    {
-      name: "PartnerStack",
-      contact: "John Doe",
-      manager: "Sarah Smith",
-      program: "Growth Pro",
-      commissionRate: "30%",
-      status: "Active",
-      earnings: "$1,500",
-    },
-    {
-      name: "Impact",
-      contact: "Jane Wilson",
-      manager: "Mike Johnson",
-      program: "Impact Elite",
-      commissionRate: "25%",
-      status: "Active",
-      earnings: "$2,300",
-    },
-  ];
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const { data: affiliates, isLoading } = useQuery({
+    queryKey: ['affiliatePartners'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('affiliate_partners')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
 
   const stats = [
     {
       title: "Total Partners",
-      value: "12",
-      trend: "+2 this month",
+      value: affiliates?.length ?? "0",
+      trend: "Active partners",
       icon: Users,
       color: "text-blue-500",
     },
@@ -65,7 +62,7 @@ const Affiliates = () => {
           <h1 className="text-3xl font-bold text-primary mb-2">Affiliate Partners</h1>
           <p className="text-gray-600">Manage your affiliate relationships and track performance</p>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-secondary hover:bg-secondary/90">
               <Plus className="w-4 h-4 mr-2" />
@@ -76,7 +73,7 @@ const Affiliates = () => {
             <DialogHeader>
               <DialogTitle>Add New Partner</DialogTitle>
             </DialogHeader>
-            <AffiliateForm />
+            <AffiliateForm onSuccess={() => setIsDialogOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>
@@ -108,34 +105,47 @@ const Affiliates = () => {
           <CardTitle>Partner Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Partner</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Program</TableHead>
-                <TableHead>Commission</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Earnings</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {affiliates.map((affiliate, index) => (
-                <TableRow key={index} className="cursor-pointer hover:bg-gray-50">
-                  <TableCell className="font-medium">{affiliate.name}</TableCell>
-                  <TableCell>{affiliate.contact}</TableCell>
-                  <TableCell>{affiliate.program}</TableCell>
-                  <TableCell>{affiliate.commissionRate}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      {affiliate.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">{affiliate.earnings}</TableCell>
+          {isLoading ? (
+            <div className="text-center py-4">Loading partners...</div>
+          ) : affiliates?.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              No partners added yet. Click the "Add Partner" button to get started.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Partner</TableHead>
+                  <TableHead>Program</TableHead>
+                  <TableHead>Commission</TableHead>
+                  <TableHead>Login Email</TableHead>
+                  <TableHead>Dashboard</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {affiliates?.map((affiliate) => (
+                  <TableRow key={affiliate.id} className="cursor-pointer hover:bg-gray-50">
+                    <TableCell className="font-medium">{affiliate.name}</TableCell>
+                    <TableCell>{affiliate.program}</TableCell>
+                    <TableCell>{affiliate.commission_rate}</TableCell>
+                    <TableCell>{affiliate.login_email}</TableCell>
+                    <TableCell>
+                      {affiliate.dashboard_url && (
+                        <a 
+                          href={affiliate.dashboard_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          Open Dashboard
+                        </a>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

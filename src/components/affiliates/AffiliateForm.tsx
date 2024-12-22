@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,7 +24,9 @@ const formSchema = z.object({
   dashboardUrl: z.string().url("Invalid URL format"),
 });
 
-export function AffiliateForm() {
+export function AffiliateForm({ onSuccess }: { onSuccess?: () => void }) {
+  const queryClient = useQueryClient();
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,9 +39,27 @@ export function AffiliateForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    toast.success("Partner added successfully");
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const { error } = await supabase.from('affiliate_partners').insert({
+        name: values.name,
+        program: values.program,
+        commission_rate: values.commissionRate,
+        login_email: values.loginEmail,
+        login_password: values.loginPassword,
+        dashboard_url: values.dashboardUrl,
+      });
+
+      if (error) throw error;
+
+      toast.success("Partner added successfully");
+      queryClient.invalidateQueries({ queryKey: ['affiliatePartners'] });
+      form.reset();
+      onSuccess?.();
+    } catch (error) {
+      console.error('Error adding partner:', error);
+      toast.error("Failed to add partner");
+    }
   }
 
   return (
