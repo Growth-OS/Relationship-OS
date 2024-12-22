@@ -2,11 +2,29 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+const descriptions = [
+  "Growth OS is your all-in-one content creation platform",
+  "Growth OS is your personal growth assistant",
+  "Growth OS is your content management system",
+  "Growth OS is your affiliate program tracker",
+  "Growth OS is your AI-powered writing companion",
+  "Growth OS is your business growth toolkit",
+];
 
 const Login = () => {
   const navigate = useNavigate();
+  const [currentDescription, setCurrentDescription] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDescription((prev) => (prev + 1) % descriptions.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
@@ -25,31 +43,17 @@ const Login = () => {
             <h1 className="text-4xl font-bold leading-tight">
               Welcome to Growth OS
             </h1>
-            <p className="text-xl">
-              Your all-in-one platform for <span className="text-cyan-400">content creation</span> and <span className="text-cyan-400">growth management</span>
-            </p>
+            
+            <div className="h-16"> {/* Fixed height container for smooth transitions */}
+              <p className="text-2xl font-medium transition-all duration-500 ease-in-out">
+                {descriptions[currentDescription]}
+              </p>
+            </div>
+
             <div className="prose prose-invert">
               <p className="text-gray-300">
-                Growth OS helps you streamline your content creation process, manage affiliate partnerships, and track your growth metrics all in one place. From ideation to publication, we've got you covered.
+                Streamline your content creation, manage your growth, and scale your business with our integrated platform.
               </p>
-              <h3>Key Features:</h3>
-              <ul className="text-gray-300">
-                <li>Integrated content calendar and management</li>
-                <li>AI-powered content generation</li>
-                <li>Affiliate program tracking</li>
-                <li>Performance analytics and reporting</li>
-                <li>Task management system</li>
-              </ul>
-              <div className="mt-8">
-                <p className="text-gray-300">
-                  Join creators and businesses who use Growth OS to scale their content operations and drive sustainable growth.
-                </p>
-              </div>
-              <div className="mt-auto pt-8">
-                <p className="text-sm text-gray-400">
-                  Powered by Growth OS - Your Growth Partner
-                </p>
-              </div>
             </div>
           </div>
         </ScrollArea>
