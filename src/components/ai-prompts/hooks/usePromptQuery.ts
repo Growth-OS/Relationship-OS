@@ -10,9 +10,11 @@ export const usePromptQuery = (category: string) => {
         .from("ai_prompts")
         .select("*")
         .eq("category", category)
-        .single();
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as AIPrompt | null;
     },
   });
