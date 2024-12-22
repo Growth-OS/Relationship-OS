@@ -8,9 +8,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+
+const statusConfig = {
+  idea: { label: "Idea", variant: "secondary" },
+  draft: { label: "Draft", variant: "default" },
+  scheduled: { label: "Scheduled", variant: "warning" },
+  live: { label: "Live", variant: "success" },
+} as const;
+
+type PostStatus = keyof typeof statusConfig;
 
 export const SubstackTable = () => {
   const { toast } = useToast();
@@ -29,18 +44,18 @@ export const SubstackTable = () => {
     },
   });
 
-  const togglePublishStatus = async (postId: string, currentStatus: boolean) => {
+  const updatePostStatus = async (postId: string, newStatus: PostStatus) => {
     try {
       const { error } = await supabase
         .from("substack_posts")
-        .update({ is_published: !currentStatus })
+        .update({ status: newStatus })
         .eq("id", postId);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Post ${!currentStatus ? "published" : "unpublished"} successfully`,
+        description: `Post status updated to ${statusConfig[newStatus].label}`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
@@ -74,13 +89,26 @@ export const SubstackTable = () => {
               <TableCell>{post.title}</TableCell>
               <TableCell>{format(new Date(post.publish_date), "PPP")}</TableCell>
               <TableCell>
-                <Badge 
-                  variant={post.is_published ? "default" : "secondary"}
-                  className="cursor-pointer hover:opacity-80"
-                  onClick={() => togglePublishStatus(post.id, post.is_published)}
-                >
-                  {post.is_published ? "Published" : "Draft"}
-                </Badge>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Badge 
+                      variant={statusConfig[post.status as PostStatus].variant as any}
+                      className="cursor-pointer hover:opacity-80"
+                    >
+                      {statusConfig[post.status as PostStatus].label}
+                    </Badge>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {Object.entries(statusConfig).map(([status, { label }]) => (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => updatePostStatus(post.id, status as PostStatus)}
+                      >
+                        {label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
