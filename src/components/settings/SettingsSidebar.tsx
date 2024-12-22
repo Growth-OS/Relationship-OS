@@ -1,21 +1,24 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { Wand2, User, Settings2, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export const SettingsSidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-      });
-    } else {
-      navigate("/login");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Logout error:", error);
+        toast.error("Failed to log out. Please try again.");
+      } else {
+        toast.success("Successfully logged out");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 
