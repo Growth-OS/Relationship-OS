@@ -17,6 +17,9 @@ serve(async (req) => {
   try {
     const { prompt, title } = await req.json();
 
+    console.log('Starting content generation for:', title);
+    console.log('Using prompt:', prompt);
+
     // Construct a detailed prompt for the AI
     const systemPrompt = `You are a professional content writer creating a blog post. 
     Write engaging, well-structured content that maintains a conversational yet professional tone.
@@ -31,9 +34,6 @@ serve(async (req) => {
     3. Informative and valuable to readers
     4. Around 800-1000 words`;
 
-    console.log('Generating content for:', title);
-    console.log('Additional context:', prompt);
-
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -41,17 +41,29 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
+        temperature: 0.7,
+        max_tokens: 2000,
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to generate content');
+    }
+
     const data = await response.json();
-    console.log('Generation completed');
+    console.log('Generation completed successfully');
     
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response format from OpenAI');
+    }
+
     const generatedText = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ generatedText }), {
@@ -59,7 +71,9 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error in generate-content function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message || 'An unexpected error occurred'
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
