@@ -53,21 +53,21 @@ const Login = () => {
   return (
     <div className="flex min-h-screen">
       {/* Left side with scrollable content */}
-      <div className="hidden lg:flex w-1/2 bg-[#0D2C3B] text-white p-12">
-        <ScrollArea className="h-full w-full pr-4">
-          <div className="space-y-8">
-            <h1 className="text-4xl font-bold leading-tight">
+      <div className="hidden lg:flex w-1/2 bg-[#0D2C3B] text-white">
+        <ScrollArea className="h-full w-full">
+          <div className="flex flex-col justify-center items-center min-h-screen p-12 text-center">
+            <h1 className="text-4xl font-bold leading-tight mb-8">
               Welcome to Growth OS
             </h1>
             
-            <div className="h-16 flex items-center"> {/* Container for typing effect */}
+            <div className="h-16 flex items-center justify-center w-full">
               <p className="text-2xl font-medium">
                 {currentText}
-                <span className="animate-pulse">|</span> {/* Blinking cursor */}
+                <span className="animate-pulse">|</span>
               </p>
             </div>
 
-            <div className="prose prose-invert">
+            <div className="prose prose-invert mt-8 max-w-xl mx-auto">
               <p className="text-gray-300">
                 Streamline your content creation, manage your growth, and scale your business with our integrated platform.
               </p>
