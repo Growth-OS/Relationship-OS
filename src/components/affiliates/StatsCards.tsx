@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Percent } from "lucide-react";
+import { EuroIcon, Users, Percent } from "lucide-react";
 
 type StatCardProps = {
   totalPartners: number;
@@ -18,9 +18,9 @@ export const StatsCards = ({ totalPartners, monthlyEarnings, avgCommission }: St
     },
     {
       title: "Monthly Earnings",
-      value: `$${monthlyEarnings.toFixed(2)}`,
+      value: `€${monthlyEarnings.toFixed(2)}`,
       trend: "Current month",
-      icon: DollarSign,
+      icon: EuroIcon,
       color: "text-purple-500",
     },
     {

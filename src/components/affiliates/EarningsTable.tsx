@@ -1,7 +1,7 @@
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { DollarSign } from "lucide-react";
+import { EuroIcon } from "lucide-react";
 import { AddEarningForm } from "./AddEarningForm";
 import { useState } from "react";
 
@@ -34,7 +34,7 @@ export const EarningsTable = ({ earnings, isLoading }: EarningsTableProps) => {
         <Dialog open={isAddEarningOpen} onOpenChange={setIsAddEarningOpen}>
           <DialogTrigger asChild>
             <Button>
-              <DollarSign className="w-4 h-4 mr-2" />
+              <EuroIcon className="w-4 h-4 mr-2" />
               Add Earnings
             </Button>
           </DialogTrigger>
@@ -68,7 +68,7 @@ export const EarningsTable = ({ earnings, isLoading }: EarningsTableProps) => {
               <TableRow key={earning.id}>
                 <TableCell>{new Date(earning.date).toLocaleDateString()}</TableCell>
                 <TableCell>{earning.affiliate_partners?.name}</TableCell>
-                <TableCell>${Number(earning.amount).toFixed(2)}</TableCell>
+                <TableCell>€{Number(earning.amount).toFixed(2)}</TableCell>
                 <TableCell>{earning.notes || '-'}</TableCell>
               </TableRow>
             ))}
