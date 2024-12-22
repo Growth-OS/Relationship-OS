@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -12,6 +12,7 @@ const Sidebar = () => {
     { icon: Lightbulb, label: "Ideas", path: "/ideas" },
     { icon: Users, label: "Affiliates", path: "/affiliates" },
     { icon: ChartBar, label: "Reporting", path: "/reporting" },
+    { icon: BookOpen, label: "Substack", path: "/substack" },
   ];
 
   return (
