@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +8,6 @@ import { Ban } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 interface WordsToAvoidForm {
   words: string;
@@ -75,12 +75,13 @@ Please ensure all responses exclude these words and phrases, finding appropriate
 
       if (error) throw error;
 
+      // Invalidate and refetch to update the UI
+      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+
       toast({
         title: "Success",
         description: `Words to avoid list ${existingWords ? 'updated' : 'created'} successfully`,
       });
-
-      queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
     } catch (error) {
       console.error("Error saving words to avoid list:", error);
       toast({

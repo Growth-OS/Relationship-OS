@@ -78,12 +78,13 @@ Please respond to all prompts in character, maintaining this persona consistentl
 
       if (error) throw error;
 
+      // Invalidate and refetch to update the UI
+      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+
       toast({
         title: "Success",
         description: `Character profile ${existingProfile ? 'updated' : 'created'} successfully`,
       });
-
-      queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
     } catch (error) {
       console.error("Error saving character profile:", error);
       toast({

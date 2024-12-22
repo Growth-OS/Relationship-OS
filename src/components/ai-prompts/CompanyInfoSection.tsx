@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,6 @@ import { Building } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 
 interface CompanyInfoForm {
   name: string;
@@ -78,12 +78,13 @@ Please ensure all responses align with this company profile and maintain consist
 
       if (error) throw error;
 
+      // Invalidate and refetch to update the UI
+      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+
       toast({
         title: "Success",
         description: `Company information ${existingInfo ? 'updated' : 'created'} successfully`,
       });
-
-      queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
     } catch (error) {
       console.error("Error saving company info:", error);
       toast({
