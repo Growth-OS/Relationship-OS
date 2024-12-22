@@ -2,7 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const descriptions = [
@@ -16,15 +16,31 @@ const descriptions = [
 
 const Login = () => {
   const navigate = useNavigate();
-  const [currentDescription, setCurrentDescription] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(true);
+
+  const typeText = useCallback(() => {
+    const targetText = descriptions[currentIndex];
+    
+    if (isTyping) {
+      if (currentText.length < targetText.length) {
+        setCurrentText(targetText.slice(0, currentText.length + 1));
+      } else {
+        setIsTyping(false);
+        setTimeout(() => {
+          setIsTyping(true);
+          setCurrentText("");
+          setCurrentIndex((prev) => (prev + 1) % descriptions.length);
+        }, 2000); // Pause at the end of the text
+      }
+    }
+  }, [currentText, currentIndex, isTyping]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentDescription((prev) => (prev + 1) % descriptions.length);
-    }, 3000);
-
+    const interval = setInterval(typeText, 50); // Adjust typing speed here
     return () => clearInterval(interval);
-  }, []);
+  }, [typeText]);
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
@@ -44,9 +60,10 @@ const Login = () => {
               Welcome to Growth OS
             </h1>
             
-            <div className="h-16"> {/* Fixed height container for smooth transitions */}
-              <p className="text-2xl font-medium transition-all duration-500 ease-in-out">
-                {descriptions[currentDescription]}
+            <div className="h-16 flex items-center"> {/* Container for typing effect */}
+              <p className="text-2xl font-medium">
+                {currentText}
+                <span className="animate-pulse">|</span> {/* Blinking cursor */}
               </p>
             </div>
 
