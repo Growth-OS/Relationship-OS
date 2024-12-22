@@ -4,10 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { usePromptForm } from "./hooks/usePromptForm";
 import { usePromptQuery } from "./hooks/usePromptQuery";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface GeneralPromptForm {
   title: string;
@@ -17,16 +28,50 @@ interface GeneralPromptForm {
 export const GeneralPromptsSection = () => {
   const form = useForm<GeneralPromptForm>();
   const { handleSubmit: handlePromptSubmit } = usePromptForm();
-  const { data: existingPrompt } = usePromptQuery("general_prompt");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (existingPrompt) {
-      form.reset({
-        title: existingPrompt.title,
-        prompt: existingPrompt.system_prompt,
+  // Query to fetch all general prompts
+  const { data: prompts } = useQuery({
+    queryKey: ["aiPrompts", "general_prompt"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_prompts")
+        .select("*")
+        .eq("category", "general_prompt")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Delete mutation
+  const deletePromptMutation = useMutation({
+    mutationFn: async (promptId: string) => {
+      const { error } = await supabase
+        .from("ai_prompts")
+        .delete()
+        .eq("id", promptId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+      toast({
+        title: "Success",
+        description: "Prompt deleted successfully",
       });
-    }
-  }, [existingPrompt, form]);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete prompt",
+        variant: "destructive",
+      });
+      console.error("Error deleting prompt:", error);
+    },
+  });
 
   const onSubmit = async (data: GeneralPromptForm) => {
     const promptData = {
@@ -36,7 +81,8 @@ export const GeneralPromptsSection = () => {
       user_id: "", // Will be set in handlePromptSubmit
     };
 
-    await handlePromptSubmit(promptData, existingPrompt?.id);
+    await handlePromptSubmit(promptData);
+    form.reset(); // Clear the form after successful submission
   };
 
   return (
@@ -47,7 +93,7 @@ export const GeneralPromptsSection = () => {
           <CardTitle>AI Prompts</CardTitle>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -79,10 +125,42 @@ export const GeneralPromptsSection = () => {
               )}
             />
             <Button type="submit">
-              {existingPrompt ? 'Update' : 'Create'} Prompt
+              Create Prompt
             </Button>
           </form>
         </Form>
+
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Prompt</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {prompts?.map((prompt) => (
+                <TableRow key={prompt.id}>
+                  <TableCell className="font-medium">{prompt.title}</TableCell>
+                  <TableCell className="max-w-[400px] truncate">
+                    {prompt.system_prompt}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deletePromptMutation.mutate(prompt.id)}
+                      disabled={deletePromptMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
