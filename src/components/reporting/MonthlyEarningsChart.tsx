@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 
 type Earning = {
@@ -42,7 +42,7 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={monthlyData}>
+        <LineChart data={monthlyData}>
           <XAxis 
             dataKey="month"
             tick={{ fill: '#666', fontSize: 12 }}
@@ -55,12 +55,14 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
             formatter={(value: number) => [`€${value.toFixed(2)}`, 'Earnings']}
             labelStyle={{ color: '#666' }}
           />
-          <Bar 
+          <Line 
+            type="monotone"
             dataKey="total" 
-            fill="var(--primary)" 
-            radius={[4, 4, 0, 0]}
+            stroke="var(--primary)"
+            strokeWidth={2}
+            dot={{ fill: 'var(--primary)', strokeWidth: 2 }}
           />
-        </BarChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
