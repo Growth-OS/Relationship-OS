@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface CharacterProfileForm {
   name: string;
@@ -22,13 +22,43 @@ export const CharacterProfileSection = () => {
   const queryClient = useQueryClient();
   const form = useForm<CharacterProfileForm>();
 
+  // Fetch existing character profile
+  const { data: existingProfile } = useQuery({
+    queryKey: ["aiPrompts", "character_profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_prompts")
+        .select("*")
+        .eq("category", "character_profile")
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+  });
+
+  // Set form values when existing profile is loaded
+  React.useEffect(() => {
+    if (existingProfile) {
+      const systemPrompt = existingProfile.system_prompt;
+      const matches = {
+        name: systemPrompt.match(/You are (.*?),/)?.[1] || "",
+        background: systemPrompt.match(/Background: (.*?)(?=\n|$)/)?.[1] || "",
+        personality: systemPrompt.match(/Personality: (.*?)(?=\n|$)/)?.[1] || "",
+        tone: systemPrompt.match(/Tone of Voice: (.*?)(?=\n|$)/)?.[1] || "",
+        expertise: systemPrompt.match(/Areas of Expertise: (.*?)(?=\n|$)/)?.[1] || "",
+      };
+      form.reset(matches);
+    }
+  }, [existingProfile, form]);
+
   const onSubmit = async (data: CharacterProfileForm) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) throw new Error("No authenticated user found");
 
-      const { error } = await supabase.from("ai_prompts").insert({
+      const promptData = {
         title: `Character Profile: ${data.name}`,
         system_prompt: `You are ${data.name}, with the following characteristics:
 Background: ${data.background}
@@ -39,22 +69,25 @@ Areas of Expertise: ${data.expertise}
 Please respond to all prompts in character, maintaining this persona consistently.`,
         category: "character_profile",
         user_id: user.id,
-      });
+      };
+
+      const { error } = existingProfile 
+        ? await supabase.from("ai_prompts").update(promptData).eq("id", existingProfile.id)
+        : await supabase.from("ai_prompts").insert(promptData);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Character profile created successfully",
+        description: `Character profile ${existingProfile ? 'updated' : 'created'} successfully`,
       });
 
-      form.reset();
       queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
     } catch (error) {
-      console.error("Error creating character profile:", error);
+      console.error("Error saving character profile:", error);
       toast({
         title: "Error",
-        description: "Failed to create character profile",
+        description: `Failed to ${existingProfile ? 'update' : 'create'} character profile`,
         variant: "destructive",
       });
     }
@@ -143,7 +176,9 @@ Please respond to all prompts in character, maintaining this persona consistentl
                 </FormItem>
               )}
             />
-            <Button type="submit">Create Character Profile</Button>
+            <Button type="submit">
+              {existingProfile ? 'Update' : 'Create'} Character Profile
+            </Button>
           </form>
         </Form>
       </CardContent>

@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 import { Building } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 interface CompanyInfoForm {
   name: string;
@@ -22,13 +23,43 @@ export const CompanyInfoSection = () => {
   const queryClient = useQueryClient();
   const form = useForm<CompanyInfoForm>();
 
+  // Fetch existing company info
+  const { data: existingInfo } = useQuery({
+    queryKey: ["aiPrompts", "company_info"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_prompts")
+        .select("*")
+        .eq("category", "company_info")
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    },
+  });
+
+  // Set form values when existing info is loaded
+  useEffect(() => {
+    if (existingInfo) {
+      const systemPrompt = existingInfo.system_prompt;
+      const matches = {
+        name: systemPrompt.match(/represent (.*?),/)?.[1] || "",
+        description: systemPrompt.match(/Company Description: (.*?)(?=\n|$)/)?.[1] || "",
+        values: systemPrompt.match(/Company Values: (.*?)(?=\n|$)/)?.[1] || "",
+        tone: systemPrompt.match(/Tone of Voice: (.*?)(?=\n|$)/)?.[1] || "",
+        industry: systemPrompt.match(/Industry: (.*?)(?=\n|$)/)?.[1] || "",
+      };
+      form.reset(matches);
+    }
+  }, [existingInfo, form]);
+
   const onSubmit = async (data: CompanyInfoForm) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) throw new Error("No authenticated user found");
 
-      const { error } = await supabase.from("ai_prompts").insert({
+      const promptData = {
         title: `Company Info: ${data.name}`,
         system_prompt: `You represent ${data.name}, with the following characteristics:
 Company Description: ${data.description}
@@ -39,22 +70,25 @@ Industry: ${data.industry}
 Please ensure all responses align with this company profile and maintain consistent branding.`,
         category: "company_info",
         user_id: user.id,
-      });
+      };
+
+      const { error } = existingInfo
+        ? await supabase.from("ai_prompts").update(promptData).eq("id", existingInfo.id)
+        : await supabase.from("ai_prompts").insert(promptData);
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Company information created successfully",
+        description: `Company information ${existingInfo ? 'updated' : 'created'} successfully`,
       });
 
-      form.reset();
       queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
     } catch (error) {
-      console.error("Error creating company info:", error);
+      console.error("Error saving company info:", error);
       toast({
         title: "Error",
-        description: "Failed to create company information",
+        description: `Failed to ${existingInfo ? 'update' : 'create'} company information`,
         variant: "destructive",
       });
     }
@@ -143,7 +177,9 @@ Please ensure all responses align with this company profile and maintain consist
                 </FormItem>
               )}
             />
-            <Button type="submit">Create Company Profile</Button>
+            <Button type="submit">
+              {existingInfo ? 'Update' : 'Create'} Company Profile
+            </Button>
           </form>
         </Form>
       </CardContent>
