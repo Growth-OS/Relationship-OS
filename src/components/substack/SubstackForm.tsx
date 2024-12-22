@@ -32,10 +32,18 @@ export const SubstackForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       const { error } = await supabase.from("substack_posts").insert({
         title: data.title,
         publish_date: format(data.publishDate, "yyyy-MM-dd"),
         is_published: false,
+        user_id: user.id
       });
 
       if (error) throw error;
