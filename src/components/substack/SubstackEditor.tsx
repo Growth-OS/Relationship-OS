@@ -3,7 +3,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Wand2 } from "lucide-react";
@@ -52,21 +51,28 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
   };
 
   const generateContent = async () => {
+    if (!title) {
+      toast({
+        title: "Error",
+        description: "Post title is required for content generation",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     try {
-      const response = await fetch("/api/generate-content", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        },
-        body: JSON.stringify({ prompt, title }),
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await supabase.functions.invoke('generate-content', {
+        body: { prompt, title },
       });
 
-      if (!response.ok) throw new Error("Failed to generate content");
-
-      const { generatedText } = await response.json();
-      setContent(generatedText);
+      if (response.error) throw new Error(response.error.message);
+      
+      const { data } = response;
+      if (data.error) throw new Error(data.error);
+      
+      setContent(data.generatedText);
       toast({
         title: "Success",
         description: "Content generated successfully",
@@ -75,7 +81,7 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
       console.error("Error generating content:", error);
       toast({
         title: "Error",
-        description: "Failed to generate content",
+        description: "Failed to generate content. Please try again.",
         variant: "destructive",
       });
     } finally {
