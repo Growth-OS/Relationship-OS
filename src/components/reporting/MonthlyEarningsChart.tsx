@@ -56,7 +56,7 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
             labelStyle={{ color: '#666' }}
           />
           <Line 
-            type="monotone"
+            type="natural"
             dataKey="total" 
             stroke="var(--primary)"
             strokeWidth={2}
