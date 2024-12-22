@@ -33,20 +33,36 @@ export const SubstackForm = () => {
     setIsLoading(true);
     try {
       // Get the current user's ID
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
+      if (userError) {
+        console.error("Auth error:", userError);
+        throw userError;
+      }
+
       if (!user) {
+        console.error("No authenticated user found");
         throw new Error("No authenticated user found");
       }
 
-      const { error } = await supabase.from("substack_posts").insert({
+      console.log("Attempting to insert post with data:", {
         title: data.title,
         publish_date: format(data.publishDate, "yyyy-MM-dd"),
-        is_published: false,
-        user_id: user.id
+        user_id: user.id,
+        status: 'draft'
       });
 
-      if (error) throw error;
+      const { error: insertError } = await supabase.from("substack_posts").insert({
+        title: data.title,
+        publish_date: format(data.publishDate, "yyyy-MM-dd"),
+        user_id: user.id,
+        status: 'draft'
+      });
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
 
       toast({
         title: "Success",
@@ -59,7 +75,7 @@ export const SubstackForm = () => {
       console.error("Error adding post:", error);
       toast({
         title: "Error",
-        description: "Failed to add post",
+        description: error instanceof Error ? error.message : "Failed to add post",
         variant: "destructive",
       });
     } finally {
@@ -125,7 +141,7 @@ export const SubstackForm = () => {
         />
 
         <Button type="submit" disabled={isLoading}>
-          Add Post
+          {isLoading ? "Adding..." : "Add Post"}
         </Button>
       </form>
     </Form>
