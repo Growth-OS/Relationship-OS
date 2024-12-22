@@ -11,19 +11,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   program: z.string().min(2, "Program name is required"),
-  platform: z.string(),
   commissionRate: z.string(),
   loginEmail: z.string().email("Invalid login email"),
   loginPassword: z.string().min(8, "Password must be at least 8 characters"),
@@ -36,7 +28,6 @@ export function AffiliateForm() {
     defaultValues: {
       name: "",
       program: "",
-      platform: "partnerstack",
       commissionRate: "",
       loginEmail: "",
       loginPassword: "",
@@ -76,30 +67,6 @@ export function AffiliateForm() {
                 <FormControl>
                   <Input placeholder="Program name" {...field} />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="platform"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Platform</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select platform" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="partnerstack">PartnerStack</SelectItem>
-                    <SelectItem value="impact">Impact</SelectItem>
-                    <SelectItem value="refersion">Refersion</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}
