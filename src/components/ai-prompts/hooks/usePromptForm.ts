@@ -1,64 +1,66 @@
+import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { BasePromptForm } from "../types";
 
 export const usePromptForm = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const handleSubmit = async (
-    promptData: BasePromptForm,
-    existingId?: string
-  ) => {
+  const handleSubmit = async (promptData: BasePromptForm & { user_id?: string }, existingId?: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user found");
+      setIsSubmitting(true);
+
+      // Get the current user
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        throw new Error("You must be logged in to perform this action");
+      }
 
       // Add user_id to the prompt data
-      const promptWithUser = {
+      const dataWithUser = {
         ...promptData,
         user_id: user.id,
       };
 
       let error;
       if (existingId) {
-        console.log("Updating prompt:", existingId, promptWithUser);
-        const { error: updateError } = await supabase
+        // Update existing prompt
+        ({ error } = await supabase
           .from("ai_prompts")
-          .update(promptWithUser)
-          .eq("id", existingId);
-        error = updateError;
+          .update(dataWithUser)
+          .eq("id", existingId));
       } else {
-        console.log("Creating new prompt:", promptWithUser);
-        const { error: insertError } = await supabase
+        // Create new prompt
+        ({ error } = await supabase
           .from("ai_prompts")
-          .insert(promptWithUser);
-        error = insertError;
+          .insert([dataWithUser]));
       }
 
-      if (error) {
-        console.error("Database operation error:", error);
-        throw error;
-      }
-
-      // Invalidate queries after successful operation
-      await queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: `Prompt ${existingId ? 'updated' : 'created'} successfully`,
+        description: `Prompt ${existingId ? "updated" : "created"} successfully`,
       });
+
+      return true;
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      console.error("Error submitting prompt:", error);
       toast({
         title: "Error",
-        description: `Failed to ${existingId ? 'update' : 'create'} prompt. ${error instanceof Error ? error.message : 'Please try again.'}`,
+        description: error instanceof Error ? error.message : "Failed to submit prompt",
         variant: "destructive",
       });
-      throw error; // Re-throw to let the component handle the error state
+      return false;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  return { handleSubmit };
+  return {
+    handleSubmit,
+    isSubmitting,
+  };
 };

@@ -7,3 +7,9 @@ export interface AIPrompt {
   category: string;
   is_active: boolean | null;
 }
+
+export interface BasePromptForm {
+  title: string;
+  system_prompt: string;
+  category: string;
+}
