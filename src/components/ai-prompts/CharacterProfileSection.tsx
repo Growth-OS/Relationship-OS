@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,7 @@ export const CharacterProfileSection = () => {
   });
 
   // Set form values when existing profile is loaded
-  React.useEffect(() => {
+  useEffect(() => {
     if (existingProfile) {
       const systemPrompt = existingProfile.system_prompt;
       const matches = {
