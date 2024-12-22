@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
 
 const statusConfig = {
   idea: { label: "Idea", variant: "secondary" },
@@ -91,12 +92,14 @@ export const SubstackTable = () => {
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Badge 
-                      variant={statusConfig[post.status as PostStatus].variant as any}
-                      className="cursor-pointer hover:opacity-80"
-                    >
-                      {statusConfig[post.status as PostStatus].label}
-                    </Badge>
+                    <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+                      <Badge 
+                        variant={statusConfig[post.status as PostStatus].variant as any}
+                        className="cursor-pointer hover:opacity-80"
+                      >
+                        {statusConfig[post.status as PostStatus].label}
+                      </Badge>
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {Object.entries(statusConfig).map(([status, { label }]) => (
