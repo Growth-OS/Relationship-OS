@@ -141,6 +141,7 @@ export const SubstackTable = () => {
           <SubstackEditor
             postId={selectedPostId}
             initialContent={posts.find(p => p.id === selectedPostId)?.content}
+            title={posts.find(p => p.id === selectedPostId)?.title}
           />
         </div>
       )}
