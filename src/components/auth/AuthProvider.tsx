@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -9,6 +10,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
@@ -26,8 +28,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
+        if (!session) {
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+          return;
+        }
+
         if (mounted) {
-          setIsAuthenticated(!!session);
+          setIsAuthenticated(true);
           setIsLoading(false);
         }
       } catch (error) {
@@ -41,9 +51,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        if (mounted) {
+          setIsAuthenticated(false);
+          navigate('/login', { replace: true });
+        }
+      } else if (event === 'SIGNED_IN' && session) {
+        if (mounted) {
+          setIsAuthenticated(true);
+        }
+      }
+      
       if (mounted) {
-        setIsAuthenticated(!!session);
         setIsLoading(false);
       }
     });
@@ -52,7 +72,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   if (isLoading) {
     return null;
