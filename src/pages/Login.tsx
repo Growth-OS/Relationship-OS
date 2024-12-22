@@ -23,22 +23,31 @@ const Login = () => {
         <ScrollArea className="h-full w-full pr-4">
           <div className="space-y-8">
             <h1 className="text-4xl font-bold leading-tight">
-              Your fullstack product engineer.
+              Welcome to Growth OS
             </h1>
             <p className="text-xl">
-              You ask, Lovable builds{" "}
-              <span className="text-cyan-400">your product</span>
+              Your all-in-one platform for <span className="text-cyan-400">content creation</span> and <span className="text-cyan-400">growth management</span>
             </p>
             <div className="prose prose-invert">
               <p className="text-gray-300">
-                Lovable is your AI-powered product engineer that helps you build
-                and scale your SaaS product. From ideation to implementation,
-                we're here to help you every step of the way.
+                Growth OS helps you streamline your content creation process, manage affiliate partnerships, and track your growth metrics all in one place. From ideation to publication, we've got you covered.
               </p>
-              {/* Add more content here to make it scrollable */}
+              <h3>Key Features:</h3>
+              <ul className="text-gray-300">
+                <li>Integrated content calendar and management</li>
+                <li>AI-powered content generation</li>
+                <li>Affiliate program tracking</li>
+                <li>Performance analytics and reporting</li>
+                <li>Task management system</li>
+              </ul>
+              <div className="mt-8">
+                <p className="text-gray-300">
+                  Join creators and businesses who use Growth OS to scale their content operations and drive sustainable growth.
+                </p>
+              </div>
               <div className="mt-auto pt-8">
                 <p className="text-sm text-gray-400">
-                  Made with love in Stockholm.
+                  Powered by Growth OS - Your Growth Partner
                 </p>
               </div>
             </div>
@@ -51,10 +60,10 @@ const Login = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold tracking-tight text-white">
-              Welcome back
+              Access Your Growth OS Dashboard
             </h2>
             <p className="text-gray-400">
-              Sign in to your account to continue
+              Sign in to manage your content ecosystem
             </p>
           </div>
 
