@@ -17,8 +17,13 @@ serve(async (req) => {
   try {
     const { prompt, title } = await req.json();
 
-    console.log('Starting content generation for:', title);
-    console.log('Using prompt:', prompt);
+    console.log('Starting content generation request');
+    console.log('Title:', title);
+    console.log('Prompt length:', prompt?.length || 0);
+
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
 
     // Construct a detailed prompt for the AI
     const systemPrompt = `You are a professional content writer creating a blog post. 
@@ -34,6 +39,8 @@ serve(async (req) => {
     3. Informative and valuable to readers
     4. Around 800-1000 words`;
 
+    console.log('Sending request to OpenAI API...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -41,30 +48,34 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 1500,
       }),
     });
 
+    console.log('OpenAI API response status:', response.status);
+
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
+      console.error('OpenAI API error details:', errorData);
       throw new Error(errorData.error?.message || 'Failed to generate content');
     }
 
     const data = await response.json();
-    console.log('Generation completed successfully');
+    console.log('Successfully received OpenAI response');
     
     if (!data.choices?.[0]?.message?.content) {
+      console.error('Invalid OpenAI response format:', data);
       throw new Error('Invalid response format from OpenAI');
     }
 
     const generatedText = data.choices[0].message.content;
+    console.log('Content generation completed successfully');
 
     return new Response(JSON.stringify({ generatedText }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
