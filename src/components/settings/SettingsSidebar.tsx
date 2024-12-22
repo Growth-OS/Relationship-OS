@@ -8,37 +8,28 @@ export const SettingsSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      // First check if we have a session
-      const { data: { session } } = await supabase.auth.getSession();
+      // First clear any existing session
+      await supabase.auth.signOut({ scope: 'local' });
       
-      if (!session) {
-        // If no session, just redirect to login
-        navigate("/login");
-        return;
-      }
-
-      // Attempt to sign out
-      const { error } = await supabase.auth.signOut();
+      // Then attempt a global signout
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
       if (error) {
         console.error("Logout error:", error);
-        
-        // If we get a session_not_found error, we can still redirect to login
-        if (error.message.includes("session_not_found")) {
-          navigate("/login");
-          return;
-        }
-        
-        toast.error("Failed to log out properly. Please try again.");
+        // Even if there's an error, we'll redirect to login since the local session is cleared
+        toast.error("There was an issue with the logout, but you've been signed out locally");
       } else {
         toast.success("Successfully logged out");
-        navigate("/login");
       }
+      
+      // Always navigate to login after clearing the session
+      navigate("/login", { replace: true });
+      
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
-      // Force redirect to login in case of any error
-      navigate("/login");
+      // Even in case of an error, redirect to login for safety
+      toast.error("An unexpected error occurred, but you've been signed out");
+      navigate("/login", { replace: true });
     }
   };
 
