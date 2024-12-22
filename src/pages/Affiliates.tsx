@@ -2,14 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, DollarSign, Users, Percent, TrendingUp } from "lucide-react";
+import { Plus, DollarSign, Users, Percent, TrendingUp, Pencil } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
+import { EditAffiliateForm } from "@/components/affiliates/EditAffiliateForm";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
 const Affiliates = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingPartner, setEditingPartner] = useState<any>(null);
 
   const { data: affiliates, isLoading } = useQuery({
     queryKey: ['affiliatePartners'],
@@ -62,7 +64,7 @@ const Affiliates = () => {
           <h1 className="text-3xl font-bold text-primary mb-2">Affiliate Partners</h1>
           <p className="text-gray-600">Manage your affiliate relationships and track performance</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-secondary hover:bg-secondary/90">
               <Plus className="w-4 h-4 mr-2" />
@@ -73,7 +75,7 @@ const Affiliates = () => {
             <DialogHeader>
               <DialogTitle>Add New Partner</DialogTitle>
             </DialogHeader>
-            <AffiliateForm onSuccess={() => setIsDialogOpen(false)} />
+            <AffiliateForm onSuccess={() => setIsAddDialogOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>
@@ -120,11 +122,12 @@ const Affiliates = () => {
                   <TableHead>Commission</TableHead>
                   <TableHead>Login Email</TableHead>
                   <TableHead>Dashboard</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {affiliates?.map((affiliate) => (
-                  <TableRow key={affiliate.id} className="cursor-pointer hover:bg-gray-50">
+                  <TableRow key={affiliate.id} className="hover:bg-gray-50">
                     <TableCell className="font-medium">{affiliate.name}</TableCell>
                     <TableCell>{affiliate.program}</TableCell>
                     <TableCell>{affiliate.commission_rate}</TableCell>
@@ -140,6 +143,28 @@ const Affiliates = () => {
                           Open Dashboard
                         </a>
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Dialog open={editingPartner?.id === affiliate.id} onOpenChange={(open) => !open && setEditingPartner(null)}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => setEditingPartner(affiliate)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[600px]">
+                          <DialogHeader>
+                            <DialogTitle>Edit Partner</DialogTitle>
+                          </DialogHeader>
+                          <EditAffiliateForm 
+                            partner={affiliate} 
+                            onSuccess={() => setEditingPartner(null)} 
+                          />
+                        </DialogContent>
+                      </Dialog>
                     </TableCell>
                   </TableRow>
                 ))}
