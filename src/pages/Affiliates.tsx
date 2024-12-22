@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, DollarSign, Users, Percent, TrendingUp, Pencil } from "lucide-react";
+import { Plus, DollarSign, Users, Percent, Pencil } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
 import { EditAffiliateForm } from "@/components/affiliates/EditAffiliateForm";
 import { useQuery } from "@tanstack/react-query";
@@ -33,13 +33,6 @@ const Affiliates = () => {
       trend: "Active partners",
       icon: Users,
       color: "text-blue-500",
-    },
-    {
-      title: "Active Campaigns",
-      value: "8",
-      trend: "5 pending review",
-      icon: TrendingUp,
-      color: "text-green-500",
     },
     {
       title: "Monthly Earnings",
@@ -80,7 +73,7 @@ const Affiliates = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
