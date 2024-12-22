@@ -10,9 +10,9 @@ const Sidebar = () => {
     { icon: Edit, label: "Content", path: "/content" },
     { icon: ListTodo, label: "Tasks", path: "/tasks" },
     { icon: Lightbulb, label: "Ideas", path: "/ideas" },
+    { icon: BookOpen, label: "Substack", path: "/substack" },
     { icon: Users, label: "Affiliates", path: "/affiliates" },
     { icon: ChartBar, label: "Reporting", path: "/reporting" },
-    { icon: BookOpen, label: "Substack", path: "/substack" },
   ];
 
   return (
