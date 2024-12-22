@@ -1,15 +1,9 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Wand2, Settings2 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2 } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -55,29 +49,13 @@ const Sidebar = () => {
 
       {/* Settings Section */}
       <div className="mt-auto pt-4 border-t border-gray-200">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
-              <Settings2 className="w-5 h-5" />
-              <span>Settings</span>
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuItem asChild>
-              <Link to="/ai-prompts" className="flex items-center cursor-pointer">
-                <Wand2 className="w-4 h-4 mr-2" />
-                AI Prompts
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link to="/ai-persona" className="flex items-center cursor-pointer">
-                <Wand2 className="w-4 h-4 mr-2" />
-                AI Persona
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button
+          onClick={() => navigate('/settings')}
+          className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+        >
+          <Settings2 className="w-5 h-5" />
+          <span>Settings</span>
+        </button>
       </div>
     </div>
   );

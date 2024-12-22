@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import Layout from "./components/Layout";
+import { SettingsLayout } from "./components/settings/SettingsLayout";
 import Dashboard from "./pages/Dashboard";
 import Affiliates from "./pages/Affiliates";
 import Reporting from "./pages/Reporting";
@@ -59,8 +60,18 @@ const App = () => (
             <Route path="/affiliates" element={<Affiliates />} />
             <Route path="/reporting" element={<Reporting />} />
             <Route path="/substack" element={<Substack />} />
-            <Route path="/ai-prompts" element={<AIPrompts />} />
-            <Route path="/ai-persona" element={<AIPersona />} />
+          </Route>
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="ai-prompts" element={<AIPrompts />} />
+            <Route path="ai-persona" element={<AIPersona />} />
+            <Route index element={<Navigate to="ai-persona" replace />} />
           </Route>
         </Routes>
         <Toaster />
