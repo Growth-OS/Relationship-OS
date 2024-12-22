@@ -65,7 +65,7 @@ export const PromptsList = ({ prompts, isLoading, onEditPrompt }: PromptsListPro
             <TableHead>Title</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>System Prompt</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="w-[120px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,21 +77,24 @@ export const PromptsList = ({ prompts, isLoading, onEditPrompt }: PromptsListPro
                 {prompt.system_prompt}
               </TableCell>
               <TableCell>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <Button
-                    variant="ghost"
-                    size="icon"
+                    variant="outline"
+                    size="sm"
                     onClick={() => onEditPrompt(prompt)}
+                    className="flex items-center gap-1"
                   >
                     <Edit2 className="h-4 w-4" />
+                    Edit
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => deletePromptMutation.mutate(prompt.id)}
                     disabled={deletePromptMutation.isPending}
+                    className="text-destructive hover:text-destructive"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>
