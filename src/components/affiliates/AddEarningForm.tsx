@@ -9,7 +9,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PartnerSelect } from "./form-fields/PartnerSelect";
 import { AmountInput } from "./form-fields/AmountInput";
 import { DateInput } from "./form-fields/DateInput";
-import { NotesInput } from "./form-fields/NotesInput";
 
 const formSchema = z.object({
   partnerId: z.string().min(1, "Please select a partner"),
@@ -19,7 +18,6 @@ const formSchema = z.object({
   date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: "Please enter a valid date",
   }),
-  notes: z.string().optional(),
 });
 
 type AddEarningFormProps = {
@@ -51,7 +49,6 @@ export function AddEarningForm({ partnerId, partnerName, onSuccess }: AddEarning
       partnerId: partnerId || "",
       amount: "",
       date: new Date().toISOString().split('T')[0],
-      notes: "",
     },
   });
 
@@ -68,7 +65,6 @@ export function AddEarningForm({ partnerId, partnerName, onSuccess }: AddEarning
         partner_id: values.partnerId,
         amount: Number(values.amount),
         date: values.date,
-        notes: values.notes || null,
         user_id: user.id
       });
 
@@ -92,7 +88,6 @@ export function AddEarningForm({ partnerId, partnerName, onSuccess }: AddEarning
           {!partnerId && <PartnerSelect form={form} partners={partners || []} />}
           <AmountInput form={form} />
           <DateInput form={form} />
-          <NotesInput form={form} />
         </div>
 
         <Button type="submit" className="w-full">

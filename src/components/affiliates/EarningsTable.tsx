@@ -60,7 +60,6 @@ export const EarningsTable = ({ earnings, isLoading }: EarningsTableProps) => {
               <TableHead>Date</TableHead>
               <TableHead>Partner</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Notes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -69,7 +68,6 @@ export const EarningsTable = ({ earnings, isLoading }: EarningsTableProps) => {
                 <TableCell>{new Date(earning.date).toLocaleDateString()}</TableCell>
                 <TableCell>{earning.affiliate_partners?.name}</TableCell>
                 <TableCell>€{Number(earning.amount).toFixed(2)}</TableCell>
-                <TableCell>{earning.notes || '-'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
