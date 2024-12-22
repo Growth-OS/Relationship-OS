@@ -32,7 +32,7 @@ export const GeneralPromptsSection = () => {
   const queryClient = useQueryClient();
 
   // Query to fetch all general prompts
-  const { data: prompts } = useQuery({
+  const { data: prompts, isLoading, error } = useQuery({
     queryKey: ["aiPrompts", "general_prompt"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -42,7 +42,7 @@ export const GeneralPromptsSection = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data || []; // Ensure we always return an array
     },
   });
 
@@ -84,6 +84,14 @@ export const GeneralPromptsSection = () => {
     await handlePromptSubmit(promptData);
     form.reset(); // Clear the form after successful submission
   };
+
+  if (error) {
+    toast({
+      title: "Error",
+      description: "Failed to load prompts",
+      variant: "destructive",
+    });
+  }
 
   return (
     <Card>
@@ -140,24 +148,38 @@ export const GeneralPromptsSection = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {prompts?.map((prompt) => (
-                <TableRow key={prompt.id}>
-                  <TableCell className="font-medium">{prompt.title}</TableCell>
-                  <TableCell className="max-w-[400px] truncate">
-                    {prompt.system_prompt}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deletePromptMutation.mutate(prompt.id)}
-                      disabled={deletePromptMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">
+                    Loading prompts...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : prompts && prompts.length > 0 ? (
+                prompts.map((prompt) => (
+                  <TableRow key={prompt.id}>
+                    <TableCell className="font-medium">{prompt.title}</TableCell>
+                    <TableCell className="max-w-[400px] truncate">
+                      {prompt.system_prompt}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deletePromptMutation.mutate(prompt.id)}
+                        disabled={deletePromptMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">
+                    No prompts found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
