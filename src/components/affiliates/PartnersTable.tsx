@@ -11,6 +11,7 @@ type Partner = {
   program: string;
   commission_rate: string | null;
   login_email: string | null;
+  login_password: string | null;
   dashboard_url: string | null;
 };
 
