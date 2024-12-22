@@ -19,24 +19,24 @@ const Reporting = () => {
   });
 
   if (isLoading) {
-    return <div className="p-8">Loading...</div>;
+    return <div className="p-4">Loading...</div>;
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-primary mb-2">Reporting</h1>
-        <p className="text-gray-600">Track and analyze your affiliate earnings</p>
+        <h1 className="text-2xl font-bold text-primary mb-1">Reporting</h1>
+        <p className="text-sm text-gray-600">Track and analyze your affiliate earnings</p>
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-lg font-medium">
+        <CardHeader className="flex flex-row items-center justify-between py-3">
+          <CardTitle className="text-base font-medium">
             Monthly Earnings Overview
           </CardTitle>
           <ChartBarIcon className="w-4 h-4 text-gray-500" />
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <MonthlyEarningsChart earnings={earnings || []} />
         </CardContent>
       </Card>

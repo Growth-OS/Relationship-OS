@@ -33,22 +33,22 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
 
   if (!monthlyData.length) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-4 text-sm text-gray-500">
         No earnings data available to display
       </div>
     );
   }
 
   return (
-    <div className="h-[400px] w-full">
+    <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={monthlyData}>
           <XAxis 
             dataKey="month"
-            tick={{ fill: '#666' }}
+            tick={{ fill: '#666', fontSize: 12 }}
           />
           <YAxis 
-            tick={{ fill: '#666' }}
+            tick={{ fill: '#666', fontSize: 12 }}
             tickFormatter={(value) => `€${value}`}
           />
           <Tooltip 
