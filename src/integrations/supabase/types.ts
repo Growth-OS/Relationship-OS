@@ -85,6 +85,7 @@ export type Database = {
       }
       substack_posts: {
         Row: {
+          content: string | null
           created_at: string
           id: string
           publish_date: string
@@ -93,6 +94,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          content?: string | null
           created_at?: string
           id?: string
           publish_date: string
@@ -101,6 +103,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          content?: string | null
           created_at?: string
           id?: string
           publish_date?: string
