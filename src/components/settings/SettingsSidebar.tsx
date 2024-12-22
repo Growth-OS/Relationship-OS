@@ -8,10 +8,28 @@ export const SettingsSidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // First check if we have a session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // If no session, just redirect to login
+        navigate("/login");
+        return;
+      }
+
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
+      
       if (error) {
         console.error("Logout error:", error);
-        toast.error("Failed to log out. Please try again.");
+        
+        // If we get a session_not_found error, we can still redirect to login
+        if (error.message.includes("session_not_found")) {
+          navigate("/login");
+          return;
+        }
+        
+        toast.error("Failed to log out properly. Please try again.");
       } else {
         toast.success("Successfully logged out");
         navigate("/login");
@@ -19,6 +37,8 @@ export const SettingsSidebar = () => {
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("An unexpected error occurred. Please try again.");
+      // Force redirect to login in case of any error
+      navigate("/login");
     }
   };
 
