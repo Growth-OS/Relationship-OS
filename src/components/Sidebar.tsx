@@ -1,19 +1,32 @@
 import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/');
+      toast.success('Signed out successfully');
+    } catch (error) {
+      toast.error('Error signing out');
+    }
+  };
+  
   const menuItems = [
-    { icon: Home, label: "Dashboard", path: "/" },
-    { icon: Calendar, label: "Calendar", path: "/calendar" },
-    { icon: Edit, label: "Content", path: "/content" },
-    { icon: ListTodo, label: "Tasks", path: "/tasks" },
-    { icon: Lightbulb, label: "Ideas", path: "/ideas" },
-    { icon: BookOpen, label: "Substack", path: "/substack" },
-    { icon: Users, label: "Affiliates", path: "/affiliates" },
-    { icon: ChartBar, label: "Reporting", path: "/reporting" },
+    { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
+    { icon: Edit, label: "Content", path: "/dashboard/content" },
+    { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
+    { icon: Lightbulb, label: "Ideas", path: "/dashboard/ideas" },
+    { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
+    { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
+    { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
   ];
 
   return (
@@ -47,8 +60,7 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Settings Section */}
-      <div className="mt-auto pt-4 border-t border-gray-200">
+      <div className="mt-auto pt-4 border-t border-gray-200 space-y-2">
         <button
           onClick={() => navigate('/settings')}
           className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
@@ -56,6 +68,13 @@ const Sidebar = () => {
           <Settings2 className="w-5 h-5" />
           <span>Settings</span>
         </button>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={handleSignOut}
+        >
+          Sign Out
+        </Button>
       </div>
     </div>
   );

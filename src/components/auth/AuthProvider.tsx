@@ -55,11 +55,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (event === 'SIGNED_OUT') {
         if (mounted) {
           setIsAuthenticated(false);
-          navigate('/login', { replace: true });
+          navigate('/', { replace: true });
         }
       } else if (event === 'SIGNED_IN' && session) {
         if (mounted) {
           setIsAuthenticated(true);
+          navigate('/dashboard', { replace: true });
         }
       }
       

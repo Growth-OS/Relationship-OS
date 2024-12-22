@@ -2,6 +2,7 @@ import { RouteObject } from "react-router-dom";
 import { Navigate, Outlet } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
+import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Affiliates from "@/pages/Affiliates";
 import Reporting from "@/pages/Reporting";
@@ -14,10 +15,15 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
   {
+    path: "/",
+    element: <Landing />,
+  },
+  {
     path: "/login",
     element: <Login />,
   },
   {
+    path: "/dashboard",
     element: (
       <AuthProvider>
         <Layout>
@@ -27,19 +33,19 @@ export const routes: RouteObject[] = [
     ),
     children: [
       {
-        path: "/",
+        index: true,
         element: <Dashboard />,
       },
       {
-        path: "/affiliates",
+        path: "affiliates",
         element: <Affiliates />,
       },
       {
-        path: "/reporting",
+        path: "reporting",
         element: <Reporting />,
       },
       {
-        path: "/substack",
+        path: "substack",
         element: <Substack />,
       },
     ],
