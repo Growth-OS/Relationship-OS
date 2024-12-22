@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,8 +26,22 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
+  const [selectedPromptId, setSelectedPromptId] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const { data: prompts } = useQuery({
+    queryKey: ["aiPrompts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_prompts")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -62,9 +83,15 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
 
     setIsGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const selectedPrompt = prompts?.find(p => p.id === selectedPromptId);
+      const systemPrompt = selectedPrompt?.system_prompt || "";
+
       const response = await supabase.functions.invoke('generate-content', {
-        body: { prompt, title },
+        body: { 
+          prompt, 
+          title,
+          systemPrompt 
+        },
       });
 
       if (response.error) throw new Error(response.error.message);
@@ -102,6 +129,24 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
           <PopoverContent className="w-80">
             <div className="space-y-4">
               <div className="space-y-2">
+                <Label>Select AI Prompt Template</Label>
+                <Select
+                  value={selectedPromptId}
+                  onValueChange={setSelectedPromptId}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a prompt template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {prompts?.map((prompt) => (
+                      <SelectItem key={prompt.id} value={prompt.id}>
+                        {prompt.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="prompt">Additional context for AI</Label>
                 <Textarea
                   id="prompt"
@@ -113,7 +158,7 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
               <Button 
                 className="w-full"
                 onClick={generateContent}
-                disabled={isGenerating}
+                disabled={isGenerating || !selectedPromptId}
               >
                 {isGenerating ? "Generating..." : "Generate Content"}
               </Button>
