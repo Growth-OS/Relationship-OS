@@ -96,7 +96,7 @@ const Login = () => {
               },
             }}
             theme="dark"
-            providers={["github", "google"]}
+            providers={[]}
           />
         </div>
       </div>
