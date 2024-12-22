@@ -32,13 +32,13 @@ const Login = () => {
           setIsTyping(true);
           setCurrentText("");
           setCurrentIndex((prev) => (prev + 1) % descriptions.length);
-        }, 2000); // Pause at the end of the text
+        }, 2000);
       }
     }
   }, [currentText, currentIndex, isTyping]);
 
   useEffect(() => {
-    const interval = setInterval(typeText, 50); // Adjust typing speed here
+    const interval = setInterval(typeText, 50);
     return () => clearInterval(interval);
   }, [typeText]);
 
@@ -78,7 +78,7 @@ const Login = () => {
 
       {/* Right side with auth UI */}
       <div className="w-full lg:w-1/2 bg-[#1A1F2C] flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
+        <div className="w-full max-w-md space-y-8 relative z-10">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold tracking-tight text-white">
               Access Your Growth OS Dashboard
@@ -108,7 +108,7 @@ const Login = () => {
                 },
               },
               className: {
-                container: 'w-full',
+                container: 'relative z-20',
                 button: 'w-full px-4 py-2.5 rounded-lg font-medium',
                 input: 'w-full px-3 py-2.5 bg-[#222632] border-gray-700 rounded-lg focus:ring-cyan-400 focus:border-cyan-400 text-white',
                 label: 'text-gray-300',
