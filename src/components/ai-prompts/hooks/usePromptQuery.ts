@@ -18,11 +18,13 @@ export const usePromptQuery = (category: string) => {
         .select("*")
         .eq("category", category)
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
 
-      return data as AIPrompt[];
+      return data as AIPrompt;
     },
   });
 };
