@@ -27,6 +27,9 @@ const formSchema = z.object({
   platform: z.string(),
   commissionRate: z.string(),
   manager: z.string().email("Invalid email address"),
+  loginEmail: z.string().email("Invalid login email"),
+  loginPassword: z.string().min(8, "Password must be at least 8 characters"),
+  dashboardUrl: z.string().url("Invalid URL format"),
 });
 
 export function AffiliateForm() {
@@ -39,6 +42,9 @@ export function AffiliateForm() {
       platform: "partnerstack",
       commissionRate: "",
       manager: "",
+      loginEmail: "",
+      loginPassword: "",
+      dashboardUrl: "",
     },
   });
 
@@ -139,6 +145,48 @@ export function AffiliateForm() {
                 <FormLabel>Account Manager</FormLabel>
                 <FormControl>
                   <Input placeholder="manager@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="loginEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Login Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="login@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="loginPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Login Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="dashboardUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dashboard URL</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://dashboard.example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
