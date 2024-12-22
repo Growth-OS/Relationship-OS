@@ -22,11 +22,9 @@ import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  contact: z.string().email("Invalid email address"),
   program: z.string().min(2, "Program name is required"),
   platform: z.string(),
   commissionRate: z.string(),
-  manager: z.string().email("Invalid email address"),
   loginEmail: z.string().email("Invalid login email"),
   loginPassword: z.string().min(8, "Password must be at least 8 characters"),
   dashboardUrl: z.string().url("Invalid URL format"),
@@ -37,11 +35,9 @@ export function AffiliateForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      contact: "",
       program: "",
       platform: "partnerstack",
       commissionRate: "",
-      manager: "",
       loginEmail: "",
       loginPassword: "",
       dashboardUrl: "",
@@ -65,20 +61,6 @@ export function AffiliateForm() {
                 <FormLabel>Partner Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Partner name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="contact"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contact Email</FormLabel>
-                <FormControl>
-                  <Input placeholder="contact@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -131,20 +113,6 @@ export function AffiliateForm() {
                 <FormLabel>Commission Rate</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g., 30%" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="manager"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Account Manager</FormLabel>
-                <FormControl>
-                  <Input placeholder="manager@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
