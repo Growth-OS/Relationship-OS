@@ -31,9 +31,23 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to add prospects');
+        return;
+      }
+
+      // Add the user_id to the values object
+      const prospectData = {
+        ...values,
+        user_id: user.id,
+      };
+
       const { error } = await supabase
         .from('prospects')
-        .insert([values]);
+        .insert(prospectData);
 
       if (error) throw error;
 
