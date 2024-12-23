@@ -77,9 +77,11 @@ export const useGmailMessages = () => {
       return messageDetails;
     },
     retry: 1,
-    onError: (error) => {
-      console.error('Gmail query error:', error);
-      toast.error('Failed to fetch emails: ' + error.message);
-    },
+    meta: {
+      onError: (error: Error) => {
+        console.error('Gmail query error:', error);
+        toast.error('Failed to fetch emails: ' + error.message);
+      }
+    }
   });
 };
