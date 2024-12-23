@@ -57,9 +57,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsAuthenticated(false);
           navigate('/', { replace: true });
         }
-      } else if (event === 'SIGNED_IN' && session) {
+      } else if (event === 'SIGNED_IN') {
         if (mounted) {
           setIsAuthenticated(true);
+          // Only navigate to dashboard on initial sign in
           navigate('/dashboard', { replace: true });
         }
       }
