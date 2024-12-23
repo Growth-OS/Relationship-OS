@@ -10,27 +10,20 @@ import { UseFormReturn } from "react-hook-form";
 import { DealFormData } from "../types";
 
 type NotesInputProps = {
-  form: UseFormReturn<DealFormData>;
+  register: UseFormReturn<DealFormData>['register'];
 };
 
-export const NotesInput = ({ form }: NotesInputProps) => {
+export const NotesInput = ({ register }: NotesInputProps) => {
   return (
-    <FormField
-      control={form.control}
-      name="notes"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Notes (Optional)</FormLabel>
-          <FormControl>
-            <Textarea 
-              placeholder="Add any relevant notes" 
-              className="min-h-[100px]" 
-              {...field} 
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className="space-y-2">
+      <FormLabel>Notes (Optional)</FormLabel>
+      <FormControl>
+        <Textarea 
+          placeholder="Add any relevant notes" 
+          className="min-h-[100px] resize-none" 
+          {...register('notes')}
+        />
+      </FormControl>
+    </div>
   );
 };
