@@ -2,7 +2,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 interface MonthlyConversionsChartProps {
-  prospects: Array<{ created_at: string; status: string }>;
+  prospects: Array<{ created_at: string; status?: string | null }>;
 }
 
 export const MonthlyConversionsChart = ({ prospects }: MonthlyConversionsChartProps) => {

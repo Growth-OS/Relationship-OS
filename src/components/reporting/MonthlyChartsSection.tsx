@@ -4,7 +4,7 @@ import { MonthlyConversionsChart } from "./MonthlyConversionsChart";
 import { MonthlyEarningsChart } from "./MonthlyEarningsChart";
 
 interface MonthlyChartsSectionProps {
-  prospects: Array<{ created_at: string }>;
+  prospects: Array<{ created_at: string; status?: string | null }>;
   earnings: Array<{ amount: number; date: string }>;
 }
 

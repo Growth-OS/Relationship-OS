@@ -2,9 +2,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartBarIcon, PieChart } from "lucide-react";
 import { MonthlyLeadsChart } from "./MonthlyLeadsChart";
 import { LeadSourcesChart } from "./LeadSourcesChart";
+import { Database } from "@/integrations/supabase/types";
+
+type Prospect = {
+  created_at: string;
+  source?: Database['public']['Enums']['lead_source'] | null;
+};
 
 interface LeadsChartSectionProps {
-  prospects: Array<{ created_at: string; source?: string }>;
+  prospects: Prospect[];
 }
 
 export const LeadsChartSection = ({ prospects }: LeadsChartSectionProps) => {
