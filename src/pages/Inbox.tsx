@@ -26,7 +26,10 @@ const Inbox = () => {
         .eq('provider', 'google')
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Connection check error:', error);
+        throw error;
+      }
       return data;
     },
   });
@@ -37,12 +40,13 @@ const Inbox = () => {
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/gmail.modify',
-          redirectTo: window.location.origin + window.location.pathname,
+          redirectTo: window.location.origin + '/dashboard/inbox',
         },
       });
 
       if (error) throw error;
       toast.success('Successfully connected to Gmail');
+      queryClient.invalidateQueries({ queryKey: ['googleConnection'] });
     } catch (error) {
       console.error('Google auth error:', error);
       toast.error('Failed to connect to Gmail');

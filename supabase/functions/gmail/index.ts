@@ -92,7 +92,7 @@ serve(async (req) => {
       case "listMessages":
         console.log("Fetching messages list");
         gmailResponse = await fetch(
-          "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10",
+          "https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=INBOX&maxResults=20",
           {
             headers: {
               Authorization: `Bearer ${connection.access_token}`,

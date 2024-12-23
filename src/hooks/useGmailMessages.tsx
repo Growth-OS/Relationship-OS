@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const useGmailMessages = () => {
   return useQuery({
@@ -74,6 +75,11 @@ export const useGmailMessages = () => {
       );
 
       return messageDetails;
+    },
+    retry: 1,
+    onError: (error) => {
+      console.error('Gmail query error:', error);
+      toast.error('Failed to fetch emails: ' + error.message);
     },
   });
 };
