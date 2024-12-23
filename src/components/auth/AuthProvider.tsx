@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -26,6 +27,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         setIsAuthenticated(!!session);
         setIsLoading(false);
+
+        // If this is an OAuth redirect and we have a session, navigate back to inbox
+        const isOAuthRedirect = location.hash.includes('access_token') || 
+                              location.hash.includes('error') || 
+                              location.search.includes('code');
+        
+        if (isOAuthRedirect && session) {
+          navigate('/dashboard/inbox', { replace: true });
+        }
       } catch (error) {
         console.error("Session check error:", error);
         setIsAuthenticated(false);
@@ -53,7 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, location]);
 
   if (isLoading) {
     return null;
