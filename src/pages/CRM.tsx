@@ -82,13 +82,13 @@ const CRM = () => {
                           <Button 
                             variant="ghost" 
                             size="icon"
-                            className="h-6 w-6"
+                            className="h-8 w-8"
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditingDeal(deal);
                             }}
                           >
-                            <Pencil className="w-3 h-3" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
