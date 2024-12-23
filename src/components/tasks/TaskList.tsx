@@ -88,7 +88,7 @@ export const TaskList = ({ source }: TaskListProps) => {
   return (
     <div className="space-y-2">
       {tasks.map((task) => (
-        <Card key={task.id} className="p-4 relative">
+        <Card key={task.id} className="p-4 relative group">
           <div className="flex items-start gap-3">
             <Checkbox
               checked={task.completed}
