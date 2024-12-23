@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { DealFormFields } from "./form-fields/DealFormFields";
 import { DealFormData } from "./types";
+import { Form } from "@/components/ui/form";
 
 interface CreateDealFormProps {
   onSuccess: () => void;
@@ -19,7 +20,7 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
     }
   });
 
-  const { register, handleSubmit, setValue, formState: { isSubmitting } } = form;
+  const { handleSubmit, setValue, register, formState: { isSubmitting } } = form;
 
   const onSubmit = async (data: DealFormData) => {
     try {
@@ -64,11 +65,13 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <DealFormFields register={register} setValue={setValue} form={form} />
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {initialData ? 'Update Deal' : 'Create Deal'}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <DealFormFields register={register} setValue={setValue} form={form} />
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {initialData ? 'Update Deal' : 'Create Deal'}
+        </Button>
+      </form>
+    </Form>
   );
 };
