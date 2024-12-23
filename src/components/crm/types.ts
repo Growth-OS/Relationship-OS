@@ -7,4 +7,6 @@ export interface DealFormData {
   contact_email?: string;
   contact_linkedin?: string;
   contact_job_title?: string;
+  country?: string;
+  country_flag?: string;
 }

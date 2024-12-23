@@ -119,6 +119,8 @@ export type Database = {
           contact_email: string | null
           contact_job_title: string | null
           contact_linkedin: string | null
+          country: string | null
+          country_flag: string | null
           created_at: string
           deal_value: number
           delivery_end_date: string | null
@@ -133,6 +135,8 @@ export type Database = {
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
+          country?: string | null
+          country_flag?: string | null
           created_at?: string
           deal_value?: number
           delivery_end_date?: string | null
@@ -147,6 +151,8 @@ export type Database = {
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
+          country?: string | null
+          country_flag?: string | null
           created_at?: string
           deal_value?: number
           delivery_end_date?: string | null
