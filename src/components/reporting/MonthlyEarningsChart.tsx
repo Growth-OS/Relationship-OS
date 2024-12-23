@@ -73,7 +73,8 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
             dataKey="total" 
             stroke="var(--primary)"
             strokeWidth={2}
-            dot={{ fill: 'var(--primary)', strokeWidth: 2 }}
+            dot={false}
+            activeDot={{ fill: 'var(--primary)', strokeWidth: 2, r: 4 }}
             connectNulls={true}
           />
         </LineChart>
