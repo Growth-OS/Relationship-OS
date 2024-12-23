@@ -66,7 +66,7 @@ const CRM = () => {
               Add Deal
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Deal</DialogTitle>
             </DialogHeader>

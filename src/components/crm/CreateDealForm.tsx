@@ -66,7 +66,7 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 max-w-md mx-auto">
         <DealFormFields register={register} setValue={setValue} form={form} />
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {initialData ? 'Update Deal' : 'Create Deal'}
