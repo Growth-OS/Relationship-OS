@@ -52,17 +52,14 @@ const Reporting = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-medium">Total Deal Value (30 days)</CardTitle>
-            <ChartBarIcon className="w-4 h-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalDealValue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Excluding paid deals
-            </p>
-          </CardContent>
+        <Card className="p-4">
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Total Deal Value (30d)</p>
+              <ChartBarIcon className="w-4 h-4 text-gray-500" />
+            </div>
+            <div className="text-3xl font-bold">${totalDealValue.toLocaleString()}</div>
+          </div>
         </Card>
 
         <Card>
