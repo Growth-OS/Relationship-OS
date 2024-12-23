@@ -28,16 +28,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        if (!session) {
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
-          return;
-        }
-
         if (mounted) {
-          setIsAuthenticated(true);
+          setIsAuthenticated(!!session);
           setIsLoading(false);
         }
       } catch (error) {
@@ -53,26 +45,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
-        if (mounted) {
-          setIsAuthenticated(false);
-          navigate('/', { replace: true });
-        }
-      } else if (event === 'SIGNED_IN' && !isAuthenticated) {
-        // Only navigate to dashboard on initial sign in (when not already authenticated)
-        if (mounted) {
-          setIsAuthenticated(true);
+        setIsAuthenticated(false);
+        navigate('/', { replace: true });
+      } else if (event === 'SIGNED_IN' && session) {
+        setIsAuthenticated(true);
+        // Only navigate to dashboard on fresh sign in, not on refresh
+        if (!isAuthenticated) {
           navigate('/dashboard', { replace: true });
-        }
-      } else if (event === 'SIGNED_IN') {
-        // Just update authentication state without navigation for session checks
-        if (mounted) {
-          setIsAuthenticated(true);
         }
       }
       
-      if (mounted) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     });
 
     return () => {
