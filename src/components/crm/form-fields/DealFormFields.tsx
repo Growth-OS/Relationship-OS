@@ -6,6 +6,7 @@ import { CountrySelect } from "./CountrySelect";
 import { StageSelect } from "./StageSelect";
 import { ContactFields } from "./ContactFields";
 import { DeliveryDates } from "./DeliveryDates";
+import { NotesInput } from "./NotesInput";
 
 interface DealFormFieldsProps {
   register: UseFormRegister<DealFormData>;
@@ -36,6 +37,8 @@ export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
       <DeliveryDates register={register} />
       
       <ContactFields register={register} />
+
+      <NotesInput form={{ control: register, register }} />
     </>
   );
 };

@@ -9,4 +9,5 @@ export interface DealFormData {
   contact_job_title?: string;
   country?: string;
   country_flag?: string;
+  notes?: string;
 }

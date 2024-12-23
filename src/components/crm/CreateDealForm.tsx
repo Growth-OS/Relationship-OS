@@ -8,12 +8,13 @@ import { DealFormData } from "./types";
 
 interface CreateDealFormProps {
   onSuccess: () => void;
+  initialData?: DealFormData & { id: string };
 }
 
-export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
+export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) => {
   const queryClient = useQueryClient();
   const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<DealFormData>({
-    defaultValues: {
+    defaultValues: initialData || {
       stage: 'lead'
     }
   });
@@ -27,22 +28,36 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
         return;
       }
 
-      const { error } = await supabase
-        .from('deals')
-        .insert({
-          ...data,
-          deal_value: Number(data.deal_value),
-          user_id: user.id,
-        });
+      if (initialData?.id) {
+        const { error } = await supabase
+          .from('deals')
+          .update({
+            ...data,
+            deal_value: Number(data.deal_value),
+            last_activity_date: new Date().toISOString()
+          })
+          .eq('id', initialData.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('Deal updated successfully');
+      } else {
+        const { error } = await supabase
+          .from('deals')
+          .insert({
+            ...data,
+            deal_value: Number(data.deal_value),
+            user_id: user.id,
+          });
+
+        if (error) throw error;
+        toast.success('Deal created successfully');
+      }
 
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      toast.success('Deal created successfully');
       onSuccess();
     } catch (error) {
-      console.error('Error creating deal:', error);
-      toast.error('Error creating deal');
+      console.error('Error saving deal:', error);
+      toast.error('Error saving deal');
     }
   };
 
@@ -50,7 +65,7 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <DealFormFields register={register} setValue={setValue} />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        Create Deal
+        {initialData ? 'Update Deal' : 'Create Deal'}
       </Button>
     </form>
   );
