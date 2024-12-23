@@ -14,7 +14,6 @@ import Login from "@/pages/Login";
 import CRM from "@/pages/CRM";
 import Prospects from "@/pages/Prospects";
 import Inbox from "@/pages/Inbox";
-import Automations from "@/pages/Automations";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
@@ -63,10 +62,6 @@ export const routes: RouteObject[] = [
       {
         path: "substack",
         element: <Substack />,
-      },
-      {
-        path: "automations",
-        element: <Automations />,
       },
     ],
   },
