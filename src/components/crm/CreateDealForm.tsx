@@ -13,11 +13,13 @@ interface CreateDealFormProps {
 
 export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<DealFormData>({
+  const form = useForm<DealFormData>({
     defaultValues: initialData || {
       stage: 'lead'
     }
   });
+
+  const { register, handleSubmit, setValue, formState: { isSubmitting } } = form;
 
   const onSubmit = async (data: DealFormData) => {
     try {
@@ -63,7 +65,7 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <DealFormFields register={register} setValue={setValue} />
+      <DealFormFields register={register} setValue={setValue} form={form} />
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {initialData ? 'Update Deal' : 'Create Deal'}
       </Button>

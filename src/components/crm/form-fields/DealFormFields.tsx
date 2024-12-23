@@ -7,13 +7,15 @@ import { StageSelect } from "./StageSelect";
 import { ContactFields } from "./ContactFields";
 import { DeliveryDates } from "./DeliveryDates";
 import { NotesInput } from "./NotesInput";
+import { UseFormReturn } from "react-hook-form";
 
 interface DealFormFieldsProps {
   register: UseFormRegister<DealFormData>;
   setValue: UseFormSetValue<DealFormData>;
+  form: UseFormReturn<DealFormData>;
 }
 
-export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
+export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps) => {
   return (
     <>
       <CountrySelect register={register} setValue={setValue} />
@@ -38,7 +40,7 @@ export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
       
       <ContactFields register={register} />
 
-      <NotesInput register={register} />
+      <NotesInput form={form} />
     </>
   );
 };
