@@ -87,11 +87,11 @@ serve(async (req) => {
       connection.access_token = data.access_token;
     }
 
-    let result;
+    let gmailResponse;
     switch (action) {
       case "listMessages":
         console.log("Fetching messages list");
-        result = await fetch(
+        gmailResponse = await fetch(
           "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10",
           {
             headers: {
@@ -103,7 +103,7 @@ serve(async (req) => {
       
       case "getMessage":
         console.log("Fetching message details:", messageId);
-        result = await fetch(
+        gmailResponse = await fetch(
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}`,
           {
             headers: {
@@ -115,7 +115,7 @@ serve(async (req) => {
 
       case "archiveMessage":
         console.log("Archiving message:", messageId);
-        result = await fetch(
+        gmailResponse = await fetch(
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/modify`,
           {
             method: "POST",
@@ -134,13 +134,13 @@ serve(async (req) => {
         throw new Error("Invalid action");
     }
 
-    if (!result.ok) {
-      const errorText = await result.text();
+    if (!gmailResponse.ok) {
+      const errorText = await gmailResponse.text();
       console.error("Gmail API error:", errorText);
       throw new Error(`Gmail API error: ${errorText}`);
     }
 
-    const data = await result.json();
+    const data = await gmailResponse.json();
     console.log("Gmail API response:", data);
     
     return new Response(JSON.stringify(data), {
