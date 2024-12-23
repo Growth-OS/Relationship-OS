@@ -21,7 +21,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { action, messageId } = await req.json();
+    const { action, messageId, email } = await req.json();
     const authHeader = req.headers.get("Authorization");
     
     if (!authHeader) {
@@ -110,6 +110,24 @@ serve(async (req) => {
             headers: {
               Authorization: `Bearer ${connection.access_token}`,
             },
+          }
+        );
+        break;
+
+      case "sendEmail":
+        console.log("Sending email");
+        const encodedEmail = btoa(email).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        gmailResponse = await fetch(
+          'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${connection.access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              raw: encodedEmail,
+            }),
           }
         );
         break;
