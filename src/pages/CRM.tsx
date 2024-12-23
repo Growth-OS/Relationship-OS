@@ -6,15 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
-
-const stages = [
-  { id: 'lead', label: 'Lead' },
-  { id: 'contact_made', label: 'Contact Made' },
-  { id: 'proposal_sent', label: 'Proposal Sent' },
-  { id: 'negotiation', label: 'Negotiation' },
-  { id: 'closed_won', label: 'Closed Won' },
-  { id: 'closed_lost', label: 'Closed Lost' },
-];
+import { stages } from "@/components/crm/form-fields/DealFormFields";
 
 const CRM = () => {
   const [open, setOpen] = useState(false);
@@ -59,7 +51,7 @@ const CRM = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-6 gap-4">
+      <div className="grid grid-cols-8 gap-4">
         {stages.map((stage) => {
           const stageDeals = deals.filter(deal => deal.stage === stage.id);
           const totalValue = stageDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);

@@ -198,11 +198,13 @@ export type Database = {
     Enums: {
       deal_stage:
         | "lead"
-        | "contact_made"
-        | "proposal_sent"
+        | "meeting"
         | "negotiation"
-        | "closed_won"
-        | "closed_lost"
+        | "project_preparation"
+        | "in_progress"
+        | "to_invoice"
+        | "invoiced"
+        | "paid"
     }
     CompositeTypes: {
       [_ in never]: never

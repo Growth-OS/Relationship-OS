@@ -11,11 +11,13 @@ interface DealFormFieldsProps {
 
 export const stages = [
   { id: 'lead', label: 'Lead' },
-  { id: 'contact_made', label: 'Contact Made' },
-  { id: 'proposal_sent', label: 'Proposal Sent' },
+  { id: 'meeting', label: 'Meeting' },
   { id: 'negotiation', label: 'Negotiation' },
-  { id: 'closed_won', label: 'Closed Won' },
-  { id: 'closed_lost', label: 'Closed Lost' },
+  { id: 'project_preparation', label: 'Project Preparation' },
+  { id: 'in_progress', label: 'In Progress' },
+  { id: 'to_invoice', label: 'To Invoice' },
+  { id: 'invoiced', label: 'Invoiced' },
+  { id: 'paid', label: 'Paid' },
 ];
 
 export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
