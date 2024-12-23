@@ -43,6 +43,10 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
       const prospectData = {
         ...values,
         user_id: user.id,
+        // Ensure company_name is present (it should be due to form validation)
+        company_name: values.company_name,
+        // Ensure source is present (it should be due to form validation)
+        source: values.source,
       };
 
       const { error } = await supabase
