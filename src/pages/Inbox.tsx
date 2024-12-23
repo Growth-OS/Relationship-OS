@@ -33,7 +33,7 @@ const Inbox = () => {
         .from('oauth_connections')
         .select('*')
         .eq('provider', 'google')
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
       if (error) throw error;
       return data;
@@ -81,7 +81,7 @@ const Inbox = () => {
 
       return messageDetails;
     },
-    enabled: !!connection,
+    enabled: !!connection, // Only run this query if we have a Google connection
   });
 
   const archiveMutation = useMutation({
