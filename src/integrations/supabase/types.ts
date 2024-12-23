@@ -113,6 +113,51 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          company_name: string
+          contact_email: string | null
+          contact_job_title: string | null
+          contact_linkedin: string | null
+          created_at: string
+          deal_value: number
+          delivery_end_date: string | null
+          delivery_start_date: string | null
+          id: string
+          last_activity_date: string
+          stage: Database["public"]["Enums"]["deal_stage"]
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          contact_email?: string | null
+          contact_job_title?: string | null
+          contact_linkedin?: string | null
+          created_at?: string
+          deal_value?: number
+          delivery_end_date?: string | null
+          delivery_start_date?: string | null
+          id?: string
+          last_activity_date?: string
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string | null
+          contact_job_title?: string | null
+          contact_linkedin?: string | null
+          created_at?: string
+          deal_value?: number
+          delivery_end_date?: string | null
+          delivery_start_date?: string | null
+          id?: string
+          last_activity_date?: string
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       substack_posts: {
         Row: {
           content: string | null
@@ -151,7 +196,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      deal_stage:
+        | "lead"
+        | "contact_made"
+        | "proposal_sent"
+        | "negotiation"
+        | "closed_won"
+        | "closed_lost"
     }
     CompositeTypes: {
       [_ in never]: never

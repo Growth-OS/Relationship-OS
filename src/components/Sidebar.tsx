@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2 } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -20,6 +20,7 @@ const Sidebar = () => {
   
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Briefcase, label: "CRM", path: "/dashboard/crm" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Edit, label: "Content", path: "/dashboard/content" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
