@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
 
@@ -17,7 +17,22 @@ const stages = [
 ];
 
 const CRM = () => {
-  const [isCreateDealOpen, setIsCreateDealOpen] = useState(false);
+  const [isCreateDealOpen, setIsCreateDealOpen] = useState(() => {
+    // Initialize from localStorage if available
+    const saved = localStorage.getItem('createDealDialogOpen');
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  // Save dialog state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('createDealDialogOpen', JSON.stringify(isCreateDealOpen));
+  }, [isCreateDealOpen]);
+
+  // Clear localStorage when dialog is explicitly closed
+  const handleDialogClose = () => {
+    setIsCreateDealOpen(false);
+    localStorage.removeItem('createDealDialogOpen');
+  };
 
   const { data: deals = [], isLoading } = useQuery({
     queryKey: ['deals'],
@@ -43,9 +58,9 @@ const CRM = () => {
           <h1 className="text-2xl font-bold text-primary mb-1">CRM Pipeline</h1>
           <p className="text-sm text-gray-600">Manage your deals and opportunities</p>
         </div>
-        <Dialog open={isCreateDealOpen} onOpenChange={setIsCreateDealOpen}>
+        <Dialog open={isCreateDealOpen} onOpenChange={handleDialogClose}>
           <DialogTrigger asChild>
-            <Button>
+            <Button onClick={() => setIsCreateDealOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Deal
             </Button>
@@ -54,7 +69,7 @@ const CRM = () => {
             <DialogHeader>
               <DialogTitle>Create New Deal</DialogTitle>
             </DialogHeader>
-            <CreateDealForm onSuccess={() => setIsCreateDealOpen(false)} />
+            <CreateDealForm onSuccess={handleDialogClose} />
           </DialogContent>
         </Dialog>
       </div>
