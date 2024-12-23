@@ -10,6 +10,7 @@ import { stages } from "@/components/crm/form-fields/StageSelect";
 import { toast } from "sonner";
 import { DealFormData } from "@/components/crm/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 const CRM = () => {
   const [open, setOpen] = useState(false);
@@ -27,26 +28,6 @@ const CRM = () => {
       return data;
     },
   });
-
-  const handleUpdateStage = async (dealId: string, newStage: DealFormData['stage']) => {
-    try {
-      const { error } = await supabase
-        .from('deals')
-        .update({ 
-          stage: newStage,
-          last_activity_date: new Date().toISOString()
-        })
-        .eq('id', dealId);
-
-      if (error) throw error;
-      
-      toast.success('Deal stage updated');
-      refetch();
-    } catch (error) {
-      console.error('Error updating deal stage:', error);
-      toast.error('Error updating deal stage');
-    }
-  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -67,7 +48,7 @@ const CRM = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
-            <DialogHeader className="pb-2">
+            <DialogHeader>
               <DialogTitle>Create New Deal</DialogTitle>
             </DialogHeader>
             <CreateDealForm onSuccess={() => setOpen(false)} />
@@ -96,17 +77,20 @@ const CRM = () => {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-sm">{deal.company_name}</h4>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingDeal(deal);
-                          }}
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </Button>
+                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <CreateTaskButton sourceId={deal.id} source="crm" />
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingDeal(deal);
+                            }}
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">${Number(deal.deal_value).toLocaleString()}</p>
                       {deal.contact_job_title && (

@@ -12,6 +12,7 @@ import AIPersona from "@/pages/AIPersona";
 import ProfileSettings from "@/pages/ProfileSettings";
 import Login from "@/pages/Login";
 import CRM from "@/pages/CRM";
+import Tasks from "@/pages/Tasks";
 import Prospects from "@/pages/Prospects";
 import Inbox from "@/pages/Inbox";
 import Calendar from "@/pages/Calendar";
@@ -47,6 +48,10 @@ export const routes: RouteObject[] = [
       {
         path: "crm",
         element: <CRM />,
+      },
+      {
+        path: "tasks",
+        element: <Tasks />,
       },
       {
         path: "inbox",

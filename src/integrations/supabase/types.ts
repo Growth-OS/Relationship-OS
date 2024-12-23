@@ -269,6 +269,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          source: Database["public"]["Enums"]["task_source"] | null
+          source_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          source?: Database["public"]["Enums"]["task_source"] | null
+          source_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          source?: Database["public"]["Enums"]["task_source"] | null
+          source_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -294,6 +333,7 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+      task_source: "crm" | "content" | "ideas" | "substack" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
