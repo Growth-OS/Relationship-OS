@@ -6,6 +6,18 @@ import { toast } from "sonner";
 import { DealFormFields } from "./form-fields/DealFormFields";
 import { DealFormData } from "./types";
 import { Form } from "@/components/ui/form";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CreateDealFormProps {
   onSuccess: () => void;
@@ -64,8 +76,51 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .delete()
+        .eq('id', initialData?.id);
+
+      if (error) throw error;
+      
+      toast.success('Deal deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
+      onSuccess();
+    } catch (error) {
+      console.error('Error deleting deal:', error);
+      toast.error('Error deleting deal');
+    }
+  };
+
   return (
     <Form {...form}>
+      <div className="flex justify-between items-center mb-4">
+        {initialData && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Deal</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this deal? This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2 max-w-md mx-auto py-2">
         <DealFormFields register={register} setValue={setValue} form={form} />
         <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>
