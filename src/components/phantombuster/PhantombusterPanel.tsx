@@ -37,7 +37,7 @@ export const PhantombusterPanel = () => {
     },
   });
 
-  const scripts = response?.data || [];
+  const scripts = Array.isArray(response?.data) ? response.data : [];
 
   const runPostLikers = async (scriptId: string) => {
     if (!linkedinUrl) {
@@ -71,6 +71,23 @@ export const PhantombusterPanel = () => {
     return <div>Loading scripts...</div>;
   }
 
+  if (scripts.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Phantombuster Scripts</h2>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+        <Card className="p-6">
+          <p className="text-gray-500">No LinkedIn scripts available. Make sure your Phantombuster API key is configured correctly.</p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -82,7 +99,7 @@ export const PhantombusterPanel = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.isArray(scripts) && scripts.map((script: PhantombusterScript) => (
+        {scripts.map((script: PhantombusterScript) => (
           <Card key={script.id} className="p-4 space-y-4">
             <div>
               <h3 className="font-medium">{script.name}</h3>

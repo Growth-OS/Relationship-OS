@@ -27,7 +27,8 @@ Deno.serve(async (req) => {
     const { action, scriptId, linkedinUrl } = await req.json()
 
     if (action === 'listScripts') {
-      const response = await fetch('https://api.phantombuster.com/api/v2/agents/suggest-agents', {
+      // First, get all agents
+      const response = await fetch('https://api.phantombuster.com/api/v2/agents/fetch-all', {
         headers: {
           'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY!,
         },
@@ -37,7 +38,22 @@ Deno.serve(async (req) => {
         throw new Error('Failed to fetch scripts')
       }
 
-      const scripts = await response.json()
+      const data = await response.json()
+      
+      // Filter for LinkedIn-related scripts
+      const scripts = data.data.filter((script: any) => 
+        script.name.toLowerCase().includes('linkedin') &&
+        (script.name.toLowerCase().includes('liker') || 
+         script.name.toLowerCase().includes('commenter'))
+      ).map((script: any) => ({
+        id: script.id,
+        name: script.name,
+        description: script.manifest?.description || 'No description available',
+        lastEndTime: script.lastEndTime,
+      }))
+
+      console.log('Available scripts:', scripts)
+
       return new Response(JSON.stringify({ data: scripts }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
