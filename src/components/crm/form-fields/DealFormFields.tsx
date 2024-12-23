@@ -17,17 +17,21 @@ interface DealFormFieldsProps {
 
 export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps) => {
   return (
-    <>
-      <CountrySelect register={register} setValue={setValue} />
+    <div className="grid grid-cols-2 gap-3">
+      <div className="col-span-2">
+        <CountrySelect register={register} setValue={setValue} />
+      </div>
 
-      <div className="space-y-2">
+      <div className="col-span-2">
         <Label htmlFor="company_name">Company Name</Label>
         <Input id="company_name" {...register('company_name', { required: true })} />
       </div>
 
-      <StageSelect register={register} setValue={setValue} />
+      <div className="col-span-1">
+        <StageSelect register={register} setValue={setValue} />
+      </div>
 
-      <div className="space-y-2">
+      <div className="col-span-1">
         <Label htmlFor="deal_value">Deal Value</Label>
         <Input
           id="deal_value"
@@ -36,11 +40,17 @@ export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps
         />
       </div>
 
-      <DeliveryDates register={register} />
+      <div className="col-span-2">
+        <DeliveryDates register={register} />
+      </div>
       
-      <ContactFields register={register} />
+      <div className="col-span-2">
+        <ContactFields register={register} />
+      </div>
 
-      <NotesInput form={form} />
-    </>
+      <div className="col-span-2">
+        <NotesInput form={form} />
+      </div>
+    </div>
   );
 };

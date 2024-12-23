@@ -66,8 +66,8 @@ const CRM = () => {
               Add Deal
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
+          <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+            <DialogHeader className="pb-2">
               <DialogTitle>Create New Deal</DialogTitle>
             </DialogHeader>
             <CreateDealForm onSuccess={() => setOpen(false)} />
