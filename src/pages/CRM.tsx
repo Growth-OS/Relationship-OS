@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
-import { stages } from "@/components/crm/form-fields/DealFormFields";
+import { stages } from "@/components/crm/form-fields/StageSelect";
 
 const CRM = () => {
   const [open, setOpen] = useState(false);
