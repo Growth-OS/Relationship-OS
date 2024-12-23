@@ -18,7 +18,7 @@ export const PhantombusterPanel = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [isRunning, setIsRunning] = useState(false);
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data: response, isLoading, refetch } = useQuery({
     queryKey: ['phantombuster-scripts'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('phantombuster', {
@@ -26,9 +26,11 @@ export const PhantombusterPanel = () => {
       });
       
       if (error) throw error;
-      return data?.data || []; // Ensure we always return an array
+      return data;
     },
   });
+
+  const scripts = response?.data || [];
 
   const runPostLikers = async (scriptId: string) => {
     if (!linkedinUrl) {
@@ -73,7 +75,7 @@ export const PhantombusterPanel = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.isArray(data) && data.map((script: any) => (
+        {Array.isArray(scripts) && scripts.map((script: any) => (
           <Card key={script.id} className="p-4 space-y-4">
             <div>
               <h3 className="font-medium">{script.name}</h3>
