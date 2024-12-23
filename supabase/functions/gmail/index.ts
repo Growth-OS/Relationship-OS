@@ -40,6 +40,8 @@ serve(async (req) => {
       throw new Error("Invalid user");
     }
 
+    console.log("User found:", user.id);
+
     const { data: connection, error: connectionError } = await supabase
       .from("oauth_connections")
       .select("*")
@@ -51,6 +53,8 @@ serve(async (req) => {
       console.error("Connection error:", connectionError);
       throw new Error("No Google connection found");
     }
+
+    console.log("Found Google connection, checking token...");
 
     // Check if token is expired and refresh if needed
     if (new Date(connection.expires_at) < new Date()) {
@@ -87,6 +91,8 @@ serve(async (req) => {
 
       connection.access_token = data.access_token;
     }
+
+    console.log("Token is valid, proceeding with Gmail API request");
 
     let gmailResponse;
     switch (action) {
@@ -160,7 +166,7 @@ serve(async (req) => {
     }
 
     const data = await gmailResponse.json();
-    console.log("Gmail API response:", data);
+    console.log("Gmail API response received");
     
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

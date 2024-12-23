@@ -9,16 +9,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EmailList } from "@/components/inbox/EmailList";
 import { InboxSidebar } from "@/components/inbox/InboxSidebar";
 import { SearchBar } from "@/components/inbox/SearchBar";
+import { useLocation } from "react-router-dom";
 
 const Inbox = () => {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const location = useLocation();
 
-  const { data: connection, isLoading: isCheckingConnection } = useQuery({
+  const { data: connection, isLoading: isCheckingConnection, refetch: refetchConnection } = useQuery({
     queryKey: ['googleConnection'],
     queryFn: async () => {
+      console.log('Checking Google connection...');
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      if (!session) {
+        console.log('No session found');
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('oauth_connections')
@@ -30,21 +36,41 @@ const Inbox = () => {
         console.error('Connection check error:', error);
         throw error;
       }
+      
+      console.log('Connection data:', data);
       return data;
     },
   });
 
+  // Check for OAuth redirect and refresh connection data
+  useEffect(() => {
+    const isOAuthRedirect = location.hash.includes('access_token') || 
+                           location.hash.includes('error') || 
+                           location.search.includes('code');
+    
+    if (isOAuthRedirect) {
+      console.log('Detected OAuth redirect, refreshing connection data...');
+      refetchConnection();
+    }
+  }, [location, refetchConnection]);
+
   const handleGoogleAuth = async () => {
     try {
+      console.log('Starting Google auth...');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/gmail.modify',
-          redirectTo: window.location.origin + '/dashboard/inbox',
+          redirectTo: `${window.location.origin}/dashboard/inbox`,
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Google auth error:', error);
+        throw error;
+      }
+      
+      console.log('Google auth successful:', data);
       toast.success('Successfully connected to Gmail');
       queryClient.invalidateQueries({ queryKey: ['googleConnection'] });
     } catch (error) {
