@@ -51,17 +51,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         if (mounted) {
           setIsAuthenticated(false);
           navigate('/', { replace: true });
         }
-      } else if (event === 'SIGNED_IN') {
+      } else if (event === 'SIGNED_IN' && !isAuthenticated) {
+        // Only navigate to dashboard on initial sign in (when not already authenticated)
         if (mounted) {
           setIsAuthenticated(true);
-          // Only navigate to dashboard on initial sign in
           navigate('/dashboard', { replace: true });
+        }
+      } else if (event === 'SIGNED_IN') {
+        // Just update authentication state without navigation for session checks
+        if (mounted) {
+          setIsAuthenticated(true);
         }
       }
       
@@ -74,7 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, isAuthenticated]);
 
   if (isLoading) {
     return null;
