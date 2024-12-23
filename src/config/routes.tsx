@@ -14,6 +14,7 @@ import Login from "@/pages/Login";
 import CRM from "@/pages/CRM";
 import Prospects from "@/pages/Prospects";
 import Inbox from "@/pages/Inbox";
+import Calendar from "@/pages/Calendar";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
@@ -50,6 +51,10 @@ export const routes: RouteObject[] = [
       {
         path: "inbox",
         element: <Inbox />,
+      },
+      {
+        path: "calendar",
+        element: <Calendar />,
       },
       {
         path: "affiliates",
