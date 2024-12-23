@@ -23,12 +23,22 @@ interface CreateTaskFormProps {
   sourceId?: string;
   source?: 'crm' | 'content' | 'ideas' | 'substack' | 'other';
   onSuccess?: () => void;
+  initialData?: {
+    id: string;
+    title: string;
+    description?: string;
+    due_date?: string;
+    priority: string;
+  };
 }
 
-export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess, initialData }: CreateTaskFormProps) => {
   const form = useForm<TaskFormData>({
     defaultValues: {
-      priority: 'medium'
+      title: initialData?.title || '',
+      description: initialData?.description || '',
+      due_date: initialData?.due_date ? new Date(initialData.due_date) : undefined,
+      priority: (initialData?.priority || 'medium') as 'low' | 'medium' | 'high'
     }
   });
 
@@ -50,17 +60,30 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess }: Create
         user_id: user.id,
       };
 
-      const { error } = await supabase
-        .from('tasks')
-        .insert(formattedData);
+      let error;
+      
+      if (initialData?.id) {
+        // Update existing task
+        const { error: updateError } = await supabase
+          .from('tasks')
+          .update(formattedData)
+          .eq('id', initialData.id);
+        error = updateError;
+      } else {
+        // Create new task
+        const { error: insertError } = await supabase
+          .from('tasks')
+          .insert(formattedData);
+        error = insertError;
+      }
 
       if (error) throw error;
       
-      toast.success('Task created successfully');
+      toast.success(initialData ? 'Task updated successfully' : 'Task created successfully');
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating task:', error);
-      toast.error('Error creating task');
+      console.error('Error saving task:', error);
+      toast.error(initialData ? 'Error updating task' : 'Error creating task');
     }
   };
 
@@ -156,7 +179,7 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess }: Create
         />
 
         <Button type="submit" className="w-full">
-          Create Task
+          {initialData ? 'Update Task' : 'Create Task'}
         </Button>
       </form>
     </Form>
