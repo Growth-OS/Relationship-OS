@@ -5,6 +5,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { CreateTaskForm } from "./CreateTaskForm";
 
 interface Task {
   id: string;
@@ -22,6 +26,8 @@ interface TaskListProps {
 }
 
 export const TaskList = ({ source }: TaskListProps) => {
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  
   const { data: tasks = [], isLoading, refetch } = useQuery({
     queryKey: ['tasks', source],
     queryFn: async () => {
@@ -36,7 +42,10 @@ export const TaskList = ({ source }: TaskListProps) => {
       
       const { data, error } = await query;
       
-      if (error) throw error;
+      if (error) {
+        toast.error('Error loading tasks');
+        throw error;
+      }
       return data as Task[];
     },
   });
@@ -50,6 +59,7 @@ export const TaskList = ({ source }: TaskListProps) => {
 
       if (error) throw error;
       
+      toast.success('Task updated successfully');
       refetch();
     } catch (error) {
       console.error('Error updating task:', error);
@@ -85,9 +95,19 @@ export const TaskList = ({ source }: TaskListProps) => {
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                  {task.title}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
+                    {task.title}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditingTask(task)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    Edit
+                  </Button>
+                </div>
                 <Badge variant="secondary" className={getPriorityColor(task.priority)}>
                   {task.priority}
                 </Badge>
@@ -109,6 +129,24 @@ export const TaskList = ({ source }: TaskListProps) => {
           No tasks found
         </div>
       )}
+
+      <Dialog open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Task</DialogTitle>
+          </DialogHeader>
+          {editingTask && (
+            <CreateTaskForm
+              onSuccess={() => {
+                setEditingTask(null);
+                refetch();
+                toast.success('Task updated successfully');
+              }}
+              initialData={editingTask}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
