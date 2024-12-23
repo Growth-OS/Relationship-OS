@@ -14,6 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+interface PhantombusterScript {
+  id: string;
+  name: string;
+  description: string;
+  lastEndTime?: string;
+}
+
 export const PhantombusterPanel = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [isRunning, setIsRunning] = useState(false);
@@ -75,7 +82,7 @@ export const PhantombusterPanel = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.isArray(scripts) && scripts.map((script: any) => (
+        {Array.isArray(scripts) && scripts.map((script: PhantombusterScript) => (
           <Card key={script.id} className="p-4 space-y-4">
             <div>
               <h3 className="font-medium">{script.name}</h3>
