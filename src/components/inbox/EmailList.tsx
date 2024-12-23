@@ -25,11 +25,30 @@ interface EmailListProps {
 export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailListProps) => {
   const queryClient = useQueryClient();
 
-  const { data: messages, isLoading: isLoadingMessages } = useQuery({
+  const { data: messages, isLoading: isLoadingMessages, error: messagesError } = useQuery({
     queryKey: ['emails'],
     queryFn: async () => {
+      console.log('Starting to fetch emails...');
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
+
+      // First check if we have a Google connection
+      const { data: connection, error: connectionError } = await supabase
+        .from('oauth_connections')
+        .select('*')
+        .eq('provider', 'google')
+        .maybeSingle();
+
+      console.log('OAuth connection check:', connection, connectionError);
+
+      if (connectionError) {
+        console.error('Connection error:', connectionError);
+        throw new Error('Failed to check Google connection');
+      }
+
+      if (!connection) {
+        throw new Error('No Google connection found');
+      }
 
       const response = await fetch('/functions/v1/gmail', {
         method: 'POST',
@@ -40,10 +59,22 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailList
         body: JSON.stringify({ action: 'listMessages' }),
       });
 
-      if (!response.ok) throw new Error('Failed to fetch messages');
+      console.log('Gmail API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Gmail API error:', errorText);
+        throw new Error('Failed to fetch messages');
+      }
       
       const data = await response.json();
+      console.log('Gmail API response data:', data);
       
+      if (!data.messages || !Array.isArray(data.messages)) {
+        console.error('Unexpected response format:', data);
+        throw new Error('Invalid response format from Gmail API');
+      }
+
       const messageDetails = await Promise.all(
         data.messages.map(async (message: { id: string }) => {
           const detailResponse = await fetch('/functions/v1/gmail', {
@@ -58,7 +89,10 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailList
             }),
           });
           
-          if (!detailResponse.ok) throw new Error('Failed to fetch message details');
+          if (!detailResponse.ok) {
+            console.error('Failed to fetch message details:', message.id);
+            throw new Error('Failed to fetch message details');
+          }
           return detailResponse.json();
         })
       );
@@ -104,6 +138,30 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailList
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (messagesError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+        <p className="text-red-500 mb-4">
+          {messagesError instanceof Error ? messagesError.message : 'Failed to load emails'}
+        </p>
+        <Button 
+          onClick={() => queryClient.invalidateQueries({ queryKey: ['emails'] })}
+          variant="outline"
+        >
+          Try Again
+        </Button>
+      </div>
+    );
+  }
+
+  if (!messages?.length) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-500">
+        No emails found
       </div>
     );
   }

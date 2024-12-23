@@ -8,28 +8,34 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    console.log("Gmail function called");
+    
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
-    const { action } = await req.json();
+    const { action, messageId } = await req.json();
     const authHeader = req.headers.get("Authorization");
     
     if (!authHeader) {
       throw new Error("No authorization header");
     }
 
+    console.log("Action:", action);
+
     const { data: { user }, error: userError } = await supabase.auth.getUser(
       authHeader.replace("Bearer ", "")
     );
 
     if (userError || !user) {
+      console.error("User error:", userError);
       throw new Error("Invalid user");
     }
 
@@ -41,11 +47,13 @@ serve(async (req) => {
       .single();
 
     if (connectionError || !connection) {
+      console.error("Connection error:", connectionError);
       throw new Error("No Google connection found");
     }
 
     // Check if token is expired and refresh if needed
     if (new Date(connection.expires_at) < new Date()) {
+      console.log("Token expired, refreshing...");
       const response = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: {
@@ -60,10 +68,13 @@ serve(async (req) => {
       });
 
       const data = await response.json();
-
+      
       if (!response.ok) {
+        console.error("Token refresh error:", data);
         throw new Error("Failed to refresh token");
       }
+
+      console.log("Token refreshed successfully");
 
       await supabase
         .from("oauth_connections")
@@ -79,6 +90,7 @@ serve(async (req) => {
     let result;
     switch (action) {
       case "listMessages":
+        console.log("Fetching messages list");
         result = await fetch(
           "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10",
           {
@@ -90,7 +102,7 @@ serve(async (req) => {
         break;
       
       case "getMessage":
-        const { messageId } = await req.json();
+        console.log("Fetching message details:", messageId);
         result = await fetch(
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}`,
           {
@@ -102,9 +114,9 @@ serve(async (req) => {
         break;
 
       case "archiveMessage":
-        const { messageId: archiveId } = await req.json();
+        console.log("Archiving message:", messageId);
         result = await fetch(
-          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${archiveId}/modify`,
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/modify`,
           {
             method: "POST",
             headers: {
@@ -122,12 +134,20 @@ serve(async (req) => {
         throw new Error("Invalid action");
     }
 
+    if (!result.ok) {
+      const errorText = await result.text();
+      console.error("Gmail API error:", errorText);
+      throw new Error(`Gmail API error: ${errorText}`);
+    }
+
     const data = await result.json();
+    console.log("Gmail API response:", data);
     
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("Function error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
