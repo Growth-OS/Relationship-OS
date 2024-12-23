@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
 import { stages } from "@/components/crm/form-fields/StageSelect";
 import { toast } from "sonner";
+import { DealFormData } from "@/components/crm/types";
 
 const CRM = () => {
   const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ const CRM = () => {
     },
   });
 
-  const handleUpdateStage = async (dealId: string, newStage: string) => {
+  const handleUpdateStage = async (dealId: string, newStage: DealFormData['stage']) => {
     try {
       const { error } = await supabase
         .from('deals')
