@@ -10,4 +10,5 @@ export interface DealFormData {
   country?: string;
   country_flag?: string;
   notes?: string;
+  source?: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
 }

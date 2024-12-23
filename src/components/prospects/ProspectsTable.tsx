@@ -58,9 +58,11 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
           contact_email: prospect.contact_email,
           contact_job_title: prospect.contact_job_title,
           notes: prospect.notes,
+          source: prospect.source,
           user_id: user.id,
           stage: 'lead',
           deal_value: 0, // Default value
+          last_activity_date: new Date().toISOString()
         });
 
       if (dealError) throw dealError;
