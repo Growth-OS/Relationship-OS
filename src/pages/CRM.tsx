@@ -58,7 +58,7 @@ const CRM = () => {
           <h1 className="text-2xl font-bold text-primary mb-1">CRM Pipeline</h1>
           <p className="text-sm text-gray-600">Manage your deals and opportunities</p>
         </div>
-        <Dialog open={isCreateDealOpen} onOpenChange={handleDialogClose}>
+        <Dialog>
           <DialogTrigger asChild>
             <Button onClick={() => setIsCreateDealOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
