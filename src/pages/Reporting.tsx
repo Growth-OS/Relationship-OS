@@ -28,7 +28,7 @@ const Reporting = () => {
         .from('deals')
         .select('*')
         .gte('created_at', thirtyDaysAgo)
-        .not('stage', 'eq', 'paid');
+        .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
       
       if (error) throw error;
       return data || [];
@@ -48,6 +48,7 @@ const Reporting = () => {
     },
   });
 
+  // Calculate total deal value only for active deals (excluding to_invoice, invoiced, and paid)
   const totalDealValue = deals?.reduce((sum, deal) => sum + Number(deal.deal_value), 0) || 0;
 
   return (
