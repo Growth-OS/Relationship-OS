@@ -1,33 +1,34 @@
 import { Card } from "@/components/ui/card";
 import { TaskList } from "@/components/tasks/TaskList";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 const Tasks = () => {
   return (
     <div className="space-y-4 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-primary mb-1">Tasks</h1>
-        <p className="text-sm text-gray-600">Manage your tasks across different areas</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary mb-1">Tasks</h1>
+          <p className="text-sm text-gray-600">Manage your tasks across different areas</p>
+        </div>
+        <CreateTaskButton />
       </div>
 
       <Card className="p-6">
         <Tabs defaultValue="active">
           <TabsList>
             <TabsTrigger value="active">Active Tasks</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
             <TabsTrigger value="crm">CRM</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="substack">Substack</TabsTrigger>
             <TabsTrigger value="other">Other</TabsTrigger>
+            <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
 
           <div className="mt-4">
             <TabsContent value="active">
               <TaskList showArchived={false} />
-            </TabsContent>
-            <TabsContent value="archived">
-              <TaskList showArchived={true} />
             </TabsContent>
             <TabsContent value="crm">
               <TaskList source="crm" showArchived={false} />
@@ -43,6 +44,9 @@ const Tasks = () => {
             </TabsContent>
             <TabsContent value="other">
               <TaskList source="other" showArchived={false} />
+            </TabsContent>
+            <TabsContent value="archived">
+              <TaskList showArchived={true} />
             </TabsContent>
           </div>
         </Tabs>
