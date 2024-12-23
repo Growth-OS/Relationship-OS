@@ -39,7 +39,11 @@ Deno.serve(async (req) => {
           },
         })
         const data = await response.json()
-        return new Response(JSON.stringify(data), {
+        
+        // Ensure we return an array of scripts with the required fields
+        const scripts = Array.isArray(data) ? data : [];
+        
+        return new Response(JSON.stringify({ data: scripts }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
@@ -60,7 +64,6 @@ Deno.serve(async (req) => {
             id: scriptId,
             argument: {
               postUrl: linkedinUrl,
-              // Add any other required parameters for the script
             },
           }),
         })
@@ -90,7 +93,6 @@ Deno.serve(async (req) => {
           const prospects = Array.isArray(results.data) ? results.data : [results.data]
           
           for (const prospect of prospects) {
-            // Add each prospect to the database
             await supabase.from('prospects').insert({
               user_id: user.id,
               company_name: prospect.companyName || 'Unknown Company',
