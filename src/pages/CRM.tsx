@@ -18,17 +18,14 @@ const stages = [
 
 const CRM = () => {
   const [isCreateDealOpen, setIsCreateDealOpen] = useState(() => {
-    // Initialize from localStorage if available
     const saved = localStorage.getItem('createDealDialogOpen');
     return saved ? JSON.parse(saved) : false;
   });
 
-  // Save dialog state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('createDealDialogOpen', JSON.stringify(isCreateDealOpen));
   }, [isCreateDealOpen]);
 
-  // Clear localStorage when dialog is explicitly closed
   const handleDialogClose = () => {
     setIsCreateDealOpen(false);
     localStorage.removeItem('createDealDialogOpen');
@@ -58,7 +55,7 @@ const CRM = () => {
           <h1 className="text-2xl font-bold text-primary mb-1">CRM Pipeline</h1>
           <p className="text-sm text-gray-600">Manage your deals and opportunities</p>
         </div>
-        <Dialog>
+        <Dialog open={isCreateDealOpen} onOpenChange={setIsCreateDealOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => setIsCreateDealOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
