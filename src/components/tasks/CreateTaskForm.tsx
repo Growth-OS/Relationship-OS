@@ -41,14 +41,18 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess }: Create
         return;
       }
 
+      // Convert Date to ISO string for Supabase
+      const formattedData = {
+        ...data,
+        due_date: data.due_date?.toISOString().split('T')[0], // Convert to YYYY-MM-DD
+        source,
+        source_id: sourceId,
+        user_id: user.id,
+      };
+
       const { error } = await supabase
         .from('tasks')
-        .insert({
-          ...data,
-          user_id: user.id,
-          source,
-          source_id: sourceId
-        });
+        .insert(formattedData);
 
       if (error) throw error;
       
