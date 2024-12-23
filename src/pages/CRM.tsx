@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
 
@@ -17,19 +17,7 @@ const stages = [
 ];
 
 const CRM = () => {
-  const [isCreateDealOpen, setIsCreateDealOpen] = useState(() => {
-    const saved = localStorage.getItem('createDealDialogOpen');
-    return saved ? JSON.parse(saved) : false;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('createDealDialogOpen', JSON.stringify(isCreateDealOpen));
-  }, [isCreateDealOpen]);
-
-  const handleDialogClose = () => {
-    setIsCreateDealOpen(false);
-    localStorage.removeItem('createDealDialogOpen');
-  };
+  const [open, setOpen] = useState(false);
 
   const { data: deals = [], isLoading } = useQuery({
     queryKey: ['deals'],
@@ -55,9 +43,9 @@ const CRM = () => {
           <h1 className="text-2xl font-bold text-primary mb-1">CRM Pipeline</h1>
           <p className="text-sm text-gray-600">Manage your deals and opportunities</p>
         </div>
-        <Dialog open={isCreateDealOpen} onOpenChange={setIsCreateDealOpen}>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setIsCreateDealOpen(true)}>
+            <Button>
               <Plus className="w-4 h-4 mr-2" />
               Add Deal
             </Button>
@@ -66,7 +54,7 @@ const CRM = () => {
             <DialogHeader>
               <DialogTitle>Create New Deal</DialogTitle>
             </DialogHeader>
-            <CreateDealForm onSuccess={handleDialogClose} />
+            <CreateDealForm onSuccess={() => setOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>

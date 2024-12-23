@@ -22,7 +22,11 @@ const stages = [
 
 export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, formState: { isSubmitting }, reset } = useForm();
+  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm({
+    defaultValues: {
+      stage: 'lead'
+    }
+  });
 
   const onSubmit = async (data: any) => {
     try {
@@ -37,8 +41,7 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
 
       queryClient.invalidateQueries({ queryKey: ['deals'] });
       toast.success('Deal created successfully');
-      reset(); // Reset form fields
-      onSuccess(); // Close the dialog
+      onSuccess();
     } catch (error) {
       console.error('Error creating deal:', error);
       toast.error('Error creating deal');
@@ -54,7 +57,7 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="stage">Stage</Label>
-        <Select defaultValue="lead" onValueChange={(value) => register('stage').onChange({ target: { value } })}>
+        <Select defaultValue="lead" onValueChange={(value) => setValue('stage', value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select stage" />
           </SelectTrigger>
@@ -66,7 +69,7 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
             ))}
           </SelectContent>
         </Select>
-        <input type="hidden" {...register('stage', { value: 'lead' })} />
+        <input type="hidden" {...register('stage')} />
       </div>
 
       <div className="space-y-2">
