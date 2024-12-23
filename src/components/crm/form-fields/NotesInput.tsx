@@ -15,18 +15,13 @@ type NotesInputProps = {
 
 export const NotesInput = ({ form }: NotesInputProps) => {
   return (
-    <FormField
-      control={form.control}
-      name="notes"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Notes (Optional)</FormLabel>
-          <FormControl>
-            <Input placeholder="Add any relevant notes" {...field} />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className="space-y-2">
+      <Label htmlFor="notes">Notes (Optional)</Label>
+      <Input 
+        id="notes"
+        placeholder="Add any relevant notes" 
+        {...form.register('notes')} 
+      />
+    </div>
   );
 };

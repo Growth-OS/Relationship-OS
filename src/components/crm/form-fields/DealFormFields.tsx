@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UseFormRegister, UseFormSetValue } from "react-hook-form";
+import { UseFormRegister, UseFormSetValue, useForm } from "react-hook-form";
 import { DealFormData } from "../types";
 import { CountrySelect } from "./CountrySelect";
 import { StageSelect } from "./StageSelect";
@@ -14,6 +14,8 @@ interface DealFormFieldsProps {
 }
 
 export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
+  const form = useForm<DealFormData>();
+
   return (
     <>
       <CountrySelect register={register} setValue={setValue} />
@@ -38,7 +40,7 @@ export const DealFormFields = ({ register, setValue }: DealFormFieldsProps) => {
       
       <ContactFields register={register} />
 
-      <NotesInput form={{ control: register, register }} />
+      <NotesInput form={form} />
     </>
   );
 };
