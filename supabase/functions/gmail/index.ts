@@ -25,6 +25,7 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     
     if (!authHeader) {
+      console.error("No authorization header");
       throw new Error("No authorization header");
     }
 
