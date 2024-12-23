@@ -1,11 +1,23 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Play, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const PhantombusterPanel = () => {
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [isRunning, setIsRunning] = useState(false);
+
   const { data: scripts, isLoading, refetch } = useQuery({
     queryKey: ['phantombuster-scripts'],
     queryFn: async () => {
@@ -18,20 +30,31 @@ export const PhantombusterPanel = () => {
     },
   });
 
-  const runScript = async (scriptId: string) => {
+  const runPostLikers = async (scriptId: string) => {
+    if (!linkedinUrl) {
+      toast.error('Please enter a LinkedIn post URL');
+      return;
+    }
+
     try {
+      setIsRunning(true);
       const { error } = await supabase.functions.invoke('phantombuster', {
         body: { 
-          action: 'runScript',
+          action: 'runPostLikers',
           scriptId,
+          linkedinUrl,
         },
       });
       
       if (error) throw error;
-      toast.success('Script launched successfully');
+      
+      toast.success('Post likers have been added to prospects');
+      setLinkedinUrl('');
     } catch (error) {
       console.error('Error running script:', error);
       toast.error('Failed to run script');
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -60,10 +83,37 @@ export const PhantombusterPanel = () => {
               <span className="text-sm text-gray-500">
                 Last run: {script.lastEndTime ? new Date(script.lastEndTime).toLocaleDateString() : 'Never'}
               </span>
-              <Button size="sm" onClick={() => runScript(script.id)}>
-                <Play className="w-4 h-4 mr-2" />
-                Run
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <Play className="w-4 h-4 mr-2" />
+                    Run
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Run {script.name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">LinkedIn Post URL</label>
+                      <Input
+                        value={linkedinUrl}
+                        onChange={(e) => setLinkedinUrl(e.target.value)}
+                        placeholder="https://www.linkedin.com/posts/..."
+                        className="mt-1"
+                      />
+                    </div>
+                    <Button 
+                      onClick={() => runPostLikers(script.id)}
+                      disabled={isRunning}
+                      className="w-full"
+                    >
+                      {isRunning ? 'Running...' : 'Start Script'}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </Card>
         ))}
