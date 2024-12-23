@@ -27,11 +27,11 @@ export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps
         <Input id="company_name" {...register('company_name', { required: true })} />
       </div>
 
-      <div className="col-span-1">
+      <div className="col-span-1 space-y-2">
         <StageSelect register={register} setValue={setValue} />
       </div>
 
-      <div className="col-span-1">
+      <div className="col-span-1 space-y-2">
         <Label htmlFor="deal_value">Deal Value</Label>
         <Input
           id="deal_value"
