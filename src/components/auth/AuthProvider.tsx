@@ -31,17 +31,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        // Verify the session is still valid
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
-          console.error("User verification error:", userError);
-          await supabase.auth.signOut(); // Clear invalid session
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          return;
-        }
-
         setIsAuthenticated(true);
         setIsLoading(false);
 
@@ -51,7 +40,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                               location.search.includes('code');
         
         if (isOAuthRedirect) {
-          navigate('/dashboard/inbox', { replace: true });
+          navigate('/dashboard', { replace: true });
         }
       } catch (error) {
         console.error("Session check error:", error);
@@ -68,13 +57,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
         navigate('/', { replace: true });
+        toast.success('Signed out successfully');
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+        if (session) {
           setIsAuthenticated(true);
           if (location.pathname === '/login') {
             navigate('/dashboard', { replace: true });
           }
+        } else {
+          setIsAuthenticated(false);
         }
       }
     });
