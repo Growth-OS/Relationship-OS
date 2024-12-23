@@ -1,53 +1,59 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { Database } from '@/integrations/supabase/types';
+import { Card } from "@/components/ui/card";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { Database } from "@/integrations/supabase/types";
 
-type LeadSource = Database['public']['Enums']['lead_source'];
+type Prospect = {
+  source?: Database['public']['Enums']['lead_source'] | null;
+};
 
 interface LeadSourcesChartProps {
-  prospects: Array<{ source: LeadSource }>;
+  prospects: Prospect[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
-
 export const LeadSourcesChart = ({ prospects }: LeadSourcesChartProps) => {
-  // Count prospects by source
+  const sourceColors = {
+    website: "#4CAF50",
+    referral: "#2196F3",
+    linkedin: "#9C27B0",
+    cold_outreach: "#FF9800",
+    conference: "#F44336",
+    other: "#607D8B",
+  };
+
   const sourceCounts = prospects.reduce((acc, prospect) => {
-    acc[prospect.source] = (acc[prospect.source] || 0) + 1;
+    const source = prospect.source || 'other';
+    acc[source] = (acc[source] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const data = Object.entries(sourceCounts).map(([name, value]) => ({
-    name: name.replace('_', ' ').toUpperCase(),
+    name: name.charAt(0).toUpperCase() + name.slice(1).replace('_', ' '),
     value,
   }));
 
   return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            outerRadius={100}
-            fill="#8884d8"
-            dataKey="value"
-            label={({ name, percent }) => 
-              `${name} ${(percent * 100).toFixed(0)}%`
-            }
-          >
-            {data.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          outerRadius={80}
+          fill="#8884d8"
+          dataKey="value"
+          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+        >
+          {data.map((entry, index) => (
+            <Cell 
+              key={`cell-${index}`} 
+              fill={sourceColors[entry.name.toLowerCase().replace(' ', '_') as keyof typeof sourceColors]} 
+            />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
   );
 };

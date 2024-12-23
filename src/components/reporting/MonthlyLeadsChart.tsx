@@ -1,13 +1,19 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card } from "@/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { Database } from "@/integrations/supabase/types";
+
+type Prospect = {
+  created_at: string;
+  source?: Database['public']['Enums']['lead_source'] | null;
+};
 
 interface MonthlyLeadsChartProps {
-  prospects: Array<{ created_at: string }>;
+  prospects: Prospect[];
 }
 
 export const MonthlyLeadsChart = ({ prospects }: MonthlyLeadsChartProps) => {
-  // Get the last 12 months
-  const months = Array.from({ length: 12 }, (_, i) => {
+  const last12Months = Array.from({ length: 12 }, (_, i) => {
     const date = subMonths(new Date(), i);
     return {
       start: startOfMonth(date),
@@ -16,8 +22,7 @@ export const MonthlyLeadsChart = ({ prospects }: MonthlyLeadsChartProps) => {
     };
   }).reverse();
 
-  // Count prospects for each month
-  const data = months.map(month => {
+  const data = last12Months.map(month => {
     const count = prospects.filter(prospect => {
       const createdAt = new Date(prospect.created_at);
       return createdAt >= month.start && createdAt <= month.end;
@@ -30,16 +35,21 @@ export const MonthlyLeadsChart = ({ prospects }: MonthlyLeadsChartProps) => {
   });
 
   return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="leads" fill="#8884d8" name="New Leads" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis 
+          dataKey="month" 
+          tick={{ fontSize: 12 }}
+          interval={0}
+          angle={-45}
+          textAnchor="end"
+          height={60}
+        />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="leads" fill="#2563eb" />
+      </BarChart>
+    </ResponsiveContainer>
   );
 };
