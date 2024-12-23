@@ -1,14 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonthlyEarningsChart } from "@/components/reporting/MonthlyEarningsChart";
-import { MonthlyLeadsChart } from "@/components/reporting/MonthlyLeadsChart";
-import { LeadSourcesChart } from "@/components/reporting/LeadSourcesChart";
-import { MonthlyConversionsChart } from "@/components/reporting/MonthlyConversionsChart";
-import { DealStageConversions } from "@/components/reporting/DealStageConversions";
-import { ChartBarIcon, PieChart } from "lucide-react";
-import { DealsByCountryChart } from "@/components/reporting/DealsByCountryChart";
 import { format, subDays } from "date-fns";
+import { TotalDealValueCard } from "@/components/reporting/TotalDealValueCard";
+import { DealStageConversions } from "@/components/reporting/DealStageConversions";
+import { LeadsChartSection } from "@/components/reporting/LeadsChartSection";
+import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSection";
 
 const Reporting = () => {
   const { data: earnings } = useQuery({
@@ -54,13 +50,6 @@ const Reporting = () => {
 
   const totalDealValue = deals?.reduce((sum, deal) => sum + Number(deal.deal_value), 0) || 0;
 
-  const dealsByCountry = deals?.reduce((acc: Record<string, number>, deal) => {
-    if (deal.country) {
-      acc[deal.country] = (acc[deal.country] || 0) + 1;
-    }
-    return acc;
-  }, {});
-
   return (
     <div className="space-y-4 animate-fade-in">
       <div>
@@ -69,62 +58,16 @@ const Reporting = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-4">
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Total Deal Value (30d)</p>
-              <ChartBarIcon className="w-4 h-4 text-gray-500" />
-            </div>
-            <div className="text-3xl font-bold">${totalDealValue.toLocaleString()}</div>
-          </div>
-        </Card>
-
+        <TotalDealValueCard totalDealValue={totalDealValue} />
         <DealStageConversions />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-medium">New Leads (12 Months)</CardTitle>
-            <ChartBarIcon className="w-4 h-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <MonthlyLeadsChart prospects={prospects} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-medium">Lead Sources</CardTitle>
-            <PieChart className="w-4 h-4 text-gray-500" />
-          </CardHeader>
-          <CardContent>
-            <LeadSourcesChart prospects={prospects} />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base font-medium">Monthly Conversions</CardTitle>
-          <ChartBarIcon className="w-4 h-4 text-gray-500" />
-        </CardHeader>
-        <CardContent>
-          <MonthlyConversionsChart prospects={prospects} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between py-3">
-          <CardTitle className="text-base font-medium">
-            Monthly Earnings Overview
-          </CardTitle>
-          <ChartBarIcon className="w-4 h-4 text-gray-500" />
-        </CardHeader>
-        <CardContent className="pt-0">
-          <MonthlyEarningsChart earnings={earnings || []} />
-        </CardContent>
-      </Card>
+      <LeadsChartSection prospects={prospects} />
+      
+      <MonthlyChartsSection 
+        prospects={prospects}
+        earnings={earnings || []}
+      />
     </div>
   );
 };
