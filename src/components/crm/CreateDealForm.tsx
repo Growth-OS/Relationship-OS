@@ -11,6 +11,17 @@ interface CreateDealFormProps {
   onSuccess: () => void;
 }
 
+interface DealFormData {
+  company_name: string;
+  stage: 'lead' | 'contact_made' | 'proposal_sent' | 'negotiation' | 'closed_won' | 'closed_lost';
+  deal_value: number;
+  delivery_start_date?: string;
+  delivery_end_date?: string;
+  contact_email?: string;
+  contact_linkedin?: string;
+  contact_job_title?: string;
+}
+
 const stages = [
   { id: 'lead', label: 'Lead' },
   { id: 'contact_made', label: 'Contact Made' },
@@ -22,13 +33,13 @@ const stages = [
 
 export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm({
+  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<DealFormData>({
     defaultValues: {
       stage: 'lead'
     }
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: DealFormData) => {
     try {
       const { error } = await supabase
         .from('deals')
@@ -57,7 +68,7 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
 
       <div className="space-y-2">
         <Label htmlFor="stage">Stage</Label>
-        <Select defaultValue="lead" onValueChange={(value) => setValue('stage', value)}>
+        <Select defaultValue="lead" onValueChange={(value) => setValue('stage', value as DealFormData['stage'])}>
           <SelectTrigger>
             <SelectValue placeholder="Select stage" />
           </SelectTrigger>
