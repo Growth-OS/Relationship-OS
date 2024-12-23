@@ -19,10 +19,23 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(monthlyTotals)
-      .map(([month, total]) => ({
+    // Get all months between first and last date
+    const dates = earnings.map(e => new Date(e.date));
+    const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+    const allMonths: string[] = [];
+    
+    let currentDate = new Date(minDate);
+    while (currentDate <= maxDate) {
+      allMonths.push(format(currentDate, 'MMM yyyy'));
+      currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+
+    // Create data points for all months, using 0 for months without earnings
+    return allMonths
+      .map(month => ({
         month,
-        total,
+        total: monthlyTotals[month] || 0,
       }))
       .sort((a, b) => {
         const dateA = new Date(a.month);
@@ -56,11 +69,12 @@ export const MonthlyEarningsChart = ({ earnings }: MonthlyEarningsChartProps) =>
             labelStyle={{ color: '#666' }}
           />
           <Line 
-            type="natural"
+            type="monotone"
             dataKey="total" 
             stroke="var(--primary)"
             strokeWidth={2}
             dot={{ fill: 'var(--primary)', strokeWidth: 2 }}
+            connectNulls={true}
           />
         </LineChart>
       </ResponsiveContainer>
