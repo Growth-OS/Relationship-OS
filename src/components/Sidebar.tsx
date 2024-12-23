@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus, Inbox } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -20,6 +20,7 @@ const Sidebar = () => {
   
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Inbox, label: "Inbox", path: "/dashboard/inbox" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "CRM", path: "/dashboard/crm" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
