@@ -41,12 +41,20 @@ export const CreateDealForm = ({ onSuccess }: CreateDealFormProps) => {
 
   const onSubmit = async (data: DealFormData) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to create a deal');
+        return;
+      }
+
       const { error } = await supabase
         .from('deals')
-        .insert([{
+        .insert({
           ...data,
           deal_value: Number(data.deal_value),
-        }]);
+          user_id: user.id,
+        });
 
       if (error) throw error;
 
