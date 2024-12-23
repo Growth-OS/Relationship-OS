@@ -30,17 +30,19 @@ interface Task {
 
 interface TaskListProps {
   source?: 'crm' | 'content' | 'ideas' | 'substack' | 'other';
+  showArchived?: boolean;
 }
 
-export const TaskList = ({ source }: TaskListProps) => {
+export const TaskList = ({ source, showArchived = false }: TaskListProps) => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   
   const { data: tasks = [], isLoading, refetch } = useQuery({
-    queryKey: ['tasks', source],
+    queryKey: ['tasks', source, showArchived],
     queryFn: async () => {
       const query = supabase
         .from('tasks')
         .select('*')
+        .eq('completed', showArchived)
         .order('due_date', { ascending: true });
       
       if (source) {
@@ -66,7 +68,7 @@ export const TaskList = ({ source }: TaskListProps) => {
 
       if (error) throw error;
       
-      toast.success('Task updated successfully');
+      toast.success(completed ? 'Task archived' : 'Task restored');
       refetch();
     } catch (error) {
       console.error('Error updating task:', error);
@@ -94,7 +96,7 @@ export const TaskList = ({ source }: TaskListProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {tasks.map((task) => (
-        <Card key={task.id} className="p-4">
+        <Card key={task.id} className="p-4 group">
           <div className="flex flex-col gap-3">
             <div className="flex items-start gap-3">
               <Checkbox
@@ -125,12 +127,12 @@ export const TaskList = ({ source }: TaskListProps) => {
                           {task.completed ? (
                             <>
                               <X className="mr-2 h-4 w-4" />
-                              Mark as Incomplete
+                              Restore Task
                             </>
                           ) : (
                             <>
                               <Check className="mr-2 h-4 w-4" />
-                              Mark as Complete
+                              Archive Task
                             </>
                           )}
                         </DropdownMenuItem>
@@ -153,7 +155,7 @@ export const TaskList = ({ source }: TaskListProps) => {
       ))}
       {tasks.length === 0 && (
         <div className="col-span-full text-center text-gray-500 py-8">
-          No tasks found
+          {showArchived ? 'No archived tasks' : 'No active tasks'}
         </div>
       )}
 
