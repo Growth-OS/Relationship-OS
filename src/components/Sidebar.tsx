@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus, Inbox } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus, Inbox, Cog } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -29,6 +29,7 @@ const Sidebar = () => {
     { icon: Lightbulb, label: "Ideas", path: "/dashboard/ideas" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
+    { icon: Cog, label: "Automations", path: "/dashboard/automations" },
     { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
   ];
 

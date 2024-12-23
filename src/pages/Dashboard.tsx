@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Calendar, Edit, ListTodo, Lightbulb, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { PhantombusterPanel } from "@/components/phantombuster/PhantombusterPanel";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -69,10 +68,6 @@ const Dashboard = () => {
           );
         })}
       </div>
-
-      <Card className="p-6">
-        <PhantombusterPanel />
-      </Card>
     </div>
   );
 };
