@@ -1,6 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { EditProspectForm } from "./EditProspectForm";
@@ -41,6 +41,46 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
     }
   };
 
+  const handleConvertToLead = async (prospect: Prospect) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to convert prospects');
+        return;
+      }
+
+      // First, create the deal in CRM
+      const { error: dealError } = await supabase
+        .from('deals')
+        .insert({
+          company_name: prospect.company_name,
+          contact_email: prospect.contact_email,
+          contact_job_title: prospect.contact_job_title,
+          notes: prospect.notes,
+          user_id: user.id,
+          stage: 'lead',
+          deal_value: 0, // Default value
+        });
+
+      if (dealError) throw dealError;
+
+      // Then, delete the prospect
+      const { error: deleteError } = await supabase
+        .from('prospects')
+        .delete()
+        .eq('id', prospect.id);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Prospect converted to lead successfully');
+      onProspectUpdated();
+    } catch (error) {
+      console.error('Error converting prospect to lead:', error);
+      toast.error('Error converting prospect to lead');
+    }
+  };
+
   const sourceLabels = {
     website: 'Website',
     referral: 'Referral',
@@ -60,7 +100,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
             <TableHead>Job Title</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Notes</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="w-[150px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,6 +126,14 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
                     onClick={() => handleDelete(prospect.id)}
                   >
                     <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleConvertToLead(prospect)}
+                    title="Convert to Lead"
+                  >
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               </TableCell>
