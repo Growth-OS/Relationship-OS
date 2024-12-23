@@ -1,4 +1,4 @@
-import { CalendarComponent } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
@@ -30,7 +30,7 @@ const mockEvents = [
   }
 ];
 
-const Calendar = () => {
+const CalendarPage = () => {
   return (
     <div className="space-y-6">
       <div>
@@ -40,7 +40,7 @@ const Calendar = () => {
 
       <div className="grid grid-cols-12 gap-6">
         <Card className="col-span-8 p-6">
-          <CalendarComponent
+          <Calendar
             mode="single"
             className="rounded-md border"
           />
@@ -69,4 +69,4 @@ const Calendar = () => {
   );
 };
 
-export default Calendar;
+export default CalendarPage;
