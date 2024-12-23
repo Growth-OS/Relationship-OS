@@ -50,24 +50,24 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
         return;
       }
 
-      // First, create the deal in CRM
+      // Create the deal with all available prospect data
       const { error: dealError } = await supabase
         .from('deals')
         .insert({
           company_name: prospect.company_name,
-          contact_email: prospect.contact_email,
-          contact_job_title: prospect.contact_job_title,
-          notes: prospect.notes,
+          contact_email: prospect.contact_email || null,
+          contact_job_title: prospect.contact_job_title || null,
+          notes: prospect.notes || null,
           source: prospect.source,
           user_id: user.id,
           stage: 'lead',
-          deal_value: 0, // Default value
+          deal_value: 0,
           last_activity_date: new Date().toISOString()
         });
 
       if (dealError) throw dealError;
 
-      // Then, delete the prospect
+      // Delete the prospect after successful conversion
       const { error: deleteError } = await supabase
         .from('prospects')
         .delete()

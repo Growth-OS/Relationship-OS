@@ -128,6 +128,7 @@ export type Database = {
           id: string
           last_activity_date: string
           notes: string | null
+          source: Database["public"]["Enums"]["lead_source"] | null
           stage: Database["public"]["Enums"]["deal_stage"]
           user_id: string
         }
@@ -145,6 +146,7 @@ export type Database = {
           id?: string
           last_activity_date?: string
           notes?: string | null
+          source?: Database["public"]["Enums"]["lead_source"] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           user_id: string
         }
@@ -162,6 +164,7 @@ export type Database = {
           id?: string
           last_activity_date?: string
           notes?: string | null
+          source?: Database["public"]["Enums"]["lead_source"] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           user_id?: string
         }
