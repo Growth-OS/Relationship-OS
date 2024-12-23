@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyEarningsChart } from "@/components/reporting/MonthlyEarningsChart";
 import { MonthlyLeadsChart } from "@/components/reporting/MonthlyLeadsChart";
 import { LeadSourcesChart } from "@/components/reporting/LeadSourcesChart";
+import { MonthlyConversionsChart } from "@/components/reporting/MonthlyConversionsChart";
 import { ChartBarIcon, PieChart } from "lucide-react";
 import { DealsByCountryChart } from "@/components/reporting/DealsByCountryChart";
 import { format, subDays } from "date-fns";
@@ -109,6 +110,16 @@ const Reporting = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base font-medium">Monthly Conversions</CardTitle>
+          <ChartBarIcon className="w-4 h-4 text-gray-500" />
+        </CardHeader>
+        <CardContent>
+          <MonthlyConversionsChart prospects={prospects} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between py-3">
