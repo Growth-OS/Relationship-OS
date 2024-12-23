@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CreateTaskForm } from "./CreateTaskForm";
+import { Pencil } from "lucide-react";
 
 interface Task {
   id: string;
@@ -87,7 +88,7 @@ export const TaskList = ({ source }: TaskListProps) => {
   return (
     <div className="space-y-2">
       {tasks.map((task) => (
-        <Card key={task.id} className="p-4">
+        <Card key={task.id} className="p-4 relative">
           <div className="flex items-start gap-3">
             <Checkbox
               checked={task.completed}
@@ -95,19 +96,9 @@ export const TaskList = ({ source }: TaskListProps) => {
             />
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                    {task.title}
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditingTask(task)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    Edit
-                  </Button>
-                </div>
+                <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
+                  {task.title}
+                </h3>
                 <Badge variant="secondary" className={getPriorityColor(task.priority)}>
                   {task.priority}
                 </Badge>
@@ -122,6 +113,14 @@ export const TaskList = ({ source }: TaskListProps) => {
               )}
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setEditingTask(task)}
+            className="absolute bottom-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
         </Card>
       ))}
       {tasks.length === 0 && (
