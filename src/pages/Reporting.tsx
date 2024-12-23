@@ -5,6 +5,7 @@ import { MonthlyEarningsChart } from "@/components/reporting/MonthlyEarningsChar
 import { MonthlyLeadsChart } from "@/components/reporting/MonthlyLeadsChart";
 import { LeadSourcesChart } from "@/components/reporting/LeadSourcesChart";
 import { MonthlyConversionsChart } from "@/components/reporting/MonthlyConversionsChart";
+import { DealStageConversions } from "@/components/reporting/DealStageConversions";
 import { ChartBarIcon, PieChart } from "lucide-react";
 import { DealsByCountryChart } from "@/components/reporting/DealsByCountryChart";
 import { format, subDays } from "date-fns";
@@ -78,15 +79,7 @@ const Reporting = () => {
           </div>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-medium">Deals by Country</CardTitle>
-            <PieChart className="w-4 h-4 text-gray-500" />
-          </CardHeader>
-          <CardContent className="pt-2">
-            <DealsByCountryChart data={dealsByCountry || {}} />
-          </CardContent>
-        </Card>
+        <DealStageConversions />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
