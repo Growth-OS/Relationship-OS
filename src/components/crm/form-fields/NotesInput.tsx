@@ -1,5 +1,11 @@
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { DealFormData } from "../types";
 
@@ -9,13 +15,22 @@ type NotesInputProps = {
 
 export const NotesInput = ({ form }: NotesInputProps) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="notes">Notes (Optional)</Label>
-      <Input 
-        id="notes"
-        placeholder="Add any relevant notes" 
-        {...form.register('notes')} 
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="notes"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Notes (Optional)</FormLabel>
+          <FormControl>
+            <Textarea 
+              placeholder="Add any relevant notes" 
+              className="min-h-[100px]" 
+              {...field} 
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
