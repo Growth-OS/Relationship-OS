@@ -60,7 +60,7 @@ const Inbox = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          scopes: 'https://www.googleapis.com/auth/gmail.modify',
+          scopes: 'https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/calendar.readonly',
           redirectTo: `${window.location.origin}/dashboard/inbox`,
         },
       });
