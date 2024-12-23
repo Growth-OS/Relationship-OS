@@ -23,11 +23,9 @@ const Reporting = () => {
   const { data: deals } = useQuery({
     queryKey: ['deals'],
     queryFn: async () => {
-      const thirtyDaysAgo = format(subDays(new Date(), 30), 'yyyy-MM-dd');
       const { data, error } = await supabase
         .from('deals')
         .select('*')
-        .gte('created_at', thirtyDaysAgo)
         .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
       
       if (error) throw error;
@@ -48,7 +46,7 @@ const Reporting = () => {
     },
   });
 
-  // Calculate total deal value only for active deals (excluding to_invoice, invoiced, and paid)
+  // Calculate total deal value for all active deals (not filtering by date anymore)
   const totalDealValue = deals?.reduce((sum, deal) => sum + Number(deal.deal_value), 0) || 0;
 
   return (
