@@ -9,7 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CreateTaskForm } from "./CreateTaskForm";
-import { Pencil } from "lucide-react";
+import { MoreHorizontal, Pencil, Check, X } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Task {
   id: string;
@@ -99,9 +105,37 @@ export const TaskList = ({ source }: TaskListProps) => {
                 <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
                   {task.title}
                 </h3>
-                <Badge variant="secondary" className={getPriorityColor(task.priority)}>
-                  {task.priority}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className={getPriorityColor(task.priority)}>
+                    {task.priority}
+                  </Badge>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setEditingTask(task)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id, !task.completed)}>
+                        {task.completed ? (
+                          <>
+                            <X className="mr-2 h-4 w-4" />
+                            Mark as Incomplete
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-2 h-4 w-4" />
+                            Mark as Complete
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
               {task.description && (
                 <p className="text-sm text-gray-600 mt-1">{task.description}</p>
@@ -113,14 +147,6 @@ export const TaskList = ({ source }: TaskListProps) => {
               )}
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditingTask(task)}
-            className="absolute bottom-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
         </Card>
       ))}
       {tasks.length === 0 && (
