@@ -30,10 +30,14 @@ Deno.serve(async (req) => {
     if (action === 'listScripts') {
       console.log('Fetching scripts with API key:', PHANTOMBUSTER_API_KEY ? 'Present' : 'Missing')
       
+      if (!PHANTOMBUSTER_API_KEY) {
+        throw new Error('Phantombuster API key is not configured')
+      }
+
       // First, get all agents
       const response = await fetch('https://api.phantombuster.com/api/v2/agents/fetch-all', {
         headers: {
-          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY!,
+          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY,
         },
       })
 
@@ -46,17 +50,26 @@ Deno.serve(async (req) => {
       const data = await response.json()
       console.log('Raw response:', JSON.stringify(data))
       
+      // Validate data structure
+      if (!data || !data.data || !Array.isArray(data.data)) {
+        console.error('Invalid response structure:', data)
+        throw new Error('Invalid response from Phantombuster API')
+      }
+
       // Filter for LinkedIn-related scripts
-      const scripts = data.data.filter((script: any) => 
-        script.name.toLowerCase().includes('linkedin') &&
-        (script.name.toLowerCase().includes('liker') || 
-         script.name.toLowerCase().includes('commenter'))
-      ).map((script: any) => ({
-        id: script.id,
-        name: script.name,
-        description: script.manifest?.description || 'No description available',
-        lastEndTime: script.lastEndTime,
-      }))
+      const scripts = data.data
+        .filter((script: any) => script && script.name && typeof script.name === 'string')
+        .filter((script: any) => 
+          script.name.toLowerCase().includes('linkedin') &&
+          (script.name.toLowerCase().includes('liker') || 
+           script.name.toLowerCase().includes('commenter'))
+        )
+        .map((script: any) => ({
+          id: script.id,
+          name: script.name,
+          description: script.manifest?.description || 'No description available',
+          lastEndTime: script.lastEndTime,
+        }))
 
       console.log('Filtered scripts:', scripts)
 
@@ -66,11 +79,15 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'runPostLikers' && scriptId && linkedinUrl) {
+      if (!PHANTOMBUSTER_API_KEY) {
+        throw new Error('Phantombuster API key is not configured')
+      }
+
       // Launch the script
       const launchResponse = await fetch(`https://api.phantombuster.com/api/v2/agents/launch`, {
         method: 'POST',
         headers: {
-          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY!,
+          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -83,7 +100,8 @@ Deno.serve(async (req) => {
       })
 
       if (!launchResponse.ok) {
-        throw new Error('Failed to launch script')
+        const errorText = await launchResponse.text()
+        throw new Error(`Failed to launch script: ${errorText}`)
       }
 
       const result = await launchResponse.json()
@@ -94,12 +112,13 @@ Deno.serve(async (req) => {
       // Fetch the results
       const resultsResponse = await fetch(`https://api.phantombuster.com/api/v2/agents/fetch-output?id=${scriptId}`, {
         headers: {
-          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY!,
+          'X-Phantombuster-Key': PHANTOMBUSTER_API_KEY,
         },
       })
 
       if (!resultsResponse.ok) {
-        throw new Error('Failed to fetch results')
+        const errorText = await resultsResponse.text()
+        throw new Error(`Failed to fetch results: ${errorText}`)
       }
 
       const results = await resultsResponse.json()
@@ -126,9 +145,15 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error:', error.message)
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error instanceof Error ? error.stack : undefined 
+      }), 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    )
   }
 })
