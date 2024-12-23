@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Calendar, Edit, ListTodo, Lightbulb, Mail } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { PhantombusterPanel } from "@/components/phantombuster/PhantombusterPanel";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -69,42 +70,9 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Upcoming Content</h2>
-          <div className="space-y-4">
-            {[
-              { title: "Blog Post: Growth Strategies", type: "blog", date: "Tomorrow" },
-              { title: "Podcast: Marketing Tips", type: "podcast", date: "In 2 days" },
-              { title: "Social: LinkedIn Update", type: "social", date: "Next week" },
-            ].map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full bg-content-${item.type}`} />
-                  <span className="font-medium">{item.title}</span>
-                </div>
-                <span className="text-sm text-gray-600">{item.date}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Ideas</h2>
-          <div className="space-y-4">
-            {[
-              "Content Strategy for Q2",
-              "New Podcast Series",
-              "Social Media Campaign",
-            ].map((idea, index) => (
-              <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <Lightbulb className="w-5 h-5 text-yellow-500" />
-                <span>{idea}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      <Card className="p-6">
+        <PhantombusterPanel />
+      </Card>
     </div>
   );
 };
