@@ -25,15 +25,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        setIsAuthenticated(!!session);
+        if (!session) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+          return;
+        }
+
+        // Verify the session is still valid
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError || !user) {
+          console.error("User verification error:", userError);
+          await supabase.auth.signOut(); // Clear invalid session
+          setIsAuthenticated(false);
+          setIsLoading(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
         setIsLoading(false);
 
-        // If this is an OAuth redirect and we have a session, navigate back to inbox
+        // Handle OAuth redirects
         const isOAuthRedirect = location.hash.includes('access_token') || 
                               location.hash.includes('error') || 
                               location.search.includes('code');
         
-        if (isOAuthRedirect && session) {
+        if (isOAuthRedirect) {
           navigate('/dashboard/inbox', { replace: true });
         }
       } catch (error) {
@@ -45,17 +62,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, !!session);
       
-      if (event === 'SIGNED_OUT') {
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setIsAuthenticated(false);
         navigate('/', { replace: true });
-      } else if (event === 'SIGNED_IN') {
-        setIsAuthenticated(true);
-        // Only navigate on explicit sign in events, not on session recovery
-        if (window.location.pathname === '/login') {
-          navigate('/dashboard', { replace: true });
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsAuthenticated(true);
+          if (location.pathname === '/login') {
+            navigate('/dashboard', { replace: true });
+          }
         }
       }
     });
@@ -70,7 +89,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Save the current location to redirect back after login
+    const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
+    return <Navigate to={`/login?returnTo=${returnPath}`} replace />;
   }
 
   return <>{children}</>;

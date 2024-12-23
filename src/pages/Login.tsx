@@ -1,23 +1,25 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get('returnTo') || '/dashboard';
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate("/dashboard");
+        navigate(returnTo);
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, returnTo]);
 
   return (
     <div className="min-h-screen bg-[#1A1F2C] flex items-center justify-center p-4">
