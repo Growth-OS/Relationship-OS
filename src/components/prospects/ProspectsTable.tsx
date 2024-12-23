@@ -14,6 +14,7 @@ interface Prospect {
   contact_job_title?: string;
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
   notes?: string;
+  status?: string;
 }
 
 interface ProspectsTableProps {
@@ -67,13 +68,13 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
 
       if (dealError) throw dealError;
 
-      // Delete the prospect after successful conversion
-      const { error: deleteError } = await supabase
+      // Update the prospect status to 'converted' instead of deleting
+      const { error: updateError } = await supabase
         .from('prospects')
-        .delete()
+        .update({ status: 'converted' })
         .eq('id', prospect.id);
 
-      if (deleteError) throw deleteError;
+      if (updateError) throw updateError;
 
       toast.success('Prospect converted to lead successfully');
       onProspectUpdated();
@@ -92,6 +93,9 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
     other: 'Other'
   };
 
+  // Filter to show only active prospects in the table
+  const activeProspects = prospects.filter(prospect => prospect.status !== 'converted');
+
   return (
     <>
       <Table>
@@ -106,7 +110,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
           </TableRow>
         </TableHeader>
         <TableBody>
-          {prospects.map((prospect) => (
+          {activeProspects.map((prospect) => (
             <TableRow key={prospect.id}>
               <TableCell className="font-medium">{prospect.company_name}</TableCell>
               <TableCell>{sourceLabels[prospect.source]}</TableCell>

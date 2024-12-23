@@ -179,6 +179,7 @@ export type Database = {
           id: string
           notes: string | null
           source: Database["public"]["Enums"]["lead_source"]
+          status: string | null
           user_id: string
         }
         Insert: {
@@ -189,6 +190,7 @@ export type Database = {
           id?: string
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
+          status?: string | null
           user_id: string
         }
         Update: {
@@ -199,6 +201,7 @@ export type Database = {
           id?: string
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
+          status?: string | null
           user_id?: string
         }
         Relationships: []
