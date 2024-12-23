@@ -13,56 +13,47 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let mounted = true;
-
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Session check error:", error);
-          if (mounted) {
-            setIsAuthenticated(false);
-            setIsLoading(false);
-          }
+          setIsAuthenticated(false);
+          setIsLoading(false);
           return;
         }
 
-        if (mounted) {
-          setIsAuthenticated(!!session);
-          setIsLoading(false);
-        }
+        setIsAuthenticated(!!session);
+        setIsLoading(false);
       } catch (error) {
         console.error("Session check error:", error);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsLoading(false);
-        }
+        setIsAuthenticated(false);
+        setIsLoading(false);
       }
     };
 
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state change:", event, !!session);
+      
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
         navigate('/', { replace: true });
-      } else if (event === 'SIGNED_IN' && session) {
+      } else if (event === 'SIGNED_IN') {
         setIsAuthenticated(true);
-        // Only navigate to dashboard on fresh sign in, not on refresh
-        if (!isAuthenticated) {
+        // Only navigate on explicit sign in events, not on session recovery
+        if (window.location.pathname === '/login') {
           navigate('/dashboard', { replace: true });
         }
       }
-      
-      setIsLoading(false);
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, isAuthenticated]);
+  }, [navigate]);
 
   if (isLoading) {
     return null;
