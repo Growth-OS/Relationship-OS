@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 interface MonthlyConversionsChartProps {
@@ -36,18 +36,20 @@ export const MonthlyConversionsChart = ({ prospects }: MonthlyConversionsChartPr
   return (
     <div className="w-full h-[300px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
-          <Bar 
+          <Line 
+            type="monotone"
             dataKey="conversions" 
-            fill="var(--primary)" 
+            stroke="var(--primary)" 
             name="Converted Prospects"
-            radius={[4, 4, 0, 0]}
+            strokeWidth={2}
+            dot={{ fill: 'var(--primary)', strokeWidth: 2 }}
           />
-        </BarChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
