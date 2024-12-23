@@ -1,29 +1,21 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormRegister } from "react-hook-form";
 import { DealFormData } from "../types";
 
 type NotesInputProps = {
-  register: UseFormReturn<DealFormData>['register'];
+  register: UseFormRegister<DealFormData>;
 };
 
 export const NotesInput = ({ register }: NotesInputProps) => {
   return (
     <div className="space-y-2">
-      <FormLabel>Notes (Optional)</FormLabel>
-      <FormControl>
-        <Textarea 
-          placeholder="Add any relevant notes" 
-          className="min-h-[100px] resize-none" 
-          {...register('notes')}
-        />
-      </FormControl>
+      <Label>Notes (Optional)</Label>
+      <Textarea 
+        placeholder="Add any relevant notes" 
+        className="min-h-[100px] resize-none" 
+        {...register('notes')}
+      />
     </div>
   );
 };
