@@ -12,6 +12,7 @@ import AIPersona from "@/pages/AIPersona";
 import ProfileSettings from "@/pages/ProfileSettings";
 import Login from "@/pages/Login";
 import CRM from "@/pages/CRM";
+import Prospects from "@/pages/Prospects";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
@@ -38,6 +39,14 @@ export const routes: RouteObject[] = [
         element: <Dashboard />,
       },
       {
+        path: "prospects",
+        element: <Prospects />,
+      },
+      {
+        path: "crm",
+        element: <CRM />,
+      },
+      {
         path: "affiliates",
         element: <Affiliates />,
       },
@@ -48,10 +57,6 @@ export const routes: RouteObject[] = [
       {
         path: "substack",
         element: <Substack />,
-      },
-      {
-        path: "crm",
-        element: <CRM />,
       },
     ],
   },

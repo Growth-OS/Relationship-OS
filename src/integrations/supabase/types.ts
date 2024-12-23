@@ -167,6 +167,39 @@ export type Database = {
         }
         Relationships: []
       }
+      prospects: {
+        Row: {
+          company_name: string
+          contact_email: string | null
+          contact_job_title: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          source: Database["public"]["Enums"]["lead_source"]
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          contact_email?: string | null
+          contact_job_title?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string | null
+          contact_job_title?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       substack_posts: {
         Row: {
           content: string | null
@@ -214,6 +247,13 @@ export type Database = {
         | "to_invoice"
         | "invoiced"
         | "paid"
+      lead_source:
+        | "website"
+        | "referral"
+        | "linkedin"
+        | "cold_outreach"
+        | "conference"
+        | "other"
     }
     CompositeTypes: {
       [_ in never]: never
