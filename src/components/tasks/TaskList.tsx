@@ -92,65 +92,67 @@ export const TaskList = ({ source }: TaskListProps) => {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {tasks.map((task) => (
-        <Card key={task.id} className="p-4 relative group">
-          <div className="flex items-start gap-3">
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={(checked) => toggleTaskCompletion(task.id, checked as boolean)}
-            />
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
-                  {task.title}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className={getPriorityColor(task.priority)}>
-                    {task.priority}
-                  </Badge>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditingTask(task)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id, !task.completed)}>
-                        {task.completed ? (
-                          <>
-                            <X className="mr-2 h-4 w-4" />
-                            Mark as Incomplete
-                          </>
-                        ) : (
-                          <>
-                            <Check className="mr-2 h-4 w-4" />
-                            Mark as Complete
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+        <Card key={task.id} className="p-4">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                checked={task.completed}
+                onCheckedChange={(checked) => toggleTaskCompletion(task.id, checked as boolean)}
+              />
+              <div className="flex-1">
+                <div className="flex items-start justify-between">
+                  <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
+                    {task.title}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className={getPriorityColor(task.priority)}>
+                      {task.priority}
+                    </Badge>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingTask(task)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => toggleTaskCompletion(task.id, !task.completed)}>
+                          {task.completed ? (
+                            <>
+                              <X className="mr-2 h-4 w-4" />
+                              Mark as Incomplete
+                            </>
+                          ) : (
+                            <>
+                              <Check className="mr-2 h-4 w-4" />
+                              Mark as Complete
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
+                {task.description && (
+                  <p className="text-sm text-gray-600 mt-2">{task.description}</p>
+                )}
+                {task.due_date && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    Due: {format(new Date(task.due_date), 'PPP')}
+                  </p>
+                )}
               </div>
-              {task.description && (
-                <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-              )}
-              {task.due_date && (
-                <p className="text-xs text-gray-500 mt-2">
-                  Due: {format(new Date(task.due_date), 'PPP')}
-                </p>
-              )}
             </div>
           </div>
         </Card>
       ))}
       {tasks.length === 0 && (
-        <div className="text-center text-gray-500 py-8">
+        <div className="col-span-full text-center text-gray-500 py-8">
           No tasks found
         </div>
       )}
