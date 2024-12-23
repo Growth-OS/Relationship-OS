@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyEarningsChart } from "@/components/reporting/MonthlyEarningsChart";
+import { MonthlyLeadsChart } from "@/components/reporting/MonthlyLeadsChart";
+import { LeadSourcesChart } from "@/components/reporting/LeadSourcesChart";
 import { ChartBarIcon, PieChart } from "lucide-react";
 import { DealsByCountryChart } from "@/components/reporting/DealsByCountryChart";
 import { format, subDays } from "date-fns";
@@ -29,6 +31,19 @@ const Reporting = () => {
         .select('*')
         .gte('created_at', thirtyDaysAgo)
         .not('stage', 'eq', 'paid');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const { data: prospects = [] } = useQuery({
+    queryKey: ['prospects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('prospects')
+        .select('*')
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data || [];
@@ -69,6 +84,28 @@ const Reporting = () => {
           </CardHeader>
           <CardContent className="pt-2">
             <DealsByCountryChart data={dealsByCountry || {}} />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base font-medium">New Leads (12 Months)</CardTitle>
+            <ChartBarIcon className="w-4 h-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            <MonthlyLeadsChart prospects={prospects} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base font-medium">Lead Sources</CardTitle>
+            <PieChart className="w-4 h-4 text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            <LeadSourcesChart prospects={prospects} />
           </CardContent>
         </Card>
       </div>
