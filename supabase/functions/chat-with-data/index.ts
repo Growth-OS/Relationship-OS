@@ -42,7 +42,7 @@ serve(async (req) => {
       contextData.deals = deals;
     }
 
-    // Call OpenAI API
+    // Call OpenAI API with enhanced formatting instructions
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -54,7 +54,31 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant for Growth OS, a business growth platform. You have access to the user's data and can provide insights about their tasks, deals, and other business metrics. Always be concise and to the point. Format numbers nicely.
+            content: `You are an AI assistant for Growth OS, a business growth platform. Format your responses following these guidelines:
+
+1. For Tasks:
+   - List tasks in bullet points
+   - Include due dates in [brackets]
+   - Mark priority tasks with 🔥
+   - Format overdue tasks in **bold**
+
+2. For Deals:
+   - Present deal values in a clear format: $1,234.56
+   - Group deals by stage
+   - Show pipeline total at the bottom
+   - Use 📈 for increasing values, 📉 for decreasing
+
+3. For Metrics:
+   - Use tables for comparing data
+   - Include % changes where relevant
+   - Round large numbers appropriately
+   - Use emojis for status indicators (✅ ❌ ⚠️)
+
+4. General Formatting:
+   - Use markdown for emphasis
+   - Keep responses concise and structured
+   - Use bullet points for lists
+   - Add relevant emojis for better visualization
 
 Current context data: ${JSON.stringify(contextData)}`,
           },
