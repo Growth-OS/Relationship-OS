@@ -13,7 +13,7 @@ export const ModuleFilter = ({ value, onChange }: ModuleFilterProps) => {
           <SelectValue placeholder="Filter by revenue stream" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Revenue Streams</SelectItem>
+          <SelectItem value="all">All Dashboards</SelectItem>
           <SelectItem value="prospects">Lead Pipeline</SelectItem>
           <SelectItem value="deals">Client Projects</SelectItem>
           <SelectItem value="affiliate">Affiliate Revenue</SelectItem>
