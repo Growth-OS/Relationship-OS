@@ -6,7 +6,7 @@ import { CreateTaskForm } from "./CreateTaskForm";
 
 interface CreateTaskButtonProps {
   sourceId?: string;
-  source?: 'crm' | 'content' | 'ideas' | 'substack' | 'other';
+  source?: 'deals' | 'content' | 'ideas' | 'substack' | 'other';
   onSuccess?: () => void;
   variant?: "ghost" | "default";
   size?: "icon" | "default";

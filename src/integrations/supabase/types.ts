@@ -333,7 +333,7 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
-      task_source: "crm" | "content" | "ideas" | "substack" | "other"
+      task_source: "deals" | "content" | "ideas" | "substack" | "other"
     }
     CompositeTypes: {
       [_ in never]: never

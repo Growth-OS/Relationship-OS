@@ -29,7 +29,7 @@ interface Task {
 }
 
 interface TaskListProps {
-  source?: 'crm' | 'content' | 'ideas' | 'substack' | 'other';
+  source?: 'deals' | 'content' | 'ideas' | 'substack' | 'other';
   showArchived?: boolean;
 }
 
