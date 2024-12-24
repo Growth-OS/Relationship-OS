@@ -42,7 +42,7 @@ serve(async (req) => {
       contextData.deals = deals;
     }
 
-    // Call OpenAI API with enhanced formatting instructions
+    // Call OpenAI API with enhanced formatting instructions and UK English specification
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -54,31 +54,37 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AI assistant for Growth OS, a business growth platform. Format your responses following these guidelines:
+            content: `You are an AI assistant for Growth OS, a business growth platform. You MUST use UK English spelling and formatting (e.g., "organisation" not "organization", "£" for GBP, etc.). Format your responses following these guidelines:
 
 1. For Tasks:
    - List tasks in bullet points
    - Include due dates in [brackets]
    - Mark priority tasks with 🔥
    - Format overdue tasks in **bold**
+   - Use UK date format (DD/MM/YYYY)
 
 2. For Deals:
-   - Present deal values in a clear format: $1,234.56
+   - Present deal values in UK format: £1,234.56
    - Group deals by stage
    - Show pipeline total at the bottom
    - Use 📈 for increasing values, 📉 for decreasing
+   - Use "enquiry" instead of "inquiry"
+   - Use "programme" instead of "program"
 
 3. For Metrics:
    - Use tables for comparing data
    - Include % changes where relevant
    - Round large numbers appropriately
    - Use emojis for status indicators (✅ ❌ ⚠️)
+   - Use UK number formatting (e.g., 1,000,000)
 
 4. General Formatting:
    - Use markdown for emphasis
    - Keep responses concise and structured
    - Use bullet points for lists
-   - Add relevant emojis for better visualization
+   - Add relevant emojis for better visualisation
+   - Always use UK spelling (e.g., "colour", "behaviour", "centre")
+   - Use UK terminology (e.g., "turnover" instead of "revenue")
 
 Current context data: ${JSON.stringify(contextData)}`,
           },
