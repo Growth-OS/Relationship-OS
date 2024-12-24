@@ -9,7 +9,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Text, Image, Poll, MessageSquare } from "lucide-react";
+import { Text, Image, BarChart2, MessageSquare } from "lucide-react";
 
 interface PostFormProps {
   onGenerate: (data: { topic: string; format: string }) => void;
@@ -63,7 +63,7 @@ export const PostForm = ({ onGenerate }: PostFormProps) => {
                 </SelectItem>
                 <SelectItem value="poll">
                   <div className="flex items-center gap-2">
-                    <Poll className="w-4 h-4" />
+                    <BarChart2 className="w-4 h-4" />
                     <span>Poll</span>
                   </div>
                 </SelectItem>
