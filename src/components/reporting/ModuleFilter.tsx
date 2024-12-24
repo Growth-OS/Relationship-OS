@@ -10,13 +10,13 @@ export const ModuleFilter = ({ value, onChange }: ModuleFilterProps) => {
     <div className="w-[200px]">
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Filter by module" />
+          <SelectValue placeholder="Filter by revenue stream" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Modules</SelectItem>
-          <SelectItem value="prospects">Prospects</SelectItem>
-          <SelectItem value="deals">Deals</SelectItem>
-          <SelectItem value="affiliate">Affiliate Income</SelectItem>
+          <SelectItem value="all">All Revenue Streams</SelectItem>
+          <SelectItem value="prospects">Lead Pipeline</SelectItem>
+          <SelectItem value="deals">Client Projects</SelectItem>
+          <SelectItem value="affiliate">Affiliate Revenue</SelectItem>
         </SelectContent>
       </Select>
     </div>
