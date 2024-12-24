@@ -1,15 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subDays } from "date-fns";
 import { TotalDealValueCard } from "@/components/reporting/TotalDealValueCard";
 import { DealStageConversions } from "@/components/reporting/DealStageConversions";
 import { LeadsChartSection } from "@/components/reporting/LeadsChartSection";
 import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSection";
+import { ModuleFilter } from "@/components/reporting/ModuleFilter";
+import { useState } from "react";
 
 const Reporting = () => {
+  const [selectedModule, setSelectedModule] = useState("all");
+
   const { data: earnings } = useQuery({
     queryKey: ['affiliateEarnings'],
     queryFn: async () => {
+      if (selectedModule !== 'all' && selectedModule !== 'affiliate') return [];
+      
       const { data, error } = await supabase
         .from('affiliate_earnings')
         .select('amount, date')
@@ -21,8 +26,10 @@ const Reporting = () => {
   });
 
   const { data: deals } = useQuery({
-    queryKey: ['deals'],
+    queryKey: ['deals', selectedModule],
     queryFn: async () => {
+      if (selectedModule !== 'all' && selectedModule !== 'deals') return [];
+
       const { data, error } = await supabase
         .from('deals')
         .select('*')
@@ -34,8 +41,10 @@ const Reporting = () => {
   });
 
   const { data: prospects = [] } = useQuery({
-    queryKey: ['prospects'],
+    queryKey: ['prospects', selectedModule],
     queryFn: async () => {
+      if (selectedModule !== 'all' && selectedModule !== 'prospects') return [];
+
       const { data, error } = await supabase
         .from('prospects')
         .select('*')
@@ -46,27 +55,42 @@ const Reporting = () => {
     },
   });
 
-  // Calculate total deal value for all active deals (not filtering by date anymore)
   const totalDealValue = deals?.reduce((sum, deal) => sum + Number(deal.deal_value), 0) || 0;
+
+  const shouldShowDeals = selectedModule === 'all' || selectedModule === 'deals';
+  const shouldShowProspects = selectedModule === 'all' || selectedModule === 'prospects';
+  const shouldShowAffiliates = selectedModule === 'all' || selectedModule === 'affiliate';
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-bold text-primary mb-1">Reporting</h1>
-        <p className="text-sm text-gray-600">Track and analyze your business metrics</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-primary mb-1">Reporting</h1>
+          <p className="text-sm text-gray-600">Track and analyse your business metrics</p>
+        </div>
+        <ModuleFilter 
+          value={selectedModule} 
+          onChange={setSelectedModule} 
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <TotalDealValueCard totalDealValue={totalDealValue} />
-        <DealStageConversions />
-      </div>
+      {shouldShowDeals && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TotalDealValueCard totalDealValue={totalDealValue} />
+          <DealStageConversions />
+        </div>
+      )}
 
-      <LeadsChartSection prospects={prospects} />
+      {shouldShowProspects && (
+        <LeadsChartSection prospects={prospects} />
+      )}
       
-      <MonthlyChartsSection 
-        prospects={prospects}
-        earnings={earnings || []}
-      />
+      {shouldShowAffiliates && (
+        <MonthlyChartsSection 
+          prospects={prospects}
+          earnings={earnings || []}
+        />
+      )}
     </div>
   );
 };
