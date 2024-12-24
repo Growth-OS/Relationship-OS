@@ -46,8 +46,8 @@ export const routes: RouteObject[] = [
         element: <Prospects />,
       },
       {
-        path: "crm",
-        element: <CRM />,
+        path: "deals",
+        element: <Deals />,
       },
       {
         path: "tasks",

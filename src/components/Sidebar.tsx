@@ -22,7 +22,7 @@ const Sidebar = () => {
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
-    { icon: Briefcase, label: "CRM", path: "/dashboard/crm" },
+    { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: Edit, label: "Content", path: "/dashboard/content" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Lightbulb, label: "Ideas", path: "/dashboard/ideas" },
