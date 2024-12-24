@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Select, 
   SelectContent, 
@@ -6,10 +8,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wand2, X } from "lucide-react";
+import { Text, Image, Poll, MessageSquare } from "lucide-react";
 
 interface PostFormProps {
   onGenerate: (data: { topic: string; format: string }) => void;
@@ -17,59 +17,70 @@ interface PostFormProps {
 
 export const PostForm = ({ onGenerate }: PostFormProps) => {
   const [topic, setTopic] = useState("");
-  const [postFormat, setPostFormat] = useState("");
+  const [format, setFormat] = useState("");
 
-  const handleSubmit = () => {
-    onGenerate({ topic, format: postFormat });
-  };
-
-  const handleClear = () => {
-    setTopic("");
-    setPostFormat("");
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic || !format) return;
+    onGenerate({ topic, format });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Post Generator</CardTitle>
+        <CardTitle>Create Post</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Post Topic</label>
-          <Textarea
-            placeholder="What would you like to write about?"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            className="min-h-[100px]"
-          />
-        </div>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Topic</label>
+            <Textarea
+              placeholder="What would you like to write about?"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Post Format</label>
-          <Select value={postFormat} onValueChange={setPostFormat}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select post format" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="text">Text Only</SelectItem>
-              <SelectItem value="text-image">Text + Image</SelectItem>
-              <SelectItem value="carousel">Carousel Post</SelectItem>
-              <SelectItem value="poll">Poll</SelectItem>
-              <SelectItem value="article">Article</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Post Format</label>
+            <Select value={format} onValueChange={setFormat}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select post format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="text">
+                  <div className="flex items-center gap-2">
+                    <Text className="w-4 h-4" />
+                    <span>Text Only</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="text-image">
+                  <div className="flex items-center gap-2">
+                    <Image className="w-4 h-4" />
+                    <span>Text + Image</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="poll">
+                  <div className="flex items-center gap-2">
+                    <Poll className="w-4 h-4" />
+                    <span>Poll</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="carousel">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Carousel Post</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="flex justify-between pt-4">
-          <Button variant="outline" onClick={handleClear} className="gap-2">
-            <X className="w-4 h-4" />
-            Clear
+          <Button type="submit" className="w-full">
+            Generate Post
           </Button>
-          <Button onClick={handleSubmit} className="gap-2">
-            <Wand2 className="w-4 h-4" />
-            Generate
-          </Button>
-        </div>
+        </form>
       </CardContent>
     </Card>
   );

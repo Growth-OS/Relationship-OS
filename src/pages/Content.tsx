@@ -1,4 +1,5 @@
-import LinkedInPostGenerator from "@/components/content/LinkedInPostGenerator";
+import { Card } from "@/components/ui/card";
+import { LinkedInPostGenerator } from "@/components/content/linkedin/LinkedInPostGenerator";
 
 const Content = () => {
   return (
@@ -8,7 +9,9 @@ const Content = () => {
         <p className="text-gray-600">Generate engaging LinkedIn content using AI and your personalized settings</p>
       </div>
       
-      <LinkedInPostGenerator />
+      <Card className="p-6">
+        <LinkedInPostGenerator />
+      </Card>
     </div>
   );
 };

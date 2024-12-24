@@ -8,7 +8,7 @@ export const ContentPreview = ({ content }: ContentPreviewProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Generated Post</CardTitle>
+        <CardTitle>Preview</CardTitle>
       </CardHeader>
       <CardContent>
         {content ? (
