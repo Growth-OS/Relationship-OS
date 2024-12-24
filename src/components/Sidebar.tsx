@@ -1,4 +1,4 @@
-import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus, Inbox, Beta } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Lightbulb, Users, ChartBar, BookOpen, Settings2, Briefcase, UserPlus, Inbox, Sparkles } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "./ui/button";
@@ -64,7 +64,7 @@ const Sidebar = () => {
         <span>{item.label}</span>
         {item.beta && (
           <Badge variant="secondary" className="ml-auto text-xs">
-            <Beta className="w-3 h-3 mr-1" />
+            <Sparkles className="w-3 h-3 mr-1" />
             Beta
           </Badge>
         )}
