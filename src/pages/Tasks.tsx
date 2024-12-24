@@ -18,7 +18,7 @@ const Tasks = () => {
         <Tabs defaultValue="active">
           <TabsList>
             <TabsTrigger value="active">Active Tasks</TabsTrigger>
-            <TabsTrigger value="crm">CRM</TabsTrigger>
+            <TabsTrigger value="deals">Deals</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="substack">Substack</TabsTrigger>
@@ -30,8 +30,8 @@ const Tasks = () => {
             <TabsContent value="active">
               <TaskList showArchived={false} />
             </TabsContent>
-            <TabsContent value="crm">
-              <TaskList source="crm" showArchived={false} />
+            <TabsContent value="deals">
+              <TaskList source="deals" showArchived={false} />
             </TabsContent>
             <TabsContent value="content">
               <TaskList source="content" showArchived={false} />

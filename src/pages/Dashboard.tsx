@@ -1,18 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { Calendar, Edit, ListTodo, Lightbulb, Mail } from "lucide-react";
+import { Edit, ListTodo, Lightbulb, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   
   const stats = [
-    {
-      icon: Mail,
-      label: "Inbox",
-      value: "Connect Gmail",
-      color: "bg-blue-500",
-      onClick: () => navigate('/dashboard/inbox')
-    },
     {
       icon: Edit,
       label: "Content Pieces",
@@ -46,7 +39,7 @@ const Dashboard = () => {
         <p className="text-gray-600">Here's an overview of your content ecosystem</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
