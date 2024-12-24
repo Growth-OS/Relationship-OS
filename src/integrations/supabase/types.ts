@@ -170,6 +170,39 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          job_title: string | null
+          name: string
+          profile_image_url: string | null
+          profile_url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          name: string
+          profile_image_url?: string | null
+          profile_url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          job_title?: string | null
+          name?: string
+          profile_image_url?: string | null
+          profile_url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       oauth_connections: {
         Row: {
           access_token: string
