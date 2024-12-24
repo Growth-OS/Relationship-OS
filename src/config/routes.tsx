@@ -11,7 +11,7 @@ import AIPrompts from "@/pages/AIPrompts";
 import AIPersona from "@/pages/AIPersona";
 import ProfileSettings from "@/pages/ProfileSettings";
 import Login from "@/pages/Login";
-import CRM from "@/pages/CRM";
+import Deals from "@/pages/Deals";
 import Tasks from "@/pages/Tasks";
 import Prospects from "@/pages/Prospects";
 import Inbox from "@/pages/Inbox";
