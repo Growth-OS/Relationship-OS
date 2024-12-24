@@ -1,4 +1,4 @@
-import { LinkedInPostGenerator } from "@/components/content/LinkedInPostGenerator";
+import LinkedInPostGenerator from "@/components/content/LinkedInPostGenerator";
 
 const Content = () => {
   return (
