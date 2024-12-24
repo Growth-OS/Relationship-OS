@@ -23,7 +23,6 @@ const Sidebar = () => {
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
-    { icon: Edit, label: "LinkedIn Content", path: "/dashboard/content" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Lightbulb, label: "Ideas", path: "/dashboard/ideas" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
@@ -44,6 +43,12 @@ const Sidebar = () => {
       path: "/dashboard/calendar",
       beta: true
     },
+    {
+      icon: Edit,
+      label: "LinkedIn Content",
+      path: "/dashboard/content",
+      beta: true
+    }
   ];
 
   const renderMenuItem = (item: any) => {

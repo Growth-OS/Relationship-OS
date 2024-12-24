@@ -7,6 +7,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/h
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles } from "lucide-react";
 
 const ProfileSettings = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
@@ -69,7 +71,13 @@ const ProfileSettings = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Writing Style</CardTitle>
+          <div className="flex items-center gap-2">
+            <CardTitle>Writing Style</CardTitle>
+            <Badge variant="secondary" className="text-xs">
+              <Sparkles className="w-3 h-3 mr-1" />
+              Beta
+            </Badge>
+          </div>
           <CardDescription>
             Add LinkedIn profiles to inspire your writing style
           </CardDescription>
