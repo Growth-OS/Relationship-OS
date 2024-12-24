@@ -42,6 +42,40 @@ serve(async (req) => {
       contextData.deals = deals;
     }
 
+    // Add affiliate data fetching
+    if (message.toLowerCase().includes('affiliate') || 
+        message.toLowerCase().includes('commission') || 
+        message.toLowerCase().includes('earning')) {
+      // Fetch affiliate partners
+      const { data: partners } = await supabase
+        .from('affiliate_partners')
+        .select('*')
+        .eq('user_id', userId);
+      
+      // Fetch affiliate earnings with partner details
+      const { data: earnings } = await supabase
+        .from('affiliate_earnings')
+        .select(`
+          *,
+          affiliate_partners (
+            name,
+            program
+          )
+        `)
+        .eq('user_id', userId)
+        .order('date', { ascending: false });
+
+      contextData.affiliates = {
+        partners: partners || [],
+        earnings: earnings || [],
+        summary: {
+          totalPartners: partners?.length || 0,
+          totalEarnings: earnings?.reduce((sum, earning) => sum + Number(earning.amount), 0) || 0,
+          recentEarnings: earnings?.slice(0, 5) || []
+        }
+      };
+    }
+
     // Call OpenAI API with enhanced formatting instructions and UK English specification
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -71,14 +105,22 @@ serve(async (req) => {
    - Use "enquiry" instead of "inquiry"
    - Use "programme" instead of "program"
 
-3. For Metrics:
+3. For Affiliate Data:
+   - Show earnings in UK currency format (£)
+   - List partners with their commission rates
+   - Display monthly and total earnings summaries
+   - Use 💰 for earnings and 🤝 for partnerships
+   - Format dates in UK style (DD/MM/YYYY)
+   - Use "programme" for affiliate programs
+
+4. For Metrics:
    - Use tables for comparing data
    - Include % changes where relevant
    - Round large numbers appropriately
    - Use emojis for status indicators (✅ ❌ ⚠️)
    - Use UK number formatting (e.g., 1,000,000)
 
-4. General Formatting:
+5. General Formatting:
    - Use markdown for emphasis
    - Keep responses concise and structured
    - Use bullet points for lists
