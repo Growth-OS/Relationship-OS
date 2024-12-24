@@ -14,6 +14,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const location = useLocation();
 
   useEffect(() => {
+    // Initialize session from localStorage if available
+    const savedSession = localStorage.getItem('supabase.auth.token');
+    if (savedSession) {
+      setIsAuthenticated(true);
+    }
+
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -31,6 +37,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
+        // Store session in localStorage
+        localStorage.setItem('supabase.auth.token', JSON.stringify(session));
         setIsAuthenticated(true);
         setIsLoading(false);
 
@@ -55,11 +63,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log("Auth state change:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('supabase.auth.token');
         setIsAuthenticated(false);
         navigate('/', { replace: true });
         toast.success('Signed out successfully');
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session) {
+          localStorage.setItem('supabase.auth.token', JSON.stringify(session));
           setIsAuthenticated(true);
           if (location.pathname === '/login') {
             navigate('/dashboard', { replace: true });
