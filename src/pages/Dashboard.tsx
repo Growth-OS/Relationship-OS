@@ -1,10 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Edit, ListTodo, Lightbulb, Calendar } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-  
   const stats = [
     {
       icon: Edit,

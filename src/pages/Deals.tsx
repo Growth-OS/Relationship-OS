@@ -12,7 +12,7 @@ import { DealFormData } from "@/components/crm/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
-const CRM = () => {
+const Deals = () => {
   const [open, setOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<any>(null);
 
@@ -134,4 +134,4 @@ const CRM = () => {
   );
 };
 
-export default CRM;
+export default Deals;
