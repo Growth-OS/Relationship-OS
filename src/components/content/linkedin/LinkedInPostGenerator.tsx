@@ -9,7 +9,7 @@ export const LinkedInPostGenerator = () => {
   const [generatedContent, setGeneratedContent] = useState("");
   const { toast } = useToast();
 
-  // Fetch AI persona settings
+  // Fetch AI persona settings - get the most recent active prompt
   const { data: aiPersona } = useQuery({
     queryKey: ["aiPrompts", "character_profile"],
     queryFn: async () => {
@@ -17,7 +17,10 @@ export const LinkedInPostGenerator = () => {
         .from("ai_prompts")
         .select("*")
         .eq("category", "character_profile")
-        .single();
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -26,6 +29,15 @@ export const LinkedInPostGenerator = () => {
 
   const handleGenerate = async ({ topic, format }: { topic: string; format: string }) => {
     try {
+      if (!aiPersona) {
+        toast({
+          title: "Error",
+          description: "No active AI persona found. Please set up your AI persona in settings first.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-content', {
         body: { 
           prompt: topic,
