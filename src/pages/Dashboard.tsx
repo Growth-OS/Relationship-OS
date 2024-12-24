@@ -45,8 +45,7 @@ const Dashboard = () => {
           return (
             <Card 
               key={index} 
-              className={`p-6 hover:shadow-lg transition-shadow ${stat.onClick ? 'cursor-pointer' : ''}`}
-              onClick={stat.onClick}
+              className="p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center space-x-4">
                 <div className={`p-3 rounded-lg ${stat.color}`}>

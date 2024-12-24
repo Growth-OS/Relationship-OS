@@ -21,7 +21,7 @@ interface TaskFormData {
 
 interface CreateTaskFormProps {
   sourceId?: string;
-  source?: 'crm' | 'content' | 'ideas' | 'substack' | 'other';
+  source?: 'deals' | 'content' | 'ideas' | 'substack' | 'other';
   onSuccess?: () => void;
   initialData?: {
     id: string;

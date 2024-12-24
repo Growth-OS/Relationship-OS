@@ -78,7 +78,7 @@ const CRM = () => {
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-medium text-sm">{deal.company_name}</h4>
                         <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <CreateTaskButton sourceId={deal.id} source="crm" />
+                          <CreateTaskButton sourceId={deal.id} source="deals" variant="ghost" size="icon" />
                           <Button 
                             variant="ghost" 
                             size="icon"
