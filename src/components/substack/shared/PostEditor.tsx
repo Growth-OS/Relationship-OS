@@ -1,9 +1,7 @@
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { SubstackEditor } from "../SubstackEditor";
 
 interface PostEditorProps {
@@ -24,13 +22,11 @@ export const PostEditor = ({
   onClose 
 }: PostEditorProps) => {
   return (
-    <Drawer 
+    <Dialog 
       open={isOpen} 
       onOpenChange={(open) => {
         if (!open) {
-          // First close the drawer
           onOpenChange(false);
-          // Then clean up
           onClose();
         } else {
           onOpenChange(true);
@@ -38,26 +34,19 @@ export const PostEditor = ({
       }}
       modal={true}
     >
-      <DrawerContent className="h-[95vh]">
-        <DrawerHeader className="border-b">
-          <DrawerTitle>
-            Edit Content: {selectedPost?.title}
-          </DrawerTitle>
-        </DrawerHeader>
-        <div className="p-4 h-full overflow-y-auto">
-          {selectedPost && (
-            <SubstackEditor
-              postId={selectedPost.id}
-              initialContent={selectedPost.content}
-              title={selectedPost.title}
-              onClose={() => {
-                onOpenChange(false);
-                onClose();
-              }}
-            />
-          )}
-        </div>
-      </DrawerContent>
-    </Drawer>
+      <DialogContent className="max-w-[90vw] h-[90vh]">
+        {selectedPost && (
+          <SubstackEditor
+            postId={selectedPost.id}
+            initialContent={selectedPost.content}
+            title={selectedPost.title}
+            onClose={() => {
+              onOpenChange(false);
+              onClose();
+            }}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };

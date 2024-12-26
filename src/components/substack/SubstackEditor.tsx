@@ -3,7 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
-import { EditorHeader } from "./editor/EditorHeader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 
 interface SubstackEditorProps {
   postId: string;
@@ -55,13 +57,26 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
 
   return (
     <div className="space-y-4 h-full bg-background">
-      <EditorHeader
-        title={postTitle}
-        isSaving={isSaving}
-        onSave={handleSave}
-        onClose={onClose}
-        onTitleChange={setPostTitle}
-      />
+      <div className="flex items-center justify-between sticky top-0 z-20 bg-background p-4 border-b">
+        <div className="flex-1 max-w-2xl">
+          <Input
+            value={postTitle}
+            onChange={(e) => setPostTitle(e.target.value)}
+            className="text-lg font-semibold"
+            placeholder="Enter post title"
+          />
+        </div>
+        <div className="flex items-center space-x-2 ml-4">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save & Close"}
+          </Button>
+          {onClose && (
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
       
       <div className="px-4 pb-4">
         <RichTextEditor

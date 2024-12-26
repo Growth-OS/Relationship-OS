@@ -19,7 +19,7 @@ export const SubstackTable = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const { data: posts, isLoading } = useQuery({
     queryKey: ["substackPosts"],
@@ -86,11 +86,11 @@ export const SubstackTable = () => {
 
   const handleEditClick = (postId: string) => {
     setSelectedPostId(postId);
-    setIsDrawerOpen(true);
+    setIsDialogOpen(true);
   };
 
-  const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
     setSelectedPostId(null);
   };
 
@@ -137,10 +137,10 @@ export const SubstackTable = () => {
       </div>
 
       <PostEditor
-        isOpen={isDrawerOpen}
-        onOpenChange={setIsDrawerOpen}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
         selectedPost={selectedPost}
-        onClose={handleCloseDrawer}
+        onClose={handleCloseDialog}
       />
     </div>
   );
