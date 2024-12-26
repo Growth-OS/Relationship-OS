@@ -33,8 +33,10 @@ export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) =>
         return;
       }
 
-      const url = URL.createObjectURL(data);
-      setPreviewUrl(url);
+      if (data) {
+        const url = URL.createObjectURL(data);
+        setPreviewUrl(url);
+      }
     } catch (error) {
       console.error('Error loading PDF preview:', error);
       toast.error('Failed to load PDF preview');
@@ -44,11 +46,17 @@ export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) =>
   return (
     <div className="space-y-4">
       <div className="relative">
-        <embed
-          src={`${previewUrl}#page=1`}
-          type="application/pdf"
-          className="w-full h-[400px] rounded-lg border border-gray-200"
-        />
+        {previewUrl ? (
+          <iframe
+            src={previewUrl}
+            className="w-full h-[400px] rounded-lg border border-gray-200"
+            title="PDF Preview"
+          />
+        ) : (
+          <div className="w-full h-[400px] rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
+            Loading PDF preview...
+          </div>
+        )}
         <Button
           variant="destructive"
           size="sm"
