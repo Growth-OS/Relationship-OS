@@ -37,13 +37,21 @@ export const CreateProjectForm = ({ onSuccess }: CreateProjectFormProps) => {
 
   const onSubmit = async (data: ProjectFormData) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to create a project');
+        return;
+      }
+
       const { error } = await supabase
         .from('projects')
-        .insert([{
+        .insert({
           ...data,
+          user_id: user.id,
           start_date: data.start_date?.toISOString().split('T')[0],
           end_date: data.end_date?.toISOString().split('T')[0],
-        }]);
+        });
 
       if (error) throw error;
       
