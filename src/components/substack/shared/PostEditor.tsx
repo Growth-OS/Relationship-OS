@@ -23,14 +23,17 @@ export const PostEditor = ({
   selectedPost, 
   onClose 
 }: PostEditorProps) => {
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+    onOpenChange(open);
+  };
+
   return (
     <Drawer 
       open={isOpen} 
-      onOpenChange={(open) => {
-        if (!open) {
-          onClose();
-        }
-      }}
+      onOpenChange={handleOpenChange}
     >
       <DrawerContent className="h-[95vh]">
         <DrawerHeader className="border-b">

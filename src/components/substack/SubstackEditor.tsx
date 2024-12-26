@@ -35,7 +35,13 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
       });
 
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
-      if (onClose) onClose();
+      
+      // Ensure we cleanup properly after saving
+      if (onClose) {
+        setTimeout(() => {
+          onClose();
+        }, 100);
+      }
     } catch (error) {
       console.error("Error saving content:", error);
       toast({

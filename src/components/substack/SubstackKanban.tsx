@@ -74,9 +74,10 @@ export const SubstackKanban = () => {
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
+    // Clear the selected post after the drawer animation completes
     setTimeout(() => {
       setSelectedPostId(null);
-    }, 300); // Wait for drawer animation to complete
+    }, 300);
   };
 
   const columns = [
