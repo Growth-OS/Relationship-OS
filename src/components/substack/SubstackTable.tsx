@@ -1,19 +1,15 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { PostActions } from "./table/PostActions";
-import { StatusBadge, PostStatus } from "./table/StatusBadge";
+import { PostStatus } from "./table/StatusBadge";
 import { PostEditor } from "./shared/PostEditor";
 import { useState } from "react";
+import { TableHeader } from "./table/TableHeader";
+import { TableRow } from "./table/TableRow";
 
 export const SubstackTable = () => {
   const { toast } = useToast();
@@ -104,33 +100,16 @@ export const SubstackTable = () => {
     <div className="space-y-8">
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Publish Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
+          <TableHeader />
           <TableBody>
             {posts?.map((post) => (
-              <TableRow key={post.id}>
-                <TableCell>{post.title}</TableCell>
-                <TableCell>{format(new Date(post.publish_date), "PPP")}</TableCell>
-                <TableCell>
-                  <StatusBadge 
-                    status={post.status as PostStatus}
-                    onStatusChange={(newStatus) => updatePostStatus(post.id, newStatus)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <PostActions
-                    postId={post.id}
-                    onEdit={handleEditClick}
-                    onDelete={handleDelete}
-                  />
-                </TableCell>
-              </TableRow>
+              <TableRow
+                key={post.id}
+                post={post}
+                onStatusChange={updatePostStatus}
+                onEdit={handleEditClick}
+                onDelete={handleDelete}
+              />
             ))}
           </TableBody>
         </Table>
