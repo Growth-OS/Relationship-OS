@@ -74,6 +74,7 @@ export const SubstackKanban = () => {
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
+    setSelectedPostId(null);
   };
 
   const columns = [
@@ -151,13 +152,7 @@ export const SubstackKanban = () => {
         isOpen={isDrawerOpen}
         onOpenChange={setIsDrawerOpen}
         selectedPost={selectedPost}
-        onClose={() => {
-          handleCloseDrawer();
-          // Clear selected post after animation completes
-          setTimeout(() => {
-            setSelectedPostId(null);
-          }, 300);
-        }}
+        onClose={handleCloseDrawer}
       />
     </div>
   );

@@ -20,7 +20,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   const queryClient = useQueryClient();
 
   const handleSave = async () => {
-    if (isSaving) return; // Prevent double-saving
+    if (isSaving) return;
     
     setIsSaving(true);
     try {

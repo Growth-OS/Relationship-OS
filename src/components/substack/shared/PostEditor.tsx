@@ -23,17 +23,13 @@ export const PostEditor = ({
   selectedPost, 
   onClose 
 }: PostEditorProps) => {
-  // Ensure we handle both the drawer state and cleanup
   const handleOpenChange = (open: boolean) => {
+    // Always update the drawer state immediately
+    onOpenChange(open);
+    
     if (!open) {
-      // First update the drawer state
-      onOpenChange(false);
-      // Then trigger cleanup after animation
-      setTimeout(() => {
-        onClose();
-      }, 300);
-    } else {
-      onOpenChange(true);
+      // Call onClose immediately when closing
+      onClose();
     }
   };
 
@@ -41,7 +37,7 @@ export const PostEditor = ({
     <Drawer 
       open={isOpen} 
       onOpenChange={handleOpenChange}
-      shouldScaleBackground={false}
+      modal={true}
     >
       <DrawerContent className="h-[95vh]">
         <DrawerHeader className="border-b">

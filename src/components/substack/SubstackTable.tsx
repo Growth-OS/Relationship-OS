@@ -91,9 +91,7 @@ export const SubstackTable = () => {
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
-    setTimeout(() => {
-      setSelectedPostId(null);
-    }, 300); // Wait for drawer animation to complete
+    setSelectedPostId(null);
   };
 
   if (isLoading) {
