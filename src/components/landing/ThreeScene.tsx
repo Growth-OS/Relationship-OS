@@ -15,10 +15,7 @@ function Box() {
   });
 
   return (
-    <mesh
-      ref={meshRef}
-      position={[0, 0, 0]}
-    >
+    <mesh ref={meshRef}>
       <boxGeometry args={[2, 2, 2]} />
       <meshStandardMaterial color="hotpink" />
     </mesh>
@@ -29,23 +26,12 @@ export const ThreeScene = () => {
   return (
     <div className="h-[400px] w-full bg-black">
       <Canvas
-        camera={{
-          position: [3, 3, 5],
-          fov: 75
-        }}
-        gl={{ antialias: true }}
-        dpr={[1, 2]}
+        camera={{ position: [3, 3, 5], fov: 75 }}
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
         <Box />
-        <OrbitControls 
-          enableZoom={true}
-          enablePan={true}
-          enableRotate={true}
-          minDistance={2}
-          maxDistance={10}
-        />
+        <OrbitControls />
       </Canvas>
     </div>
   );
