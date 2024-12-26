@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,20 @@ const Dashboard = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return user;
+    },
+  });
+
+  // Get first name from full name or email
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
+                   user?.email?.split('@')[0] || 
+                   'there';
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -62,7 +77,7 @@ const Dashboard = () => {
           <div className="space-y-4">
             {messages.length === 0 ? (
               <div className="text-center text-gray-500 mt-8">
-                <p className="text-lg font-medium">Welcome to Growth OS AI Assistant!</p>
+                <p className="text-lg font-medium">Hi {firstName}, how can I help you today?</p>
                 <p className="text-sm mt-2">Ask me anything about your tasks, deals, or business metrics.</p>
                 <div className="mt-4 space-y-2 text-sm">
                   <p>Try asking:</p>
