@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -9,32 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { SubstackEditor } from "./SubstackEditor";
-
-const statusConfig = {
-  idea: { label: "Idea", variant: "secondary" },
-  draft: { label: "Draft", variant: "default" },
-  scheduled: { label: "Scheduled", variant: "warning" },
-  live: { label: "Live", variant: "success" },
-} as const;
-
-type PostStatus = keyof typeof statusConfig;
+import { PostActions } from "./table/PostActions";
+import { StatusBadge, PostStatus } from "./table/StatusBadge";
+import { PostEditor } from "./shared/PostEditor";
+import { useState } from "react";
 
 export const SubstackTable = () => {
   const { toast } = useToast();
@@ -66,7 +45,7 @@ export const SubstackTable = () => {
 
       toast({
         title: "Success",
-        description: `Post status updated to ${statusConfig[newStatus].label}`,
+        description: `Post status updated`,
       });
 
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
@@ -141,47 +120,17 @@ export const SubstackTable = () => {
                 <TableCell>{post.title}</TableCell>
                 <TableCell>{format(new Date(post.publish_date), "PPP")}</TableCell>
                 <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
-                        <Badge 
-                          variant={statusConfig[post.status as PostStatus].variant as any}
-                          className="cursor-pointer hover:opacity-80"
-                        >
-                          {statusConfig[post.status as PostStatus].label}
-                        </Badge>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {Object.entries(statusConfig).map(([status, { label }]) => (
-                        <DropdownMenuItem
-                          key={status}
-                          onClick={() => updatePostStatus(post.id, status as PostStatus)}
-                        >
-                          {label}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <StatusBadge 
+                    status={post.status as PostStatus}
+                    onStatusChange={(newStatus) => updatePostStatus(post.id, newStatus)}
+                  />
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(post.id)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
+                  <PostActions
+                    postId={post.id}
+                    onEdit={handleEditClick}
+                    onDelete={handleDelete}
+                  />
                 </TableCell>
               </TableRow>
             ))}
@@ -189,32 +138,12 @@ export const SubstackTable = () => {
         </Table>
       </div>
 
-      <Drawer 
-        open={isDrawerOpen} 
-        onOpenChange={(open) => {
-          if (!open) {
-            handleCloseDrawer();
-          }
-        }}
-      >
-        <DrawerContent className="h-[95vh]">
-          <DrawerHeader className="border-b">
-            <DrawerTitle>
-              Edit Content: {selectedPost?.title}
-            </DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4 h-full overflow-y-auto">
-            {selectedPostId && selectedPost && (
-              <SubstackEditor
-                postId={selectedPostId}
-                initialContent={selectedPost.content}
-                title={selectedPost.title}
-                onClose={handleCloseDrawer}
-              />
-            )}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <PostEditor
+        isOpen={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        selectedPost={selectedPost}
+        onClose={handleCloseDrawer}
+      />
     </div>
   );
 };

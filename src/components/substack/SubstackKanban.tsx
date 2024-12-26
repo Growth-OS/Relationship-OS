@@ -11,15 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { SubstackEditor } from "./SubstackEditor";
 import { useState } from "react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { CreatePostButton } from "./CreatePostButton";
+import { PostEditor } from "./shared/PostEditor";
 
 interface Post {
   id: string;
@@ -156,32 +150,12 @@ export const SubstackKanban = () => {
         );
       })}
 
-      <Drawer 
-        open={isDrawerOpen} 
-        onOpenChange={(open) => {
-          if (!open) {
-            handleCloseDrawer();
-          }
-        }}
-      >
-        <DrawerContent className="h-[95vh]">
-          <DrawerHeader className="border-b">
-            <DrawerTitle>
-              Edit Content: {selectedPost?.title}
-            </DrawerTitle>
-          </DrawerHeader>
-          <div className="p-4 h-full overflow-y-auto">
-            {selectedPostId && selectedPost && (
-              <SubstackEditor
-                postId={selectedPostId}
-                initialContent={selectedPost.content}
-                title={selectedPost.title}
-                onClose={handleCloseDrawer}
-              />
-            )}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <PostEditor
+        isOpen={isDrawerOpen}
+        onOpenChange={setIsDrawerOpen}
+        selectedPost={selectedPost}
+        onClose={handleCloseDrawer}
+      />
     </div>
   );
 };
