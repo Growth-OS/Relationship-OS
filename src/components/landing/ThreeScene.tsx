@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Mesh } from 'three';
 import { useFrame } from '@react-three/fiber';
 
@@ -33,6 +33,8 @@ export const ThreeScene = () => {
           position: [3, 3, 5],
           fov: 75
         }}
+        gl={{ antialias: true }}
+        dpr={[1, 2]}
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
