@@ -69,10 +69,10 @@ const Dashboard = () => {
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       <Card className="flex-1 flex flex-col bg-background">
         <ScrollArea className="flex-1">
-          <div className="max-w-3xl mx-auto py-4">
+          <div className="max-w-3xl mx-auto">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground font-sans">
-                <h2 className="text-2xl font-medium mb-2 text-foreground">Hi {firstName}, how can I help you today?</h2>
+              <div className="text-center text-muted-foreground font-sans pb-0">
+                <h2 className="text-2xl font-medium text-foreground">Hi {firstName}, how can I help you today?</h2>
               </div>
             ) : (
               <div className="space-y-3">
