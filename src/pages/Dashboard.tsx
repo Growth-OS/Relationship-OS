@@ -66,13 +66,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
-      <Card className="flex-1 flex flex-col bg-background">
-        <ScrollArea className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-3xl">
+    <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl bg-background">
+        <ScrollArea className="h-[600px] flex items-center justify-center">
+          <div className="w-full">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center">
-                <h2 className="text-2xl font-medium text-foreground mb-4">Hi {firstName}, how can I help you today?</h2>
+              <div className="h-full flex flex-col items-center justify-center space-y-2">
+                <h2 className="text-2xl font-medium text-foreground">Hi {firstName}, how can I help you today?</h2>
                 <div className="w-full px-4">
                   <div className="flex gap-2">
                     <Input
@@ -120,8 +120,8 @@ const Dashboard = () => {
         </ScrollArea>
         
         {messages.length > 0 && (
-          <div className="border-t mt-auto">
-            <div className="max-w-3xl mx-auto flex gap-2 p-4">
+          <div className="border-t">
+            <div className="flex gap-2 p-4">
               <Input
                 placeholder="Message GrowthOS..."
                 value={input}
