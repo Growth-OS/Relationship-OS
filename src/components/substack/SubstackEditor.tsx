@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Wand2 } from "lucide-react";
+import { Wand2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 
@@ -19,9 +19,10 @@ interface SubstackEditorProps {
   postId: string;
   initialContent?: string | null;
   title?: string;
+  onClose?: () => void;
 }
 
-export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditorProps) => {
+export const SubstackEditor = ({ postId, initialContent, title, onClose }: SubstackEditorProps) => {
   const [content, setContent] = useState(initialContent || "");
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -60,6 +61,7 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
       });
 
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+      if (onClose) onClose();
     } catch (error) {
       console.error("Error saving content:", error);
       toast({
@@ -120,54 +122,63 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Wand2 className="w-4 h-4" />
-              AI Generate
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Select AI Prompt Template</Label>
-                <Select
-                  value={selectedPromptId}
-                  onValueChange={setSelectedPromptId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a prompt template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {prompts?.map((prompt) => (
-                      <SelectItem key={prompt.id} value={prompt.id}>
-                        {prompt.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Additional context for AI</Label>
-                <RichTextEditor
-                  content={prompt}
-                  onChange={(value) => setPrompt(value)}
-                />
-              </div>
-              <Button 
-                className="w-full"
-                onClick={generateContent}
-                disabled={isGenerating || !selectedPromptId}
-              >
-                {isGenerating ? "Generating..." : "Generate Content"}
+        <div className="flex items-center space-x-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Wand2 className="w-4 h-4" />
+                AI Generate
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Select AI Prompt Template</Label>
+                  <Select
+                    value={selectedPromptId}
+                    onValueChange={setSelectedPromptId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a prompt template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {prompts?.map((prompt) => (
+                        <SelectItem key={prompt.id} value={prompt.id}>
+                          {prompt.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Additional context for AI</Label>
+                  <RichTextEditor
+                    content={prompt}
+                    onChange={(value) => setPrompt(value)}
+                  />
+                </div>
+                <Button 
+                  className="w-full"
+                  onClick={generateContent}
+                  disabled={isGenerating || !selectedPromptId}
+                >
+                  {isGenerating ? "Generating..." : "Generate Content"}
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
 
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? "Saving..." : "Save Content"}
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save & Close"}
+          </Button>
+          {onClose && (
+            <Button variant="ghost" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <RichTextEditor

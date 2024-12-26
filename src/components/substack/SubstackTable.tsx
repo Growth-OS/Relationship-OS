@@ -15,6 +15,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -34,6 +40,7 @@ export const SubstackTable = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   const { data: posts, isLoading } = useQuery({
     queryKey: ["substackPosts"],
@@ -73,9 +80,21 @@ export const SubstackTable = () => {
     }
   };
 
+  const handleEditClick = (postId: string) => {
+    setSelectedPostId(postId);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedPostId(null);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  const selectedPost = posts?.find(p => p.id === selectedPostId);
 
   return (
     <div className="space-y-8">
@@ -122,9 +141,9 @@ export const SubstackTable = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setSelectedPostId(selectedPostId === post.id ? null : post.id)}
+                    onClick={() => handleEditClick(post.id)}
                   >
-                    {selectedPostId === post.id ? "Close Editor" : "Edit Content"}
+                    Edit Content
                   </Button>
                 </TableCell>
               </TableRow>
@@ -133,18 +152,25 @@ export const SubstackTable = () => {
         </Table>
       </div>
 
-      {selectedPostId && posts && (
-        <div className="border rounded-lg p-4 bg-white">
-          <h3 className="text-lg font-semibold mb-4">
-            Edit Content: {posts.find(p => p.id === selectedPostId)?.title}
-          </h3>
-          <SubstackEditor
-            postId={selectedPostId}
-            initialContent={posts.find(p => p.id === selectedPostId)?.content}
-            title={posts.find(p => p.id === selectedPostId)?.title}
-          />
-        </div>
-      )}
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="h-[95vh]">
+          <DrawerHeader className="border-b">
+            <DrawerTitle>
+              Edit Content: {selectedPost?.title}
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 h-full overflow-y-auto">
+            {selectedPostId && selectedPost && (
+              <SubstackEditor
+                postId={selectedPostId}
+                initialContent={selectedPost.content}
+                title={selectedPost.title}
+                onClose={handleCloseDrawer}
+              />
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
