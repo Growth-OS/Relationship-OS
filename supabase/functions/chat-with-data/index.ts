@@ -1,10 +1,12 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 import { handleFinancialData } from './handlers/financialHandler.ts';
 import { handleTaskData } from './handlers/taskHandler.ts';
 import { handleDealData } from './handlers/dealHandler.ts';
 import { handleAffiliateData } from './handlers/affiliateHandler.ts';
+import { handleSubstackData } from './handlers/substackHandler.ts';
+import { handleProspectData } from './handlers/prospectHandler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,14 +20,14 @@ serve(async (req) => {
 
   try {
     const { message, userId } = await req.json();
-    const contextData = {};
+    const contextData: Record<string, any> = {};
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch relevant data based on message content
+    // Fetch all relevant data based on message content
     if (isFinancialQuery(message)) {
       await handleFinancialData(supabase, userId, contextData);
     }
@@ -40,6 +42,14 @@ serve(async (req) => {
 
     if (isAffiliateQuery(message)) {
       await handleAffiliateData(supabase, userId, contextData);
+    }
+
+    if (isSubstackQuery(message)) {
+      await handleSubstackData(supabase, userId, contextData);
+    }
+
+    if (isProspectQuery(message)) {
+      await handleProspectData(supabase, userId, contextData);
     }
 
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -67,15 +77,18 @@ serve(async (req) => {
    - Use "turnover" instead of "revenue"
    - Present category breakdowns in a clean list format
 
-Example Financial Summary:
-Monthly Income Summary
-💰 Total Income: £4,000
+2. Task and Deal Formatting:
+   - Present tasks in a clear, bulleted list
+   - Show deal values in UK format
+   - Format deadlines and due dates clearly
+   - Use priority indicators consistently
 
-Income Breakdown by Category:
-• Consulting: £1,500
-• Software Sales: £2,500
+3. Content and Substack Formatting:
+   - Show post titles in quotation marks
+   - Format publication dates clearly
+   - Present engagement metrics in a structured way
 
-2. Other Formatting Guidelines:
+4. General Formatting Guidelines:
    - Use bullet points (•) for lists
    - Keep responses concise and well-structured
    - Use proper spacing between sections
@@ -111,20 +124,31 @@ Current context data: ${JSON.stringify(contextData)}`,
 
 // Helper functions to determine query type
 const isFinancialQuery = (message: string): boolean => {
-  const keywords = ['financ', 'money', 'transaction', 'expense', 'income', 'spent', 'earned'];
+  const keywords = ['financ', 'money', 'transaction', 'expense', 'income', 'spent', 'earned', 'payment', 'invoice', 'budget'];
   return keywords.some(keyword => message.toLowerCase().includes(keyword));
 };
 
 const isTaskQuery = (message: string): boolean => {
-  return message.toLowerCase().includes('task') || message.toLowerCase().includes('todo');
+  const keywords = ['task', 'todo', 'to-do', 'deadline', 'due', 'priority'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
 };
 
 const isDealQuery = (message: string): boolean => {
-  return message.toLowerCase().includes('deal') || message.toLowerCase().includes('pipeline');
+  const keywords = ['deal', 'pipeline', 'client', 'prospect', 'opportunity', 'sales'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
 };
 
 const isAffiliateQuery = (message: string): boolean => {
-  return message.toLowerCase().includes('affiliate') || 
-         message.toLowerCase().includes('commission') || 
-         message.toLowerCase().includes('earning');
+  const keywords = ['affiliate', 'commission', 'earning', 'partner', 'referral'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
+};
+
+const isSubstackQuery = (message: string): boolean => {
+  const keywords = ['substack', 'post', 'article', 'newsletter', 'content', 'publish'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
+};
+
+const isProspectQuery = (message: string): boolean => {
+  const keywords = ['prospect', 'lead', 'contact', 'potential', 'opportunity'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
 };
