@@ -11,6 +11,15 @@ interface TeamMembersListProps {
   teamId?: string;
 }
 
+type TeamMember = {
+  id: string;
+  role: 'owner' | 'admin' | 'member';
+  profiles: {
+    email: string;
+    full_name: string | null;
+  } | null;
+}
+
 export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
   const { data: members, refetch } = useQuery({
     queryKey: ["team-members", teamId],
@@ -29,7 +38,7 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
         .eq("team_id", teamId);
 
       if (error) throw error;
-      return data;
+      return data as TeamMember[];
     },
     enabled: !!teamId,
   });
