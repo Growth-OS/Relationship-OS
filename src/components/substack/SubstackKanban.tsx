@@ -73,7 +73,6 @@ export const SubstackKanban = () => {
   };
 
   const handleCloseDrawer = () => {
-    setIsDrawerOpen(false);
     setSelectedPostId(null);
   };
 

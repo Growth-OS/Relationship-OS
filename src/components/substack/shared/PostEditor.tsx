@@ -23,20 +23,19 @@ export const PostEditor = ({
   selectedPost, 
   onClose 
 }: PostEditorProps) => {
-  const handleOpenChange = (open: boolean) => {
-    // Always update the drawer state immediately
-    onOpenChange(open);
-    
-    if (!open) {
-      // Call onClose immediately when closing
-      onClose();
-    }
-  };
-
   return (
     <Drawer 
       open={isOpen} 
-      onOpenChange={handleOpenChange}
+      onOpenChange={(open) => {
+        if (!open) {
+          // First close the drawer
+          onOpenChange(false);
+          // Then clean up
+          onClose();
+        } else {
+          onOpenChange(true);
+        }
+      }}
       modal={true}
     >
       <DrawerContent className="h-[95vh]">
@@ -51,7 +50,10 @@ export const PostEditor = ({
               postId={selectedPost.id}
               initialContent={selectedPost.content}
               title={selectedPost.title}
-              onClose={() => handleOpenChange(false)}
+              onClose={() => {
+                onOpenChange(false);
+                onClose();
+              }}
             />
           )}
         </div>
