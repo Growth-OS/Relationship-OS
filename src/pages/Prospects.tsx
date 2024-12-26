@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ProspectsTable } from "@/components/prospects/ProspectsTable";
 import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
-import { ZapierWebhookInfo } from "@/components/prospects/ZapierWebhookInfo";
 
 const Prospects = () => {
   const [open, setOpen] = useState(false);
@@ -55,8 +54,6 @@ const Prospects = () => {
       </div>
 
       <ProspectsTable prospects={prospects} onProspectUpdated={refetch} />
-      
-      <ZapierWebhookInfo />
     </div>
   );
 };
