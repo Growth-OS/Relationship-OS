@@ -293,6 +293,86 @@ export type Database = {
         }
         Relationships: []
       }
+      project_documents: {
+        Row: {
+          created_at: string
+          file_path: string
+          file_type: string
+          id: string
+          project_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          file_type: string
+          id?: string
+          project_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          file_type?: string
+          id?: string
+          project_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          budget: number | null
+          client_name: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          last_activity_date: string
+          name: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["project_status"] | null
+          user_id: string
+        }
+        Insert: {
+          budget?: number | null
+          client_name: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          last_activity_date?: string
+          name: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"] | null
+          user_id: string
+        }
+        Update: {
+          budget?: number | null
+          client_name?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          last_activity_date?: string
+          name?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["project_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       prospects: {
         Row: {
           company_name: string
@@ -370,6 +450,7 @@ export type Database = {
           due_date: string | null
           id: string
           priority: string | null
+          project_id: string | null
           source: Database["public"]["Enums"]["task_source"] | null
           source_id: string | null
           title: string
@@ -382,6 +463,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           priority?: string | null
+          project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           title: string
@@ -394,12 +476,21 @@ export type Database = {
           due_date?: string | null
           id?: string
           priority?: string | null
+          project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {
@@ -517,6 +608,7 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+      project_status: "active" | "completed" | "on_hold"
       task_source: "deals" | "content" | "ideas" | "substack" | "other"
       transaction_type: "income" | "expense"
       user_role: "owner" | "admin" | "member"
