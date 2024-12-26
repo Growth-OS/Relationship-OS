@@ -9,12 +9,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   title: string;
   publishDate: Date;
+  status: string;
 }
 
 interface SubstackFormProps {
@@ -30,6 +32,7 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
     defaultValues: {
       title: "",
       publishDate: new Date(),
+      status: "draft"
     },
   });
 
@@ -52,14 +55,14 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
         title: data.title,
         publish_date: format(data.publishDate, "yyyy-MM-dd"),
         user_id: user.id,
-        status: 'draft'
+        status: data.status
       });
 
       const { error: insertError } = await supabase.from("substack_posts").insert({
         title: data.title,
         publish_date: format(data.publishDate, "yyyy-MM-dd"),
         user_id: user.id,
-        status: 'draft'
+        status: data.status
       });
 
       if (insertError) {
@@ -99,6 +102,30 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
               <FormControl>
                 <Input placeholder="Enter post title" {...field} />
               </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="idea">Idea</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="editing">Editing</SelectItem>
+                  <SelectItem value="ready">Ready</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />
