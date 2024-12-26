@@ -80,7 +80,9 @@ export const SubstackKanban = () => {
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
-    setSelectedPostId(null);
+    setTimeout(() => {
+      setSelectedPostId(null);
+    }, 300); // Wait for drawer animation to complete
   };
 
   const columns = [
@@ -154,7 +156,14 @@ export const SubstackKanban = () => {
         );
       })}
 
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <Drawer 
+        open={isDrawerOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDrawer();
+          }
+        }}
+      >
         <DrawerContent className="h-[95vh]">
           <DrawerHeader className="border-b">
             <DrawerTitle>

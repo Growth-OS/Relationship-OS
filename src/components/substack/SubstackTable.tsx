@@ -112,7 +112,9 @@ export const SubstackTable = () => {
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
-    setSelectedPostId(null);
+    setTimeout(() => {
+      setSelectedPostId(null);
+    }, 300); // Wait for drawer animation to complete
   };
 
   if (isLoading) {
@@ -187,7 +189,14 @@ export const SubstackTable = () => {
         </Table>
       </div>
 
-      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <Drawer 
+        open={isDrawerOpen} 
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDrawer();
+          }
+        }}
+      >
         <DrawerContent className="h-[95vh]">
           <DrawerHeader className="border-b">
             <DrawerTitle>
