@@ -157,7 +157,6 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
                     selected={field.value}
                     onSelect={field.onChange}
                     initialFocus
-                    fromMonth={new Date()}
                   />
                 </PopoverContent>
               </Popover>
