@@ -1,10 +1,46 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const BrandingSettings = () => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleBrandBookUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.includes('pdf')) {
+        toast.error('Please upload a PDF file');
+        return;
+      }
+
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('financial_docs')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      toast.success('Brand book uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading brand book:', error);
+      toast.error('Failed to upload brand book');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Branding Settings</h1>
@@ -32,7 +68,22 @@ const BrandingSettings = () => {
                     <div className="text-gray-500">
                       Drag and drop your brand book PDF here, or click to browse
                     </div>
-                    <Button variant="secondary">Upload Brand Book</Button>
+                    <div>
+                      <Input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleBrandBookUpload}
+                        className="hidden"
+                        id="brand-book-upload"
+                      />
+                      <Button
+                        variant="secondary"
+                        onClick={() => document.getElementById('brand-book-upload')?.click()}
+                        disabled={uploading}
+                      >
+                        {uploading ? 'Uploading...' : 'Upload Brand Book'}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
