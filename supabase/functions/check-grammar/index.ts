@@ -16,14 +16,22 @@ serve(async (req) => {
     const { text } = await req.json();
     console.log('Checking grammar for text:', text);
 
+    // Verify OpenAI API key exists
+    const openAIKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIKey) {
+      console.error('OpenAI API key not found');
+      throw new Error('OpenAI API key not configured');
+    }
+
+    console.log('Making request to OpenAI API...');
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-3.5-turbo', // Fallback to a more widely available model
         messages: [
           {
             role: 'system',
@@ -85,7 +93,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in grammar check:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
