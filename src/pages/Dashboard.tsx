@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -31,6 +32,13 @@ const Dashboard = () => {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
+
+  // Auto scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -94,7 +102,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <>
-            <ScrollArea className="h-[400px]">
+            <div className="h-[400px] overflow-auto" ref={scrollAreaRef}>
               <div className="space-y-3 p-4">
                 {messages.map((message, index) => (
                   <div
@@ -115,7 +123,7 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
             
             <div className="border-t">
               <div className="flex gap-2 p-4">
