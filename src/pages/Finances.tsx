@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TransactionsList } from "@/components/finances/TransactionsList";
 import { CreateTransactionButton } from "@/components/finances/CreateTransactionButton";
 import { FinancialOverview } from "@/components/finances/FinancialOverview";
+import { ExportTransactions } from "@/components/finances/ExportTransactions";
 
 const Finances = () => {
   return (
@@ -13,7 +13,10 @@ const Finances = () => {
           <h1 className="text-2xl font-bold text-primary mb-1">Finances</h1>
           <p className="text-sm text-gray-600">Manage your income and expenses</p>
         </div>
-        <CreateTransactionButton />
+        <div className="flex gap-2">
+          <ExportTransactions />
+          <CreateTransactionButton />
+        </div>
       </div>
 
       <FinancialOverview />
