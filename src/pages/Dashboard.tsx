@@ -68,40 +68,41 @@ const Dashboard = () => {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       <Card className="flex-1 flex flex-col bg-background">
-        <ScrollArea className="flex-1">
-          <div className="max-w-2xl mx-auto py-2 space-y-4 px-4">
+        <ScrollArea className="flex-1 px-4">
+          <div className="max-w-2xl mx-auto py-8">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-2">
-                <h1 className="text-4xl font-semibold mb-4">What can I help with?</h1>
-                <p className="text-lg">Hi {firstName}, how can I help you today?</p>
+              <div className="text-center text-muted-foreground">
+                <h2 className="text-2xl font-medium mb-2">Hi {firstName}, how can I help you today?</h2>
               </div>
             ) : (
-              messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
+              <div className="space-y-4">
+                {messages.map((message, index) => (
                   <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                    key={index}
+                    className={`flex ${
+                      message.role === 'user' ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.role === 'user'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </ScrollArea>
         
-        <div className="border-t p-2">
-          <div className="max-w-2xl mx-auto flex gap-2">
+        <div className="border-t">
+          <div className="max-w-2xl mx-auto flex gap-2 p-4">
             <Input
-              placeholder="Message ChatGPT..."
+              placeholder="Message GrowthOS..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
