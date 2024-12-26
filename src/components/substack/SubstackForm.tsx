@@ -112,7 +112,6 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="idea">Idea</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="editing">Editing</SelectItem>
                   <SelectItem value="ready">Ready</SelectItem>

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export const statusConfig = {
-  idea: { label: "Idea", variant: "secondary" },
   draft: { label: "Draft", variant: "default" },
   editing: { label: "Editing", variant: "warning" },
   ready: { label: "Ready", variant: "warning" },

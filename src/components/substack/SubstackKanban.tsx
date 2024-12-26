@@ -67,7 +67,6 @@ export const SubstackKanban = () => {
   };
 
   const columns = [
-    { title: "Ideas", status: "idea" },
     { title: "Writing", status: "draft" },
     { title: "Editing", status: "editing" },
     { title: "Ready", status: "ready" },
@@ -81,7 +80,7 @@ export const SubstackKanban = () => {
   const selectedPost = posts?.find(p => p.id === selectedPostId);
 
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="grid grid-cols-4 gap-4">
       {columns.map((column) => (
         <KanbanColumn
           key={column.status}
