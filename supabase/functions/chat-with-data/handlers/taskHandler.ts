@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 
 export async function handleTaskData(
   supabase: SupabaseClient,
