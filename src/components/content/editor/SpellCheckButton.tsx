@@ -65,7 +65,9 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
 
     corrections.forEach(correction => {
       if (correction.selected) {
-        updatedContent = updatedContent.replaceAll(correction.original, correction.suggestion);
+        // Use replace with a global regex instead of replaceAll
+        const regex = new RegExp(correction.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        updatedContent = updatedContent.replace(regex, correction.suggestion);
         hasChanges = true;
       }
     });
