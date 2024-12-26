@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubstackCalendar } from "@/components/substack/SubstackCalendar";
-import { SubstackEditor } from "@/components/substack/SubstackEditor";
+import { SubstackTable } from "@/components/substack/SubstackTable";
 import { SubstackKanban } from "@/components/substack/SubstackKanban";
 import { CreatePostButton } from "@/components/substack/CreatePostButton";
 
@@ -21,7 +21,7 @@ const Substack = () => {
           <TabsList>
             <TabsTrigger value="kanban">Content Pipeline</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="drafts">Drafts</TabsTrigger>
+            <TabsTrigger value="drafts">All Posts</TabsTrigger>
           </TabsList>
 
           <TabsContent value="kanban" className="m-0">
@@ -33,7 +33,7 @@ const Substack = () => {
           </TabsContent>
 
           <TabsContent value="drafts" className="m-0">
-            <SubstackEditor />
+            <SubstackTable />
           </TabsContent>
         </Tabs>
       </Card>
