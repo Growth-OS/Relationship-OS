@@ -6,32 +6,57 @@ import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialo
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 const TeamSettings = () => {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
-  const { data: teamData } = useQuery({
+  const { data: teamData, isLoading, error } = useQuery({
     queryKey: ["team"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data: teamMember, error } = await supabase
+      // First get the user's team memberships
+      const { data: teamMemberships, error: membershipError } = await supabase
         .from("team_members")
-        .select(`
-          team_id,
-          teams (
-            id,
-            name
-          )
-        `)
+        .select("team_id")
         .eq("user_id", user.id)
+        .limit(1);
+
+      if (membershipError) {
+        console.error("Error fetching team membership:", membershipError);
+        throw membershipError;
+      }
+
+      if (!teamMemberships?.length) {
+        return null;
+      }
+
+      // Then get the team details
+      const { data: team, error: teamError } = await supabase
+        .from("teams")
+        .select("id, name")
+        .eq("id", teamMemberships[0].team_id)
         .single();
 
-      if (error) throw error;
-      return teamMember;
+      if (teamError) {
+        console.error("Error fetching team:", teamError);
+        throw teamError;
+      }
+
+      return team;
     },
   });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    toast.error("Failed to load team data");
+    return <div>Error loading team data</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -54,14 +79,14 @@ const TeamSettings = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TeamMembersList teamId={teamData?.teams?.id} />
+          <TeamMembersList teamId={teamData?.id} />
         </CardContent>
       </Card>
 
       <InviteMemberDialog 
         open={inviteDialogOpen} 
         onOpenChange={setInviteDialogOpen}
-        teamId={teamData?.teams?.id}
+        teamId={teamData?.id}
       />
     </div>
   );
