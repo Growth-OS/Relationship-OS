@@ -13,21 +13,18 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authorization
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      console.error('No authorization header provided');
-      throw new Error('Not authorized');
-    }
-
-    const { text } = await req.json();
-    console.log('Checking grammar for text:', text);
-
     // Verify OpenAI API key exists
     const openAIKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIKey) {
       console.error('OpenAI API key not found');
       throw new Error('OpenAI API key not configured');
+    }
+
+    const { text } = await req.json();
+    console.log('Checking grammar for text:', text);
+
+    if (!text || typeof text !== 'string') {
+      throw new Error('Invalid text input');
     }
 
     console.log('Making request to OpenAI API...');
