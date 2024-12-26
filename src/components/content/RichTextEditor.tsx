@@ -2,6 +2,8 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 import { EditorToolbar } from './editor/EditorToolbar';
 
 interface RichTextEditorProps {
@@ -84,6 +86,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      TaskList,
+      TaskItem.configure({
+        nested: true,
+      }),
     ],
     content: content || defaultTemplate,
     onUpdate: ({ editor }) => {
@@ -98,7 +104,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   return (
     <div className="border rounded-lg overflow-hidden">
       <EditorToolbar editor={editor} />
-      <div className="p-4 min-h-[200px] prose max-w-none">
+      <div className="p-4 min-h-[200px] prose max-w-none [&_.task-list]:list-none [&_.task-list_p]:inline-block [&_.task-list_label]:inline-flex [&_.task-list_input]:mr-2">
         <EditorContent editor={editor} />
       </div>
     </div>

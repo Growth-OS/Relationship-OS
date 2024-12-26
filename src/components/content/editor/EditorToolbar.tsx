@@ -14,8 +14,6 @@ import {
   CheckSquare,
 } from 'lucide-react';
 import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CreateTaskForm } from '@/components/tasks/CreateTaskForm';
 
@@ -25,11 +23,13 @@ interface EditorToolbarProps {
 
 export const EditorToolbar = ({ editor }: EditorToolbarProps) => {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleTaskCreated = (taskTitle: string) => {
-    // Insert the task reference in the editor
-    editor.chain().focus().insertContent(`<input type="checkbox" /> ${taskTitle}`).run();
+    editor
+      .chain()
+      .focus()
+      .insertContent(`<ul class="task-list"><li data-type="taskItem" data-checked="false"><label><input type="checkbox"/><span>${taskTitle}</span></label></li></ul>`)
+      .run();
     setIsTaskDialogOpen(false);
   };
 
