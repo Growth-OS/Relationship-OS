@@ -4,7 +4,15 @@ import { routes } from "./config/routes";
 import { Toaster } from "./components/ui/sonner";
 import "./App.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 const router = createBrowserRouter(routes);
 
 function App() {

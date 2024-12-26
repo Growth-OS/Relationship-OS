@@ -14,10 +14,11 @@ interface TeamMembersListProps {
 type TeamMember = {
   id: string;
   role: 'owner' | 'admin' | 'member';
+  user_id: string;
   profiles: {
     email: string;
     full_name: string | null;
-  } | null;
+  };
 }
 
 export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
@@ -29,7 +30,9 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
       const { data, error } = await supabase
         .from("team_members")
         .select(`
-          *,
+          id,
+          role,
+          user_id,
           profiles:user_id (
             email,
             full_name
@@ -38,7 +41,7 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
         .eq("team_id", teamId);
 
       if (error) throw error;
-      return data as TeamMember[];
+      return data as unknown as TeamMember[];
     },
     enabled: !!teamId,
   });
