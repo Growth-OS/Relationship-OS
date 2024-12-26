@@ -7,9 +7,21 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Editor } from "@/components/editor/Editor";
 
-export const SubstackEditor = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+interface SubstackEditorProps {
+  postId?: string;
+  initialContent?: string;
+  title?: string;
+  onClose?: () => void;
+}
+
+export const SubstackEditor = ({ 
+  postId,
+  initialContent = "",
+  title: initialTitle = "",
+  onClose 
+}: SubstackEditorProps) => {
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -20,12 +32,13 @@ export const SubstackEditor = () => {
     },
   });
 
-  const handleSave = async (content: string, title: string) => {
+  const handleSave = async () => {
     if (!user) return;
 
     const { error } = await supabase
       .from("substack_posts")
-      .insert({
+      .upsert({
+        id: postId,
         content,
         title,
         user_id: user.id,
@@ -35,6 +48,7 @@ export const SubstackEditor = () => {
 
     if (error) throw error;
     toast.success("Post saved successfully");
+    if (onClose) onClose();
   };
 
   const handlePublish = async () => {
@@ -44,7 +58,7 @@ export const SubstackEditor = () => {
     }
 
     try {
-      await handleSave(content, title);
+      await handleSave();
       toast.success("Post published to Substack");
     } catch (error) {
       console.error("Error publishing post:", error);
@@ -71,7 +85,7 @@ export const SubstackEditor = () => {
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
-          onClick={() => handleSave(content, title)}
+          onClick={handleSave}
         >
           Save Draft
         </Button>

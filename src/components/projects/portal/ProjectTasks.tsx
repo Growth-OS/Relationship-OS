@@ -1,11 +1,15 @@
 import { CreateTaskForm } from "@/components/tasks/CreateTaskForm";
 import { TaskList } from "@/components/tasks/TaskList";
 
-export const ProjectTasks = ({ projectId }: { projectId: string }) => {
+interface ProjectTasksProps {
+  projectId: string;
+}
+
+export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
   return (
     <div className="space-y-6">
-      <CreateTaskForm projectId={projectId} source="projects" />
-      <TaskList projectId={projectId} />
+      <CreateTaskForm projectId={projectId} source="other" />
+      <TaskList source="other" />
     </div>
   );
 };
