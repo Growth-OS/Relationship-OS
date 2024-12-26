@@ -6,4 +6,5 @@ export interface ProjectFormData {
   start_date?: Date;
   end_date?: Date;
   budget?: number;
+  deal_id?: string;
 }

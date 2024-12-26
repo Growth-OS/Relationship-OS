@@ -1,9 +1,10 @@
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { ProjectFormData } from "./types";
+import { DealSelect } from "./DealSelect";
 
 interface ProjectFormFieldsProps {
   form: UseFormReturn<ProjectFormData>;
@@ -12,6 +13,13 @@ interface ProjectFormFieldsProps {
 export const ProjectFormFields = ({ form }: ProjectFormFieldsProps) => {
   return (
     <>
+      <DealSelect 
+        form={form} 
+        onDealSelect={(dealId) => {
+          // Additional logic if needed when deal is selected
+        }}
+      />
+
       <FormField
         control={form.control}
         name="name"
