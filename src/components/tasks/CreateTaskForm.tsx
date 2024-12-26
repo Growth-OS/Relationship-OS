@@ -120,7 +120,7 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess, initialD
           control={form.control}
           name="due_date"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="flex flex-col">
               <FormLabel>Due Date</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
@@ -146,9 +146,7 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess, initialD
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) =>
-                      date < new Date()
-                    }
+                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
