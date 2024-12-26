@@ -293,6 +293,44 @@ export type Database = {
         }
         Relationships: []
       }
+      project_credentials: {
+        Row: {
+          created_at: string
+          id: string
+          password: string
+          project_id: string
+          service_name: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          password: string
+          project_id: string
+          service_name: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          password?: string
+          project_id?: string
+          service_name?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_documents: {
         Row: {
           created_at: string
@@ -609,7 +647,13 @@ export type Database = {
         | "conference"
         | "other"
       project_status: "active" | "completed" | "on_hold"
-      task_source: "deals" | "content" | "ideas" | "substack" | "other"
+      task_source:
+        | "deals"
+        | "content"
+        | "ideas"
+        | "substack"
+        | "other"
+        | "projects"
       transaction_type: "income" | "expense"
       user_role: "owner" | "admin" | "member"
     }

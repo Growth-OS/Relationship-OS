@@ -1,72 +1,60 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Table,
-  TableBody,
-} from "@/components/ui/table";
-import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { PostStatus } from "./table/StatusBadge";
-import { PostEditor } from "./shared/PostEditor";
-import { useState } from "react";
-import { PostTableHeader } from "./table/TableHeader";
-import { TableRow } from "./table/TableRow";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { Pencil, Trash } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface SubstackPost {
+  id: string;
+  title: string;
+  content: string | null;
+  status: string;
+  publish_date: string;
+  created_at: string;
+}
 
 export const SubstackTable = () => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ["substackPosts"],
+  const { data: user } = useQuery({
+    queryKey: ["user"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { data, error } = await supabase
-        .from("substack_posts")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("publish_date", { ascending: false });
-
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (error) throw error;
-      
-      return data.map(post => ({
-        ...post,
-        status: post.status as PostStatus
-      }));
+      return user;
     },
   });
 
-  const updatePostStatus = async (postId: string, newStatus: PostStatus) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { error } = await supabase
+  const { data: posts = [], refetch } = useQuery({
+    queryKey: ["substack-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from("substack_posts")
-        .update({ 
-          status: newStatus,
-          user_id: user.id 
-        })
-        .eq("id", postId);
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
+      return data as SubstackPost[];
+    },
+  });
 
-      toast({
-        title: "Success",
-        description: `Post status updated`,
-      });
+  const handleStatusChange = async (postId: string, newStatus: string) => {
+    if (!user) return;
 
-      queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
-    } catch (error) {
-      console.error("Error updating post status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update post status",
-        variant: "destructive",
-      });
-    }
+    const { error } = await supabase
+      .from("substack_posts")
+      .update({
+        status: newStatus,
+        user_id: user.id
+      })
+      .eq('id', postId);
+
+    if (error) throw error;
+    toast.success("Post status updated");
+    refetch();
   };
 
   const handleDelete = async (postId: string) => {
@@ -77,64 +65,99 @@ export const SubstackTable = () => {
         .eq("id", postId);
 
       if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Post deleted successfully",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+      toast.success("Post deleted successfully");
+      refetch();
     } catch (error) {
       console.error("Error deleting post:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete post",
-        variant: "destructive",
-      });
+      toast.error("Failed to delete post");
     }
   };
 
-  const handleEditClick = (postId: string) => {
-    setSelectedPostId(postId);
-    setIsDialogOpen(true);
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "published":
+        return "bg-green-100 text-green-800";
+      case "draft":
+        return "bg-gray-100 text-gray-800";
+      case "scheduled":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
-
-  const handleCloseDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedPostId(null);
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  const selectedPost = posts?.find(p => p.id === selectedPostId);
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-md border">
-        <Table>
-          <PostTableHeader />
-          <TableBody>
-            {posts?.map((post) => (
-              <TableRow
-                key={post.id}
-                post={post}
-                onStatusChange={updatePostStatus}
-                onEdit={handleEditClick}
-                onDelete={handleDelete}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      <PostEditor
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        selectedPost={selectedPost}
-        onClose={handleCloseDialog}
-      />
-    </div>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Title</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Publish Date</TableHead>
+          <TableHead>Created At</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {posts.map((post) => (
+          <TableRow key={post.id}>
+            <TableCell>{post.title}</TableCell>
+            <TableCell>
+              <Select
+                defaultValue={post.status}
+                onValueChange={(value) => handleStatusChange(post.id, value)}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue>
+                    <Badge className={getStatusColor(post.status)}>
+                      {post.status}
+                    </Badge>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                </SelectContent>
+              </Select>
+            </TableCell>
+            <TableCell>
+              {format(new Date(post.publish_date), "MMM d, yyyy")}
+            </TableCell>
+            <TableCell>
+              {format(new Date(post.created_at), "MMM d, yyyy")}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon">
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete
+                        the post.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(post.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };

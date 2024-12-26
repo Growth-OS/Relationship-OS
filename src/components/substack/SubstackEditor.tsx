@@ -1,96 +1,83 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Editor } from "@/components/editor/Editor";
 
-interface SubstackEditorProps {
-  postId: string;
-  initialContent?: string | null;
-  title?: string;
-  onClose?: () => void;
-}
+export const SubstackEditor = () => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-export const SubstackEditor = ({ 
-  postId, 
-  initialContent, 
-  title, 
-  onClose 
-}: SubstackEditorProps) => {
-  const [content, setContent] = useState(initialContent || "");
-  const [postTitle, setPostTitle] = useState(title || "");
-  const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const handleSave = async () => {
-    if (isSaving) return;
-    
-    setIsSaving(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { error } = await supabase
-        .from("substack_posts")
-        .update({ 
-          content, 
-          title: postTitle,
-          user_id: user.id 
-        })
-        .eq("id", postId);
-
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (error) throw error;
+      return user;
+    },
+  });
 
-      toast({
-        title: "Success",
-        description: "Content saved successfully",
+  const handleSave = async (content: string, title: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("substack_posts")
+      .insert({
+        content,
+        title,
+        user_id: user.id,
+        publish_date: new Date().toISOString(),
+        status: 'draft'
       });
 
-      await queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
-      
-      if (onClose) {
-        onClose();
-      }
+    if (error) throw error;
+    toast.success("Post saved successfully");
+  };
+
+  const handlePublish = async () => {
+    if (!title || !content) {
+      toast.error("Please add a title and content before publishing");
+      return;
+    }
+
+    try {
+      await handleSave(content, title);
+      toast.success("Post published to Substack");
     } catch (error) {
-      console.error("Error saving content:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save content",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
+      console.error("Error publishing post:", error);
+      toast.error("Failed to publish post");
     }
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between bg-background p-4 border-b shrink-0">
-        <div className="flex-1 max-w-2xl">
-          <Input
-            value={postTitle}
-            onChange={(e) => setPostTitle(e.target.value)}
-            className="text-lg font-semibold"
-            placeholder="Enter post title"
-          />
-        </div>
-        <div className="flex items-center space-x-2 ml-4">
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save & Close"}
-          </Button>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-[1200px] mx-auto h-full">
-          <RichTextEditor
-            content={content}
-            onChange={setContent}
-          />
-        </div>
+    <div className="space-y-4">
+      <Card className="p-4">
+        <Input
+          placeholder="Post title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="text-lg font-medium mb-4"
+        />
+        <Editor
+          value={content}
+          onChange={setContent}
+          placeholder="Write your post content here..."
+        />
+      </Card>
+
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => handleSave(content, title)}
+        >
+          Save Draft
+        </Button>
+        <Button onClick={handlePublish}>
+          Publish to Substack
+        </Button>
       </div>
     </div>
   );
