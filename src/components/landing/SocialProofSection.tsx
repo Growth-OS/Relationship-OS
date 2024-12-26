@@ -20,10 +20,10 @@ export const SocialProofSection = () => {
 };
 
 const companies = [
-  "Spotify",
-  "Netflix",
-  "Stripe",
-  "Deel",
-  "Compass",
-  "Linear"
+  "TechCorp",
+  "GrowthLabs",
+  "ScaleUp",
+  "NextGen",
+  "FutureFlow",
+  "ProScale"
 ];

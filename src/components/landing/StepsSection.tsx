@@ -21,23 +21,23 @@ export const StepsSection = () => {
 
 const steps = [
   {
-    title: "Have perfect timing with Smart Late",
-    description: "Schedule emails to be sent at the perfect time",
-    timeframe: "In 3 days"
-  },
-  {
-    title: "Reply faster with instant filters",
-    description: "Focus on what matters most",
-    timeframe: "Coming soon"
-  },
-  {
-    title: "Improve interactions with social insights",
-    description: "Get better context for your emails",
+    title: "Integrated Email Management",
+    description: "Connect your email and manage all communications in one place",
     timeframe: "Available now"
   },
   {
-    title: "Use machine learning to spot latency",
-    description: "Identify bottlenecks in your communication",
-    timeframe: "Beta"
+    title: "AI-Powered Content Creation",
+    description: "Generate engaging content with our AI writing assistant",
+    timeframe: "Available now"
+  },
+  {
+    title: "Advanced Analytics Dashboard",
+    description: "Track your business metrics with detailed reporting",
+    timeframe: "Available now"
+  },
+  {
+    title: "Team Collaboration Tools",
+    description: "Work together seamlessly with built-in collaboration features",
+    timeframe: "Coming soon"
   }
 ];

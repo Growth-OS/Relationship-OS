@@ -10,7 +10,7 @@ export const UrgencySection = () => {
       <div className="container mx-auto px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-4xl font-bold mb-6 animate-fade-in">
-            You're Just Minutes Away From Transforming Your Business
+            Start Growing Your Business Today
           </h2>
           <div className="space-y-6 mb-12 animate-fade-in [animation-delay:200ms]">
             {benefits.map((benefit, index) => (
@@ -43,8 +43,8 @@ export const UrgencySection = () => {
 };
 
 const benefits = [
-  "Start automating your workflows in under 5 minutes",
-  "See immediate improvements in productivity and efficiency",
-  "Join thousands of businesses already scaling with Growth OS",
-  "Risk-free 14-day trial with full access to all features"
+  "Access all Growth OS tools: CRM, Content, Finance, and Task Management",
+  "AI-powered features to automate repetitive tasks",
+  "Real-time analytics and reporting dashboard",
+  "14-day free trial with full access to all features"
 ];
