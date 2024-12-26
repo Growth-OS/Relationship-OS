@@ -75,10 +75,10 @@ const Dashboard = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-black/50 border border-white/10 backdrop-blur-sm text-white">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-4 space-y-4">
-            <h2 className="text-2xl font-medium text-foreground">Hi {firstName}, how can I help you today?</h2>
+            <h2 className="text-2xl font-medium">Hi {firstName}, how can I help you today?</h2>
             <div className="w-full">
               <div className="flex gap-2">
                 <Input
@@ -87,13 +87,13 @@ const Dashboard = () => {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                   disabled={isLoading}
-                  className="flex-1 font-sans text-foreground"
+                  className="flex-1 font-sans bg-white/5 border-white/10 text-white placeholder:text-white/50"
                 />
                 <Button 
                   onClick={handleSend} 
                   disabled={isLoading}
                   size="icon"
-                  className="text-primary-foreground"
+                  className="bg-white text-black hover:bg-white/90"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
@@ -114,9 +114,9 @@ const Dashboard = () => {
                     <div
                       className={`max-w-[80%] rounded-lg px-4 py-2 ${
                         message.role === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground'
-                      } font-sans`}
+                          ? 'bg-white text-black'
+                          : 'bg-white/10 text-white'
+                      }`}
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
@@ -125,7 +125,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="border-t">
+            <div className="border-t border-white/10">
               <div className="flex gap-2 p-4">
                 <Input
                   placeholder="Message GrowthOS..."
@@ -133,13 +133,13 @@ const Dashboard = () => {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                   disabled={isLoading}
-                  className="flex-1 font-sans text-foreground"
+                  className="flex-1 font-sans bg-white/5 border-white/10 text-white placeholder:text-white/50"
                 />
                 <Button 
                   onClick={handleSend} 
                   disabled={isLoading}
                   size="icon"
-                  className="text-primary-foreground"
+                  className="bg-white text-black hover:bg-white/90"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
