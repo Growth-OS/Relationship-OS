@@ -6,6 +6,7 @@ import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SubstackEditorProps {
   postId: string;
@@ -56,7 +57,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   };
 
   return (
-    <div className="space-y-4 h-full bg-background">
+    <div className="flex flex-col h-full bg-background">
       <div className="flex items-center justify-between sticky top-0 z-20 bg-background p-4 border-b">
         <div className="flex-1 max-w-2xl">
           <Input
@@ -78,12 +79,14 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
         </div>
       </div>
       
-      <div className="px-4 pb-4">
-        <RichTextEditor
-          content={content}
-          onChange={setContent}
-        />
-      </div>
+      <ScrollArea className="flex-1 p-4">
+        <div className="max-w-[1200px] mx-auto">
+          <RichTextEditor
+            content={content}
+            onChange={setContent}
+          />
+        </div>
+      </ScrollArea>
     </div>
   );
 };

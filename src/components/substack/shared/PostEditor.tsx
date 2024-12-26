@@ -26,23 +26,22 @@ export const PostEditor = ({
       open={isOpen} 
       onOpenChange={(open) => {
         if (!open) {
-          onOpenChange(false);
           onClose();
+          onOpenChange(false);
         } else {
           onOpenChange(true);
         }
       }}
-      modal={true}
     >
-      <DialogContent className="max-w-[90vw] h-[90vh]">
+      <DialogContent className="max-w-[90vw] h-[90vh] overflow-hidden p-0">
         {selectedPost && (
           <SubstackEditor
             postId={selectedPost.id}
             initialContent={selectedPost.content}
             title={selectedPost.title}
             onClose={() => {
-              onOpenChange(false);
               onClose();
+              onOpenChange(false);
             }}
           />
         )}
