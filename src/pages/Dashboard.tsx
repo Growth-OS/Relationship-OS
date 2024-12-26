@@ -38,23 +38,19 @@ const Dashboard = () => {
     try {
       setIsLoading(true);
       
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Add user message to chat
       const userMessage = { role: 'user' as const, content: input };
       setMessages(prev => [...prev, userMessage]);
       setInput('');
 
-      // Call our edge function
       const { data, error } = await supabase.functions.invoke('chat-with-data', {
         body: { message: input, userId: user.id },
       });
 
       if (error) throw error;
 
-      // Add AI response to chat
       const aiMessage = { role: 'assistant' as const, content: data.response };
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
@@ -70,12 +66,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col">
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
       <Card className="flex-1 flex flex-col bg-background">
-        <ScrollArea className="flex-1 px-4">
-          <div className="max-w-2xl mx-auto py-4 space-y-4">
+        <ScrollArea className="flex-1">
+          <div className="max-w-2xl mx-auto py-2 space-y-4 px-4">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-4">
+              <div className="text-center text-muted-foreground py-2">
+                <h1 className="text-4xl font-semibold mb-4">What can I help with?</h1>
                 <p className="text-lg">Hi {firstName}, how can I help you today?</p>
               </div>
             ) : (
@@ -101,10 +98,10 @@ const Dashboard = () => {
           </div>
         </ScrollArea>
         
-        <div className="border-t p-4">
+        <div className="border-t p-2">
           <div className="max-w-2xl mx-auto flex gap-2">
             <Input
-              placeholder="Ask anything about your business..."
+              placeholder="Message ChatGPT..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
