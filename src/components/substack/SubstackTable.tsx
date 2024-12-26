@@ -80,6 +80,31 @@ export const SubstackTable = () => {
     }
   };
 
+  const handleDelete = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from("substack_posts")
+        .delete()
+        .eq("id", postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditClick = (postId: string) => {
     setSelectedPostId(postId);
     setIsDrawerOpen(true);
@@ -138,13 +163,23 @@ export const SubstackTable = () => {
                   </DropdownMenu>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditClick(post.id)}
-                  >
-                    Edit Content
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClick(post.id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

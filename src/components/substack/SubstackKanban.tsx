@@ -1,16 +1,40 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { SubstackEditor } from "./SubstackEditor";
+import { useState } from "react";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 interface Post {
   id: string;
   title: string;
   status: string;
   publish_date: string;
+  content?: string;
 }
 
 export const SubstackKanban = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const { data: posts, isLoading } = useQuery({
     queryKey: ["substackPosts"],
     queryFn: async () => {
@@ -24,6 +48,41 @@ export const SubstackKanban = () => {
     },
   });
 
+  const handleDelete = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from("substack_posts")
+        .delete()
+        .eq("id", postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditClick = (postId: string) => {
+    setSelectedPostId(postId);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setSelectedPostId(null);
+  };
+
   const columns = [
     { title: "Ideas", status: "idea" },
     { title: "Writing", status: "draft" },
@@ -35,6 +94,8 @@ export const SubstackKanban = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  const selectedPost = posts?.find(p => p.id === selectedPostId);
 
   return (
     <div className="grid grid-cols-5 gap-4">
@@ -56,11 +117,35 @@ export const SubstackKanban = () => {
             <CardContent className="p-2">
               <div className="space-y-2">
                 {columnPosts.map((post) => (
-                  <Card key={post.id} className="p-3 cursor-pointer hover:bg-gray-100">
-                    <h4 className="font-medium text-sm">{post.title}</h4>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Due: {new Date(post.publish_date).toLocaleDateString("en-GB")}
-                    </p>
+                  <Card key={post.id} className="p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{post.title}</h4>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Due: {format(new Date(post.publish_date), "PP")}
+                        </p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditClick(post.id)}>
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit Content
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(post.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </Card>
                 ))}
               </div>
@@ -68,6 +153,26 @@ export const SubstackKanban = () => {
           </Card>
         );
       })}
+
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent className="h-[95vh]">
+          <DrawerHeader className="border-b">
+            <DrawerTitle>
+              Edit Content: {selectedPost?.title}
+            </DrawerTitle>
+          </DrawerHeader>
+          <div className="p-4 h-full overflow-y-auto">
+            {selectedPostId && selectedPost && (
+              <SubstackEditor
+                postId={selectedPostId}
+                initialContent={selectedPost.content}
+                title={selectedPost.title}
+                onClose={handleCloseDrawer}
+              />
+            )}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
