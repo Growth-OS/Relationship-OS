@@ -9,6 +9,7 @@ import { FileText, Trash2, Download } from "lucide-react";
 interface UploadedFile {
   name: string;
   url: string;
+  path: string;
 }
 
 export const BrandBookUpload = () => {
@@ -28,7 +29,11 @@ export const BrandBookUpload = () => {
         .from('financial_docs')
         .list(user.id + '/');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading files:', error);
+        toast.error('Failed to load uploaded files');
+        return;
+      }
 
       const files = await Promise.all(
         (data || []).map(async (file) => {
@@ -38,7 +43,8 @@ export const BrandBookUpload = () => {
 
           return {
             name: file.name,
-            url: publicUrl
+            url: publicUrl,
+            path: `${user.id}/${file.name}`
           };
         })
       );
@@ -90,16 +96,44 @@ export const BrandBookUpload = () => {
     }
   };
 
-  const handleDelete = async (fileName: string) => {
+  const handleDownload = async (filePath: string, fileName: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data, error } = await supabase.storage
+        .from('financial_docs')
+        .download(filePath);
 
+      if (error) {
+        console.error('Download error:', error);
+        toast.error('Failed to download file');
+        return;
+      }
+
+      // Create a download link
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Failed to download file');
+    }
+  };
+
+  const handleDelete = async (filePath: string) => {
+    try {
       const { error } = await supabase.storage
         .from('financial_docs')
-        .remove([`${user.id}/${fileName}`]);
+        .remove([filePath]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete file');
+        return;
+      }
 
       toast.success('File deleted successfully');
       await loadUploadedFiles(); // Refresh the file list
@@ -149,7 +183,7 @@ export const BrandBookUpload = () => {
               <div className="space-y-2">
                 {uploadedFiles.map((file) => (
                   <div
-                    key={file.name}
+                    key={file.path}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-2">
@@ -160,14 +194,14 @@ export const BrandBookUpload = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(file.url, '_blank')}
+                        onClick={() => handleDownload(file.path, file.name)}
                       >
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(file.name)}
+                        onClick={() => handleDelete(file.path)}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
