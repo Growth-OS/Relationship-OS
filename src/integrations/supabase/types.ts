@@ -277,6 +277,7 @@ export type Database = {
           company_name: string
           contact_email: string | null
           contact_job_title: string | null
+          contact_linkedin: string | null
           created_at: string
           id: string
           notes: string | null
@@ -288,6 +289,7 @@ export type Database = {
           company_name: string
           contact_email?: string | null
           contact_job_title?: string | null
+          contact_linkedin?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -299,6 +301,7 @@ export type Database = {
           company_name?: string
           contact_email?: string | null
           contact_job_title?: string | null
+          contact_linkedin?: string | null
           created_at?: string
           id?: string
           notes?: string | null

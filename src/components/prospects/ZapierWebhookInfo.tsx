@@ -56,6 +56,7 @@ export const ZapierWebhookInfo = () => {
     "company_name": "Company Name",
     "contact_email": "email@example.com",
     "contact_job_title": "Job Title",
+    "contact_linkedin": "https://linkedin.com/in/profile",
     "source": "website",
     "notes": "Additional notes"
   }
