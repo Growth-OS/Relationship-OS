@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,14 +15,65 @@ serve(async (req) => {
   try {
     const { message, userId } = await req.json();
 
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch relevant data based on the message content
     let contextData = {};
 
+    // Fetch financial data if the message mentions finances, money, transactions, expenses, or income
+    if (message.toLowerCase().includes('financ') || 
+        message.toLowerCase().includes('money') || 
+        message.toLowerCase().includes('transaction') ||
+        message.toLowerCase().includes('expense') ||
+        message.toLowerCase().includes('income') ||
+        message.toLowerCase().includes('spent') ||
+        message.toLowerCase().includes('earned')) {
+      
+      // Fetch recent transactions
+      const { data: transactions } = await supabase
+        .from('financial_transactions')
+        .select(`
+          *,
+          transaction_attachments (
+            id,
+            file_name
+          )
+        `)
+        .eq('user_id', userId)
+        .order('date', { ascending: false })
+        .limit(10);
+
+      // Calculate financial summaries
+      if (transactions) {
+        const income = transactions
+          .filter(t => t.type === 'income')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+        
+        const expenses = transactions
+          .filter(t => t.type === 'expense')
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+
+        // Group transactions by category
+        const categoryTotals = transactions.reduce((acc, t) => {
+          if (!acc[t.category]) acc[t.category] = 0;
+          acc[t.category] += Number(t.amount);
+          return acc;
+        }, {});
+
+        contextData.finances = {
+          recentTransactions: transactions,
+          summary: {
+            totalIncome: income,
+            totalExpenses: expenses,
+            netAmount: income - expenses,
+            categoryTotals
+          }
+        };
+      }
+    }
+
+    // Fetch tasks
     if (message.toLowerCase().includes('task') || message.toLowerCase().includes('todo')) {
       const { data: tasks } = await supabase
         .from('tasks')
@@ -34,6 +84,7 @@ serve(async (req) => {
       contextData.tasks = tasks;
     }
 
+    // Fetch deals
     if (message.toLowerCase().includes('deal') || message.toLowerCase().includes('pipeline')) {
       const { data: deals } = await supabase
         .from('deals')
@@ -42,17 +93,15 @@ serve(async (req) => {
       contextData.deals = deals;
     }
 
-    // Add affiliate data fetching
+    // Fetch affiliate data
     if (message.toLowerCase().includes('affiliate') || 
         message.toLowerCase().includes('commission') || 
         message.toLowerCase().includes('earning')) {
-      // Fetch affiliate partners
       const { data: partners } = await supabase
         .from('affiliate_partners')
         .select('*')
         .eq('user_id', userId);
       
-      // Fetch affiliate earnings with partner details
       const { data: earnings } = await supabase
         .from('affiliate_earnings')
         .select(`
@@ -76,7 +125,6 @@ serve(async (req) => {
       };
     }
 
-    // Call OpenAI API with enhanced formatting instructions and UK English specification
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -90,14 +138,23 @@ serve(async (req) => {
             role: 'system',
             content: `You are an AI assistant for Growth OS, a business growth platform. You MUST use UK English spelling and formatting (e.g., "organisation" not "organization", "£" for GBP, etc.). Format your responses following these guidelines:
 
-1. For Tasks:
+1. For Financial Data:
+   - Present amounts in UK format: £1,234.56
+   - Group transactions by type (income/expense)
+   - Show category breakdowns when relevant
+   - Use 💰 for income, 💳 for expenses
+   - Format dates in UK style (DD/MM/YYYY)
+   - Use "turnover" instead of "revenue"
+   - Show net position (profit/loss)
+
+2. For Tasks:
    - List tasks in bullet points with a clear hierarchy
    - Show due dates in clean format: [15/03/2024]
    - Use 🔥 for high priority tasks
    - Style overdue tasks in a visually distinct way
    - Use UK date format (DD/MM/YYYY)
 
-2. For Deals:
+3. For Deals:
    - Present deal values in UK format: £1,234.56
    - Group deals by stage with clear headings
    - Show pipeline total at the bottom
@@ -105,20 +162,13 @@ serve(async (req) => {
    - Use "enquiry" instead of "inquiry"
    - Use "programme" instead of "program"
 
-3. For Affiliate Data:
+4. For Affiliate Data:
    - Show earnings in UK currency format (£)
    - List partners with their commission rates
    - Display monthly and total earnings summaries
    - Use 💰 for earnings and 🤝 for partnerships
    - Format dates in UK style (DD/MM/YYYY)
    - Use "programme" for affiliate programs
-
-4. For Metrics:
-   - Use tables for comparing data
-   - Include % changes where relevant
-   - Round large numbers appropriately
-   - Use emojis for status indicators (✅ ❌ ⚠️)
-   - Use UK number formatting (e.g., 1,000,000)
 
 5. General Formatting:
    - Use clear visual hierarchy with headings and sections
@@ -127,7 +177,7 @@ serve(async (req) => {
    - Add relevant emojis for visual enhancement
    - Always use UK spelling (e.g., "colour", "behaviour", "centre")
    - Use UK terminology (e.g., "turnover" instead of "revenue")
-   - Format text for emphasis using spacing and structure instead of markdown symbols
+   - Format text for emphasis using spacing and structure
 
 Current context data: ${JSON.stringify(contextData)}`,
           },
