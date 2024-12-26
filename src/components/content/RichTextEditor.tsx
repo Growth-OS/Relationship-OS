@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
 import { EditorToolbar } from './editor/EditorToolbar';
 import { ImageUploader } from './editor/ImageUploader';
 import { useCallback, useEffect } from 'react';
@@ -18,6 +19,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     extensions: [
       StarterKit,
       Image,
+      Highlight.configure({
+        multicolor: true,
+      }),
       TextAlign.configure({
         types: ['paragraph', 'heading'],
         alignments: ['left', 'center', 'right'],
@@ -65,22 +69,20 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         data.corrections.forEach((correction: any) => {
           const from = text.indexOf(correction.original);
           if (from >= 0) {
-            editor.commands.setMark('highlight', {
+            const to = from + correction.original.length;
+            editor.chain().focus().setTextSelection({ from, to }).setMark('highlight', {
               'data-correction': JSON.stringify(correction),
               class: 'bg-yellow-200 cursor-pointer relative group',
-            });
+            }).run();
             
             // Create tooltip with suggestion
-            const tooltip = document.createElement('div');
-            tooltip.className = 'invisible group-hover:visible absolute -top-8 left-0 bg-white p-2 rounded shadow-lg text-sm z-50';
-            tooltip.textContent = `Suggestion: ${correction.suggested}`;
-            
-            // Add click handler to apply correction
             const element = editor.view.dom.querySelector(`[data-correction='${JSON.stringify(correction)}']`);
             if (element) {
               element.addEventListener('click', () => {
-                editor.commands.setTextSelection({ from, to: from + correction.original.length });
-                editor.commands.insertContent(correction.suggested);
+                editor.chain().focus()
+                  .setTextSelection({ from, to })
+                  .replaceSelection(correction.suggested)
+                  .run();
                 toast.success("Correction applied");
               });
             }
