@@ -13,6 +13,15 @@ import { Sparkles } from "lucide-react";
 const ProfileSettings = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
 
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return user;
+    },
+  });
+
   const { data: profiles, refetch } = useQuery({
     queryKey: ["linkedin-profiles"],
     queryFn: async () => {
@@ -61,11 +70,27 @@ const ProfileSettings = () => {
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>
-            Manage your personal information and account settings.
+            Your account details and preferences.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Profile settings coming soon...</p>
+        <CardContent className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Email</label>
+            <Input 
+              value={user?.email || ''} 
+              readOnly 
+              className="bg-muted"
+            />
+          </div>
+          
+          <div className="space-y-1">
+            <label className="text-sm font-medium">Full Name</label>
+            <Input 
+              value={user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''} 
+              readOnly 
+              className="bg-muted"
+            />
+          </div>
         </CardContent>
       </Card>
 
