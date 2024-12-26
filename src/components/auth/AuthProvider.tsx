@@ -25,13 +25,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        if (!session) {
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          return;
-        }
-
-        setIsAuthenticated(true);
+        setIsAuthenticated(!!session);
         setIsLoading(false);
 
         // Handle OAuth redirects
@@ -39,7 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                               location.hash.includes('error') || 
                               location.search.includes('code');
         
-        if (isOAuthRedirect) {
+        if (isOAuthRedirect && session) {
           navigate('/dashboard', { replace: true });
         }
       } catch (error) {
