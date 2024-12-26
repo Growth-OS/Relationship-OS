@@ -38,13 +38,15 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
             full_name
           )
         `)
-        .eq("team_id", teamId);
+        .eq("team_id", teamId)
+        .returns<TeamMember[]>();
 
       if (error) {
         console.error("Error fetching team members:", error);
         throw error;
       }
-      return data as TeamMember[];
+
+      return data;
     },
     enabled: !!teamId,
   });
