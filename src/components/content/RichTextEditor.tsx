@@ -19,22 +19,20 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] px-8 py-6',
+      },
+    },
   });
-
-  const addImage = () => {
-    const url = window.prompt('Enter image URL');
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  };
 
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="border rounded-lg">
-      <div className="border-b p-2 flex gap-2">
+    <div className="bg-white rounded-lg shadow-sm border">
+      <div className="border-b bg-muted/30 p-2 flex gap-2 sticky top-0 z-10">
         <Button
           variant="ghost"
           size="sm"
@@ -62,12 +60,19 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         <Button
           variant="ghost"
           size="sm"
-          onClick={addImage}
+          onClick={() => {
+            const url = window.prompt('Enter image URL');
+            if (url) {
+              editor.chain().focus().setImage({ src: url }).run();
+            }
+          }}
         >
           <ImageIcon className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent editor={editor} className="prose max-w-none p-4" />
+      <div className="max-w-4xl mx-auto">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 };

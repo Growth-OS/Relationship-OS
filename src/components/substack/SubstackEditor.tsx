@@ -120,8 +120,8 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 h-full bg-background">
+      <div className="flex items-center justify-between sticky top-0 z-20 bg-background p-4 border-b">
         <div className="flex items-center space-x-2">
           <Popover>
             <PopoverTrigger asChild>
@@ -181,10 +181,12 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
         </div>
       </div>
 
-      <RichTextEditor
-        content={content}
-        onChange={setContent}
-      />
+      <div className="px-4 pb-4">
+        <RichTextEditor
+          content={content}
+          onChange={setContent}
+        />
+      </div>
     </div>
   );
 };
