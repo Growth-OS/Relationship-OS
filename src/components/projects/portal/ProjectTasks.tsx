@@ -8,8 +8,8 @@ interface ProjectTasksProps {
 export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
   return (
     <div className="space-y-6">
-      <CreateTaskForm projectId={projectId} source="other" />
-      <TaskList source="other" />
+      <CreateTaskForm projectId={projectId} source="projects" />
+      <TaskList projectId={projectId} source="projects" />
     </div>
   );
 };

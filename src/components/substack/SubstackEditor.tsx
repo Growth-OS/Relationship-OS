@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Editor } from "@/components/editor/Editor";
+import { Editor } from "../editor/Editor";
 
 interface SubstackEditorProps {
   postId?: string;
