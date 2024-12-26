@@ -67,34 +67,34 @@ const Dashboard = () => {
 
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-background">
-        <ScrollArea className="h-[600px] flex items-center justify-center">
-          <div className="w-full">
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center space-y-2">
-                <h2 className="text-2xl font-medium text-foreground">Hi {firstName}, how can I help you today?</h2>
-                <div className="w-full px-4">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Message GrowthOS..."
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                      disabled={isLoading}
-                      className="flex-1 font-sans text-foreground"
-                    />
-                    <Button 
-                      onClick={handleSend} 
-                      disabled={isLoading}
-                      size="icon"
-                      className="text-primary-foreground"
-                    >
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+      <Card className="w-full max-w-2xl">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-4 space-y-4">
+            <h2 className="text-2xl font-medium text-foreground">Hi {firstName}, how can I help you today?</h2>
+            <div className="w-full">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Message GrowthOS..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                  disabled={isLoading}
+                  className="flex-1 font-sans text-foreground"
+                />
+                <Button 
+                  onClick={handleSend} 
+                  disabled={isLoading}
+                  size="icon"
+                  className="text-primary-foreground"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
-            ) : (
+            </div>
+          </div>
+        ) : (
+          <>
+            <ScrollArea className="h-[400px]">
               <div className="space-y-3 p-4">
                 {messages.map((message, index) => (
                   <div
@@ -115,31 +115,29 @@ const Dashboard = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        </ScrollArea>
-        
-        {messages.length > 0 && (
-          <div className="border-t">
-            <div className="flex gap-2 p-4">
-              <Input
-                placeholder="Message GrowthOS..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                disabled={isLoading}
-                className="flex-1 font-sans text-foreground"
-              />
-              <Button 
-                onClick={handleSend} 
-                disabled={isLoading}
-                size="icon"
-                className="text-primary-foreground"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            </ScrollArea>
+            
+            <div className="border-t">
+              <div className="flex gap-2 p-4">
+                <Input
+                  placeholder="Message GrowthOS..."
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                  disabled={isLoading}
+                  className="flex-1 font-sans text-foreground"
+                />
+                <Button 
+                  onClick={handleSend} 
+                  disabled={isLoading}
+                  size="icon"
+                  className="text-primary-foreground"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </Card>
     </div>
