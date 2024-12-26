@@ -68,14 +68,14 @@ const Dashboard = () => {
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col">
       <Card className="flex-1 flex flex-col bg-background">
-        <ScrollArea className="flex-1 px-4">
-          <div className="max-w-2xl mx-auto py-8">
+        <ScrollArea className="flex-1">
+          <div className="max-w-3xl mx-auto py-4">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground">
-                <h2 className="text-2xl font-medium mb-2">Hi {firstName}, how can I help you today?</h2>
+              <div className="text-center text-muted-foreground font-sans">
+                <h2 className="text-2xl font-medium mb-2 text-foreground">Hi {firstName}, how can I help you today?</h2>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {messages.map((message, index) => (
                   <div
                     key={index}
@@ -87,8 +87,8 @@ const Dashboard = () => {
                       className={`max-w-[80%] rounded-lg px-4 py-2 ${
                         message.role === 'user'
                           ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted'
-                      }`}
+                          : 'bg-muted text-foreground'
+                      } font-sans`}
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
@@ -99,20 +99,21 @@ const Dashboard = () => {
           </div>
         </ScrollArea>
         
-        <div className="border-t">
-          <div className="max-w-2xl mx-auto flex gap-2 p-4">
+        <div className="border-t mt-auto">
+          <div className="max-w-3xl mx-auto flex gap-2 p-4">
             <Input
               placeholder="Message GrowthOS..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 font-sans text-foreground"
             />
             <Button 
               onClick={handleSend} 
               disabled={isLoading}
               size="icon"
+              className="text-primary-foreground"
             >
               <Send className="h-4 w-4" />
             </Button>
