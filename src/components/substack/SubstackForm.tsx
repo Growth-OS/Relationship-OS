@@ -17,7 +17,11 @@ interface FormData {
   publishDate: Date;
 }
 
-export const SubstackForm = () => {
+interface SubstackFormProps {
+  onSuccess?: () => void;
+}
+
+export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -32,7 +36,6 @@ export const SubstackForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      // Get the current user's ID
       const { data: { user }, error: userError } = await supabase.auth.getUser();
       
       if (userError) {
@@ -71,6 +74,7 @@ export const SubstackForm = () => {
 
       form.reset();
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+      onSuccess?.();
     } catch (error) {
       console.error("Error adding post:", error);
       toast({

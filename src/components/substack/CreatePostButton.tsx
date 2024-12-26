@@ -1,4 +1,5 @@
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,8 +11,10 @@ import {
 import { SubstackForm } from "./SubstackForm";
 
 export const CreatePostButton = () => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
@@ -22,7 +25,7 @@ export const CreatePostButton = () => {
         <DialogHeader>
           <DialogTitle>Create New Newsletter</DialogTitle>
         </DialogHeader>
-        <SubstackForm />
+        <SubstackForm onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
