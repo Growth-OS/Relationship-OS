@@ -22,7 +22,7 @@ interface TaskFormData {
 interface CreateTaskFormProps {
   sourceId?: string;
   source?: 'deals' | 'content' | 'ideas' | 'substack' | 'other';
-  onSuccess?: () => void;
+  onSuccess?: (taskTitle: string) => void;
   initialData?: {
     id: string;
     title: string;
@@ -80,7 +80,7 @@ export const CreateTaskForm = ({ sourceId, source = 'other', onSuccess, initialD
       if (error) throw error;
       
       toast.success(initialData ? 'Task updated successfully' : 'Task created successfully');
-      onSuccess?.();
+      onSuccess?.(data.title);
     } catch (error) {
       console.error('Error saving task:', error);
       toast.error(initialData ? 'Error updating task' : 'Error creating task');
