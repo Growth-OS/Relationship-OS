@@ -13,6 +13,7 @@ const formSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
+  contact_linkedin: z.string().url().optional().or(z.literal("")),
   source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
   notes: z.string().optional(),
 });
@@ -23,6 +24,7 @@ interface EditProspectFormProps {
     company_name: string;
     contact_email?: string;
     contact_job_title?: string;
+    contact_linkedin?: string;
     source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
     notes?: string;
   };
@@ -36,6 +38,7 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
       company_name: prospect.company_name,
       contact_email: prospect.contact_email || "",
       contact_job_title: prospect.contact_job_title || "",
+      contact_linkedin: prospect.contact_linkedin || "",
       source: prospect.source,
       notes: prospect.notes || "",
     },
@@ -123,6 +126,20 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="contact_linkedin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LinkedIn URL</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://linkedin.com/in/profile" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

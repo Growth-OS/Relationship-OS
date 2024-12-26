@@ -12,6 +12,7 @@ interface Prospect {
   company_name: string;
   contact_email?: string;
   contact_job_title?: string;
+  contact_linkedin?: string;
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
   notes?: string;
   status?: string;
@@ -51,13 +52,13 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
         return;
       }
 
-      // Create the deal with all available prospect data
       const { error: dealError } = await supabase
         .from('deals')
         .insert({
           company_name: prospect.company_name,
           contact_email: prospect.contact_email || null,
           contact_job_title: prospect.contact_job_title || null,
+          contact_linkedin: prospect.contact_linkedin || null,
           notes: prospect.notes || null,
           source: prospect.source,
           user_id: user.id,
@@ -68,7 +69,6 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
 
       if (dealError) throw dealError;
 
-      // Update the prospect status to 'converted' instead of deleting
       const { error: updateError } = await supabase
         .from('prospects')
         .update({ status: 'converted' })
@@ -93,7 +93,6 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
     other: 'Other'
   };
 
-  // Filter to show only active prospects in the table
   const activeProspects = prospects.filter(prospect => prospect.status !== 'converted');
 
   return (
@@ -105,6 +104,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
             <TableHead>Source</TableHead>
             <TableHead>Job Title</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>LinkedIn</TableHead>
             <TableHead>Notes</TableHead>
             <TableHead className="w-[150px]">Actions</TableHead>
           </TableRow>
@@ -116,6 +116,18 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
               <TableCell>{sourceLabels[prospect.source]}</TableCell>
               <TableCell>{prospect.contact_job_title || '-'}</TableCell>
               <TableCell>{prospect.contact_email || '-'}</TableCell>
+              <TableCell>
+                {prospect.contact_linkedin ? (
+                  <a 
+                    href={prospect.contact_linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View Profile
+                  </a>
+                ) : '-'}
+              </TableCell>
               <TableCell className="max-w-[200px] truncate">{prospect.notes || '-'}</TableCell>
               <TableCell>
                 <div className="flex gap-2">

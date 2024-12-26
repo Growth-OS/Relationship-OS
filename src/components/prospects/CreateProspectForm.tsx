@@ -13,6 +13,7 @@ const formSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
+  contact_linkedin: z.string().url().optional().or(z.literal("")),
   source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
   notes: z.string().optional(),
 });
@@ -31,7 +32,6 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // Get the current user's ID
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -39,14 +39,9 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
         return;
       }
 
-      // Add the user_id to the values object
       const prospectData = {
         ...values,
         user_id: user.id,
-        // Ensure company_name is present (it should be due to form validation)
-        company_name: values.company_name,
-        // Ensure source is present (it should be due to form validation)
-        source: values.source,
       };
 
       const { error } = await supabase
@@ -129,6 +124,20 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="contact_linkedin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>LinkedIn URL</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://linkedin.com/in/profile" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
