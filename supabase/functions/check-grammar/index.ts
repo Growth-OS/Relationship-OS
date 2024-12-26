@@ -26,15 +26,27 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a professional grammar checker focusing on British English. 
-            Your task is to analyze the text and return ONLY a JSON array of corrections.
-            Each correction should be an object with exactly these fields:
-            - "original": the original text that needs correction
-            - "suggested": the suggested correction
-            Do not include any markdown formatting or explanation.
-            If there are no issues, return an empty array.
-            Example response for text with issues: [{"original": "their", "suggested": "they're"}]
-            Example response for text without issues: []`
+            content: `You are a professional grammar and style checker. Review the text for:
+            1. Grammar errors
+            2. Spelling mistakes
+            3. Punctuation issues
+            4. Style improvements
+            5. Word choice suggestions
+
+            For each issue found, return an object with:
+            - "original": the exact text that needs correction
+            - "suggested": your suggested correction
+
+            Format your response as a JSON object with a "corrections" array.
+            Example response:
+            {
+              "corrections": [
+                {"original": "their going", "suggested": "they're going"},
+                {"original": "affect", "suggested": "effect"}
+              ]
+            }
+
+            If no issues are found, return: {"corrections": []}`
           },
           {
             role: 'user',
@@ -50,8 +62,10 @@ serve(async (req) => {
     
     let corrections = [];
     try {
-      // The content should already be JSON since we specified response_format
-      corrections = JSON.parse(data.choices[0].message.content).corrections || [];
+      const content = data.choices[0].message.content;
+      console.log('Parsed content:', content);
+      const parsed = JSON.parse(content);
+      corrections = parsed.corrections || [];
     } catch (parseError) {
       console.error('Error parsing corrections:', parseError);
       corrections = [];
