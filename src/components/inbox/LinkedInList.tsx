@@ -16,7 +16,7 @@ const mockLinkedInMessages = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
     },
     timestamp: new Date(2024, 2, 15).toISOString(),
-    type: 'connection_request'
+    type: 'connection_request' as const
   },
   {
     id: '2',
@@ -27,7 +27,7 @@ const mockLinkedInMessages = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael'
     },
     timestamp: new Date(2024, 2, 14).toISOString(),
-    type: 'message'
+    type: 'message' as const
   },
   {
     id: '3',
@@ -38,7 +38,7 @@ const mockLinkedInMessages = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily'
     },
     timestamp: new Date(2024, 2, 13).toISOString(),
-    type: 'message'
+    type: 'message' as const
   }
 ];
 
