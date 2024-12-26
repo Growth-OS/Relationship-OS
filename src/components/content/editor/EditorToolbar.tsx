@@ -1,7 +1,6 @@
 import { Editor } from '@tiptap/react';
 import { Bold, Italic, List, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { EditorToolbarButton } from "./EditorToolbarButton";
-import { SpellCheckButton } from "./SpellCheckButton";
 
 interface EditorToolbarProps {
   editor: Editor;
@@ -50,10 +49,6 @@ export const EditorToolbar = ({ editor, onImageClick }: EditorToolbarProps) => {
           icon={ImageIcon}
           onClick={onImageClick}
         />
-      </div>
-
-      <div className="ml-auto">
-        <SpellCheckButton editor={editor} />
       </div>
     </div>
   );
