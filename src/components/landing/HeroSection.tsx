@@ -7,11 +7,11 @@ export const HeroSection = () => {
   
   return (
     <section className="pt-32 pb-20 bg-black">
-      <div className="container mx-auto px-6 max-w-4xl text-center">
-        <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
+      <div className="container mx-auto px-6 text-center">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white max-w-4xl mx-auto leading-tight">
           Your All-in-One Business Growth Platform
         </h1>
-        <p className="text-xl md:text-2xl text-white/70 mb-12 max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl mx-auto">
           Streamline your business operations with integrated tools for CRM, content, finances, and task management.
         </p>
         <div className="max-w-md mx-auto space-y-4">
@@ -22,7 +22,7 @@ export const HeroSection = () => {
             Get Started
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Button>
-          <p className="text-sm text-white/50">
+          <p className="text-sm text-gray-500">
             Try Growth OS free for 14 days, no credit card required.
           </p>
         </div>

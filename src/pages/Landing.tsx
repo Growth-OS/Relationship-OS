@@ -22,7 +22,7 @@ const Landing = () => {
               <Button 
                 variant="ghost"
                 onClick={() => navigate('/login')}
-                className="text-white/70 hover:text-white"
+                className="text-gray-400 hover:text-white"
               >
                 Log in
               </Button>
@@ -49,35 +49,35 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li>Features</li>
-                <li>Pricing</li>
-                <li>Security</li>
+              <h3 className="font-semibold mb-4 text-white">Product</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="hover:text-white cursor-pointer">Features</li>
+                <li className="hover:text-white cursor-pointer">Pricing</li>
+                <li className="hover:text-white cursor-pointer">Security</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li>About</li>
-                <li>Careers</li>
-                <li>Blog</li>
+              <h3 className="font-semibold mb-4 text-white">Company</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="hover:text-white cursor-pointer">About</li>
+                <li className="hover:text-white cursor-pointer">Careers</li>
+                <li className="hover:text-white cursor-pointer">Blog</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li>Documentation</li>
-                <li>Help Center</li>
-                <li>Contact</li>
+              <h3 className="font-semibold mb-4 text-white">Resources</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="hover:text-white cursor-pointer">Documentation</li>
+                <li className="hover:text-white cursor-pointer">Help Center</li>
+                <li className="hover:text-white cursor-pointer">Contact</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-white/70">
-                <li>Privacy</li>
-                <li>Terms</li>
-                <li>Security</li>
+              <h3 className="font-semibold mb-4 text-white">Legal</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li className="hover:text-white cursor-pointer">Privacy</li>
+                <li className="hover:text-white cursor-pointer">Terms</li>
+                <li className="hover:text-white cursor-pointer">Security</li>
               </ul>
             </div>
           </div>
