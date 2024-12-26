@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Maximize2, Minimize2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,11 +13,11 @@ interface PDFPreviewProps {
 export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     loadPDFPreview();
     return () => {
-      // Cleanup preview URL when component unmounts
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -38,7 +38,6 @@ export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) =>
       }
 
       if (data) {
-        // Create a blob URL with explicit PDF type
         const blob = new Blob([data], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         setPreviewUrl(url);
@@ -51,36 +50,48 @@ export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) =>
     }
   };
 
+  const toggleSize = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
         {isLoading ? (
-          <div className="w-full h-[400px] rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
+          <div className={`w-full rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50 ${isExpanded ? 'h-[800px]' : 'h-[400px]'}`}>
             Loading PDF preview...
           </div>
         ) : previewUrl ? (
           <object
             data={previewUrl}
             type="application/pdf"
-            className="w-full h-[400px] rounded-lg border border-gray-200"
+            className={`w-full rounded-lg border border-gray-200 ${isExpanded ? 'h-[800px]' : 'h-[400px]'}`}
           >
-            <div className="w-full h-[400px] rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
+            <div className={`w-full rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50 ${isExpanded ? 'h-[800px]' : 'h-[400px]'}`}>
               Unable to display PDF. <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="ml-2 text-blue-500 hover:underline">Download instead</a>
             </div>
           </object>
         ) : (
-          <div className="w-full h-[400px] rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50">
+          <div className={`w-full rounded-lg border border-gray-200 flex items-center justify-center bg-gray-50 ${isExpanded ? 'h-[800px]' : 'h-[400px]'}`}>
             Failed to load PDF preview
           </div>
         )}
-        <Button
-          variant="destructive"
-          size="sm"
-          className="absolute top-2 right-2"
-          onClick={onDelete}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <div className="absolute top-2 right-2 flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={toggleSize}
+          >
+            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={onDelete}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
       <p className="text-sm text-gray-500 text-center">{fileName}</p>
     </div>
