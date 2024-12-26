@@ -9,6 +9,35 @@ interface RichTextEditorProps {
   onChange: (content: string) => void;
 }
 
+export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+    ],
+    content: content || defaultTemplate,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+  });
+
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="border rounded-lg overflow-hidden h-full flex flex-col">
+      <EditorToolbar editor={editor} />
+      <div className="p-4 flex-1 overflow-y-auto prose max-w-none">
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
+};
+
 const defaultTemplate = `
 <h1>Title Goes Here</h1>
 
@@ -75,32 +104,3 @@ const defaultTemplate = `
 <h2>What's Next?</h2>
 <p>[End with a conversational call to action, such as inviting readers to try something, share their experiences, or respond in the comments.]</p>
 `;
-
-export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Image,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
-    ],
-    content: content || defaultTemplate,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
-  });
-
-  if (!editor) {
-    return null;
-  }
-
-  return (
-    <div className="border rounded-lg overflow-hidden h-full flex flex-col">
-      <EditorToolbar editor={editor} />
-      <div className="p-4 flex-1 overflow-y-auto prose max-w-none">
-        <EditorContent editor={editor} />
-      </div>
-    </div>
-  );
-};
