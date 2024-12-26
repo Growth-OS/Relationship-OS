@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 
 export const statusConfig = {
   draft: { label: "Draft", variant: "default" },
-  editing: { label: "Editing", variant: "warning" },
+  editing: { label: "Editing", variant: "secondary" },
   ready: { label: "Ready", variant: "warning" },
   published: { label: "Published", variant: "success" },
 } as const;
@@ -22,15 +22,18 @@ interface StatusBadgeProps {
 }
 
 export const StatusBadge = ({ status, onStatusChange }: StatusBadgeProps) => {
+  // Add a safety check for undefined status
+  const currentStatus = statusConfig[status] || statusConfig.draft;
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
           <Badge 
-            variant={statusConfig[status].variant as any}
+            variant={currentStatus.variant as any}
             className="cursor-pointer hover:opacity-80"
           >
-            {statusConfig[status].label}
+            {currentStatus.label}
           </Badge>
         </Button>
       </DropdownMenuTrigger>
