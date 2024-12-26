@@ -12,48 +12,68 @@ interface RichTextEditorProps {
 const defaultTemplate = `
 <h1>Title Goes Here</h1>
 
-<p>[Opening Hook: Start with a relatable anecdote or thought-provoking question]</p>
+<p>[Opening Hook: Start with a relatable anecdote, a bold statement, or a thought-provoking question. Keep it conversational to grab attention.]</p>
+
+<hr>
 
 <h2>What You'll Learn</h2>
-<p>In this post, we'll explore [main topic] and you'll learn:</p>
+<p>In this post, we'll explore <strong>[main topic]</strong> and cover:</p>
 <ul>
-  <li>Key point 1</li>
-  <li>Key point 2</li>
-  <li>Key point 3</li>
+  <li><strong>Key Point 1</strong>: [Brief summary of what this is]</li>
+  <li><strong>Key Point 2</strong>: [Brief summary]</li>
+  <li><strong>Key Point 3</strong>: [Brief summary]</li>
 </ul>
 
+<hr>
+
 <h2>The Problem</h2>
-<p>[Describe the challenge or pain point your readers face]</p>
+<p>[Describe the challenge or pain point your readers face in a conversational tone. Make it relatable by framing it as something they might think or say: "If you've ever felt like…"]</p>
+
+<hr>
 
 <h2>The Solution</h2>
-<p>[Present your main insights and solutions]</p>
+<p>[Present your main insight or solution. Use simple, clear language and preview the actionable steps to come.]</p>
+
+<hr>
 
 <h2>Key Insights</h2>
-<ol>
-  <li><strong>First Insight</strong><br>[Explanation with data or example]</li>
-  <li><strong>Second Insight</strong><br>[Explanation with data or example]</li>
-  <li><strong>Third Insight</strong><br>[Explanation with data or example]</li>
-</ol>
+
+<h3>1. First Insight</h3>
+<p>[Explanation supported by data, examples, or a relatable analogy. Use short paragraphs and conversational phrasing.]</p>
+
+<h3>2. Second Insight</h3>
+<p>[Explanation with practical implications. Focus on how readers can apply this insight.]</p>
+
+<h3>3. Third Insight</h3>
+<p>[Keep it clear and actionable. If relevant, link back to the problem.]</p>
+
+<hr>
 
 <h2>Real-World Example</h2>
-<p>[Share a specific case study or story]</p>
+<p>[Share a specific case study or story. Frame it as "Here's what happened when…" to engage readers and make it practical.]</p>
+
+<hr>
 
 <h2>Actionable Steps</h2>
 <ul>
-  <li>Step 1: [Action item]</li>
-  <li>Step 2: [Action item]</li>
-  <li>Step 3: [Action item]</li>
+  <li><strong>Step 1</strong>: [Action item with a brief explanation of why it matters]</li>
+  <li><strong>Step 2</strong>: [Action item tied to one of the insights]</li>
+  <li><strong>Step 3</strong>: [Action item with a clear outcome or result]</li>
 </ul>
+
+<hr>
 
 <h2>Key Takeaways</h2>
 <ul>
-  <li>Takeaway 1</li>
-  <li>Takeaway 2</li>
-  <li>Takeaway 3</li>
+  <li><strong>Takeaway 1</strong>: [Summarise the first key point]</li>
+  <li><strong>Takeaway 2</strong>: [Summarise the second key point]</li>
+  <li><strong>Takeaway 3</strong>: [Wrap up with a memorable conclusion]</li>
 </ul>
 
+<hr>
+
 <h2>What's Next?</h2>
-<p>[Call to action and invitation to engage]</p>
+<p>[End with a conversational call to action, such as inviting readers to try something, share their experiences, or respond in the comments.]</p>
 `;
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
