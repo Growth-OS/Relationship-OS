@@ -3,13 +3,15 @@ import { LucideIcon } from "lucide-react";
 
 interface EditorToolbarButtonProps {
   icon: LucideIcon;
-  isActive?: boolean;
+  active?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }
 
 export const EditorToolbarButton = ({
   icon: Icon,
-  isActive,
+  active,
+  disabled,
   onClick,
 }: EditorToolbarButtonProps) => {
   return (
@@ -17,7 +19,8 @@ export const EditorToolbarButton = ({
       variant="ghost"
       size="sm"
       onClick={onClick}
-      className={isActive ? 'bg-muted' : ''}
+      disabled={disabled}
+      className={active ? 'bg-muted' : ''}
     >
       <Icon className="h-4 w-4" />
     </Button>
