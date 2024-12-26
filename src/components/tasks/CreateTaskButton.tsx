@@ -6,7 +6,7 @@ import { CreateTaskForm } from "./CreateTaskForm";
 
 interface CreateTaskButtonProps {
   sourceId?: string;
-  source?: 'deals' | 'content' | 'ideas' | 'substack' | 'other';
+  source?: "deals" | "content" | "ideas" | "substack" | "projects" | "other";
   onSuccess?: () => void;
   variant?: "ghost" | "default";
   size?: "icon" | "default";
@@ -14,7 +14,7 @@ interface CreateTaskButtonProps {
 
 export const CreateTaskButton = ({ 
   sourceId, 
-  source = 'other', 
+  source = "other", 
   onSuccess,
   variant = "default",
   size = "default"
@@ -40,8 +40,8 @@ export const CreateTaskButton = ({
           <DialogTitle>Create Task</DialogTitle>
         </DialogHeader>
         <CreateTaskForm 
-          sourceId={sourceId} 
-          source={source} 
+          source={source}
+          sourceId={sourceId}
           onSuccess={() => {
             setOpen(false);
             onSuccess?.();

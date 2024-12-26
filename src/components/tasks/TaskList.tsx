@@ -2,21 +2,29 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TaskListProps {
-  source: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
+  source?: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
   projectId?: string;
+  showArchived?: boolean;
 }
 
-export const TaskList = ({ source, projectId }: TaskListProps) => {
+export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
   const { data: tasks = [] } = useQuery({
-    queryKey: ["tasks", source, projectId],
+    queryKey: ["tasks", source, projectId, showArchived],
     queryFn: async () => {
       let query = supabase
         .from("tasks")
-        .select("*")
-        .eq("source", source);
+        .select("*");
+
+      if (source) {
+        query = query.eq("source", source);
+      }
 
       if (projectId) {
         query = query.eq("project_id", projectId);
+      }
+
+      if (!showArchived) {
+        query = query.eq("completed", false);
       }
 
       const { data, error } = await query;
