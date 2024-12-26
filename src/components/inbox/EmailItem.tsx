@@ -60,18 +60,20 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
 
   return (
     <div 
-      className="p-4 hover:bg-gray-50 cursor-pointer relative group"
+      className={`p-4 hover:bg-gray-50 cursor-pointer relative group transition-colors ${
+        isSelected ? 'bg-gray-50' : ''
+      }`}
       onClick={() => onSelect(message.id)}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1 min-w-0">
-          <p className="font-semibold truncate">
+          <p className="font-medium text-gray-900 truncate">
             {getHeader('From')}
           </p>
-          <p className="text-sm font-medium truncate">
+          <p className="text-sm font-medium text-gray-700 truncate">
             {getHeader('Subject')}
           </p>
-          <p className="text-sm text-gray-600 line-clamp-1">
+          <p className="text-sm text-gray-500 line-clamp-1">
             {message.snippet}
           </p>
           {isSelected && (
@@ -81,19 +83,19 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           )}
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500 whitespace-nowrap">
+          <span className="text-xs text-gray-400 whitespace-nowrap">
             {new Date(getHeader('Date')).toLocaleString()}
           </span>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             className="opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={(e) => {
               e.stopPropagation();
               archiveMutation.mutate(message.id);
             }}
           >
-            <Archive className="w-4 h-4" />
+            <Archive className="w-4 h-4 text-gray-400" />
           </Button>
         </div>
       </div>

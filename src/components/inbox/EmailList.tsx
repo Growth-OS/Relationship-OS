@@ -48,7 +48,7 @@ const mockEmails = [
 export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailListProps) => {
   return (
     <ScrollArea className="flex-1">
-      <div className="divide-y">
+      <div className="divide-y divide-gray-100">
         {mockEmails.map((message) => (
           <EmailItem
             key={message.id}
