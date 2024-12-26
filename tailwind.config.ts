@@ -25,23 +25,33 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
+          DEFAULT: "#086543", // Castleton Green - for primary actions
           foreground: "hsl(var(--primary-foreground))",
+          light: "#86BC82", // Pistachio - for hover states
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
+          DEFAULT: "#158ABC", // Blue - for secondary elements
           foreground: "hsl(var(--secondary-foreground))",
+          light: "#5ABEB1", // Verdigris - for hover states
+        },
+        success: {
+          DEFAULT: "#86BC82", // Pistachio
+          foreground: "#086543", // Castleton Green
+        },
+        warning: {
+          DEFAULT: "#FACA06", // Jonquil
+          foreground: "#4A2614", // Dark brown
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
+          DEFAULT: "#FE5F00", // Orange
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "#E4DAD1", // Timberwolf
+          foreground: "#7C616C", // Rose Taupe
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
+          DEFAULT: "#CDA46F", // Lion
           foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
@@ -51,6 +61,24 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // Add your brand colors as direct references
+        brand: {
+          green: "#086543", // Castleton Green
+          pistachio: "#86BC82",
+          ivory: "#FFFFF3",
+          timberwolf: "#E4DAD1",
+          lion: "#CDA46F",
+          racing: "#42614F", // British Racing Green
+          blue: "#158ABC",
+          verdigris: "#5ABEB1",
+          indigo: "#A594F9", // Tropical Indigo
+          taupe: "#7C616C", // Rose Taupe
+          tea: "#C8E9C5", // Tea Green
+          orange: "#FE5F00",
+          jonquil: "#FACA06",
+          periwinkle: "#CDC1FF",
+          feldgrau: "#42614F",
         },
       },
       borderRadius: {
