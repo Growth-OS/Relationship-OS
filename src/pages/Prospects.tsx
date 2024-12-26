@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ProspectsTable } from "@/components/prospects/ProspectsTable";
 import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
+import { ZapierWebhookInfo } from "@/components/prospects/ZapierWebhookInfo";
 
 const Prospects = () => {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,7 @@ const Prospects = () => {
   }
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-primary mb-1">Prospects</h1>
@@ -54,6 +55,8 @@ const Prospects = () => {
       </div>
 
       <ProspectsTable prospects={prospects} onProspectUpdated={refetch} />
+      
+      <ZapierWebhookInfo />
     </div>
   );
 };
