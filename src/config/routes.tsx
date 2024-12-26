@@ -11,6 +11,7 @@ import AIPrompts from "@/pages/AIPrompts";
 import AIPersona from "@/pages/AIPersona";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
+import TeamSettings from "@/pages/TeamSettings";
 import Login from "@/pages/Login";
 import Deals from "@/pages/Deals";
 import Tasks from "@/pages/Tasks";
@@ -101,6 +102,10 @@ export const routes: RouteObject[] = [
       {
         path: "branding",
         element: <BrandingSettings />,
+      },
+      {
+        path: "team",
+        element: <TeamSettings />,
       },
       {
         path: "ai-prompts",

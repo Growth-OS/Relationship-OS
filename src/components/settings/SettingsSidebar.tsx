@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Wand2, User, Settings2, LogOut, Palette } from "lucide-react";
+import { Wand2, User, Settings2, LogOut, Palette, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -48,6 +48,19 @@ export const SettingsSidebar = () => {
         >
           <Settings2 className="w-5 h-5" />
           <span>Profile Settings</span>
+        </NavLink>
+        <NavLink
+          to="/settings/team"
+          className={({ isActive }) =>
+            `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+              isActive
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            }`
+          }
+        >
+          <Users className="w-5 h-5" />
+          <span>Team</span>
         </NavLink>
         <NavLink
           to="/settings/branding"
