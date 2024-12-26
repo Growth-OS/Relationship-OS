@@ -14,6 +14,7 @@ serve(async (req) => {
 
   try {
     const { text } = await req.json();
+    console.log('Checking grammar for text:', text);
 
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -22,7 +23,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
@@ -56,6 +57,12 @@ serve(async (req) => {
         response_format: { type: "json_object" }
       }),
     });
+
+    if (!openAIResponse.ok) {
+      const errorText = await openAIResponse.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${errorText}`);
+    }
 
     const data = await openAIResponse.json();
     console.log('OpenAI response:', data);
