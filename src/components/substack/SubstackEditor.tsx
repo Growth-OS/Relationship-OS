@@ -14,6 +14,7 @@ interface SubstackEditorProps {
 
 export const SubstackEditor = ({ postId, initialContent, title, onClose }: SubstackEditorProps) => {
   const [content, setContent] = useState(initialContent || "");
+  const [postTitle, setPostTitle] = useState(title || "");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -23,7 +24,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
     try {
       const { error } = await supabase
         .from("substack_posts")
-        .update({ content })
+        .update({ content, title: postTitle })
         .eq("id", postId);
 
       if (error) throw error;
@@ -50,10 +51,11 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   return (
     <div className="space-y-4 h-full bg-background">
       <EditorHeader
-        title={title || ""}
+        title={postTitle}
         isSaving={isSaving}
         onSave={handleSave}
         onClose={onClose}
+        onTitleChange={setPostTitle}
       />
       
       <div className="px-4 pb-4">
