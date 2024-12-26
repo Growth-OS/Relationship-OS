@@ -28,14 +28,12 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
     }
 
     if (misspelledWords.length > 0) {
-      toast({
-        title: "Spelling Check Results",
+      toast.error("Spelling Check Results", {
         description: `Found ${misspelledWords.length} potential spelling errors: ${misspelledWords.join(", ")}`,
         icon: <AlertCircle className="h-4 w-4" />,
       });
     } else {
-      toast({
-        title: "Spelling Check Complete",
+      toast.success("Spelling Check Complete", {
         description: "No spelling errors found",
         icon: <Check className="h-4 w-4" />,
       });
