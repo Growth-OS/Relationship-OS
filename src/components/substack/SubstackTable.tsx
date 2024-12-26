@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PostStatus } from "./table/StatusBadge";
 import { PostEditor } from "./shared/PostEditor";
 import { useState } from "react";
-import { TableHeader } from "./table/TableHeader";
+import { PostTableHeader } from "./table/TableHeader";
 import { TableRow } from "./table/TableRow";
 
 export const SubstackTable = () => {
@@ -26,7 +26,12 @@ export const SubstackTable = () => {
         .order("publish_date", { ascending: false });
 
       if (error) throw error;
-      return data;
+      
+      // Convert status to match PostStatus type
+      return data.map(post => ({
+        ...post,
+        status: post.status as PostStatus
+      }));
     },
   });
 
@@ -100,7 +105,7 @@ export const SubstackTable = () => {
     <div className="space-y-8">
       <div className="rounded-md border">
         <Table>
-          <TableHeader />
+          <PostTableHeader />
           <TableBody>
             {posts?.map((post) => (
               <TableRow

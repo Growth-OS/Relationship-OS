@@ -1,18 +1,18 @@
 import {
   TableHead,
-  TableHeader,
   TableRow,
+  TableHeader as UITableHeader,
 } from "@/components/ui/table";
 
-export const TableHeader = () => {
+export const PostTableHeader = () => {
   return (
-    <TableHeader>
+    <UITableHeader>
       <TableRow>
         <TableHead>Title</TableHead>
         <TableHead>Publish Date</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Actions</TableHead>
       </TableRow>
-    </TableHeader>
+    </UITableHeader>
   );
 };

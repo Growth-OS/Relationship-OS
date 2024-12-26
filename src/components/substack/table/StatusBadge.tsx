@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 export const statusConfig = {
   idea: { label: "Idea", variant: "secondary" },
   draft: { label: "Draft", variant: "default" },
-  scheduled: { label: "Scheduled", variant: "warning" },
-  live: { label: "Live", variant: "success" },
+  editing: { label: "Editing", variant: "warning" },
+  ready: { label: "Ready", variant: "warning" },
+  published: { label: "Published", variant: "success" },
 } as const;
 
 export type PostStatus = keyof typeof statusConfig;

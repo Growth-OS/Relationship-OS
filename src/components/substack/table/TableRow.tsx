@@ -8,6 +8,7 @@ interface Post {
   title: string;
   publish_date: string;
   status: PostStatus;
+  content?: string;
 }
 
 interface TableRowProps {
@@ -24,7 +25,7 @@ export const TableRow = ({ post, onStatusChange, onEdit, onDelete }: TableRowPro
       <TableCell>{format(new Date(post.publish_date), "PPP")}</TableCell>
       <TableCell>
         <StatusBadge 
-          status={post.status as PostStatus}
+          status={post.status}
           onStatusChange={(newStatus) => onStatusChange(post.id, newStatus)}
         />
       </TableCell>
