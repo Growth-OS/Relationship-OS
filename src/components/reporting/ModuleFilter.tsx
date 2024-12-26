@@ -17,6 +17,7 @@ export const ModuleFilter = ({ value, onChange }: ModuleFilterProps) => {
           <SelectItem value="prospects">Lead Pipeline</SelectItem>
           <SelectItem value="deals">Client Projects</SelectItem>
           <SelectItem value="affiliate">Affiliate Revenue</SelectItem>
+          <SelectItem value="substack">Newsletter</SelectItem>
         </SelectContent>
       </Select>
     </div>
