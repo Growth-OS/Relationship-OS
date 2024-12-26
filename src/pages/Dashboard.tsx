@@ -78,13 +78,6 @@ const Dashboard = () => {
             {messages.length === 0 ? (
               <div className="text-center text-gray-500 mt-8">
                 <p className="text-lg font-medium">Hi {firstName}, how can I help you today?</p>
-                <p className="text-sm mt-2">Ask me anything about your tasks, deals, or business metrics.</p>
-                <div className="mt-4 space-y-2 text-sm">
-                  <p>Try asking:</p>
-                  <p>"What tasks do I have due today?"</p>
-                  <p>"How much is my deal pipeline worth?"</p>
-                  <p>"Show me my active deals"</p>
-                </div>
               </div>
             ) : (
               messages.map((message, index) => (
