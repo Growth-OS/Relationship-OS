@@ -8,6 +8,7 @@ import { ImageUploader } from './editor/ImageUploader';
 import { useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface RichTextEditorProps {
   content: string;
@@ -72,12 +73,19 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
             const to = from + correction.original.length;
             editor.chain().focus().setTextSelection({ from, to }).setMark('highlight', {
               'data-correction': JSON.stringify(correction),
-              class: 'bg-yellow-200 cursor-pointer relative group',
+              class: 'bg-yellow-100 cursor-pointer relative group',
             }).run();
-            
+
             // Create tooltip with suggestion
             const element = editor.view.dom.querySelector(`[data-correction='${JSON.stringify(correction)}']`);
             if (element) {
+              // Create a wrapper for the tooltip
+              const wrapper = document.createElement('span');
+              wrapper.className = 'relative inline-block';
+              element.parentNode?.insertBefore(wrapper, element);
+              wrapper.appendChild(element);
+
+              // Add click handler
               element.addEventListener('click', () => {
                 editor.chain().focus()
                   .setTextSelection({ from, to })
@@ -85,9 +93,18 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
                   .run();
                 toast.success("Correction applied");
               });
+
+              // Add tooltip
+              const tooltip = document.createElement('div');
+              tooltip.className = 'hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 z-50';
+              tooltip.textContent = `Suggestion: ${correction.suggested}`;
+              wrapper.appendChild(tooltip);
             }
           }
         });
+
+        // Show toast with number of corrections
+        toast.info(`Found ${data.corrections.length} grammar suggestion${data.corrections.length > 1 ? 's' : ''}. Click on highlighted text to apply corrections.`);
       }
     } catch (error) {
       console.error('Grammar check error:', error);
@@ -111,12 +128,14 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      <EditorToolbar editor={editor} onImageClick={handleImageClick} />
-      <ImageUploader editor={editor} />
-      <div className="max-w-4xl mx-auto">
-        <EditorContent editor={editor} />
+    <TooltipProvider>
+      <div className="bg-white rounded-lg shadow-sm border">
+        <EditorToolbar editor={editor} onImageClick={handleImageClick} />
+        <ImageUploader editor={editor} />
+        <div className="max-w-4xl mx-auto">
+          <EditorContent editor={editor} />
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
