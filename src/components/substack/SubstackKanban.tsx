@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { CreatePostButton } from "./CreatePostButton";
 
 interface Post {
   id: string;
@@ -110,7 +110,7 @@ export const SubstackKanban = () => {
                   {column.title} ({columnPosts.length})
                 </CardTitle>
                 {column.status === "idea" && (
-                  <CreateTaskButton source="substack" variant="ghost" size="icon" />
+                  <CreatePostButton variant="ghost" size="icon" />
                 )}
               </div>
             </CardHeader>
