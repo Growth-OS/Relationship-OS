@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
+import { CategorySelect } from "./form-fields/CategorySelect";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -145,19 +146,7 @@ export const CreateTransactionForm = ({ onSuccess }: CreateTransactionFormProps)
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <CategorySelect form={form} transactionType={form.watch('type')} />
 
         <FormField
           control={form.control}
