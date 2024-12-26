@@ -2,6 +2,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { useState } from "react";
+import { ProjectPortal } from "./ProjectPortal";
 
 interface Project {
   id: string;
@@ -20,6 +22,8 @@ interface ProjectsListProps {
 }
 
 export const ProjectsList = ({ projects, isLoading }: ProjectsListProps) => {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -44,42 +48,56 @@ export const ProjectsList = ({ projects, isLoading }: ProjectsListProps) => {
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Project</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Budget</TableHead>
-          <TableHead>Timeline</TableHead>
-          <TableHead>Last Activity</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {projects.map((project) => (
-          <TableRow key={project.id}>
-            <TableCell className="font-medium">{project.name}</TableCell>
-            <TableCell>{project.client_name}</TableCell>
-            <TableCell>
-              <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
-            </TableCell>
-            <TableCell>${project.budget?.toLocaleString()}</TableCell>
-            <TableCell>
-              {project.start_date && (
-                <>
-                  {format(new Date(project.start_date), "MMM d, yyyy")}
-                  {project.end_date && (
-                    <> - {format(new Date(project.end_date), "MMM d, yyyy")}</>
-                  )}
-                </>
-              )}
-            </TableCell>
-            <TableCell>
-              {format(new Date(project.last_activity_date), "MMM d, yyyy")}
-            </TableCell>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Project</TableHead>
+            <TableHead>Client</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Budget</TableHead>
+            <TableHead>Timeline</TableHead>
+            <TableHead>Last Activity</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {projects.map((project) => (
+            <TableRow
+              key={project.id}
+              className="cursor-pointer hover:bg-gray-50"
+              onClick={() => setSelectedProject(project)}
+            >
+              <TableCell className="font-medium">{project.name}</TableCell>
+              <TableCell>{project.client_name}</TableCell>
+              <TableCell>
+                <Badge className={getStatusColor(project.status)}>
+                  {project.status}
+                </Badge>
+              </TableCell>
+              <TableCell>${project.budget?.toLocaleString()}</TableCell>
+              <TableCell>
+                {project.start_date && (
+                  <>
+                    {format(new Date(project.start_date), "MMM d, yyyy")}
+                    {project.end_date && (
+                      <> - {format(new Date(project.end_date), "MMM d, yyyy")}</>
+                    )}
+                  </>
+                )}
+              </TableCell>
+              <TableCell>
+                {format(new Date(project.last_activity_date), "MMM d, yyyy")}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <ProjectPortal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
+    </>
   );
 };
