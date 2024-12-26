@@ -27,12 +27,10 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are a professional grammar checker focusing on British English. 
-            Analyze the text for grammar, style, and clarity issues. 
-            Return a JSON object with:
-            - corrections: array of suggested corrections
-            - improved: the improved text
-            - hasIssues: boolean indicating if any issues were found
-            Focus on British English conventions and formal writing style.`
+            Analyze the text for grammar, style, and clarity issues.
+            Return a JSON array of corrections with 'original' and 'suggested' fields.
+            Focus on British English conventions and formal writing style.
+            If there are no issues, return an empty array.`
           },
           {
             role: 'user',
@@ -44,9 +42,12 @@ serve(async (req) => {
 
     const data = await openAIResponse.json();
     const analysis = JSON.parse(data.choices[0].message.content);
-
+    
     return new Response(
-      JSON.stringify(analysis),
+      JSON.stringify({
+        hasIssues: analysis.length > 0,
+        corrections: analysis
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   } catch (error) {

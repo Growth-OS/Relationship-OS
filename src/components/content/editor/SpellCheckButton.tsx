@@ -93,18 +93,20 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
       if (error) throw error;
 
       if (data.hasIssues) {
-        setCorrections(data.corrections.map((correction: string) => ({
-          original: correction.split(' -> ')[0],
-          suggestion: correction.split(' -> ')[1],
+        const newCorrections = data.corrections.map((correction: any) => ({
+          original: correction.original,
+          suggestion: correction.suggested,
           selected: false
-        })));
+        }));
+        
+        setCorrections(newCorrections);
 
         toast.error("Grammar Check Results", {
           description: (
             <div className="space-y-2">
-              <p>Found {data.corrections.length} suggestions:</p>
+              <p>Found {newCorrections.length} suggestions:</p>
               <ul className="list-none pl-0 space-y-2">
-                {corrections.map((correction, index) => (
+                {newCorrections.map((correction, index) => (
                   <li key={index} className="flex items-center gap-2">
                     <Checkbox
                       id={`correction-${index}`}
@@ -117,7 +119,7 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
                   </li>
                 ))}
               </ul>
-              {corrections.length > 0 && (
+              {newCorrections.length > 0 && (
                 <Button
                   size="sm"
                   onClick={applySelectedCorrections}
