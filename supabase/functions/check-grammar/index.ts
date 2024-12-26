@@ -27,26 +27,40 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are a professional grammar checker focusing on British English. 
-            Analyze the text for grammar, style, and clarity issues.
-            Return a JSON array of corrections with 'original' and 'suggested' fields.
-            Focus on British English conventions and formal writing style.
-            If there are no issues, return an empty array.`
+            Your task is to analyze the text and return ONLY a JSON array of corrections.
+            Each correction should be an object with exactly these fields:
+            - "original": the original text that needs correction
+            - "suggested": the suggested correction
+            Do not include any markdown formatting or explanation.
+            If there are no issues, return an empty array.
+            Example response for text with issues: [{"original": "their", "suggested": "they're"}]
+            Example response for text without issues: []`
           },
           {
             role: 'user',
             content: text
           }
         ],
+        response_format: { type: "json_object" }
       }),
     });
 
     const data = await openAIResponse.json();
-    const analysis = JSON.parse(data.choices[0].message.content);
+    console.log('OpenAI response:', data);
+    
+    let corrections = [];
+    try {
+      // The content should already be JSON since we specified response_format
+      corrections = JSON.parse(data.choices[0].message.content).corrections || [];
+    } catch (parseError) {
+      console.error('Error parsing corrections:', parseError);
+      corrections = [];
+    }
     
     return new Response(
       JSON.stringify({
-        hasIssues: analysis.length > 0,
-        corrections: analysis
+        hasIssues: corrections.length > 0,
+        corrections: corrections
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
