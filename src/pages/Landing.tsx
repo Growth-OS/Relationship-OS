@@ -5,7 +5,6 @@ import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { SocialProofSection } from "@/components/landing/SocialProofSection";
-import { ThreeScene } from "@/components/landing/ThreeScene";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -40,7 +39,6 @@ const Landing = () => {
 
       <main>
         <HeroSection />
-        <ThreeScene />
         <SocialProofSection />
         <FeaturesSection />
         <TestimonialsSection />
