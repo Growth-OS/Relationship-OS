@@ -13,7 +13,7 @@ const Landing = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
       <nav className="fixed w-full bg-black/50 backdrop-blur-sm z-50 border-b border-white/10">
-        <div className="container mx-auto px-6 py-4">
+        <div className="max-w-[1400px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold">Growth OS</span>
@@ -46,7 +46,7 @@ const Landing = () => {
       </main>
 
       <footer className="border-t border-white/10 py-12 bg-black">
-        <div className="container mx-auto px-6">
+        <div className="max-w-[1400px] mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>
               <h3 className="font-semibold mb-4 text-white">Product</h3>
