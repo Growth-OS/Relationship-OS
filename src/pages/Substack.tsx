@@ -4,6 +4,7 @@ import { SubstackCalendar } from "@/components/substack/SubstackCalendar";
 import { SubstackTable } from "@/components/substack/SubstackTable";
 import { SubstackKanban } from "@/components/substack/SubstackKanban";
 import { CreatePostButton } from "@/components/substack/CreatePostButton";
+import { SubstackReporting } from "@/components/substack/reporting/SubstackReporting";
 
 const Substack = () => {
   return (
@@ -22,6 +23,7 @@ const Substack = () => {
             <TabsTrigger value="kanban">Content Pipeline</TabsTrigger>
             <TabsTrigger value="calendar">Calendar</TabsTrigger>
             <TabsTrigger value="drafts">All Posts</TabsTrigger>
+            <TabsTrigger value="reporting">Reporting</TabsTrigger>
           </TabsList>
 
           <TabsContent value="kanban" className="m-0">
@@ -34,6 +36,10 @@ const Substack = () => {
 
           <TabsContent value="drafts" className="m-0">
             <SubstackTable />
+          </TabsContent>
+
+          <TabsContent value="reporting" className="m-0">
+            <SubstackReporting />
           </TabsContent>
         </Tabs>
       </Card>
