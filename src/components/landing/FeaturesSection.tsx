@@ -1,25 +1,16 @@
-import { Target, Zap, BarChart } from "lucide-react";
+import { LayoutTemplate, BarChart3, Users } from "lucide-react";
 
 export const FeaturesSection = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white border-t border-gray-100">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-3xl font-bold mb-4">Everything You Need to Scale</h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            One platform to manage your entire business operations and growth strategy
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
           {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow animate-fade-in [animation-delay:200ms] hover:scale-105 transform transition-transform duration-300"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <feature.icon className="w-6 h-6 text-blue-600" />
+            <div key={index} className="text-left">
+              <div className="w-12 h-12 border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+                <feature.icon className="w-6 h-6 text-black" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <h3 className="text-xl font-semibold mb-3 text-black">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
             </div>
           ))}
@@ -31,18 +22,18 @@ export const FeaturesSection = () => {
 
 const features = [
   {
-    title: "AI-Powered Growth",
-    description: "Leverage artificial intelligence to automate your business processes and make data-driven decisions.",
-    icon: Zap
+    title: "Beautiful dashboards that are responsive and customizable",
+    description: "No technical skills needed. You have complete control over the look and feel of your workspace.",
+    icon: LayoutTemplate
   },
   {
-    title: "All-in-One Platform",
-    description: "Manage your entire business operations from a single, unified dashboard with powerful integrations.",
-    icon: Target
+    title: "Pricing as low as $29/month",
+    description: "Whether you manage tasks, track deals, or analyze metrics, Growth OS helps you scale. Start growing anywhere for just $29/month.",
+    icon: BarChart3
   },
   {
-    title: "Scale Faster",
-    description: "Accelerate your growth with automated workflows, intelligent insights, and proven strategies.",
-    icon: BarChart
+    title: "Trusted by over 10,000 businesses",
+    description: "Growth OS handles everything from task management and deal tracking to secure data analytics and reporting.",
+    icon: Users
   }
 ];

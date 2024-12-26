@@ -1,20 +1,15 @@
 export const SocialProofSection = () => {
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-white border-t border-gray-100">
       <div className="container mx-auto px-6">
-        <h2 className="text-2xl font-semibold text-center text-gray-600 mb-12 animate-fade-in">
-          Trusted by Growing Businesses Worldwide
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center max-w-4xl mx-auto opacity-60">
           {companies.map((company, index) => (
             <div 
               key={index}
-              className="flex items-center justify-center animate-fade-in [animation-delay:200ms]"
+              className="flex items-center justify-center"
             >
-              <div className="h-12 flex items-center justify-center">
-                <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  {company}
-                </div>
+              <div className="text-xl font-bold text-gray-400">
+                {company}
               </div>
             </div>
           ))}
