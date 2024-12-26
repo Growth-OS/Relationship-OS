@@ -151,6 +151,7 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
                 <PopoverContent 
                   className="w-auto p-0" 
                   align="start"
+                  side="bottom"
                 >
                   <Calendar
                     mode="single"
