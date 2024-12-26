@@ -5,10 +5,15 @@ import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import { EditorToolbar } from './editor/EditorToolbar';
 import { ImageUploader } from './editor/ImageUploader';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface RichTextEditorProps {
   content: string;
@@ -16,6 +21,8 @@ interface RichTextEditorProps {
 }
 
 export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+  const [corrections, setCorrections] = useState<Array<{ original: string; suggested: string }>>([]);
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -65,58 +72,39 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         // Remove existing marks
         editor.commands.unsetMark('highlight');
         
+        // Store corrections for later use
+        setCorrections(data.corrections);
+        
         // Add new highlights for each correction
         data.corrections.forEach((correction: any) => {
           const from = text.indexOf(correction.original);
           if (from >= 0) {
             const to = from + correction.original.length;
             editor.chain().focus().setTextSelection({ from, to }).setMark('highlight', {
-              class: 'bg-yellow-100/50 cursor-pointer relative',
+              class: 'bg-yellow-100/50 cursor-pointer grammar-highlight',
             }).run();
-
-            // Create tooltip with suggestion
-            const element = editor.view.dom.querySelector(`[class*="bg-yellow-100"]`);
-            if (element) {
-              element.setAttribute('data-suggestion', correction.suggested);
-              
-              // Add click handler
-              element.addEventListener('click', () => {
-                editor.chain().focus()
-                  .setTextSelection({ from, to })
-                  .insertContent(correction.suggested)
-                  .run();
-                toast.success("Correction applied");
-              });
-
-              // Add tooltip using shadcn/ui Tooltip component
-              const wrapper = document.createElement('span');
-              wrapper.className = 'relative inline-block';
-              element.parentNode?.insertBefore(wrapper, element);
-              wrapper.appendChild(element);
-
-              // Create React tooltip component
-              const tooltipRoot = document.createElement('div');
-              tooltipRoot.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 z-50';
-              wrapper.appendChild(tooltipRoot);
-
-              const TooltipComponent = () => (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="w-full h-full absolute inset-0" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Suggestion: {correction.suggested}</p>
-                      <p className="text-xs text-muted-foreground">Click to apply</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            }
           }
         });
 
-        toast.info(`Found ${data.corrections.length} grammar suggestion${data.corrections.length > 1 ? 's' : ''}. Hover over highlighted text to see suggestions.`);
+        // Add click handlers to highlighted text
+        const highlights = editor.view.dom.querySelectorAll('.grammar-highlight');
+        highlights.forEach((element) => {
+          element.addEventListener('click', (e) => {
+            const text = (e.target as HTMLElement).textContent;
+            const correction = corrections.find(c => c.original === text);
+            if (correction) {
+              const from = editor.getText().indexOf(correction.original);
+              const to = from + correction.original.length;
+              editor.chain().focus()
+                .setTextSelection({ from, to })
+                .insertContent(correction.suggested)
+                .run();
+              toast.success("Correction applied");
+            }
+          });
+        });
+
+        toast.info(`Found ${data.corrections.length} grammar suggestion${data.corrections.length > 1 ? 's' : ''}. Click on highlighted text to apply suggestions.`);
       }
     } catch (error) {
       console.error('Grammar check error:', error);
