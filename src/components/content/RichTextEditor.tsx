@@ -1,8 +1,9 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
+import TextAlign from '@tiptap/extension-text-align';
 import { Button } from "@/components/ui/button";
-import { Bold, Italic, List, Image as ImageIcon } from "lucide-react";
+import { Bold, Italic, List, Image as ImageIcon, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -17,6 +18,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     extensions: [
       StarterKit,
       Image,
+      TextAlign.configure({
+        types: ['paragraph', 'heading'],
+        alignments: ['left', 'center', 'right'],
+      }),
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -24,7 +29,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] px-8 py-6 text-left',
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] px-8 py-6',
       },
     },
   });
@@ -96,6 +101,33 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         >
           <List className="h-4 w-4" />
         </Button>
+        
+        {/* Text alignment buttons */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          className={editor.isActive({ textAlign: 'left' }) ? 'bg-muted' : ''}
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          className={editor.isActive({ textAlign: 'center' }) ? 'bg-muted' : ''}
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          className={editor.isActive({ textAlign: 'right' }) ? 'bg-muted' : ''}
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+
         <div className="relative">
           <Button
             variant="ghost"
