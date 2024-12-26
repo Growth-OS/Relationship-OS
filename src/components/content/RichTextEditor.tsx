@@ -3,7 +3,6 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import { EditorToolbar } from './editor/EditorToolbar';
-import { ImageUploader } from './editor/ImageUploader';
 
 interface RichTextEditorProps {
   content: string;
@@ -16,18 +15,12 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       StarterKit,
       Image,
       TextAlign.configure({
-        types: ['paragraph', 'heading'],
-        alignments: ['left', 'center', 'right'],
+        types: ['heading', 'paragraph'],
       }),
     ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-    },
-    editorProps: {
-      attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[500px] px-8 py-6',
-      },
     },
   });
 
@@ -35,15 +28,10 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     return null;
   }
 
-  const handleImageClick = () => {
-    document.getElementById('image-upload')?.click();
-  };
-
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      <EditorToolbar editor={editor} onImageClick={handleImageClick} />
-      <ImageUploader editor={editor} />
-      <div className="max-w-4xl mx-auto">
+    <div className="border rounded-lg overflow-hidden">
+      <EditorToolbar editor={editor} />
+      <div className="p-4 min-h-[200px] prose max-w-none">
         <EditorContent editor={editor} />
       </div>
     </div>
