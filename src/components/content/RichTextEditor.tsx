@@ -40,7 +40,6 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     },
   });
 
-  // Debounce function to avoid too many API calls
   const debounce = (func: Function, wait: number) => {
     let timeout: NodeJS.Timeout;
     return (...args: any[]) => {
@@ -72,19 +71,14 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
           if (from >= 0) {
             const to = from + correction.original.length;
             editor.chain().focus().setTextSelection({ from, to }).setMark('highlight', {
-              'data-correction': JSON.stringify(correction),
-              class: 'bg-yellow-100 cursor-pointer relative group',
+              class: 'bg-yellow-100/50 cursor-pointer relative',
             }).run();
 
             // Create tooltip with suggestion
-            const element = editor.view.dom.querySelector(`[data-correction='${JSON.stringify(correction)}']`);
+            const element = editor.view.dom.querySelector(`[class*="bg-yellow-100"]`);
             if (element) {
-              // Create a wrapper for the tooltip
-              const wrapper = document.createElement('span');
-              wrapper.className = 'relative inline-block';
-              element.parentNode?.insertBefore(wrapper, element);
-              wrapper.appendChild(element);
-
+              element.setAttribute('data-suggestion', correction.suggested);
+              
               // Add click handler
               element.addEventListener('click', () => {
                 editor.chain().focus()
@@ -94,17 +88,35 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
                 toast.success("Correction applied");
               });
 
-              // Add tooltip
-              const tooltip = document.createElement('div');
-              tooltip.className = 'hidden group-hover:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 z-50';
-              tooltip.textContent = `Suggestion: ${correction.suggested}`;
-              wrapper.appendChild(tooltip);
+              // Add tooltip using shadcn/ui Tooltip component
+              const wrapper = document.createElement('span');
+              wrapper.className = 'relative inline-block';
+              element.parentNode?.insertBefore(wrapper, element);
+              wrapper.appendChild(element);
+
+              // Create React tooltip component
+              const tooltipRoot = document.createElement('div');
+              tooltipRoot.className = 'absolute -top-8 left-1/2 transform -translate-x-1/2 z-50';
+              wrapper.appendChild(tooltipRoot);
+
+              const TooltipComponent = () => (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="w-full h-full absolute inset-0" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Suggestion: {correction.suggested}</p>
+                      <p className="text-xs text-muted-foreground">Click to apply</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              );
             }
           }
         });
 
-        // Show toast with number of corrections
-        toast.info(`Found ${data.corrections.length} grammar suggestion${data.corrections.length > 1 ? 's' : ''}. Click on highlighted text to apply corrections.`);
+        toast.info(`Found ${data.corrections.length} grammar suggestion${data.corrections.length > 1 ? 's' : ''}. Hover over highlighted text to see suggestions.`);
       }
     } catch (error) {
       console.error('Grammar check error:', error);
