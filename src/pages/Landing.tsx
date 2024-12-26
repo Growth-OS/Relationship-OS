@@ -17,13 +17,21 @@ const Landing = () => {
               </div>
               <span className="text-xl font-bold">Growth OS</span>
             </div>
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/login')}
-              className="hover:bg-blue-500 hover:text-white transition-colors"
-            >
-              Sign In
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="ghost"
+                onClick={() => navigate('/login')}
+              >
+                Log in
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/signup')}
+                className="hover:bg-blue-500 hover:text-white transition-colors"
+              >
+                Sign up free
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
@@ -33,14 +41,14 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto">
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Write About The "Aha Moment" in The Hero Headline
+              Scale Your Business Growth With AI-Powered Automation
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Turn your content creation process into a streamlined operation with AI-powered automation
+              Turn your business operations into a streamlined system with Growth OS's integrated tools and AI assistance
             </p>
             <Button 
               size="lg"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signup')}
               className="text-lg px-8 bg-blue-500 hover:bg-blue-600"
             >
               Get Started Free
@@ -53,7 +61,7 @@ const Landing = () => {
       {/* Features Grid */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">Think your product</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Everything you need to grow faster</h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {features.map((feature, index) => (
               <div key={index} className="bg-white p-6 rounded-xl shadow-sm">
@@ -71,7 +79,7 @@ const Landing = () => {
       {/* Testimonials */}
       <section className="py-20">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-12">This is Why 100% Of Customers Love [Product Name]</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Customers Love Growth OS</h2>
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="bg-white p-6 rounded-xl border">
@@ -103,15 +111,15 @@ const Landing = () => {
         <div className="container mx-auto px-6">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-4xl font-bold mb-6">
-              You're [Two Events] Away From [Getting Result]
+              Start Growing Your Business Today
             </h2>
             <p className="text-xl mb-8 text-blue-100">
-              Join thousands of creators who are scaling their business with Growth OS
+              Join thousands of businesses scaling their growth with Growth OS
             </p>
             <Button 
               size="lg"
               variant="secondary"
-              onClick={() => navigate('/login')}
+              onClick={() => navigate('/signup')}
               className="text-lg px-8 bg-white text-blue-500 hover:bg-blue-50"
             >
               Get Started Now
@@ -143,33 +151,33 @@ const Landing = () => {
 
 const features = [
   {
-    title: "Lightning Fast",
-    description: "AI-powered automation that helps you create content in seconds, not hours.",
+    title: "AI-Powered Growth",
+    description: "Leverage artificial intelligence to automate your business processes and make data-driven decisions.",
     icon: ArrowRight
   },
   {
-    title: "All-in-One",
-    description: "Manage content, tasks, and growth initiatives in a single, unified platform.",
+    title: "All-in-One Platform",
+    description: "Manage your entire business operations from a single, unified dashboard.",
     icon: CheckCircle2
   },
   {
-    title: "Time-Saving",
-    description: "Automated workflows and smart templates save hours every week.",
+    title: "Scale Faster",
+    description: "Accelerate your growth with automated workflows and intelligent insights.",
     icon: ArrowUpRight
   }
 ];
 
 const testimonials = [
   {
-    content: "Growth OS has transformed how we manage our content operations. What used to take days now takes minutes.",
+    content: "Growth OS has transformed how we manage our business operations. The AI-powered features have saved us countless hours.",
     name: "Sarah Chen",
-    role: "Head of Content, TechScale",
+    role: "CEO, TechScale",
     avatar: "/placeholder.svg"
   },
   {
-    content: "The AI-powered features have revolutionized our workflow. It's like having an entire content team at your fingertips.",
+    content: "The all-in-one platform approach has streamlined our entire workflow. It's like having an entire operations team at your fingertips.",
     name: "Michael Ross",
-    role: "Marketing Director, StartupX",
+    role: "Founder, StartupX",
     avatar: "/placeholder.svg"
   }
 ];
