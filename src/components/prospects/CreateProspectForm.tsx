@@ -39,9 +39,12 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
         return;
       }
 
+      // Ensure company_name is included and not undefined
       const prospectData = {
         ...values,
         user_id: user.id,
+        company_name: values.company_name, // Explicitly include company_name
+        source: values.source || 'other'
       };
 
       const { error } = await supabase
