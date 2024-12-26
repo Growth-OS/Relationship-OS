@@ -21,9 +21,9 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
         .from("team_members")
         .select(`
           *,
-          user:user_id (
+          profiles:user_id (
             email,
-            raw_user_meta_data
+            full_name
           )
         `)
         .eq("team_id", teamId);
@@ -76,14 +76,14 @@ export const TeamMembersList = ({ teamId }: TeamMembersListProps) => {
             <Avatar>
               <AvatarImage src="/placeholder.svg" />
               <AvatarFallback>
-                {member.user.raw_user_meta_data?.full_name?.[0] || member.user.email[0].toUpperCase()}
+                {member.profiles?.full_name?.[0] || member.profiles?.email[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="font-medium">
-                {member.user.raw_user_meta_data?.full_name || member.user.email}
+                {member.profiles?.full_name || member.profiles?.email}
               </p>
-              <p className="text-sm text-gray-500">{member.user.email}</p>
+              <p className="text-sm text-gray-500">{member.profiles?.email}</p>
             </div>
             <Badge variant={member.role === 'owner' ? 'default' : 'secondary'} className="ml-2">
               {member.role === 'owner' ? (

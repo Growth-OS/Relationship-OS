@@ -24,15 +24,13 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
     setIsLoading(true);
     try {
-      // In a real app, you would send an email invitation
-      // For now, we'll just create the team member record
-      const { data: existingUser, error: userError } = await supabase
-        .from("auth")
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
         .select("id")
         .eq("email", email)
         .single();
 
-      if (userError) {
+      if (profileError) {
         toast.error("User not found");
         return;
       }
@@ -41,7 +39,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .from("team_members")
         .insert({
           team_id: teamId,
-          user_id: existingUser.id,
+          user_id: profile.id,
           role,
           joined_at: new Date().toISOString(),
         });
