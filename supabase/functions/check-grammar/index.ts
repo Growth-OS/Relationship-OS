@@ -13,6 +13,13 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authorization
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      throw new Error('Not authorized');
+    }
+
     const { text } = await req.json();
     console.log('Checking grammar for text:', text);
 
@@ -31,7 +38,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini', // Using the recommended fast model
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -88,7 +95,12 @@ serve(async (req) => {
         hasIssues: corrections.length > 0,
         corrections: corrections
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        } 
+      },
     );
   } catch (error) {
     console.error('Error in grammar check:', error);
@@ -99,7 +111,10 @@ serve(async (req) => {
       }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json'
+        },
       },
     );
   }
