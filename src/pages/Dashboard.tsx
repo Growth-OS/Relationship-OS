@@ -28,7 +28,6 @@ const Dashboard = () => {
     },
   });
 
-  // Get first name from full name or email
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
@@ -71,13 +70,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4 animate-fade-in">
-      <Card className="flex-1 p-4 flex flex-col">
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-4">
+    <div className="h-[calc(100vh-8rem)] flex flex-col">
+      <Card className="flex-1 flex flex-col bg-background">
+        <ScrollArea className="flex-1 px-4">
+          <div className="max-w-2xl mx-auto py-4 space-y-4">
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 mt-8">
-                <p className="text-lg font-medium">Hi {firstName}, how can I help you today?</p>
+              <div className="text-center text-muted-foreground py-4">
+                <p className="text-lg">Hi {firstName}, how can I help you today?</p>
               </div>
             ) : (
               messages.map((message, index) => (
@@ -102,20 +101,24 @@ const Dashboard = () => {
           </div>
         </ScrollArea>
         
-        <div className="mt-4 flex gap-2">
-          <Input
-            placeholder="Ask anything about your business..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            disabled={isLoading}
-          />
-          <Button 
-            onClick={handleSend} 
-            disabled={isLoading}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+        <div className="border-t p-4">
+          <div className="max-w-2xl mx-auto flex gap-2">
+            <Input
+              placeholder="Ask anything about your business..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button 
+              onClick={handleSend} 
+              disabled={isLoading}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
