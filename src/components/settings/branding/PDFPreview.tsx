@@ -44,13 +44,11 @@ export const PDFPreview = ({ filePath, fileName, onDelete }: PDFPreviewProps) =>
   return (
     <div className="space-y-4">
       <div className="relative">
-        <object
-          data={previewUrl}
+        <embed
+          src={`${previewUrl}#page=1`}
           type="application/pdf"
           className="w-full h-[400px] rounded-lg border border-gray-200"
-        >
-          <p>PDF preview not available</p>
-        </object>
+        />
         <Button
           variant="destructive"
           size="sm"
