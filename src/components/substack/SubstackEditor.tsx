@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
 
 interface SubstackEditorProps {
   postId: string;
@@ -14,7 +13,12 @@ interface SubstackEditorProps {
   onClose?: () => void;
 }
 
-export const SubstackEditor = ({ postId, initialContent, title, onClose }: SubstackEditorProps) => {
+export const SubstackEditor = ({ 
+  postId, 
+  initialContent, 
+  title, 
+  onClose 
+}: SubstackEditorProps) => {
   const [content, setContent] = useState(initialContent || "");
   const [postTitle, setPostTitle] = useState(title || "");
   const [isSaving, setIsSaving] = useState(false);
@@ -70,11 +74,6 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? "Saving..." : "Save & Close"}
           </Button>
-          {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
-          )}
         </div>
       </div>
       
