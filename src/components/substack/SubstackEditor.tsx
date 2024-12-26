@@ -75,6 +75,16 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   };
 
   const generateContent = async () => {
+    // Validate required fields
+    if (!selectedPromptId) {
+      toast({
+        title: "Error",
+        description: "Please select a prompt template first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!title) {
       toast({
         title: "Error",
@@ -86,8 +96,15 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
 
     setIsGenerating(true);
     try {
+      console.log("Generating content with:", { selectedPromptId, title, prompt });
       const selectedPrompt = prompts?.find(p => p.id === selectedPromptId);
-      const systemPrompt = selectedPrompt?.system_prompt || "";
+      
+      if (!selectedPrompt) {
+        throw new Error("Selected prompt template not found");
+      }
+
+      const systemPrompt = selectedPrompt.system_prompt;
+      console.log("Using system prompt:", systemPrompt);
 
       const response = await supabase.functions.invoke('generate-content', {
         body: { 
@@ -96,6 +113,8 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
           systemPrompt 
         },
       });
+
+      console.log("Generation response:", response);
 
       if (response.error) throw new Error(response.error.message);
       
@@ -111,7 +130,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
       console.error("Error generating content:", error);
       toast({
         title: "Error",
-        description: "Failed to generate content. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate content. Please try again.",
         variant: "destructive",
       });
     } finally {
