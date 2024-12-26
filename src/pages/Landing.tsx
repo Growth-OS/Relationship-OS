@@ -4,6 +4,10 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
+import { ProblemSolutionSection } from "@/components/landing/ProblemSolutionSection";
+import { StepsSection } from "@/components/landing/StepsSection";
+import { SocialProofSection } from "@/components/landing/SocialProofSection";
+import { UrgencySection } from "@/components/landing/UrgencySection";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -42,8 +46,12 @@ const Landing = () => {
 
       <main>
         <HeroSection />
+        <SocialProofSection />
         <FeaturesSection />
+        <ProblemSolutionSection />
+        <StepsSection />
         <TestimonialsSection />
+        <UrgencySection />
         <CTASection />
       </main>
 
