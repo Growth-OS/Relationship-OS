@@ -51,13 +51,6 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
         throw new Error("No authenticated user found");
       }
 
-      console.log("Attempting to insert post with data:", {
-        title: data.title,
-        publish_date: format(data.publishDate, "yyyy-MM-dd"),
-        user_id: user.id,
-        status: data.status
-      });
-
       const { error: insertError } = await supabase.from("substack_posts").insert({
         title: data.title,
         publish_date: format(data.publishDate, "yyyy-MM-dd"),
@@ -155,15 +148,17 @@ export const SubstackForm = ({ onSuccess }: SubstackFormProps) => {
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start" onOpenAutoFocus={(e) => e.preventDefault()}>
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </div>
+                <PopoverContent 
+                  className="w-auto p-0" 
+                  align="start"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    initialFocus
+                    fromMonth={new Date()}
+                  />
                 </PopoverContent>
               </Popover>
             </FormItem>
