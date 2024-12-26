@@ -51,27 +51,38 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
     }
   };
 
-  const applySelectedCorrections = () => {
-    let updatedContent = editor.getText();
-    corrections.forEach(correction => {
-      if (correction.selected) {
-        updatedContent = updatedContent.replace(correction.original, correction.suggestion);
-      }
-    });
-    editor.commands.setContent(updatedContent);
-    toast.success("Changes Applied", {
-      description: "Selected grammar corrections have been applied",
-      icon: <Check className="h-4 w-4" />,
-    });
-    setCorrections([]);
-  };
-
   const toggleCorrection = (index: number) => {
     setCorrections(prev => 
       prev.map((correction, i) => 
         i === index ? { ...correction, selected: !correction.selected } : correction
       )
     );
+  };
+
+  const applySelectedCorrections = () => {
+    let updatedContent = editor.getText();
+    let hasChanges = false;
+
+    corrections.forEach(correction => {
+      if (correction.selected) {
+        updatedContent = updatedContent.replaceAll(correction.original, correction.suggestion);
+        hasChanges = true;
+      }
+    });
+
+    if (hasChanges) {
+      editor.commands.setContent(updatedContent);
+      toast.success("Changes Applied", {
+        description: "Selected grammar corrections have been applied",
+        icon: <Check className="h-4 w-4" />,
+      });
+      setCorrections([]); // Clear corrections after applying
+    } else {
+      toast.info("No Changes", {
+        description: "Please select corrections to apply",
+        icon: <AlertCircle className="h-4 w-4" />,
+      });
+    }
   };
 
   const checkGrammar = async () => {
@@ -92,7 +103,7 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
 
       if (error) throw error;
 
-      if (data.hasIssues) {
+      if (data.corrections && data.corrections.length > 0) {
         const newCorrections = data.corrections.map((correction: any) => ({
           original: correction.original,
           suggestion: correction.suggested,
@@ -113,21 +124,22 @@ export const SpellCheckButton = ({ editor }: SpellCheckButtonProps) => {
                       checked={correction.selected}
                       onCheckedChange={() => toggleCorrection(index)}
                     />
-                    <label htmlFor={`correction-${index}`} className="text-sm">
+                    <label 
+                      htmlFor={`correction-${index}`} 
+                      className="text-sm cursor-pointer select-none"
+                    >
                       Replace "{correction.original}" with "{correction.suggestion}"
                     </label>
                   </li>
                 ))}
               </ul>
-              {newCorrections.length > 0 && (
-                <Button
-                  size="sm"
-                  onClick={applySelectedCorrections}
-                  className="mt-2"
-                >
-                  Apply Selected Changes
-                </Button>
-              )}
+              <Button
+                size="sm"
+                onClick={applySelectedCorrections}
+                className="mt-2"
+              >
+                Apply Selected Changes
+              </Button>
             </div>
           ),
           icon: <BookOpen className="h-4 w-4" />,
