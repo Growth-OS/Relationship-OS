@@ -36,6 +36,9 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user");
+
       setUploading(true);
       const fileExt = file.name.split(".").pop();
       const filePath = `${Math.random()}.${fileExt}`;
@@ -48,6 +51,7 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       const { error: dbError } = await supabase.from("project_documents").insert({
         project_id: projectId,
+        user_id: user.id,
         title: file.name,
         file_path: filePath,
         file_type: file.type,

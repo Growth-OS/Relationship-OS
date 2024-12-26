@@ -25,10 +25,14 @@ export const ProjectCredentials = ({ projectId }: { projectId: string }) => {
   const { data: credentials = [], refetch } = useQuery({
     queryKey: ["project-credentials", projectId],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user");
+
       const { data, error } = await supabase
         .from("project_credentials")
         .select("*")
-        .eq("project_id", projectId);
+        .eq("project_id", projectId)
+        .eq("user_id", user.id);
 
       if (error) throw error;
       return data as Credential[];
@@ -37,10 +41,14 @@ export const ProjectCredentials = ({ projectId }: { projectId: string }) => {
 
   const handleAddCredential = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user");
+
       const { error } = await supabase
         .from("project_credentials")
         .insert({
           project_id: projectId,
+          user_id: user.id,
           ...newCredential,
         });
 
