@@ -235,7 +235,7 @@ export type Database = {
           name?: string
           profile_image_url?: string | null
           profile_url?: string
-          user_id: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -427,7 +427,7 @@ export type Database = {
           created_at?: string
           id?: string
           publish_date: string
-          status: string
+          status?: string
           title: string
           user_id: string
         }
@@ -438,7 +438,7 @@ export type Database = {
           publish_date?: string
           status?: string
           title?: string
-          user_id: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -544,7 +544,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          name: string
+          name?: string
         }
         Relationships: []
       }
@@ -571,7 +571,7 @@ export type Database = {
           file_path?: string
           file_type?: string
           id?: string
-          transaction_id: string
+          transaction_id?: string
         }
         Relationships: [
           {
@@ -581,44 +581,6 @@ export type Database = {
             referencedRelation: "financial_transactions"
             referencedColumns: ["id"]
           },
-        ]
-      }
-      project_credentials: {
-        Row: {
-          id: string
-          created_at: string
-          project_id: string
-          user_id: string
-          service_name: string
-          username: string
-          password: string
-        }
-        Insert: {
-          id?: string
-          created_at?: string
-          project_id: string
-          user_id: string
-          service_name: string
-          username: string
-          password: string
-        }
-        Update: {
-          id?: string
-          created_at?: string
-          project_id?: string
-          user_id?: string
-          service_name?: string
-          username?: string
-          password?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "project_credentials_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          }
         ]
       }
     }
@@ -647,7 +609,7 @@ export type Database = {
         | "conference"
         | "other"
       project_status: "active" | "completed" | "on_hold"
-      task_source: "deals" | "content" | "ideas" | "substack" | "other" | "projects"
+      task_source: "deals" | "content" | "ideas" | "substack" | "other"
       transaction_type: "income" | "expense"
       user_role: "owner" | "admin" | "member"
     }
@@ -666,7 +628,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -678,10 +640,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<

@@ -30,9 +30,16 @@ export const SubstackEditor = ({
     
     setIsSaving(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from("substack_posts")
-        .update({ content, title: postTitle })
+        .update({ 
+          content, 
+          title: postTitle,
+          user_id: user.id 
+        })
         .eq("id", postId);
 
       if (error) throw error;

@@ -20,14 +20,17 @@ export const SubstackTable = () => {
   const { data: posts, isLoading } = useQuery({
     queryKey: ["substackPosts"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { data, error } = await supabase
         .from("substack_posts")
         .select("*")
+        .eq("user_id", user.id)
         .order("publish_date", { ascending: false });
 
       if (error) throw error;
       
-      // Convert status to match PostStatus type
       return data.map(post => ({
         ...post,
         status: post.status as PostStatus
@@ -37,9 +40,15 @@ export const SubstackTable = () => {
 
   const updatePostStatus = async (postId: string, newStatus: PostStatus) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from("substack_posts")
-        .update({ status: newStatus })
+        .update({ 
+          status: newStatus,
+          user_id: user.id 
+        })
         .eq("id", postId);
 
       if (error) throw error;
