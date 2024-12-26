@@ -96,9 +96,9 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border rounded-lg overflow-hidden h-full flex flex-col">
       <EditorToolbar editor={editor} />
-      <div className="p-4 min-h-[200px] prose max-w-none">
+      <div className="p-4 flex-1 overflow-y-auto prose max-w-none">
         <EditorContent editor={editor} />
       </div>
     </div>

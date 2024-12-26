@@ -38,7 +38,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
         description: "Content saved successfully",
       });
 
-      queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
+      await queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
       
       if (onClose) {
         onClose();
@@ -57,7 +57,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between bg-background p-4 border-b">
+      <div className="flex items-center justify-between bg-background p-4 border-b shrink-0">
         <div className="flex-1 max-w-2xl">
           <Input
             value={postTitle}
@@ -78,8 +78,8 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
         </div>
       </div>
       
-      <div className="flex-1 overflow-auto p-4">
-        <div className="max-w-[1200px] mx-auto">
+      <div className="flex-1 overflow-auto p-4 relative">
+        <div className="max-w-[1200px] mx-auto h-full">
           <RichTextEditor
             content={content}
             onChange={setContent}
