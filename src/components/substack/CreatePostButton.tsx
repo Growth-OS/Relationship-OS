@@ -18,6 +18,10 @@ interface CreatePostButtonProps {
 export const CreatePostButton = ({ variant = "default", size = "default" }: CreatePostButtonProps) => {
   const [open, setOpen] = useState(false);
 
+  const handleSuccess = () => {
+    setOpen(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -36,7 +40,7 @@ export const CreatePostButton = ({ variant = "default", size = "default" }: Crea
         <DialogHeader>
           <DialogTitle>Create New Newsletter</DialogTitle>
         </DialogHeader>
-        <SubstackForm onSuccess={() => setOpen(false)} />
+        <SubstackForm onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   );
