@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { 
   Select,
@@ -14,6 +13,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { RichTextEditor } from "@/components/content/RichTextEditor";
 
 interface SubstackEditorProps {
   postId: string;
@@ -148,12 +148,10 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prompt">Additional context for AI</Label>
-                <Textarea
-                  id="prompt"
-                  placeholder="E.g., Target audience, tone, key points to cover..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                <Label>Additional context for AI</Label>
+                <RichTextEditor
+                  content={prompt}
+                  onChange={(value) => setPrompt(value)}
                 />
               </div>
               <Button 
@@ -172,11 +170,9 @@ export const SubstackEditor = ({ postId, initialContent, title }: SubstackEditor
         </Button>
       </div>
 
-      <Textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Write your post content here..."
-        className="min-h-[300px]"
+      <RichTextEditor
+        content={content}
+        onChange={setContent}
       />
     </div>
   );

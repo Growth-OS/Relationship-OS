@@ -12,9 +12,10 @@ export const ContentPreview = ({ content }: ContentPreviewProps) => {
       </CardHeader>
       <CardContent>
         {content ? (
-          <div className="prose max-w-none">
-            {content}
-          </div>
+          <div 
+            className="prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
         ) : (
           <div className="text-center text-muted-foreground py-8">
             Generated content will appear here
