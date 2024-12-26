@@ -81,7 +81,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
               element.addEventListener('click', () => {
                 editor.chain().focus()
                   .setTextSelection({ from, to })
-                  .replaceSelection(correction.suggested)
+                  .insertContent(correction.suggested)
                   .run();
                 toast.success("Correction applied");
               });
