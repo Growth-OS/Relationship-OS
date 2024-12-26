@@ -23,7 +23,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -38,14 +38,12 @@ serve(async (req) => {
             - "original": the exact text that needs correction
             - "suggested": your suggested correction
 
-            Format your response as a JSON object with a "corrections" array.
-            Example response:
-            {
-              "corrections": [
-                {"original": "their going", "suggested": "they're going"},
-                {"original": "affect", "suggested": "effect"}
-              ]
-            }
+            Format your response as a JSON string with a "corrections" array.
+            Example:
+            {"corrections": [
+              {"original": "their going", "suggested": "they're going"},
+              {"original": "affect", "suggested": "effect"}
+            ]}
 
             If no issues are found, return: {"corrections": []}`
           },
@@ -53,8 +51,7 @@ serve(async (req) => {
             role: 'user',
             content: text
           }
-        ],
-        response_format: { type: "json_object" }
+        ]
       }),
     });
 
