@@ -4,6 +4,9 @@ import Image from '@tiptap/extension-image';
 import TextAlign from '@tiptap/extension-text-align';
 import { EditorToolbar } from './editor/EditorToolbar';
 import { ImageUploader } from './editor/ImageUploader';
+import { useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface RichTextEditorProps {
   content: string;
@@ -23,6 +26,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+      debouncedCheckGrammar();
     },
     editorProps: {
       attributes: {
@@ -30,6 +34,71 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
       },
     },
   });
+
+  // Debounce function to avoid too many API calls
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
+
+  const checkGrammar = async () => {
+    if (!editor) return;
+    
+    const text = editor.getText();
+    if (!text.trim()) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-grammar', {
+        body: { text },
+      });
+
+      if (error) throw error;
+
+      if (data.corrections && data.corrections.length > 0) {
+        // Remove existing marks
+        editor.commands.unsetMark('highlight');
+        
+        // Add new highlights for each correction
+        data.corrections.forEach((correction: any) => {
+          const from = text.indexOf(correction.original);
+          if (from >= 0) {
+            editor.commands.setMark('highlight', {
+              'data-correction': JSON.stringify(correction),
+              class: 'bg-yellow-200 cursor-pointer relative group',
+            });
+            
+            // Create tooltip with suggestion
+            const tooltip = document.createElement('div');
+            tooltip.className = 'invisible group-hover:visible absolute -top-8 left-0 bg-white p-2 rounded shadow-lg text-sm z-50';
+            tooltip.textContent = `Suggestion: ${correction.suggested}`;
+            
+            // Add click handler to apply correction
+            const element = editor.view.dom.querySelector(`[data-correction='${JSON.stringify(correction)}']`);
+            if (element) {
+              element.addEventListener('click', () => {
+                editor.commands.setTextSelection({ from, to: from + correction.original.length });
+                editor.commands.insertContent(correction.suggested);
+                toast.success("Correction applied");
+              });
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Grammar check error:', error);
+    }
+  };
+
+  const debouncedCheckGrammar = useCallback(debounce(checkGrammar, 1000), []);
+
+  useEffect(() => {
+    if (editor) {
+      debouncedCheckGrammar();
+    }
+  }, [editor]);
 
   if (!editor) {
     return null;
