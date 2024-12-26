@@ -23,17 +23,25 @@ export const PostEditor = ({
   selectedPost, 
   onClose 
 }: PostEditorProps) => {
+  // Ensure we handle both the drawer state and cleanup
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      onClose();
+      // First update the drawer state
+      onOpenChange(false);
+      // Then trigger cleanup after animation
+      setTimeout(() => {
+        onClose();
+      }, 300);
+    } else {
+      onOpenChange(true);
     }
-    onOpenChange(open);
   };
 
   return (
     <Drawer 
       open={isOpen} 
       onOpenChange={handleOpenChange}
+      shouldScaleBackground={false}
     >
       <DrawerContent className="h-[95vh]">
         <DrawerHeader className="border-b">
@@ -47,7 +55,7 @@ export const PostEditor = ({
               postId={selectedPost.id}
               initialContent={selectedPost.content}
               title={selectedPost.title}
-              onClose={onClose}
+              onClose={() => handleOpenChange(false)}
             />
           )}
         </div>

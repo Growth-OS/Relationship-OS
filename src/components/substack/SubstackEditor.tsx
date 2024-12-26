@@ -20,6 +20,8 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
   const queryClient = useQueryClient();
 
   const handleSave = async () => {
+    if (isSaving) return; // Prevent double-saving
+    
     setIsSaving(true);
     try {
       const { error } = await supabase
@@ -36,11 +38,8 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
 
       queryClient.invalidateQueries({ queryKey: ["substackPosts"] });
       
-      // Ensure we cleanup properly after saving
       if (onClose) {
-        setTimeout(() => {
-          onClose();
-        }, 100);
+        onClose();
       }
     } catch (error) {
       console.error("Error saving content:", error);
