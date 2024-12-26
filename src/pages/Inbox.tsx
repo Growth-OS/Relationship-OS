@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { EmailList } from "@/components/inbox/EmailList";
+import { LinkedInList } from "@/components/inbox/LinkedInList";
 import { InboxSidebar } from "@/components/inbox/InboxSidebar";
 import { SearchBar } from "@/components/inbox/SearchBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,9 +50,10 @@ const Inbox = () => {
               />
             </TabsContent>
             <TabsContent value="linkedin" className="flex-1 m-0">
-              <div className="p-8 text-center text-gray-500">
-                LinkedIn integration coming soon
-              </div>
+              <LinkedInList
+                selectedMessageId={selectedMessageId}
+                setSelectedMessageId={setSelectedMessageId}
+              />
             </TabsContent>
           </Tabs>
         </Card>
