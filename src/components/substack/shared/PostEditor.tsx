@@ -33,7 +33,7 @@ export const PostEditor = ({
         }
       }}
     >
-      <DialogContent className="max-w-[90vw] w-full h-[90vh] p-0 flex flex-col">
+      <DialogContent className="max-w-[90vw] w-full h-[90vh] p-0 flex flex-col" hideCloseButton>
         {selectedPost && (
           <SubstackEditor
             postId={selectedPost.id}

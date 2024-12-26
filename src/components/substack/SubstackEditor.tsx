@@ -78,7 +78,7 @@ export const SubstackEditor = ({ postId, initialContent, title, onClose }: Subst
         </div>
       </div>
       
-      <div className="flex-1 overflow-auto p-4 relative">
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-[1200px] mx-auto h-full">
           <RichTextEditor
             content={content}
