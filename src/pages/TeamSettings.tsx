@@ -16,10 +16,10 @@ const TeamSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data: teamMembers, error } = await supabase
+      const { data: teamMember, error } = await supabase
         .from("team_members")
         .select(`
-          *,
+          team_id,
           teams (
             id,
             name
@@ -29,7 +29,7 @@ const TeamSettings = () => {
         .single();
 
       if (error) throw error;
-      return teamMembers;
+      return teamMember;
     },
   });
 
