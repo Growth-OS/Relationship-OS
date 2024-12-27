@@ -18,7 +18,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { useEmailMutation } from "@/hooks/useEmailMutation";
 import { Textarea } from "@/components/ui/textarea";
-import { addDays } from "date-fns";
 
 interface EmailActionsProps {
   messageId: string;
@@ -72,7 +71,7 @@ export const EmailActions = ({
             size="sm"
             className="gap-2"
           >
-            <Reply className="w-4 h-4" />
+            <Reply className="h-4 w-4" />
             Reply
           </Button>
         </DialogTrigger>
@@ -109,7 +108,7 @@ export const EmailActions = ({
         className="gap-2"
         onClick={() => starMutation.mutate({ messageId, isStarred: !isStarred })}
       >
-        <Star className={`w-4 h-4 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+        <Star className={`h-4 w-4 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
         Star
       </Button>
 
@@ -120,7 +119,7 @@ export const EmailActions = ({
             size="sm"
             className="gap-2"
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="h-4 w-4" />
             Snooze
           </Button>
         </PopoverTrigger>
@@ -141,7 +140,7 @@ export const EmailActions = ({
         className="gap-2"
         onClick={() => archiveMutation.mutate(messageId)}
       >
-        <Archive className="w-4 h-4" />
+        <Archive className="h-4 w-4" />
         Archive
       </Button>
 
@@ -151,7 +150,7 @@ export const EmailActions = ({
         className="gap-2"
         onClick={() => trashMutation.mutate(messageId)}
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="h-4 w-4" />
         Trash
       </Button>
     </div>
