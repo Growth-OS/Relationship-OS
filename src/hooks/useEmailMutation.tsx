@@ -27,7 +27,9 @@ export const useEmailMutation = () => {
         body: JSON.stringify({
           to,
           subject: replyToMessageId ? `Re: ${subject}` : subject,
-          content: content,
+          content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            ${content.split('\n').map(line => `<p style="margin: 1em 0;">${line}</p>`).join('')}
+          </div>`,
           user_id: session.user.id,
           reply_to_message_id: replyToMessageId,
           timestamp: new Date().toISOString(),
