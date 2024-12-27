@@ -18,10 +18,24 @@ export const useEmailMutation = () => {
       if (!session) throw new Error('Not authenticated');
 
       console.log('Preparing to send new email...');
+      console.log('Email content:', content); // Debug log
       
       try {
         const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';
         console.log('Using webhook:', webhookUrl);
+
+        const payload = {
+          to,
+          subject,
+          body: content, // Changed from content to body to match Zapier's expected field
+          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            ${content}
+          </div>`,
+          user_id: session.user.id,
+          timestamp: new Date().toISOString()
+        };
+
+        console.log('Sending payload:', payload); // Debug log
 
         const response = await fetch(webhookUrl, {
           method: 'POST',
@@ -29,15 +43,7 @@ export const useEmailMutation = () => {
             'Content-Type': 'application/json',
           },
           mode: 'no-cors',
-          body: JSON.stringify({
-            to,
-            subject,
-            content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              ${content}
-            </div>`,
-            user_id: session.user.id,
-            timestamp: new Date().toISOString()
-          }),
+          body: JSON.stringify(payload),
         });
 
         console.log('Email request sent successfully');
