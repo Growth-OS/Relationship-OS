@@ -13,14 +13,19 @@ export const useEmailMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ to, subject, content }: SendEmailParams) => {
+    mutationFn: async ({ to, subject, content, replyToMessageId }: SendEmailParams) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      console.log('Preparing to send new email...');
+      console.log('Preparing to send email...');
+      console.log('Is reply:', !!replyToMessageId);
       console.log('Email content:', content);
       
-      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';
+      // Use different webhooks for new emails vs replies
+      const webhookUrl = replyToMessageId 
+        ? 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpk/' // Reply webhook
+        : 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/'; // New email webhook
+      
       console.log('Using webhook:', webhookUrl);
 
       const payload = {
@@ -31,7 +36,8 @@ export const useEmailMutation = () => {
           ${content}
         </div>`,
         user_id: session.user.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        reply_to_message_id: replyToMessageId
       };
 
       console.log('Sending payload:', payload);
