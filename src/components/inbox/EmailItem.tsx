@@ -30,14 +30,17 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           <p className="text-sm font-medium text-gray-700 mb-1">
             {message.subject}
           </p>
-          <p className="text-sm text-gray-500 line-clamp-2">
-            {message.snippet}
-          </p>
+          {!isSelected && (
+            <p className="text-sm text-gray-500 line-clamp-2">
+              {message.snippet}
+            </p>
+          )}
           {isSelected && (
             <div className="mt-4 space-y-4">
-              <div className="text-sm text-gray-600 whitespace-pre-wrap">
-                {message.body || message.snippet}
-              </div>
+              <div 
+                className="text-sm text-gray-600 prose max-w-none"
+                dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
+              />
               <EmailActions 
                 messageId={message.id}
                 onReply={() => console.log('Reply clicked')}
