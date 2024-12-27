@@ -44,16 +44,24 @@ export const useTrashEmail = () => {
 
   return useMutation({
     mutationFn: async (messageId: string) => {
+      console.log('Trashing email:', messageId);
       const { error } = await supabase
         .from('emails')
         .update({ is_trashed: true })
         .eq('message_id', messageId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error trashing email:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       toast.success('Email moved to trash');
+    },
+    onError: (error) => {
+      console.error('Failed to trash email:', error);
+      toast.error('Failed to move email to trash');
     },
   });
 };
