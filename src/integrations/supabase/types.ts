@@ -179,9 +179,11 @@ export type Database = {
           is_archived: boolean | null
           is_read: boolean | null
           is_starred: boolean | null
+          is_trashed: boolean | null
           message_id: string
           received_at: string
           snippet: string | null
+          snoozed_until: string | null
           subject: string
           user_id: string
         }
@@ -193,9 +195,11 @@ export type Database = {
           is_archived?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          is_trashed?: boolean | null
           message_id: string
           received_at: string
           snippet?: string | null
+          snoozed_until?: string | null
           subject: string
           user_id: string
         }
@@ -207,9 +211,11 @@ export type Database = {
           is_archived?: boolean | null
           is_read?: boolean | null
           is_starred?: boolean | null
+          is_trashed?: boolean | null
           message_id?: string
           received_at?: string
           snippet?: string | null
+          snoozed_until?: string | null
           subject?: string
           user_id?: string
         }

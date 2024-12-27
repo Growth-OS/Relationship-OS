@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Archive, Star, Reply } from "lucide-react";
+import { Archive, Star, Reply, Clock, Trash2 } from "lucide-react";
 import { useArchiveEmail } from "@/hooks/useArchiveEmail";
+import { useStarEmail, useSnoozeEmail, useTrashEmail } from "@/hooks/useEmailActions";
 import {
   Dialog,
   DialogContent,
@@ -8,20 +9,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { useEmailMutation } from "@/hooks/useEmailMutation";
 import { Textarea } from "@/components/ui/textarea";
+import { addDays } from "date-fns";
 
 interface EmailActionsProps {
   messageId: string;
   originalSubject: string;
   originalFrom: string;
-  onStar?: () => void;
+  isStarred?: boolean;
 }
 
-export const EmailActions = ({ messageId, originalSubject, originalFrom, onStar }: EmailActionsProps) => {
+export const EmailActions = ({ 
+  messageId, 
+  originalSubject, 
+  originalFrom, 
+  isStarred = false 
+}: EmailActionsProps) => {
   const archiveMutation = useArchiveEmail();
+  const starMutation = useStarEmail();
+  const snoozeMutation = useSnoozeEmail();
+  const trashMutation = useTrashEmail();
   const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [isSnoozeOpen, setIsSnoozeOpen] = useState(false);
   const [replyContent, setReplyContent] = useState('');
   const sendEmailMutation = useEmailMutation();
 
@@ -38,6 +55,12 @@ export const EmailActions = ({ messageId, originalSubject, originalFrom, onStar 
     } catch (error) {
       console.error('Error sending reply:', error);
     }
+  };
+
+  const handleSnooze = (date: Date | undefined) => {
+    if (!date) return;
+    snoozeMutation.mutate({ messageId, snoozeUntil: date });
+    setIsSnoozeOpen(false);
   };
 
   return (
@@ -84,22 +107,52 @@ export const EmailActions = ({ messageId, originalSubject, originalFrom, onStar 
         variant="ghost"
         size="sm"
         className="gap-2"
-        onClick={onStar}
+        onClick={() => starMutation.mutate({ messageId, isStarred: !isStarred })}
       >
-        <Star className="w-4 h-4" />
+        <Star className={`w-4 h-4 ${isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
         Star
       </Button>
+
+      <Popover open={isSnoozeOpen} onOpenChange={setIsSnoozeOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
+          >
+            <Clock className="w-4 h-4" />
+            Snooze
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={undefined}
+            onSelect={handleSnooze}
+            disabled={(date) => date < new Date()}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+
       <Button
         variant="ghost"
         size="sm"
         className="gap-2"
-        onClick={(e) => {
-          e.stopPropagation();
-          archiveMutation.mutate(messageId);
-        }}
+        onClick={() => archiveMutation.mutate(messageId)}
       >
         <Archive className="w-4 h-4" />
         Archive
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        className="gap-2"
+        onClick={() => trashMutation.mutate(messageId)}
+      >
+        <Trash2 className="w-4 h-4" />
+        Trash
       </Button>
     </div>
   );

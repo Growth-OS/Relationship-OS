@@ -9,6 +9,10 @@ export interface EmailMessage {
   snippet: string;
   date: string;
   body?: string;
+  is_starred?: boolean;
+  is_archived?: boolean;
+  is_trashed?: boolean;
+  snoozed_until?: string | null;
 }
 
 export const useGmailMessages = () => {
@@ -20,6 +24,8 @@ export const useGmailMessages = () => {
         .from('emails')
         .select('*')
         .eq('is_archived', false)
+        .eq('is_trashed', false)
+        .is('snoozed_until', null)
         .order('received_at', { ascending: false });
 
       if (error) {
@@ -36,7 +42,11 @@ export const useGmailMessages = () => {
         subject: email.subject,
         snippet: email.snippet || email.subject,
         body: email.body,
-        date: email.received_at
+        date: email.received_at,
+        is_starred: email.is_starred,
+        is_archived: email.is_archived,
+        is_trashed: email.is_trashed,
+        snoozed_until: email.snoozed_until
       }));
     },
   });

@@ -45,7 +45,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
                 messageId={message.id}
                 originalSubject={message.subject}
                 originalFrom={message.from}
-                onStar={() => console.log('Star clicked')}
+                isStarred={message.is_starred}
               />
             </div>
           )}
