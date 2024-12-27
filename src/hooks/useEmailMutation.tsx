@@ -17,7 +17,7 @@ export const useEmailMutation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      // Call Zapier webhook to send email
+      // Call Zapier webhook to send email with test data
       const response = await fetch('https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/', {
         method: 'POST',
         headers: {
@@ -25,10 +25,12 @@ export const useEmailMutation = () => {
         },
         mode: 'no-cors',
         body: JSON.stringify({
-          to,
-          subject: replyToMessageId ? `Re: ${subject}` : subject,
+          to: "test@example.com", // Test recipient
+          subject: "Test Email from GrowthOS",
           content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            ${content.split('\n').map(line => `<p style="margin: 1em 0;">${line}</p>`).join('')}
+            <h1>This is a test email</h1>
+            <p>Testing Zapier webhook integration</p>
+            <p>Timestamp: ${new Date().toISOString()}</p>
           </div>`,
           user_id: session.user.id,
           reply_to_message_id: replyToMessageId,
@@ -39,7 +41,7 @@ export const useEmailMutation = () => {
       return response;
     },
     onSuccess: () => {
-      toast.success('Email sent successfully');
+      toast.success('Test email sent successfully');
       queryClient.invalidateQueries({ queryKey: ['emails'] });
     },
     onError: (error: Error) => {
