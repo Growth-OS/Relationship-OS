@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Archive } from "lucide-react";
+import { Archive, Star, Reply } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -67,31 +67,65 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
       }`}
       onClick={() => onSelect(message.id)}
     >
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start gap-4">
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-gray-900 truncate">
-            {getHeader('From')}
-          </p>
-          <p className="text-sm font-medium text-gray-700 truncate">
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-medium text-gray-900">
+              {getHeader('From')}
+            </p>
+            <span className="text-xs text-gray-400">
+              {new Date(getHeader('Date')).toLocaleString()}
+            </span>
+          </div>
+          <p className="text-sm font-medium text-gray-700 mb-1">
             {getHeader('Subject')}
           </p>
           <p className="text-sm text-gray-500 line-clamp-1">
             {message.snippet}
           </p>
           {isSelected && (
-            <div className="mt-4 text-sm text-gray-600">
-              {message.snippet}
+            <div className="mt-4 space-y-4">
+              <div className="text-sm text-gray-600 whitespace-pre-wrap">
+                {message.snippet}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Reply className="w-4 h-4" />
+                  Reply
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Star className="w-4 h-4" />
+                  Star
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    archiveMutation.mutate(message.id);
+                  }}
+                >
+                  <Archive className="w-4 h-4" />
+                  Archive
+                </Button>
+              </div>
             </div>
           )}
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-400 whitespace-nowrap">
-            {new Date(getHeader('Date')).toLocaleString()}
-          </span>
+        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             variant="ghost"
             size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
               archiveMutation.mutate(message.id);
