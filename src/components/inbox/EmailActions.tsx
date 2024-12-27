@@ -3,6 +3,7 @@ import { StarAction } from "./email-actions/StarAction";
 import { SnoozeAction } from "./email-actions/SnoozeAction";
 import { ArchiveAction } from "./email-actions/ArchiveAction";
 import { TrashAction } from "./email-actions/TrashAction";
+import { AddProspectAction } from "./email-actions/AddProspectAction";
 
 interface EmailActionsProps {
   messageId: string;
@@ -28,6 +29,7 @@ export const EmailActions = ({
       <SnoozeAction messageId={messageId} />
       <ArchiveAction messageId={messageId} />
       <TrashAction messageId={messageId} />
+      <AddProspectAction fromEmail={originalFrom} />
     </div>
   );
 };
