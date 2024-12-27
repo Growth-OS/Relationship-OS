@@ -20,44 +20,27 @@ export const useGmailMessages = () => {
         throw new Error('Not authenticated');
       }
 
-      const makeHttpUrl = localStorage.getItem('make_http_url');
-      const makeApiKey = localStorage.getItem('make_api_key');
-
-      if (!makeHttpUrl) {
-        toast.error('Make.com HTTP URL not configured');
-        throw new Error('Make.com HTTP URL not configured');
-      }
-
-      if (!makeApiKey) {
-        toast.error('Make.com API key not configured');
-        throw new Error('Make.com API key not configured');
-      }
-
-      console.log('Fetching emails from Make.com...');
-      
-      const response = await fetch(makeHttpUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${makeApiKey}`,
-          'X-Request-ID': crypto.randomUUID()
+      // For development/testing, return mock data
+      const mockEmails: EmailMessage[] = [
+        {
+          id: '1',
+          from: 'John Doe <john@example.com>',
+          subject: 'Welcome to GrowthOS',
+          snippet: 'Thank you for joining GrowthOS. Here are some tips to get started...',
+          date: new Date().toISOString(),
+          body: 'Thank you for joining GrowthOS. Here are some tips to get started with our platform...'
         },
-      });
+        {
+          id: '2',
+          from: 'Sarah Smith <sarah@example.com>',
+          subject: 'Product Update',
+          snippet: 'We have some exciting new features to share with you...',
+          date: new Date(Date.now() - 86400000).toISOString(),
+          body: 'We have some exciting new features to share with you. Check out our latest release...'
+        }
+      ];
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Make.com error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText
-        });
-        throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Received response from Make.com:', data);
-      
-      return data.messages || [];
+      return mockEmails;
     },
     meta: {
       onError: (error: Error) => {
