@@ -26,11 +26,17 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
   const filteredEmails = emails.filter(email => {
     switch (filter) {
       case 'inbox':
-        return !email.is_archived && !email.is_trashed && !email.snoozed_until;
+        // Show in inbox only if not starred, not snoozed, not archived, and not trashed
+        return !email.is_starred && 
+               !email.is_archived && 
+               !email.is_trashed && 
+               !email.snoozed_until;
       case 'starred':
         return email.is_starred && !email.is_trashed;
       case 'snoozed':
-        return email.snoozed_until && new Date(email.snoozed_until) > new Date();
+        return email.snoozed_until && 
+               new Date(email.snoozed_until) > new Date() && 
+               !email.is_trashed;
       case 'archived':
         return email.is_archived && !email.is_trashed;
       case 'trash':
