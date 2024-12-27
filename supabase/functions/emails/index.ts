@@ -39,6 +39,18 @@ serve(async (req) => {
     const emailData = await req.json();
     console.log('Received email data:', emailData);
 
+    // Validate required fields
+    const requiredFields = ['from', 'subject'];
+    const missingFields = requiredFields.filter(field => !emailData[field]);
+    
+    if (missingFields.length > 0) {
+      console.error('Missing required fields:', missingFields);
+      return new Response(
+        JSON.stringify({ error: `Missing required fields: ${missingFields.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Generate a unique message ID if not provided
     const messageId = emailData.id || crypto.randomUUID();
 
@@ -54,7 +66,7 @@ serve(async (req) => {
         message_id: messageId,
         from_email: emailData.from,
         subject: emailData.subject,
-        snippet: emailData.snippet,
+        snippet: emailData.snippet || emailData.subject,
         body: emailData.body,
         received_at: emailData.date || new Date().toISOString(),
         user_id: emailData.user_id
