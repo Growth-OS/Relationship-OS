@@ -29,7 +29,6 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
   const filteredEmails = emails.filter(email => {
     switch (filter) {
       case 'inbox':
-        // Show in inbox only if not starred, not snoozed, not archived, and not trashed
         return !email.is_starred && 
                !email.is_archived && 
                !email.is_trashed && 
@@ -43,8 +42,7 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
       case 'archived':
         return email.is_archived && !email.is_trashed;
       case 'trash':
-        console.log('Checking trash for email:', email);
-        return email.is_trashed === true;
+        return email.is_trashed;
       default:
         return true;
     }

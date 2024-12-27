@@ -23,9 +23,6 @@ export const useGmailMessages = () => {
       const { data, error } = await supabase
         .from('emails')
         .select('*')
-        .eq('is_archived', false)
-        .eq('is_trashed', false)
-        .is('snoozed_until', null)
         .order('received_at', { ascending: false });
 
       if (error) {
