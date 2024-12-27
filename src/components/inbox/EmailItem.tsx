@@ -4,17 +4,11 @@ import { EmailActions } from "./EmailActions";
 
 interface EmailMessage {
   id: string;
+  from: string;
+  subject: string;
   snippet: string;
-  payload: {
-    headers: {
-      name: string;
-      value: string;
-    }[];
-    body?: {
-      data?: string;
-    };
-  };
-  labelIds: string[];
+  date: string;
+  body?: string;
 }
 
 interface EmailItemProps {
@@ -24,23 +18,6 @@ interface EmailItemProps {
 }
 
 export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => {
-  const getHeader = (headerName: string) => {
-    return message.payload.headers.find(h => h.name.toLowerCase() === headerName.toLowerCase())?.value;
-  };
-
-  const getEmailContent = () => {
-    if (message.payload.body?.data) {
-      try {
-        // Try to decode base64 content
-        return atob(message.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-      } catch (e) {
-        // If decoding fails, return the raw content
-        return message.payload.body.data;
-      }
-    }
-    return message.snippet;
-  };
-
   return (
     <div 
       className={`p-4 hover:bg-gray-50 cursor-pointer relative group transition-colors ${
@@ -52,14 +29,14 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <p className="font-medium text-gray-900">
-              {getHeader('From')}
+              {message.from}
             </p>
             <span className="text-xs text-gray-400">
-              {new Date(getHeader('Date')).toLocaleString()}
+              {new Date(message.date).toLocaleString()}
             </span>
           </div>
           <p className="text-sm font-medium text-gray-700 mb-1">
-            {getHeader('Subject')}
+            {message.subject}
           </p>
           <p className="text-sm text-gray-500 line-clamp-1">
             {message.snippet}
@@ -67,7 +44,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           {isSelected && (
             <div className="mt-4 space-y-4">
               <div className="text-sm text-gray-600 whitespace-pre-wrap">
-                {getEmailContent()}
+                {message.body || message.snippet}
               </div>
               <EmailActions 
                 messageId={message.id}
@@ -84,8 +61,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
-              const archiveButton = document.querySelector<HTMLButtonElement>(`button[data-message-id="${message.id}"]`);
-              archiveButton?.click();
+              console.log('Archive clicked:', message.id);
             }}
           >
             <Archive className="w-4 h-4 text-gray-400" />

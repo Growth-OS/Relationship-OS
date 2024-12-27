@@ -7,55 +7,25 @@ interface EmailListProps {
   setSelectedMessageId: (id: string | null) => void;
 }
 
-const mockEmails = [
-  {
-    id: '1',
-    snippet: "Hi there! I wanted to discuss the upcoming project timeline and deliverables...",
-    payload: {
-      headers: [
-        { name: 'From', value: 'John Smith <john@example.com>' },
-        { name: 'Subject', value: 'Project Timeline Discussion' },
-        { name: 'Date', value: new Date(2024, 2, 15).toISOString() }
-      ]
-    },
-    labelIds: ['INBOX']
-  },
-  {
-    id: '2',
-    snippet: "Thank you for your interest in our services. I've attached our proposal...",
-    payload: {
-      headers: [
-        { name: 'From', value: 'Sarah Johnson <sarah@company.com>' },
-        { name: 'Subject', value: 'Service Proposal' },
-        { name: 'Date', value: new Date(2024, 2, 14).toISOString() }
-      ]
-    },
-    labelIds: ['INBOX']
-  },
-  {
-    id: '3',
-    snippet: "Just following up on our conversation from last week regarding...",
-    payload: {
-      headers: [
-        { name: 'From', value: 'Mike Wilson <mike@business.com>' },
-        { name: 'Subject', value: 'Follow-up: Strategy Meeting' },
-        { name: 'Date', value: new Date(2024, 2, 13).toISOString() }
-      ]
-    },
-    labelIds: ['INBOX']
-  }
-];
-
 export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailListProps) => {
   const { data: emails, isLoading, error } = useGmailMessages();
 
-  // Use mock data if webhook is not configured or there's an error
-  const displayEmails = emails || mockEmails;
+  if (isLoading) {
+    return <div className="p-4 text-gray-500">Loading emails...</div>;
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-500">Error loading emails</div>;
+  }
+
+  if (!emails?.length) {
+    return <div className="p-4 text-gray-500">No emails found</div>;
+  }
 
   return (
     <ScrollArea className="flex-1">
       <div className="divide-y divide-gray-100">
-        {displayEmails.map((message) => (
+        {emails.map((message) => (
           <EmailItem
             key={message.id}
             message={message}
