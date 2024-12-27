@@ -5,7 +5,7 @@ import { SidebarFooter } from "./sidebar/SidebarFooter";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 h-screen bg-background border-r border-border p-4 fixed left-0 top-0 flex flex-col dark:bg-[#1A1F2C] dark:border-[#2A2F3C]">
+    <div className="w-64 h-screen bg-background border-r border-border p-4 fixed left-0 top-0 flex flex-col">
       <SidebarLogo />
       <SidebarNavigation />
       <SidebarFooter />

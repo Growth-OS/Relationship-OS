@@ -69,7 +69,7 @@ export const EmailActions = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
           >
             <Reply className="h-4 w-4 mr-2" />
             Reply
@@ -94,7 +94,7 @@ export const EmailActions = ({
               <Button
                 onClick={handleSendReply}
                 disabled={sendEmailMutation.isPending || !replyContent.trim()}
-                className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
               >
                 Send Reply
               </Button>
@@ -106,10 +106,10 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
+        className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
         onClick={() => starMutation.mutate({ messageId, isStarred: !isStarred })}
       >
-        <Star className={`h-4 w-4 mr-2 ${isStarred ? 'fill-[#9b87f5] text-[#9b87f5]' : ''}`} />
+        <Star className={`h-4 w-4 mr-2 ${isStarred ? 'fill-gray-900 text-gray-900' : ''}`} />
         Star
       </Button>
 
@@ -118,7 +118,7 @@ export const EmailActions = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
+            className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
           >
             <Clock className="h-4 w-4 mr-2" />
             Snooze
@@ -138,7 +138,7 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
+        className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
         onClick={() => archiveMutation.mutate(messageId)}
       >
         <Archive className="h-4 w-4 mr-2" />
@@ -148,7 +148,7 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
+        className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
         onClick={() => trashMutation.mutate(messageId)}
       >
         <Trash2 className="h-4 w-4 mr-2" />
