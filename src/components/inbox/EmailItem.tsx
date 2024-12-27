@@ -10,6 +10,9 @@ interface EmailMessage {
       name: string;
       value: string;
     }[];
+    body?: {
+      data?: string;
+    };
   };
   labelIds: string[];
 }
@@ -23,6 +26,19 @@ interface EmailItemProps {
 export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => {
   const getHeader = (headerName: string) => {
     return message.payload.headers.find(h => h.name.toLowerCase() === headerName.toLowerCase())?.value;
+  };
+
+  const getEmailContent = () => {
+    if (message.payload.body?.data) {
+      try {
+        // Try to decode base64 content
+        return atob(message.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+      } catch (e) {
+        // If decoding fails, return the raw content
+        return message.payload.body.data;
+      }
+    }
+    return message.snippet;
   };
 
   return (
@@ -51,7 +67,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           {isSelected && (
             <div className="mt-4 space-y-4">
               <div className="text-sm text-gray-600 whitespace-pre-wrap">
-                {message.snippet}
+                {getEmailContent()}
               </div>
               <EmailActions 
                 messageId={message.id}
