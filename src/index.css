@@ -79,10 +79,10 @@
 
 /* Add styles for active sidebar items */
 .sidebar-item.active {
-  @apply bg-black text-white dark:bg-[#000000e6] dark:text-white;
+  @apply bg-[#9b87f5] text-white;
 }
 
 /* Add hover effects for sidebar items */
 .sidebar-item:hover:not(.active) {
-  @apply bg-gray-100 dark:bg-[#2A2F3C];
+  @apply bg-gray-50;
 }
