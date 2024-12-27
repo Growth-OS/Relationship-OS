@@ -18,40 +18,35 @@ export const useEmailMutation = () => {
       if (!session) throw new Error('Not authenticated');
 
       console.log('Preparing to send new email...');
-      console.log('Email content:', content); // Debug log
+      console.log('Email content:', content);
       
-      try {
-        const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';
-        console.log('Using webhook:', webhookUrl);
+      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';
+      console.log('Using webhook:', webhookUrl);
 
-        const payload = {
-          to,
-          subject,
-          body: content, // Changed from content to body to match Zapier's expected field
-          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            ${content}
-          </div>`,
-          user_id: session.user.id,
-          timestamp: new Date().toISOString()
-        };
+      const payload = {
+        to,
+        subject,
+        body: content,
+        html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          ${content}
+        </div>`,
+        user_id: session.user.id,
+        timestamp: new Date().toISOString()
+      };
 
-        console.log('Sending payload:', payload); // Debug log
+      console.log('Sending payload:', payload);
 
-        const response = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          mode: 'no-cors',
-          body: JSON.stringify(payload),
-        });
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify(payload),
+      });
 
-        console.log('Email request sent successfully');
-        return true;
-      } catch (error) {
-        console.error('Error sending email:', error);
-        throw new Error('Failed to send email through webhook');
-      }
+      console.log('Email request sent successfully');
+      return true;
     },
     onSuccess: () => {
       toast.success('Email sent successfully');
@@ -59,7 +54,7 @@ export const useEmailMutation = () => {
     },
     onError: (error: Error) => {
       console.error('Error sending email:', error);
-      toast.error(error.message);
+      toast.error('Failed to send email');
     },
   });
 };
