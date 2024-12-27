@@ -13,6 +13,7 @@ export interface EmailMessage {
   is_archived?: boolean;
   is_trashed?: boolean;
   snoozed_until?: string | null;
+  is_sent?: boolean;
 }
 
 export const useGmailMessages = () => {
@@ -43,7 +44,8 @@ export const useGmailMessages = () => {
         is_starred: email.is_starred,
         is_archived: email.is_archived,
         is_trashed: email.is_trashed,
-        snoozed_until: email.snoozed_until
+        snoozed_until: email.snoozed_until,
+        is_sent: email.is_sent
       }));
     },
   });

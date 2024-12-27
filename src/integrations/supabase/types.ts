@@ -178,6 +178,7 @@ export type Database = {
           id: string
           is_archived: boolean | null
           is_read: boolean | null
+          is_sent: boolean | null
           is_starred: boolean | null
           is_trashed: boolean | null
           message_id: string
@@ -194,6 +195,7 @@ export type Database = {
           id?: string
           is_archived?: boolean | null
           is_read?: boolean | null
+          is_sent?: boolean | null
           is_starred?: boolean | null
           is_trashed?: boolean | null
           message_id: string
@@ -210,6 +212,7 @@ export type Database = {
           id?: string
           is_archived?: boolean | null
           is_read?: boolean | null
+          is_sent?: boolean | null
           is_starred?: boolean | null
           is_trashed?: boolean | null
           message_id?: string
