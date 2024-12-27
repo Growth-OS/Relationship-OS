@@ -34,16 +34,18 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const response = await fetch('/functions/v1/gmail', {
+      const webhookUrl = localStorage.getItem('make_webhook_url_archive');
+      if (!webhookUrl) {
+        toast.error('Make.com archive webhook URL not configured');
+        throw new Error('Make.com archive webhook URL not configured');
+      }
+
+      const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          action: 'archiveMessage',
-          messageId 
-        }),
+        body: JSON.stringify({ messageId }),
       });
 
       if (!response.ok) throw new Error('Failed to archive message');

@@ -2,6 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+interface EmailMessage {
+  id: string;
+  snippet: string;
+  payload: {
+    headers: {
+      name: string;
+      value: string;
+    }[];
+  };
+  labelIds: string[];
+}
+
 export const useGmailMessages = () => {
   return useQuery({
     queryKey: ['emails'],
@@ -34,7 +46,21 @@ export const useGmailMessages = () => {
       const data = await response.json();
       console.log('Received emails from Make.com:', data);
 
-      return data.messages || [];
+      // Transform the Make.com webhook response to match our expected format
+      const messages: EmailMessage[] = data.messages?.map((message: any) => ({
+        id: message.id || String(Math.random()),
+        snippet: message.snippet || message.body || message.content || '',
+        payload: {
+          headers: [
+            { name: 'From', value: message.from || 'Unknown Sender' },
+            { name: 'Subject', value: message.subject || 'No Subject' },
+            { name: 'Date', value: message.date || new Date().toISOString() }
+          ]
+        },
+        labelIds: message.labels || ['INBOX']
+      })) || [];
+
+      return messages;
     },
     retry: 1,
     meta: {
