@@ -9,3 +9,6 @@ port = 5432
 
 [functions.emails]
 verify_jwt = false
+
+[functions.check-snoozed-emails]
+verify_jwt = false
