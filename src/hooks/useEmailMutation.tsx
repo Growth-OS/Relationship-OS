@@ -18,7 +18,7 @@ export const useEmailMutation = () => {
       if (!session) throw new Error('Not authenticated');
 
       // Call Zapier webhook to send email
-      const response = await fetch('YOUR_ZAPIER_WEBHOOK_URL', {
+      const response = await fetch('https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
