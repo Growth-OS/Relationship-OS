@@ -51,6 +51,16 @@ serve(async (req) => {
       );
     }
 
+    // Get user_id from the request headers or query params
+    const user_id = emailData.user_id;
+    if (!user_id) {
+      console.error('No user_id provided in the request');
+      return new Response(
+        JSON.stringify({ error: 'user_id is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Generate a unique message ID if not provided
     const messageId = emailData.id || crypto.randomUUID();
 
@@ -69,7 +79,7 @@ serve(async (req) => {
         snippet: emailData.snippet || emailData.subject,
         body: emailData.body,
         received_at: emailData.date || new Date().toISOString(),
-        user_id: emailData.user_id
+        user_id: user_id
       });
 
     if (insertError) {
