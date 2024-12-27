@@ -21,10 +21,8 @@ export const useEmailMutation = () => {
       console.log('Is reply:', !!replyToMessageId);
       console.log('Email content:', content);
       
-      // Use different webhooks for new emails vs replies
-      const webhookUrl = replyToMessageId 
-        ? 'https://hooks.zapier.com/hooks/catch/20724321/28zi7rp/' // Reply webhook
-        : 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/'; // New email webhook
+      // Use single webhook for both new emails and replies
+      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28zi7rp/';
       
       console.log('Using webhook:', webhookUrl);
 
