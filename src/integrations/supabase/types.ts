@@ -170,6 +170,51 @@ export type Database = {
         }
         Relationships: []
       }
+      emails: {
+        Row: {
+          body: string | null
+          created_at: string
+          from_email: string
+          id: string
+          is_archived: boolean | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          message_id: string
+          received_at: string
+          snippet: string | null
+          subject: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          from_email: string
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          message_id: string
+          received_at: string
+          snippet?: string | null
+          subject: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          from_email?: string
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          message_id?: string
+          received_at?: string
+          snippet?: string | null
+          subject?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_transactions: {
         Row: {
           amount: number

@@ -20,27 +20,21 @@ export const useGmailMessages = () => {
         throw new Error('Not authenticated');
       }
 
-      // For development/testing, return mock data
-      const mockEmails: EmailMessage[] = [
-        {
-          id: '1',
-          from: 'John Doe <john@example.com>',
-          subject: 'Welcome to GrowthOS',
-          snippet: 'Thank you for joining GrowthOS. Here are some tips to get started...',
-          date: new Date().toISOString(),
-          body: 'Thank you for joining GrowthOS. Here are some tips to get started with our platform...'
-        },
-        {
-          id: '2',
-          from: 'Sarah Smith <sarah@example.com>',
-          subject: 'Product Update',
-          snippet: 'We have some exciting new features to share with you...',
-          date: new Date(Date.now() - 86400000).toISOString(),
-          body: 'We have some exciting new features to share with you. Check out our latest release...'
-        }
-      ];
+      const { data, error } = await supabase
+        .from('emails')
+        .select('*')
+        .order('received_at', { ascending: false });
 
-      return mockEmails;
+      if (error) throw error;
+
+      return data.map(email => ({
+        id: email.message_id,
+        from: email.from_email,
+        subject: email.subject,
+        snippet: email.snippet,
+        body: email.body,
+        date: email.received_at
+      }));
     },
     meta: {
       onError: (error: Error) => {
