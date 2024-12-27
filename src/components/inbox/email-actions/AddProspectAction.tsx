@@ -22,7 +22,7 @@ export const AddProspectAction = ({ fromEmail }: AddProspectActionProps) => {
         .insert({
           company_name: fromEmail.split('@')[1] || fromEmail,
           contact_email: fromEmail,
-          source: 'email',
+          source: 'other', // Changed from 'email' to 'other' to match the lead_source enum
           user_id: user.id,
         });
 
