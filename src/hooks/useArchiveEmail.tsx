@@ -7,35 +7,12 @@ export const useArchiveEmail = () => {
 
   return useMutation({
     mutationFn: async (messageId: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      const { error } = await supabase
+        .from('emails')
+        .update({ is_archived: true })
+        .eq('message_id', messageId);
 
-      const webhookUrl = localStorage.getItem('make_webhook_url_archive');
-      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
-
-      if (!webhookUrl) {
-        toast.error('Make.com archive webhook URL not configured');
-        throw new Error('Make.com archive webhook URL not configured');
-      }
-
-      if (!webhookApiKey) {
-        toast.error('Make.com webhook API key not configured');
-        throw new Error('Make.com webhook API key not configured');
-      }
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': webhookApiKey,
-          'X-Request-ID': crypto.randomUUID(),
-          'X-Rate-Limit': 'true',
-        },
-        body: JSON.stringify({ messageId }),
-      });
-
-      if (!response.ok) throw new Error('Failed to archive message');
-      return response.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });

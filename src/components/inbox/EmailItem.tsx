@@ -57,7 +57,6 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
-              console.log('Archive clicked:', message.id);
             }}
           >
             <Archive className="w-4 h-4 text-gray-400" />
