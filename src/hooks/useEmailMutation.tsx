@@ -16,22 +16,22 @@ export const useEmailMutation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const webhookUrl = localStorage.getItem('make_webhook_url_send');
-      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
+      const httpsUrl = localStorage.getItem('make_https_url_send');
+      const apiKey = localStorage.getItem('make_webhook_api_key');
 
-      if (!webhookUrl) {
-        throw new Error('Make.com webhook URL for sending emails not configured');
+      if (!httpsUrl) {
+        throw new Error('Make.com HTTPS URL for sending emails not configured');
       }
 
-      if (!webhookApiKey) {
-        throw new Error('Make.com webhook API key not configured');
+      if (!apiKey) {
+        throw new Error('Make.com API key not configured');
       }
 
-      const response = await fetch(webhookUrl, {
+      const response = await fetch(httpsUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': webhookApiKey,
+          'X-API-Key': apiKey,
           'X-Request-ID': crypto.randomUUID(),
           'X-Rate-Limit': 'true',
         },
