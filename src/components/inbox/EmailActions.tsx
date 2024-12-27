@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Archive, Star, Reply, Clock, Trash2 } from "lucide-react";
-import { Archive } from "lucide-react";
 import { useArchiveEmail } from "@/hooks/useArchiveEmail";
 import { useStarEmail, useSnoozeEmail, useTrashEmail } from "@/hooks/useEmailActions";
 import {
