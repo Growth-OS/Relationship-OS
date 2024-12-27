@@ -17,40 +17,44 @@ export const useEmailMutation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      console.log('Sending test email to Zapier webhook...');
+      console.log('Preparing to send email...', replyToMessageId ? 'Reply' : 'New email');
       
       try {
-        const response = await fetch('https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/', {
+        // Use different webhook URLs based on whether it's a reply or new email
+        const webhookUrl = replyToMessageId 
+          ? 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/reply'  // Replace with your reply webhook
+          : 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';      // Your existing webhook for new emails
+
+        console.log('Using webhook:', webhookUrl);
+
+        const response = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           mode: 'no-cors',
           body: JSON.stringify({
-            to: "test@example.com", // Test recipient
-            subject: "Test Email from GrowthOS",
+            to,
+            subject,
             content: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h1>This is a test email</h1>
-              <p>Testing Zapier webhook integration</p>
-              <p>Timestamp: ${new Date().toISOString()}</p>
+              ${content}
             </div>`,
             user_id: session.user.id,
             reply_to_message_id: replyToMessageId,
             timestamp: new Date().toISOString(),
+            is_reply: !!replyToMessageId
           }),
         });
 
-        // With no-cors mode, we won't get response details
-        // Instead, we'll assume success if no error was thrown
-        console.log('Webhook request completed');
+        console.log('Email request sent successfully');
         return true;
       } catch (error) {
-        console.error('Error sending to webhook:', error);
+        console.error('Error sending email:', error);
         throw new Error('Failed to send email through webhook');
       }
     },
     onSuccess: () => {
-      toast.success('Test email sent successfully');
+      toast.success('Email sent successfully');
       queryClient.invalidateQueries({ queryKey: ['emails'] });
     },
     onError: (error: Error) => {
