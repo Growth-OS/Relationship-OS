@@ -7,9 +7,9 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background dark:bg-[#1A1F2C]">
       <Sidebar />
-      <main className="ml-64 w-[calc(100%-16rem)] min-h-screen">
+      <main className="ml-64 w-[calc(100%-16rem)] min-h-screen dark:bg-[#1A1F2C]">
         <div className="max-w-[1400px] mx-auto px-6 py-8">
           {children}
         </div>

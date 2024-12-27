@@ -73,6 +73,16 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans dark:bg-[#1A1F2C] dark:text-white;
   }
+}
+
+/* Add styles for active sidebar items */
+.sidebar-item.active {
+  @apply bg-black text-white dark:bg-[#000000e6] dark:text-white;
+}
+
+/* Add hover effects for sidebar items */
+.sidebar-item:hover:not(.active) {
+  @apply bg-gray-100 dark:bg-[#2A2F3C];
 }
