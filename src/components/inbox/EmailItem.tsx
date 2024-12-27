@@ -23,58 +23,44 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
       onClick={() => onSelect(message.id)}
     >
       <div className="px-6 py-4">
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-3 mb-1">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white uppercase">
                 {message.from.charAt(0)}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium truncate text-gray-900 text-left">
-                    {message.from}
-                  </p>
-                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
-                    {new Date(message.date).toLocaleString()}
-                  </span>
-                </div>
+              <div>
+                <p className="font-medium text-gray-900">
+                  {message.from}
+                </p>
+                <span className="text-xs text-gray-500">
+                  {new Date(message.date).toLocaleString()}
+                </span>
               </div>
             </div>
-            <p className="font-medium mb-1 text-gray-900 text-left">
+            <EmailActions 
+              messageId={message.id}
+              originalSubject={message.subject}
+              originalFrom={message.from}
+              isStarred={message.is_starred}
+            />
+          </div>
+          
+          <div>
+            <p className="font-medium mb-1 text-gray-900">
               {message.subject}
             </p>
             {!isSelected && (
-              <p className="text-sm line-clamp-1 text-gray-600 text-left">
+              <p className="text-sm line-clamp-1 text-gray-600">
                 {message.snippet}
               </p>
             )}
             {isSelected && (
-              <div className="mt-6 space-y-6">
-                <div 
-                  className="text-sm prose max-w-none text-gray-800 text-left"
-                  dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
-                />
-                <EmailActions 
-                  messageId={message.id}
-                  originalSubject={message.subject}
-                  originalFrom={message.from}
-                  isStarred={message.is_starred}
-                />
-              </div>
+              <div 
+                className="mt-6 text-sm prose max-w-none text-gray-800"
+                dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
+              />
             )}
-          </div>
-          <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-gray-400 hover:text-gray-600"
-              onClick={(e) => {
-                e.stopPropagation();
-                archiveMutation.mutate(message.id);
-              }}
-            >
-              <Archive className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </div>
