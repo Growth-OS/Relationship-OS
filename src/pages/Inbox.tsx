@@ -9,7 +9,7 @@ import { useState } from "react";
 
 const Inbox = () => {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
-  const [currentFilter, setCurrentFilter] = useState<'inbox' | 'starred' | 'snoozed' | 'archived' | 'trash'>('inbox');
+  const [currentFilter, setCurrentFilter] = useState<'inbox' | 'starred' | 'snoozed' | 'archived' | 'trash' | 'sent'>('inbox');
 
   return (
     <div className="space-y-6 animate-fade-in">

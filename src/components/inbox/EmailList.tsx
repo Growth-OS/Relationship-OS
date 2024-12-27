@@ -5,7 +5,7 @@ import { useGmailMessages } from "@/hooks/useGmailMessages";
 interface EmailListProps {
   selectedMessageId: string | null;
   setSelectedMessageId: (id: string | null) => void;
-  filter: 'inbox' | 'starred' | 'snoozed' | 'archived' | 'trash';
+  filter: 'inbox' | 'starred' | 'snoozed' | 'archived' | 'trash' | 'sent';
 }
 
 export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: EmailListProps) => {
@@ -29,7 +29,10 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
         return !email.is_starred && 
                !email.is_archived && 
                !email.is_trashed && 
-               !email.snoozed_until;
+               !email.snoozed_until &&
+               !email.is_sent;
+      case 'sent':
+        return email.is_sent && !email.is_trashed;
       case 'starred':
         return email.is_starred && !email.is_trashed;
       case 'snoozed':
