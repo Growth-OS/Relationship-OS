@@ -68,7 +68,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
-              const archiveButton = document.querySelector(`button[data-message-id="${message.id}"]`);
+              const archiveButton = document.querySelector<HTMLButtonElement>(`button[data-message-id="${message.id}"]`);
               archiveButton?.click();
             }}
           >
