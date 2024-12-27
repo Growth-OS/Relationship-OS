@@ -22,7 +22,7 @@ export const useEmailMutation = () => {
       console.log('Email content:', content);
       
       // Use single webhook for both new emails and replies
-      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28zi7rp/';
+      const webhookUrl = 'https://hooks.zapier.com/hooks/catch/20724321/28z9bpa/';
       
       console.log('Using webhook:', webhookUrl);
 
