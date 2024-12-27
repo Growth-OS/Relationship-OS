@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Archive } from "lucide-react";
 import { EmailActions } from "./EmailActions";
 import type { EmailMessage } from "@/hooks/useGmailMessages";
+import { useArchiveEmail } from "@/hooks/useArchiveEmail";
 
 interface EmailItemProps {
   message: EmailMessage;
@@ -10,6 +11,8 @@ interface EmailItemProps {
 }
 
 export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => {
+  const archiveMutation = useArchiveEmail();
+
   return (
     <div 
       className={`p-4 hover:bg-gray-50 cursor-pointer relative group transition-colors ${
@@ -57,6 +60,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
+              archiveMutation.mutate(message.id);
             }}
           >
             <Archive className="w-4 h-4 text-gray-400" />

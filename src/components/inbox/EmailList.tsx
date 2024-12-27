@@ -28,11 +28,11 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
       case 'inbox':
         return !email.is_archived && !email.is_trashed && !email.snoozed_until;
       case 'starred':
-        return email.is_starred;
+        return email.is_starred && !email.is_trashed;
       case 'snoozed':
         return email.snoozed_until && new Date(email.snoozed_until) > new Date();
       case 'archived':
-        return email.is_archived;
+        return email.is_archived && !email.is_trashed;
       case 'trash':
         return email.is_trashed;
       default:
