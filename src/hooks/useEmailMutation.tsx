@@ -16,39 +16,17 @@ export const useEmailMutation = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const httpsUrl = localStorage.getItem('make_https_url_send');
-      const apiKey = localStorage.getItem('make_webhook_api_key');
-
-      if (!httpsUrl) {
-        throw new Error('Make.com HTTPS URL for sending emails not configured');
-      }
-
-      if (!apiKey) {
-        throw new Error('Make.com API key not configured');
-      }
-
-      const response = await fetch(httpsUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': apiKey,
-          'X-Request-ID': crypto.randomUUID(),
-          'X-Rate-Limit': 'true',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('emails', {
+        body: {
           to,
           subject,
           content,
           timestamp: new Date().toISOString(),
-        }),
+        }
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send email: ${errorText}`);
-      }
-
-      return response.json();
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       toast.success('Email sent successfully');
