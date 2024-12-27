@@ -12,19 +12,16 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
   const { data: emails, isLoading, error } = useGmailMessages();
 
   if (isLoading) {
-    return <div className="p-4 text-gray-500">Loading emails...</div>;
+    return <div className="p-6 text-gray-500">Loading emails...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-red-500">Error loading emails</div>;
+    return <div className="p-6 text-red-500">Error loading emails</div>;
   }
 
   if (!emails?.length) {
-    return <div className="p-4 text-gray-500">No emails found</div>;
+    return <div className="p-6 text-gray-500">No emails found</div>;
   }
-
-  console.log('Current filter:', filter);
-  console.log('All emails:', emails);
 
   const filteredEmails = emails.filter(email => {
     switch (filter) {
@@ -48,14 +45,12 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
     }
   });
 
-  console.log('Filtered emails:', filteredEmails);
-
   if (!filteredEmails.length) {
-    return <div className="p-4 text-gray-500">No emails found in this category</div>;
+    return <div className="p-6 text-gray-500">No emails found in this category</div>;
   }
 
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="flex-1 bg-white">
       <div className="divide-y divide-gray-100">
         {filteredEmails.map((message) => (
           <EmailItem
