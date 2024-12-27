@@ -23,6 +23,9 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
     return <div className="p-4 text-gray-500">No emails found</div>;
   }
 
+  console.log('Current filter:', filter);
+  console.log('All emails:', emails);
+
   const filteredEmails = emails.filter(email => {
     switch (filter) {
       case 'inbox':
@@ -40,11 +43,14 @@ export const EmailList = ({ selectedMessageId, setSelectedMessageId, filter }: E
       case 'archived':
         return email.is_archived && !email.is_trashed;
       case 'trash':
-        return email.is_trashed;
+        console.log('Checking trash for email:', email);
+        return email.is_trashed === true;
       default:
         return true;
     }
   });
+
+  console.log('Filtered emails:', filteredEmails);
 
   if (!filteredEmails.length) {
     return <div className="p-4 text-gray-500">No emails found in this category</div>;
