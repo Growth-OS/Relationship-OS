@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Archive, Star, Reply, Clock, Trash2 } from "lucide-react";
+import { Archive } from "lucide-react";
 import { useArchiveEmail } from "@/hooks/useArchiveEmail";
 import { useStarEmail, useSnoozeEmail, useTrashEmail } from "@/hooks/useEmailActions";
 import {
@@ -18,6 +19,7 @@ import { useState } from "react";
 import { useEmailMutation } from "@/hooks/useEmailMutation";
 import { Textarea } from "@/components/ui/textarea";
 import { addDays, addWeeks, setHours, startOfTomorrow } from "date-fns";
+import { toast } from "sonner";
 
 interface EmailActionsProps {
   messageId: string;
@@ -53,6 +55,7 @@ export const EmailActions = ({
       setReplyContent('');
     } catch (error) {
       console.error('Error sending reply:', error);
+      toast.error('Failed to send reply');
     }
   };
 
@@ -83,10 +86,20 @@ export const EmailActions = ({
     },
   ];
 
-  const handleSnooze = (getDate: () => Date) => {
-    const snoozeDate = getDate();
-    snoozeMutation.mutate({ messageId, snoozeUntil: snoozeDate });
-    setIsSnoozeOpen(false);
+  const handleSnooze = async (getDate: () => Date) => {
+    try {
+      const snoozeDate = getDate();
+      console.log('Snoozing email until:', snoozeDate);
+      await snoozeMutation.mutateAsync({ 
+        messageId, 
+        snoozeUntil: snoozeDate 
+      });
+      setIsSnoozeOpen(false);
+      toast.success(`Email snoozed until ${snoozeDate.toLocaleString()}`);
+    } catch (error) {
+      console.error('Error snoozing email:', error);
+      toast.error('Failed to snooze email');
+    }
   };
 
   return (

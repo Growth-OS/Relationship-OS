@@ -7,6 +7,7 @@ export const useStarEmail = () => {
 
   return useMutation({
     mutationFn: async ({ messageId, isStarred }: { messageId: string; isStarred: boolean }) => {
+      console.log('Starring email:', messageId, isStarred);
       const { error } = await supabase
         .from('emails')
         .update({ is_starred: isStarred })
@@ -17,6 +18,10 @@ export const useStarEmail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
     },
+    onError: (error) => {
+      console.error('Error starring email:', error);
+      toast.error('Failed to star email');
+    }
   });
 };
 
@@ -25,6 +30,7 @@ export const useSnoozeEmail = () => {
 
   return useMutation({
     mutationFn: async ({ messageId, snoozeUntil }: { messageId: string; snoozeUntil: Date }) => {
+      console.log('Snoozing email:', messageId, 'until:', snoozeUntil);
       const { error } = await supabase
         .from('emails')
         .update({ snoozed_until: snoozeUntil.toISOString() })
@@ -34,8 +40,11 @@ export const useSnoozeEmail = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
-      toast.success('Email snoozed');
     },
+    onError: (error) => {
+      console.error('Error snoozing email:', error);
+      throw error; // Let the component handle the error
+    }
   });
 };
 
@@ -50,18 +59,15 @@ export const useTrashEmail = () => {
         .update({ is_trashed: true })
         .eq('message_id', messageId);
 
-      if (error) {
-        console.error('Error trashing email:', error);
-        throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       toast.success('Email moved to trash');
     },
     onError: (error) => {
-      console.error('Failed to trash email:', error);
+      console.error('Error trashing email:', error);
       toast.error('Failed to move email to trash');
-    },
+    }
   });
 };
