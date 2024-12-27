@@ -24,8 +24,8 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
     >
       <div className="px-6 py-4">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center justify-between gap-8">
+            <div className="flex items-center gap-3 min-w-0 flex-shrink">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white uppercase">
                 {message.from.charAt(0)}
               </div>
@@ -38,7 +38,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
                 </span>
               </div>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 ml-auto">
               <EmailActions 
                 messageId={message.id}
                 originalSubject={message.subject}
