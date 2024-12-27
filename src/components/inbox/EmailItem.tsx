@@ -30,7 +30,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           <p className="text-sm font-medium text-gray-700 mb-1">
             {message.subject}
           </p>
-          <p className="text-sm text-gray-500 line-clamp-1">
+          <p className="text-sm text-gray-500 line-clamp-2">
             {message.snippet}
           </p>
           {isSelected && (

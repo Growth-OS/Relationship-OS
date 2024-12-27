@@ -15,32 +15,29 @@ export const useGmailMessages = () => {
   return useQuery({
     queryKey: ['emails'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
-
+      console.log('Fetching emails...');
       const { data, error } = await supabase
         .from('emails')
         .select('*')
+        .eq('is_archived', false)
         .order('received_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching emails:', error);
+        toast.error('Failed to fetch emails');
+        throw error;
+      }
+
+      console.log('Fetched emails:', data);
 
       return data.map(email => ({
         id: email.message_id,
         from: email.from_email,
         subject: email.subject,
-        snippet: email.snippet,
+        snippet: email.snippet || email.subject,
         body: email.body,
         date: email.received_at
       }));
     },
-    meta: {
-      onError: (error: Error) => {
-        console.error('Email fetch error:', error);
-        toast.error('Failed to fetch emails: ' + error.message);
-      }
-    }
   });
 };
