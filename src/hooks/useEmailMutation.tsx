@@ -6,27 +6,35 @@ interface SendEmailParams {
   to: string;
   subject: string;
   content: string;
+  replyToMessageId?: string;
 }
 
 export const useEmailMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ to, subject, content }: SendEmailParams) => {
+    mutationFn: async ({ to, subject, content, replyToMessageId }: SendEmailParams) => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase.functions.invoke('emails', {
-        body: {
+      // Call Zapier webhook to send email
+      const response = await fetch('YOUR_ZAPIER_WEBHOOK_URL', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
           to,
-          subject,
-          content,
+          subject: replyToMessageId ? `Re: ${subject}` : subject,
+          content: content,
+          user_id: session.user.id,
+          reply_to_message_id: replyToMessageId,
           timestamp: new Date().toISOString(),
-        }
+        }),
       });
 
-      if (error) throw error;
-      return data;
+      return response;
     },
     onSuccess: () => {
       toast.success('Email sent successfully');

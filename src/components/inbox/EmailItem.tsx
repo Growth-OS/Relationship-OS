@@ -43,7 +43,8 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
               />
               <EmailActions 
                 messageId={message.id}
-                onReply={() => console.log('Reply clicked')}
+                originalSubject={message.subject}
+                originalFrom={message.from}
                 onStar={() => console.log('Star clicked')}
               />
             </div>
