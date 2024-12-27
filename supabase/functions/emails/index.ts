@@ -39,6 +39,9 @@ serve(async (req) => {
     const emailData = await req.json();
     console.log('Received email data:', emailData);
 
+    // Generate a unique message ID if not provided
+    const messageId = emailData.id || crypto.randomUUID();
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -48,7 +51,7 @@ serve(async (req) => {
     const { error: insertError } = await supabase
       .from('emails')
       .insert({
-        message_id: emailData.id,
+        message_id: messageId,
         from_email: emailData.from,
         subject: emailData.subject,
         snippet: emailData.snippet,
