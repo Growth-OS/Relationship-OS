@@ -11,26 +11,26 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export const ComposeEmail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
-  const [isSending, setIsSending] = useState(false);
+  const queryClient = useQueryClient();
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const webhookUrl = localStorage.getItem('make_webhook_url_send');
-    if (!webhookUrl) {
-      toast.error('Please configure the Make.com webhook URL for sending emails');
-      return;
-    }
+  const sendEmailMutation = useMutation({
+    mutationFn: async ({ to, subject, content }: { 
+      to: string; 
+      subject: string; 
+      content: string; 
+    }) => {
+      const webhookUrl = localStorage.getItem('make_webhook_url_send');
+      if (!webhookUrl) {
+        throw new Error('Make.com webhook URL for sending emails not configured');
+      }
 
-    setIsSending(true);
-
-    try {
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
@@ -39,25 +39,36 @@ export const ComposeEmail = () => {
         body: JSON.stringify({
           to,
           subject,
-          content
+          content,
+          timestamp: new Date().toISOString(),
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send email');
+        const errorText = await response.text();
+        throw new Error(`Failed to send email: ${errorText}`);
       }
 
+      return response.json();
+    },
+    onSuccess: () => {
       toast.success('Email sent successfully');
       setIsOpen(false);
       setTo("");
       setSubject("");
       setContent("");
-    } catch (error) {
+      // Refresh the email list
+      queryClient.invalidateQueries({ queryKey: ['emails'] });
+    },
+    onError: (error: Error) => {
       console.error('Error sending email:', error);
-      toast.error('Failed to send email. Please try again.');
-    } finally {
-      setIsSending(false);
-    }
+      toast.error(error.message);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendEmailMutation.mutate({ to, subject, content });
   };
 
   return (
@@ -71,7 +82,7 @@ export const ComposeEmail = () => {
         <DialogHeader>
           <DialogTitle>New Email</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSend} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Input
               placeholder="To"
@@ -98,15 +109,19 @@ export const ComposeEmail = () => {
             />
           </div>
           <div className="flex justify-end">
-            <Button type="submit" disabled={isSending}>
-              {isSending ? (
+            <Button 
+              type="submit" 
+              disabled={sendEmailMutation.isPending}
+              className="gap-2"
+            >
+              {sendEmailMutation.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Sending...
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 h-4 w-4" />
+                  <Send className="h-4 w-4" />
                   Send
                 </>
               )}
