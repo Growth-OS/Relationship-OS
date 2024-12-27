@@ -14,10 +14,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import { useEmailMutation } from "@/hooks/useEmailMutation";
 import { Textarea } from "@/components/ui/textarea";
+import { addDays, addWeeks, setHours, startOfTomorrow } from "date-fns";
 
 interface EmailActionsProps {
   messageId: string;
@@ -56,9 +56,36 @@ export const EmailActions = ({
     }
   };
 
-  const handleSnooze = (date: Date | undefined) => {
-    if (!date) return;
-    snoozeMutation.mutate({ messageId, snoozeUntil: date });
+  const snoozeOptions = [
+    {
+      label: "Later Today",
+      getDate: () => setHours(new Date(), 18), // 6 PM today
+    },
+    {
+      label: "Tomorrow",
+      getDate: () => startOfTomorrow(),
+    },
+    {
+      label: "This Weekend",
+      getDate: () => {
+        const today = new Date();
+        const daysUntilSaturday = 6 - today.getDay();
+        return addDays(today, daysUntilSaturday);
+      },
+    },
+    {
+      label: "Next Week",
+      getDate: () => addWeeks(new Date(), 1),
+    },
+    {
+      label: "In a Month",
+      getDate: () => addDays(new Date(), 30),
+    },
+  ];
+
+  const handleSnooze = (getDate: () => Date) => {
+    const snoozeDate = getDate();
+    snoozeMutation.mutate({ messageId, snoozeUntil: snoozeDate });
     setIsSnoozeOpen(false);
   };
 
@@ -124,14 +151,20 @@ export const EmailActions = ({
             Snooze
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-white" align="start">
-          <Calendar
-            mode="single"
-            selected={undefined}
-            onSelect={handleSnooze}
-            disabled={(date) => date < new Date()}
-            initialFocus
-          />
+        <PopoverContent className="w-48 p-0 bg-white" align="start">
+          <div className="py-2">
+            {snoozeOptions.map((option) => (
+              <Button
+                key={option.label}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-none"
+                onClick={() => handleSnooze(option.getDate)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
         </PopoverContent>
       </Popover>
 
