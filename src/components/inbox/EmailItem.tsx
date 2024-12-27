@@ -29,7 +29,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white uppercase">
                 {message.from.charAt(0)}
               </div>
-              <div>
+              <div className="text-left">
                 <p className="font-medium text-gray-900">
                   {message.from}
                 </p>
@@ -46,7 +46,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             />
           </div>
           
-          <div>
+          <div className="text-left">
             <p className="font-medium mb-1 text-gray-900">
               {message.subject}
             </p>
@@ -57,7 +57,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             )}
             {isSelected && (
               <div 
-                className="mt-6 text-sm prose max-w-none text-gray-800"
+                className="mt-6 text-sm prose max-w-none text-gray-800 text-left"
                 dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
               />
             )}
