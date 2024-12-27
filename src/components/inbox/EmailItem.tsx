@@ -35,15 +35,25 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
       if (!session) throw new Error('Not authenticated');
 
       const webhookUrl = localStorage.getItem('make_webhook_url_archive');
+      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
+
       if (!webhookUrl) {
         toast.error('Make.com archive webhook URL not configured');
         throw new Error('Make.com archive webhook URL not configured');
+      }
+
+      if (!webhookApiKey) {
+        toast.error('Make.com webhook API key not configured');
+        throw new Error('Make.com webhook API key not configured');
       }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': webhookApiKey,
+          'X-Request-ID': crypto.randomUUID(),
+          'X-Rate-Limit': 'true',
         },
         body: JSON.stringify({ messageId }),
       });

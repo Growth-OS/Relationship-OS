@@ -13,6 +13,9 @@ import { Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const ComposeEmail = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [to, setTo] = useState("");
@@ -20,21 +23,48 @@ export const ComposeEmail = () => {
   const [content, setContent] = useState("");
   const queryClient = useQueryClient();
 
+  const validateEmail = (email: string): boolean => {
+    return EMAIL_REGEX.test(email);
+  };
+
+  const validateContent = (content: string): boolean => {
+    return content.length <= 10000; // Example limit of 10,000 characters
+  };
+
   const sendEmailMutation = useMutation({
     mutationFn: async ({ to, subject, content }: { 
       to: string; 
       subject: string; 
       content: string; 
     }) => {
+      // Validate email format
+      if (!validateEmail(to)) {
+        throw new Error('Invalid email address');
+      }
+
+      // Validate content length
+      if (!validateContent(content)) {
+        throw new Error('Content exceeds maximum length');
+      }
+
       const webhookUrl = localStorage.getItem('make_webhook_url_send');
+      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
+
       if (!webhookUrl) {
         throw new Error('Make.com webhook URL for sending emails not configured');
+      }
+
+      if (!webhookApiKey) {
+        throw new Error('Make.com webhook API key not configured');
       }
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': webhookApiKey,
+          'X-Request-ID': crypto.randomUUID(), // For request deduplication
+          'X-Rate-Limit': 'true', // Custom header for Make.com rate limiting
         },
         body: JSON.stringify({
           to,
@@ -89,6 +119,8 @@ export const ComposeEmail = () => {
               value={to}
               onChange={(e) => setTo(e.target.value)}
               required
+              pattern={EMAIL_REGEX.source}
+              title="Please enter a valid email address"
             />
           </div>
           <div>
@@ -97,6 +129,7 @@ export const ComposeEmail = () => {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               required
+              maxLength={200}
             />
           </div>
           <div>
@@ -106,6 +139,7 @@ export const ComposeEmail = () => {
               onChange={(e) => setContent(e.target.value)}
               className="min-h-[200px]"
               required
+              maxLength={10000}
             />
           </div>
           <div className="flex justify-end">

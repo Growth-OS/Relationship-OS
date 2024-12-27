@@ -24,9 +24,16 @@ export const useGmailMessages = () => {
       }
 
       const webhookUrl = localStorage.getItem('make_webhook_url');
+      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
+      
       if (!webhookUrl) {
         toast.error('Make.com webhook URL not configured');
         throw new Error('Make.com webhook URL not configured');
+      }
+
+      if (!webhookApiKey) {
+        toast.error('Make.com webhook API key not configured');
+        throw new Error('Make.com webhook API key not configured');
       }
 
       console.log('Fetching emails from Make.com webhook...');
@@ -34,6 +41,9 @@ export const useGmailMessages = () => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': webhookApiKey,
+          'X-Request-ID': crypto.randomUUID(), // For request deduplication
+          'X-Rate-Limit': 'true', // Custom header for Make.com rate limiting
         },
       });
 
@@ -44,21 +54,52 @@ export const useGmailMessages = () => {
       }
 
       const data = await response.json();
+      
+      // Validate response data structure
+      if (!Array.isArray(data.messages)) {
+        throw new Error('Invalid response format: messages array not found');
+      }
+
       console.log('Received emails from Make.com:', data);
 
-      // Transform the Make.com webhook response to match our expected format
-      const messages: EmailMessage[] = data.messages?.map((message: any) => ({
-        id: message.id || String(Math.random()),
-        snippet: message.snippet || message.body || message.content || '',
-        payload: {
-          headers: [
-            { name: 'From', value: message.from || 'Unknown Sender' },
-            { name: 'Subject', value: message.subject || 'No Subject' },
-            { name: 'Date', value: message.date || new Date().toISOString() }
-          ]
-        },
-        labelIds: message.labels || ['INBOX']
-      })) || [];
+      // Transform and validate each message
+      const messages: EmailMessage[] = data.messages?.map((message: any) => {
+        // Validate required fields
+        if (!message.id || (!message.snippet && !message.body && !message.content)) {
+          console.warn('Invalid message format:', message);
+          return null;
+        }
+
+        return {
+          id: message.id || String(Math.random()),
+          snippet: message.snippet || message.body || message.content || '',
+          payload: {
+            headers: [
+              { 
+                name: 'From', 
+                value: message.from || 'Unknown Sender',
+                // Validate email format
+                ...(message.from && !message.from.includes('@') && {
+                  value: `${message.from} <no-reply@unknown.com>`
+                })
+              },
+              { 
+                name: 'Subject', 
+                value: message.subject || 'No Subject' 
+              },
+              { 
+                name: 'Date', 
+                value: message.date || new Date().toISOString(),
+                // Validate date format
+                ...(message.date && isNaN(Date.parse(message.date)) && {
+                  value: new Date().toISOString()
+                })
+              }
+            ]
+          },
+          labelIds: Array.isArray(message.labels) ? message.labels : ['INBOX']
+        };
+      }).filter(Boolean) || []; // Remove any null values from invalid messages
 
       return messages;
     },
