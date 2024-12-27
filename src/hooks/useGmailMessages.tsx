@@ -40,6 +40,8 @@ export const useGmailMessages = () => {
       }
 
       console.log('Fetching emails from Make.com webhook...');
+      console.log('Webhook URL:', webhookUrl);
+      
       const response = await fetch(webhookUrl, {
         method: 'GET',
         headers: {
@@ -52,17 +54,24 @@ export const useGmailMessages = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Make.com webhook error:', errorText);
-        throw new Error(`Failed to fetch messages: ${errorText}`);
+        console.error('Make.com webhook error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Raw response from Make.com:', data);
       
       if (!Array.isArray(data.messages)) {
+        console.error('Invalid response format:', data);
         throw new Error('Invalid response format: messages array not found');
       }
 
-      console.log('Received emails from Make.com:', data);
+      console.log('Processing messages from Make.com...');
 
       const messages: EmailMessage[] = data.messages?.map((message: any) => {
         // Create a snippet from the raw body if no snippet is provided
@@ -110,6 +119,7 @@ export const useGmailMessages = () => {
         };
       }).filter(Boolean) || [];
 
+      console.log('Processed messages:', messages);
       return messages;
     },
     retry: 1,
