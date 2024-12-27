@@ -13,6 +13,7 @@ export const useGmailMessages = () => {
 
       const webhookUrl = localStorage.getItem('make_webhook_url');
       if (!webhookUrl) {
+        toast.error('Make.com webhook URL not configured');
         throw new Error('Make.com webhook URL not configured');
       }
 
