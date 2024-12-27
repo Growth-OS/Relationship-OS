@@ -24,13 +24,13 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
     >
       <div className="px-6 py-4">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white uppercase">
                 {message.from.charAt(0)}
               </div>
-              <div className="text-left">
-                <p className="font-medium text-gray-900">
+              <div className="text-left min-w-0">
+                <p className="font-medium text-gray-900 truncate">
                   {message.from}
                 </p>
                 <span className="text-xs text-gray-500">
@@ -38,16 +38,18 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
                 </span>
               </div>
             </div>
-            <EmailActions 
-              messageId={message.id}
-              originalSubject={message.subject}
-              originalFrom={message.from}
-              isStarred={message.is_starred}
-            />
+            <div className="flex-shrink-0">
+              <EmailActions 
+                messageId={message.id}
+                originalSubject={message.subject}
+                originalFrom={message.from}
+                isStarred={message.is_starred}
+              />
+            </div>
           </div>
           
-          <div className="text-left">
-            <p className="font-medium mb-1 text-gray-900">
+          <div className="text-left min-w-0">
+            <p className="font-medium mb-1 text-gray-900 truncate">
               {message.subject}
             </p>
             {!isSelected && (
@@ -57,7 +59,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             )}
             {isSelected && (
               <div 
-                className="mt-6 text-sm prose max-w-none text-gray-800 text-left"
+                className="mt-6 text-sm prose max-w-none text-gray-800 text-left break-words whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
               />
             )}
