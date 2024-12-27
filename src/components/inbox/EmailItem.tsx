@@ -1,15 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Archive } from "lucide-react";
 import { EmailActions } from "./EmailActions";
-
-interface EmailMessage {
-  id: string;
-  from: string;
-  subject: string;
-  snippet: string;
-  date: string;
-  body?: string;
-}
+import type { EmailMessage } from "@/hooks/useGmailMessages";
 
 interface EmailItemProps {
   message: EmailMessage;
