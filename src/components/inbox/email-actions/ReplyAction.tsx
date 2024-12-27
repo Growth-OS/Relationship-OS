@@ -51,22 +51,24 @@ export const ReplyAction = ({ messageId, originalSubject, originalFrom }: ReplyA
           Reply
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white">
+      <DialogContent className="sm:max-w-[800px] w-[90vw] h-[80vh] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>Reply to Email</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 mt-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-1">Replying to: {originalFrom}</p>
-            <p className="text-sm text-gray-600 mb-4">Subject: {originalSubject}</p>
+        <div className="space-y-4 h-full flex flex-col">
+          <div className="space-y-4 flex-grow">
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">Replying to: {originalFrom}</p>
+              <p className="text-sm text-gray-600">Subject: {originalSubject}</p>
+            </div>
             <Textarea
               placeholder="Write your reply..."
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
-              className="min-h-[200px] bg-white border-gray-200 text-gray-900"
+              className="flex-grow min-h-[400px]"
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-4 border-t">
             <Button
               onClick={handleSendReply}
               disabled={sendEmailMutation.isPending || !replyContent.trim()}

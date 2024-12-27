@@ -12,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
 import { useEmailMutation } from "@/hooks/useEmailMutation";
 
-// Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const ComposeEmail = () => {
@@ -62,12 +61,12 @@ export const ComposeEmail = () => {
           Compose
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[800px] w-[90vw] h-[80vh] max-h-[800px]">
         <DialogHeader>
           <DialogTitle>New Email</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full">
+          <div className="space-y-4 flex-grow">
             <Input
               placeholder="To"
               value={to}
@@ -76,8 +75,6 @@ export const ComposeEmail = () => {
               pattern={EMAIL_REGEX.source}
               title="Please enter a valid email address"
             />
-          </div>
-          <div>
             <Input
               placeholder="Subject"
               value={subject}
@@ -85,18 +82,16 @@ export const ComposeEmail = () => {
               required
               maxLength={200}
             />
-          </div>
-          <div>
             <Textarea
               placeholder="Write your message..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[200px]"
+              className="flex-grow min-h-[400px]"
               required
               maxLength={10000}
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-4 border-t">
             <Button 
               type="submit" 
               disabled={sendEmailMutation.isPending}
