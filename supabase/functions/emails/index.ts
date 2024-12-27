@@ -13,9 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    // Verify webhook secret
+    // Log the incoming webhook secret for debugging
     const webhookSecret = req.headers.get('x-webhook-secret');
-    if (webhookSecret !== Deno.env.get('WEBHOOK_SECRET')) {
+    const expectedSecret = Deno.env.get('WEBHOOK_SECRET');
+    
+    console.log('Received webhook secret:', webhookSecret);
+    console.log('Expected webhook secret:', expectedSecret);
+    console.log('Headers received:', Object.fromEntries(req.headers.entries()));
+
+    if (webhookSecret !== expectedSecret) {
+      console.error('Webhook secret mismatch!');
       return new Response(
         JSON.stringify({ error: 'Invalid webhook secret' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -29,13 +36,13 @@ serve(async (req) => {
       );
     }
 
+    const emailData = await req.json();
+    console.log('Received email data:', emailData);
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
-
-    const emailData = await req.json();
-    console.log('Received email data:', emailData);
 
     // Store email in database
     const { error: insertError } = await supabase
