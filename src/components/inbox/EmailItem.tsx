@@ -31,27 +31,27 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium truncate text-gray-900">
+                  <p className="font-medium truncate text-gray-900 text-left">
                     {message.from}
                   </p>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 ml-2 flex-shrink-0">
                     {new Date(message.date).toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
-            <p className="font-medium mb-1 text-gray-900">
+            <p className="font-medium mb-1 text-gray-900 text-left">
               {message.subject}
             </p>
             {!isSelected && (
-              <p className="text-sm line-clamp-1 text-gray-600">
+              <p className="text-sm line-clamp-1 text-gray-600 text-left">
                 {message.snippet}
               </p>
             )}
             {isSelected && (
               <div className="mt-6 space-y-6">
                 <div 
-                  className="text-sm prose max-w-none text-gray-800"
+                  className="text-sm prose max-w-none text-gray-800 text-left"
                   dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
                 />
                 <EmailActions 
