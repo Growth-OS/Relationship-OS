@@ -9,6 +9,7 @@ import { useState } from "react";
 
 const Inbox = () => {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+  const [currentFilter, setCurrentFilter] = useState<'inbox' | 'starred' | 'snoozed' | 'archived' | 'trash'>('inbox');
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -18,7 +19,10 @@ const Inbox = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-6 h-[calc(100vh-12rem)]">
-        <InboxSidebar />
+        <InboxSidebar 
+          currentFilter={currentFilter}
+          onFilterChange={setCurrentFilter}
+        />
         <Card className="col-span-9 p-0 flex flex-col border-gray-100">
           <Tabs defaultValue="email" className="flex-1">
             <div className="border-b border-gray-100">
@@ -47,6 +51,7 @@ const Inbox = () => {
               <EmailList 
                 selectedMessageId={selectedMessageId}
                 setSelectedMessageId={setSelectedMessageId}
+                filter={currentFilter}
               />
             </TabsContent>
             <TabsContent value="linkedin" className="flex-1 m-0">
