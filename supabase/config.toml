@@ -1,4 +1,11 @@
 project_id = "steunfbcpofecftasvin"
 
-[functions.webhooks]
+[api]
+enabled = true
+url = "https://steunfbcpofecftasvin.supabase.co"
+
+[db]
+port = 5432
+
+[functions.emails]
 verify_jwt = false
