@@ -22,16 +22,16 @@ export const AddProspectAction = ({ fromEmail }: AddProspectActionProps) => {
         .insert({
           company_name: fromEmail.split('@')[1] || fromEmail,
           contact_email: fromEmail,
-          source: 'other', // Changed from 'email' to 'other' to match the lead_source enum
+          source: 'other', // Using 'other' as the source to match the lead_source enum
           user_id: user.id,
         });
 
       if (error) throw error;
 
-      toast.success('Prospect created successfully');
+      toast.success('Prospect added successfully');
     } catch (error) {
       console.error('Error adding prospect:', error);
-      toast.error('Error adding prospect');
+      toast.error('Failed to add prospect');
     }
   };
 
