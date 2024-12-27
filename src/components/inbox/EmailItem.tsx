@@ -18,7 +18,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
     <div 
       className={cn(
         "border-b border-gray-100 transition-colors cursor-pointer",
-        isSelected ? 'bg-[#1A1F2C] text-white' : 'hover:bg-gray-50',
+        isSelected ? 'bg-gray-50' : 'hover:bg-gray-50',
       )}
       onClick={() => onSelect(message.id)}
     >
@@ -31,39 +31,27 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className={cn(
-                    "font-medium truncate",
-                    isSelected ? 'text-white' : 'text-gray-900'
-                  )}>
+                  <p className="font-medium truncate text-gray-900">
                     {message.from}
                   </p>
-                  <span className={cn(
-                    "text-xs",
-                    isSelected ? 'text-gray-300' : 'text-gray-400'
-                  )}>
+                  <span className="text-xs text-gray-500">
                     {new Date(message.date).toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
-            <p className={cn(
-              "font-medium mb-1",
-              isSelected ? 'text-white' : 'text-gray-700'
-            )}>
+            <p className="font-medium mb-1 text-gray-900">
               {message.subject}
             </p>
             {!isSelected && (
-              <p className={cn(
-                "text-sm line-clamp-1",
-                isSelected ? 'text-gray-300' : 'text-gray-500'
-              )}>
+              <p className="text-sm line-clamp-1 text-gray-600">
                 {message.snippet}
               </p>
             )}
             {isSelected && (
               <div className="mt-6 space-y-6">
                 <div 
-                  className="text-sm prose prose-invert max-w-none"
+                  className="text-sm prose max-w-none text-gray-800"
                   dangerouslySetInnerHTML={{ __html: message.body || message.snippet }}
                 />
                 <EmailActions 

@@ -69,25 +69,25 @@ export const EmailActions = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-[#1A1F2C]/10"
+            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
           >
             <Reply className="h-4 w-4 mr-2" />
             Reply
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-[#1A1F2C] text-white">
+        <DialogContent className="sm:max-w-[425px] bg-white">
           <DialogHeader>
             <DialogTitle>Reply to Email</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
-              <p className="text-sm text-gray-300 mb-1">Replying to: {originalFrom}</p>
-              <p className="text-sm text-gray-300 mb-4">Subject: {originalSubject}</p>
+              <p className="text-sm text-gray-600 mb-1">Replying to: {originalFrom}</p>
+              <p className="text-sm text-gray-600 mb-4">Subject: {originalSubject}</p>
               <Textarea
                 placeholder="Write your reply..."
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
-                className="min-h-[200px] bg-[#221F26] border-[#403E43] text-white"
+                className="min-h-[200px] bg-white border-gray-200 text-gray-900"
               />
             </div>
             <div className="flex justify-end">
@@ -106,7 +106,7 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-[#1A1F2C]/10"
+        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
         onClick={() => starMutation.mutate({ messageId, isStarred: !isStarred })}
       >
         <Star className={`h-4 w-4 mr-2 ${isStarred ? 'fill-[#9b87f5] text-[#9b87f5]' : ''}`} />
@@ -118,13 +118,13 @@ export const EmailActions = ({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-[#1A1F2C]/10"
+            className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
           >
             <Clock className="h-4 w-4 mr-2" />
             Snooze
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-white" align="start">
           <Calendar
             mode="single"
             selected={undefined}
@@ -138,7 +138,7 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-[#1A1F2C]/10"
+        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
         onClick={() => archiveMutation.mutate(messageId)}
       >
         <Archive className="h-4 w-4 mr-2" />
@@ -148,7 +148,7 @@ export const EmailActions = ({
       <Button
         variant="ghost"
         size="sm"
-        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-[#1A1F2C]/10"
+        className="text-[#9b87f5] hover:text-[#7E69AB] hover:bg-gray-50"
         onClick={() => trashMutation.mutate(messageId)}
       >
         <Trash2 className="h-4 w-4 mr-2" />
