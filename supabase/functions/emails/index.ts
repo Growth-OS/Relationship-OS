@@ -38,7 +38,6 @@ serve(async (req) => {
     console.log('Received email data:', emailData);
 
     // Store email in database
-    // Note: We'll need to create this table in the next step
     const { error: insertError } = await supabase
       .from('emails')
       .insert({
