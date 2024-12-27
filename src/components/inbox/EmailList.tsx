@@ -1,5 +1,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmailItem } from "./EmailItem";
+import { useGmailMessages } from "@/hooks/useGmailMessages";
 
 interface EmailListProps {
   selectedMessageId: string | null;
@@ -46,10 +47,15 @@ const mockEmails = [
 ];
 
 export const EmailList = ({ selectedMessageId, setSelectedMessageId }: EmailListProps) => {
+  const { data: emails, isLoading, error } = useGmailMessages();
+
+  // Use mock data if webhook is not configured or there's an error
+  const displayEmails = emails || mockEmails;
+
   return (
     <ScrollArea className="flex-1">
       <div className="divide-y divide-gray-100">
-        {mockEmails.map((message) => (
+        {displayEmails.map((message) => (
           <EmailItem
             key={message.id}
             message={message}
