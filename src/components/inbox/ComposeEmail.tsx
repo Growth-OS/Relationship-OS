@@ -10,8 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send } from "lucide-react";
-import { toast } from "sonner";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEmailMutation } from "@/hooks/useEmailMutation";
 
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,84 +20,39 @@ export const ComposeEmail = () => {
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
-  const queryClient = useQueryClient();
+  
+  const sendEmailMutation = useEmailMutation();
 
   const validateEmail = (email: string): boolean => {
     return EMAIL_REGEX.test(email);
   };
 
   const validateContent = (content: string): boolean => {
-    return content.length <= 10000; // Example limit of 10,000 characters
+    return content.length <= 10000;
   };
-
-  const sendEmailMutation = useMutation({
-    mutationFn: async ({ to, subject, content }: { 
-      to: string; 
-      subject: string; 
-      content: string; 
-    }) => {
-      // Validate email format
-      if (!validateEmail(to)) {
-        throw new Error('Invalid email address');
-      }
-
-      // Validate content length
-      if (!validateContent(content)) {
-        throw new Error('Content exceeds maximum length');
-      }
-
-      const webhookUrl = localStorage.getItem('make_webhook_url_send');
-      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
-
-      if (!webhookUrl) {
-        throw new Error('Make.com webhook URL for sending emails not configured');
-      }
-
-      if (!webhookApiKey) {
-        throw new Error('Make.com webhook API key not configured');
-      }
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': webhookApiKey,
-          'X-Request-ID': crypto.randomUUID(), // For request deduplication
-          'X-Rate-Limit': 'true', // Custom header for Make.com rate limiting
-        },
-        body: JSON.stringify({
-          to,
-          subject,
-          content,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to send email: ${errorText}`);
-      }
-
-      return response.json();
-    },
-    onSuccess: () => {
-      toast.success('Email sent successfully');
-      setIsOpen(false);
-      setTo("");
-      setSubject("");
-      setContent("");
-      // Refresh the email list
-      queryClient.invalidateQueries({ queryKey: ['emails'] });
-    },
-    onError: (error: Error) => {
-      console.error('Error sending email:', error);
-      toast.error(error.message);
-    },
-  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sendEmailMutation.mutate({ to, subject, content });
+    
+    if (!validateEmail(to)) {
+      throw new Error('Invalid email address');
+    }
+
+    if (!validateContent(content)) {
+      throw new Error('Content exceeds maximum length');
+    }
+
+    sendEmailMutation.mutate(
+      { to, subject, content },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setTo("");
+          setSubject("");
+          setContent("");
+        }
+      }
+    );
   };
 
   return (

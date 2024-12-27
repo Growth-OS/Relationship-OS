@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Archive, Star, Reply } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Archive } from "lucide-react";
+import { EmailActions } from "./EmailActions";
 
 interface EmailMessage {
   id: string;
@@ -23,52 +21,9 @@ interface EmailItemProps {
 }
 
 export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => {
-  const queryClient = useQueryClient();
-
   const getHeader = (headerName: string) => {
     return message.payload.headers.find(h => h.name.toLowerCase() === headerName.toLowerCase())?.value;
   };
-
-  const archiveMutation = useMutation({
-    mutationFn: async (messageId: string) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const webhookUrl = localStorage.getItem('make_webhook_url_archive');
-      const webhookApiKey = localStorage.getItem('make_webhook_api_key');
-
-      if (!webhookUrl) {
-        toast.error('Make.com archive webhook URL not configured');
-        throw new Error('Make.com archive webhook URL not configured');
-      }
-
-      if (!webhookApiKey) {
-        toast.error('Make.com webhook API key not configured');
-        throw new Error('Make.com webhook API key not configured');
-      }
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': webhookApiKey,
-          'X-Request-ID': crypto.randomUUID(),
-          'X-Rate-Limit': 'true',
-        },
-        body: JSON.stringify({ messageId }),
-      });
-
-      if (!response.ok) throw new Error('Failed to archive message');
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['emails'] });
-      toast.success('Message archived');
-    },
-    onError: () => {
-      toast.error('Failed to archive message');
-    },
-  });
 
   return (
     <div 
@@ -98,36 +53,11 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
               <div className="text-sm text-gray-600 whitespace-pre-wrap">
                 {message.snippet}
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Reply className="w-4 h-4" />
-                  Reply
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Star className="w-4 h-4" />
-                  Star
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    archiveMutation.mutate(message.id);
-                  }}
-                >
-                  <Archive className="w-4 h-4" />
-                  Archive
-                </Button>
-              </div>
+              <EmailActions 
+                messageId={message.id}
+                onReply={() => console.log('Reply clicked')}
+                onStar={() => console.log('Star clicked')}
+              />
             </div>
           )}
         </div>
@@ -138,7 +68,8 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
             className="h-8 w-8"
             onClick={(e) => {
               e.stopPropagation();
-              archiveMutation.mutate(message.id);
+              const archiveButton = document.querySelector(`button[data-message-id="${message.id}"]`);
+              archiveButton?.click();
             }}
           >
             <Archive className="w-4 h-4 text-gray-400" />
