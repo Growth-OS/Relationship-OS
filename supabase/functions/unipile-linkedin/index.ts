@@ -25,6 +25,7 @@ serve(async (req) => {
     }
 
     if (!UNIPILE_API_KEY) {
+      console.error('UNIPILE_API_KEY is not set');
       throw new Error('UNIPILE_API_KEY is not set');
     }
 
@@ -37,6 +38,7 @@ serve(async (req) => {
     );
 
     if (authError || !user) {
+      console.error('Auth error:', authError);
       throw new Error('Invalid user token');
     }
 
@@ -53,6 +55,7 @@ serve(async (req) => {
         
         try {
           // First get all chats
+          console.log('Fetching chats from Unipile API...');
           const chatsResponse = await fetch('https://api.unipile.com/v1/chats', {
             method: 'GET',
             headers: unipileHeaders
@@ -60,7 +63,11 @@ serve(async (req) => {
 
           if (!chatsResponse.ok) {
             const errorText = await chatsResponse.text();
-            console.error('Failed to fetch chats:', errorText);
+            console.error('Failed to fetch chats:', {
+              status: chatsResponse.status,
+              statusText: chatsResponse.statusText,
+              error: errorText
+            });
             throw new Error(`Failed to fetch chats: ${chatsResponse.status} ${errorText}`);
           }
 
@@ -71,6 +78,7 @@ serve(async (req) => {
           const allMessages = [];
           for (const chat of (chats.data || [])) {
             try {
+              console.log(`Fetching messages for chat ${chat.id}...`);
               const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
                 method: 'GET',
                 headers: unipileHeaders
@@ -131,6 +139,7 @@ serve(async (req) => {
           throw new Error('Missing messageId or content');
         }
 
+        console.log('Sending message to chat:', messageId);
         const response = await fetch(`https://api.unipile.com/v1/chats/${messageId}/messages`, {
           method: 'POST',
           headers: unipileHeaders,
@@ -139,7 +148,11 @@ serve(async (req) => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('Failed to send message:', errorText);
+          console.error('Failed to send message:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
           throw new Error(`Failed to send message: ${response.status} ${errorText}`);
         }
 
@@ -174,7 +187,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in edge function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack
+      }), 
       { 
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
