@@ -26,11 +26,14 @@ export const ConnectedServices = () => {
 
   const handleConnectGoogle = async () => {
     try {
+      // Store the current path to redirect back after OAuth
+      localStorage.setItem('oauth_return_path', '/settings/profile');
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-          redirectTo: `${window.location.origin}/settings/profile`,
+          redirectTo: `${window.location.origin}/dashboard/calendar`,
         },
       });
 
