@@ -77,8 +77,7 @@ serve(async (req) => {
           metadata: msg.metadata
         })),
         {
-          onConflict: 'external_id,user_id',
-          ignoreDuplicates: false
+          onConflict: ['external_id', 'user_id']
         }
       );
 
