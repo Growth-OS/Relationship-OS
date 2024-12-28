@@ -6,8 +6,6 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
 import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
 import { DashboardActivity } from "@/components/dashboard/DashboardActivity";
-import { UnifiedInbox } from "@/components/inbox/UnifiedInbox";
-import { useDailyBriefing } from "@/components/dashboard/useDailyBriefing";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Message } from "@/components/dashboard/types";
@@ -99,7 +97,6 @@ const Dashboard = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <UnifiedInbox />
           <DashboardQuickActions />
           <DashboardActivity />
         </div>
