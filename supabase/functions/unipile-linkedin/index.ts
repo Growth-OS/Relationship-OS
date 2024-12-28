@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.1";
 
 const UNIPILE_API_KEY = Deno.env.get('UNIPILE_API_KEY');
@@ -48,28 +47,31 @@ serve(async (req) => {
             headers: {
               'X-API-KEY': UNIPILE_API_KEY!,
               'Accept': 'application/json',
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'User-Agent': 'Supabase Edge Function'
             }
           });
 
           if (!chatsResponse.ok) {
-            console.error('Failed to fetch chats:', await chatsResponse.text());
-            throw new Error(`Failed to fetch chats: ${chatsResponse.statusText}`);
+            const errorText = await chatsResponse.text();
+            console.error('Failed to fetch chats:', errorText);
+            throw new Error(`Failed to fetch chats: ${chatsResponse.status} ${errorText}`);
           }
 
           const chats = await chatsResponse.json();
-          console.log('Fetched chats:', chats);
+          console.log(`Successfully fetched ${chats.data?.length || 0} chats`);
 
           // For each chat, get messages
           const allMessages = [];
-          for (const chat of chats.data) {
+          for (const chat of (chats.data || [])) {
             try {
               const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
                 method: 'GET',
                 headers: {
                   'X-API-KEY': UNIPILE_API_KEY!,
                   'Accept': 'application/json',
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'Supabase Edge Function'
                 }
               });
 
@@ -79,18 +81,20 @@ serve(async (req) => {
               }
 
               const messages = await messagesResponse.json();
-              allMessages.push(...messages.data);
+              if (messages.data) {
+                allMessages.push(...messages.data);
+              }
             } catch (error) {
               console.error(`Error fetching messages for chat ${chat.id}:`, error);
               continue;
             }
           }
 
-          console.log('Total messages fetched:', allMessages.length);
+          console.log(`Successfully fetched ${allMessages.length} total messages`);
 
           // Store messages in Supabase
           for (const msg of allMessages) {
-            await supabaseAdmin
+            const { error: upsertError } = await supabaseAdmin
               .from('linkedin_messages')
               .upsert({
                 user_id: user.id,
@@ -105,11 +109,16 @@ serve(async (req) => {
               }, {
                 onConflict: 'unipile_message_id'
               });
+
+            if (upsertError) {
+              console.error('Error upserting message:', upsertError);
+            }
           }
 
-          return new Response(JSON.stringify({ success: true, count: allMessages.length }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+          return new Response(
+            JSON.stringify({ success: true, count: allMessages.length }), 
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         } catch (error) {
           console.error('Error in getMessages:', error);
           throw error;
@@ -126,20 +135,22 @@ serve(async (req) => {
           headers: {
             'X-API-KEY': UNIPILE_API_KEY!,
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'User-Agent': 'Supabase Edge Function'
           },
           body: JSON.stringify({ content }),
         });
 
         if (!response.ok) {
-          console.error('Failed to send message:', await response.text());
-          throw new Error(`Failed to send message: ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('Failed to send message:', errorText);
+          throw new Error(`Failed to send message: ${response.status} ${errorText}`);
         }
 
         const result = await response.json();
         
         // Store the sent message in Supabase
-        await supabaseAdmin
+        const { error: insertError } = await supabaseAdmin
           .from('linkedin_messages')
           .insert({
             user_id: user.id,
@@ -151,19 +162,27 @@ serve(async (req) => {
             is_outbound: true,
           });
 
-        return new Response(JSON.stringify(result), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
+        if (insertError) {
+          console.error('Error inserting sent message:', insertError);
+        }
+
+        return new Response(
+          JSON.stringify(result),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       default:
         throw new Error('Invalid action');
     }
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('Error in edge function:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }), 
+      { 
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
