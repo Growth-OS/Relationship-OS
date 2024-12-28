@@ -20,6 +20,7 @@ import Calendar from "@/pages/Calendar";
 import Content from "@/pages/Content";
 import Finances from "@/pages/Finances";
 import Projects from "@/pages/Projects";
+import Inbox from "@/pages/Inbox";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
@@ -44,6 +45,10 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: "inbox",
+        element: <Inbox />,
       },
       {
         path: "prospects",
