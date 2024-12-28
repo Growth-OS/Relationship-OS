@@ -28,10 +28,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsAuthenticated(!!session);
         setIsLoading(false);
 
-        // Handle OAuth redirects
+        // Handle OAuth redirects with code parameter
         const params = new URLSearchParams(window.location.search);
-        if (params.get('provider') === 'google' && session) {
-          navigate('/dashboard/calendar', { replace: true });
+        const code = params.get('code');
+        if (code && session) {
+          // Get the stored return path or default to calendar
+          const storedPath = localStorage.getItem('oauth_return_path') || '/dashboard/calendar';
+          localStorage.removeItem('oauth_return_path'); // Clean up
+          navigate(storedPath, { replace: true });
           return;
         }
       } catch (error) {
@@ -53,8 +57,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session) {
           setIsAuthenticated(true);
-          if (location.pathname === '/login') {
-            navigate('/dashboard', { replace: true });
+          // Don't redirect if we're handling an OAuth callback
+          if (!window.location.search.includes('code=')) {
+            if (location.pathname === '/login') {
+              navigate('/dashboard', { replace: true });
+            }
           }
         } else {
           setIsAuthenticated(false);

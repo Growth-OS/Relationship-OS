@@ -7,6 +7,9 @@ const Calendar = () => {
   const { data: calendarData, isLoading } = useGoogleCalendar();
 
   const handleConnect = async () => {
+    // Store the return path before initiating OAuth
+    localStorage.setItem('oauth_return_path', '/dashboard/calendar');
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
