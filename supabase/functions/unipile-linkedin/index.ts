@@ -25,15 +25,23 @@ serve(async (req) => {
 
     // Handle webhook requests
     if (webhookSecret === WEBHOOK_SECRET) {
-      console.log('Processing webhook request...');
+      console.log('Received webhook request with valid secret');
       const webhookData = await req.json() as UnipileWebhookEvent;
+      console.log('Webhook payload:', JSON.stringify(webhookData, null, 2));
       
       if (webhookData.event === 'message_received') {
-        await handleWebhookMessage(supabaseAdmin, webhookData);
-        return new Response(
-          JSON.stringify({ success: true }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        console.log('Processing message_received event');
+        try {
+          await handleWebhookMessage(supabaseAdmin, webhookData);
+          console.log('Successfully processed webhook message');
+          return new Response(
+            JSON.stringify({ success: true }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        } catch (error) {
+          console.error('Error processing webhook message:', error);
+          throw error;
+        }
       }
     }
 

@@ -13,6 +13,12 @@ export const storeMessage = async (
     direction: 'inbound' | 'outbound';
   }
 ) => {
+  console.log('Storing message:', {
+    messageId: message.id,
+    sender: message.sender.name,
+    chatId: message.chat_id
+  });
+
   const { error: insertError } = await supabase
     .from('linkedin_messages')
     .upsert({
@@ -33,15 +39,19 @@ export const storeMessage = async (
     console.error('Error upserting message:', insertError);
     throw insertError;
   }
+
+  console.log('Successfully stored message');
 };
 
 export const handleWebhookMessage = async (
   supabase: ReturnType<typeof createClient>,
   event: UnipileWebhookEvent
 ) => {
-  // TODO: Implement chat_id to user_id mapping
-  // For now, we'll need to handle this limitation
-  console.log('Processing webhook message:', event.message_id);
+  console.log('Processing webhook message:', {
+    messageId: event.message_id,
+    sender: event.sender.attendee_name,
+    chatId: event.chat_id
+  });
   
   const { error: insertError } = await supabase
     .from('linkedin_messages')
@@ -53,8 +63,8 @@ export const handleWebhookMessage = async (
       thread_id: event.chat_id,
       received_at: event.timestamp,
       is_outbound: false,
-      // We'll need to get the user_id from the chat_id mapping
-      // For now, this will fail due to the NOT NULL constraint
+      // For webhook events, we'll need to implement user mapping
+      // For now, this might fail due to the NOT NULL constraint
       user_id: null 
     });
 
@@ -62,4 +72,6 @@ export const handleWebhookMessage = async (
     console.error('Error inserting webhook message:', insertError);
     throw insertError;
   }
+
+  console.log('Successfully processed webhook message');
 };
