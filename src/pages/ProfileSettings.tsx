@@ -15,11 +15,11 @@ const ProfileSettings = () => {
   });
 
   return (
-    <div className="max-w-[800px] space-y-6">
-      <h1 className="text-3xl font-bold">Profile Settings</h1>
+    <div className="max-w-[800px] space-y-6 text-left">
+      <h1 className="text-3xl font-bold text-left">Profile Settings</h1>
       
       <Card className="w-full">
-        <CardHeader className="text-left">
+        <CardHeader>
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>
             Your account details and preferences.
