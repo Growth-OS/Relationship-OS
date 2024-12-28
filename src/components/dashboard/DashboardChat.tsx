@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Sun } from "lucide-react";
+import { Send, Sun, Bot } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { Message } from "./types";
 
@@ -31,20 +31,22 @@ export const DashboardChat = ({
   }, [messages]);
 
   return (
-    <Card className="flex flex-col h-[calc(100vh-13rem)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+    <Card className="flex flex-col h-[calc(100vh-13rem)] bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800 dark:to-gray-900 border border-purple-100 dark:border-gray-700 shadow-lg">
+      <div className="p-4 border-b border-purple-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+        <h2 className="text-lg font-semibold flex items-center gap-2 text-purple-900 dark:text-purple-100">
+          <Bot className="w-5 h-5 text-purple-500" />
           AI Assistant
+          <span className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse"></span>
         </h2>
       </div>
       
       <div 
-        className="flex-1 overflow-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600" 
+        className="flex-1 overflow-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-purple-200 dark:scrollbar-thumb-gray-600" 
         ref={scrollAreaRef}
       >
         {messages.length === 0 && (
-          <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 space-y-4">
+            <Bot className="w-12 h-12 text-purple-400 animate-bounce" />
             <p className="text-center">
               Start a conversation or get your morning briefing
             </p>
@@ -55,14 +57,14 @@ export const DashboardChat = ({
             key={index}
             className={`flex ${
               message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            } animate-fade-in`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+              className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
                 message.role === 'user'
-                  ? 'bg-black text-white dark:bg-gray-700'
-                  : 'bg-gray-100 text-gray-900 dark:bg-gray-600 dark:text-white'
-              }`}
+                  ? 'bg-purple-600 text-white dark:bg-purple-700 ml-12'
+                  : 'bg-white text-gray-900 dark:bg-gray-700 dark:text-white mr-12'
+              } transition-all duration-200 hover:shadow-md`}
             >
               <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
             </div>
@@ -70,7 +72,7 @@ export const DashboardChat = ({
         ))}
       </div>
       
-      <div className="border-t border-gray-200 dark:border-gray-700">
+      <div className="border-t border-purple-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
         <div className="p-4 space-y-4">
           <div className="flex gap-2">
             <Input
@@ -79,13 +81,13 @@ export const DashboardChat = ({
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 bg-white dark:bg-gray-700 border-purple-100 dark:border-gray-600 focus:ring-purple-500"
             />
             <Button 
               onClick={onSend} 
               disabled={isLoading}
               size="icon"
-              className="bg-black text-white hover:bg-black/90 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 transition-colors"
             >
               <Send className="h-4 w-4" />
             </Button>
@@ -95,7 +97,7 @@ export const DashboardChat = ({
             onClick={onMorningBriefing}
             disabled={isLoading}
             variant="outline"
-            className="w-full hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="w-full border-purple-100 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-gray-700 text-purple-600 dark:text-purple-400 transition-colors"
           >
             <Sun className="h-4 w-4 mr-2" />
             Morning Briefing
