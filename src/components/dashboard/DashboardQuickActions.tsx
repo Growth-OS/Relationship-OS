@@ -1,13 +1,39 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, ListTodo, Clock, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export const DashboardQuickActions = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const actions = [
-    { icon: Calendar, label: "Schedule Meeting", action: () => {} },
-    { icon: ListTodo, label: "Create Task", action: () => {} },
-    { icon: Clock, label: "Time Tracking", action: () => {} },
-    { icon: FileText, label: "New Document", action: () => {} },
+    { 
+      icon: Calendar, 
+      label: "Schedule Meeting", 
+      action: () => navigate('/calendar')
+    },
+    { 
+      icon: ListTodo, 
+      label: "Create Task", 
+      action: () => navigate('/tasks')
+    },
+    { 
+      icon: Clock, 
+      label: "Time Tracking", 
+      action: () => {
+        toast({
+          title: "Coming Soon",
+          description: "Time tracking feature will be available soon!",
+        });
+      }
+    },
+    { 
+      icon: FileText, 
+      label: "New Document", 
+      action: () => navigate('/projects')
+    },
   ];
 
   return (
