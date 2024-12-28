@@ -4,9 +4,10 @@ const Calendar = () => {
   return (
     <div className="h-[calc(100vh-2rem)] w-full">
       <iframe
-        src="https://indify.co/widgets/live/calendar/PoMM1Q7jYbg1DNkiT8ID?defaultView=week"
-        className="w-full h-full border-0"
-        allow="clipboard-write"
+        src="https://calendar.google.com/calendar/embed?src=patrick%40relationshipofsales.com&ctz=Europe%2FVilnius"
+        className="w-full h-full"
+        style={{ border: 0 }}
+        scrolling="no"
       />
     </div>
   );
