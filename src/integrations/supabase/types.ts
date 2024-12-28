@@ -720,6 +720,69 @@ export type Database = {
           },
         ]
       }
+      unified_messages: {
+        Row: {
+          content: string
+          created_at: string
+          external_id: string
+          id: string
+          is_archived: boolean | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          labels: string[] | null
+          metadata: Json | null
+          received_at: string
+          sender_avatar_url: string | null
+          sender_email: string | null
+          sender_name: string
+          sender_phone: string | null
+          source: Database["public"]["Enums"]["message_source"]
+          subject: string | null
+          thread_id: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          external_id: string
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: string[] | null
+          metadata?: Json | null
+          received_at: string
+          sender_avatar_url?: string | null
+          sender_email?: string | null
+          sender_name: string
+          sender_phone?: string | null
+          source: Database["public"]["Enums"]["message_source"]
+          subject?: string | null
+          thread_id?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          external_id?: string
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: string[] | null
+          metadata?: Json | null
+          received_at?: string
+          sender_avatar_url?: string | null
+          sender_email?: string | null
+          sender_name?: string
+          sender_phone?: string | null
+          source?: Database["public"]["Enums"]["message_source"]
+          subject?: string | null
+          thread_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -745,6 +808,7 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+      message_source: "email" | "whatsapp" | "linkedin"
       project_status: "active" | "completed" | "on_hold"
       task_source:
         | "deals"
