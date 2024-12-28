@@ -95,18 +95,11 @@ const Dashboard = () => {
     }
   };
 
-  const quickActions = [
-    { icon: Calendar, label: "Schedule Meeting", action: () => {} },
-    { icon: ListTodo, label: "Create Task", action: () => {} },
-    { icon: Clock, label: "Time Tracking", action: () => {} },
-    { icon: FileText, label: "New Document", action: () => {} },
-  ];
-
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header Section */}
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
           Welcome back, {firstName}!
         </h1>
         <p className="text-base text-gray-600 dark:text-gray-400">
@@ -119,17 +112,22 @@ const Dashboard = () => {
         {/* Left Column */}
         <div className="space-y-6">
           {/* Quick Actions */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 border-none">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Quick Actions</h2>
             <div className="grid grid-cols-2 gap-4">
-              {quickActions.map((action, index) => (
+              {[
+                { icon: Calendar, label: "Schedule Meeting", action: () => {} },
+                { icon: ListTodo, label: "Create Task", action: () => {} },
+                { icon: Clock, label: "Time Tracking", action: () => {} },
+                { icon: FileText, label: "New Document", action: () => {} },
+              ].map((action, index) => (
                 <Button
                   key={index}
                   variant="outline"
-                  className="flex items-center justify-start gap-3 h-16 px-4"
+                  className="flex items-center justify-start gap-3 h-16 px-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                   onClick={action.action}
                 >
-                  <action.icon className="h-5 w-5 text-gray-600" />
+                  <action.icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   <span className="text-sm font-medium">{action.label}</span>
                 </Button>
               ))}
@@ -140,10 +138,10 @@ const Dashboard = () => {
           <Card className="p-6">
             <h2 className="text-xl font-semibold mb-4">Activity Overview</h2>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div>
                     <p className="font-medium">Upcoming Meetings</p>
@@ -153,10 +151,10 @@ const Dashboard = () => {
                 <Button variant="ghost" size="sm">View</Button>
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                    <ListTodo className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                    <ListTodo className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
                     <p className="font-medium">Pending Tasks</p>
