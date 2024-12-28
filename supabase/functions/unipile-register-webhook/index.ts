@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -72,6 +73,8 @@ serve(async (req) => {
 
     // Register each webhook with Unipile
     const results = await Promise.all(webhooks.map(async (webhook) => {
+      console.log(`Registering webhook: ${webhook.name}`);
+      
       const response = await fetch('https://api6.unipile.com:13619/api/v1/webhooks', {
         method: 'POST',
         headers: {
@@ -84,7 +87,7 @@ serve(async (req) => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`Error registering ${webhook.name}:`, errorText);
-        throw new Error(`Failed to register ${webhook.name}: ${response.status}`);
+        throw new Error(`Failed to register ${webhook.name}: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
@@ -103,7 +106,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in webhook registration:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
