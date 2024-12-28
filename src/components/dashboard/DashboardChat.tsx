@@ -1,10 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Sun, Calendar } from "lucide-react";
+import { Send, Sun } from "lucide-react";
 import { useRef } from "react";
 import { Message } from "./types";
-import { useNavigate } from "react-router-dom";
 
 interface DashboardChatProps {
   messages: Message[];
@@ -24,11 +23,6 @@ export const DashboardChat = ({
   onMorningBriefing
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  const handleConnectCalendar = () => {
-    navigate('/settings/profile');
-  };
 
   return (
     <Card className="w-full max-w-2xl bg-white border border-gray-100 shadow-sm">
@@ -48,22 +42,7 @@ export const DashboardChat = ({
                     : 'bg-gray-100 text-gray-900'
                 }`}
               >
-                {message.content.includes("No Google Calendar connection found") ? (
-                  <div>
-                    <p className="mb-2">No Google Calendar connection found. Would you like to connect your calendar?</p>
-                    <Button 
-                      onClick={handleConnectCalendar}
-                      variant="secondary"
-                      size="sm"
-                      className="mt-2"
-                    >
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Connect Calendar
-                    </Button>
-                  </div>
-                ) : (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                )}
+                <p className="whitespace-pre-wrap">{message.content}</p>
               </div>
             </div>
           ))}
