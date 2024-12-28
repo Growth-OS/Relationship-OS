@@ -19,10 +19,10 @@ export const useLinkedInMessages = () => {
       const { data, error } = await supabase
         .from('linkedin_messages')
         .select('*')
-        .order('received_at', { ascending: false });
+        .order('received_at', { ascending: false }) as { data: LinkedInMessage[] | null, error: Error | null };
 
       if (error) throw error;
-      return data as LinkedInMessage[];
+      return data || [];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
