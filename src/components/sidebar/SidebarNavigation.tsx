@@ -11,6 +11,7 @@ export const SidebarNavigation = () => {
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
+    { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
@@ -19,12 +20,6 @@ export const SidebarNavigation = () => {
   ];
 
   const betaFeatures = [
-    { 
-      icon: Calendar,
-      label: "Calendar",
-      path: "/dashboard/calendar",
-      beta: true
-    },
     { 
       icon: Inbox, 
       label: "Inbox", 
