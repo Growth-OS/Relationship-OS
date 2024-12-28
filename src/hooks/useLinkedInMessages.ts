@@ -1,31 +1,50 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { Database } from '@/integrations/supabase/types';
 import type { LinkedInMessage } from '@/integrations/supabase/types/linkedin';
 
 export const useLinkedInMessages = () => {
   const queryClient = useQueryClient();
 
-  const { data: messages, isLoading } = useQuery({
+  const { data: messages, isLoading, error } = useQuery({
     queryKey: ['linkedin-messages'],
     queryFn: async () => {
+      console.log('Fetching LinkedIn messages...');
+      
       // First, sync messages from Unipile
-      await supabase.functions.invoke('unipile-linkedin', {
+      const { data: syncData, error: syncError } = await supabase.functions.invoke('unipile-linkedin', {
         body: { action: 'getMessages' }
       });
+
+      if (syncError) {
+        console.error('Error syncing messages from Unipile:', syncError);
+        throw syncError;
+      }
+      
+      console.log('Sync completed, fetching messages from database...');
 
       // Then fetch from our local database
       const { data, error } = await supabase
         .from('linkedin_messages')
         .select('*')
-        .order('received_at', { ascending: false }) as { data: LinkedInMessage[] | null, error: Error | null };
+        .order('received_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages from database:', error);
+        throw error;
+      }
+
+      console.log('Messages fetched:', data?.length || 0, 'messages found');
       return data || [];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
+
+  // Show error toast if there's an error
+  if (error) {
+    console.error('Error in useLinkedInMessages:', error);
+    toast.error('Failed to load LinkedIn messages');
+  }
 
   const sendMessage = useMutation({
     mutationFn: async ({ threadId, content }: { threadId: string, content: string }) => {
@@ -53,6 +72,7 @@ export const useLinkedInMessages = () => {
   return {
     messages,
     isLoading,
+    error,
     sendMessage,
   };
 };
