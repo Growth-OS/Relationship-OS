@@ -33,9 +33,6 @@ const Dashboard = () => {
 
   const formatBriefing = (briefing: ReturnType<typeof generateBriefing>) => {
     let message = `Here's your daily briefing:\n\n`;
-    if (briefing.unreadEmails > 0) {
-      message += `📧 You have ${briefing.unreadEmails} unread email${briefing.unreadEmails === 1 ? '' : 's'}\n\n`;
-    }
     if (briefing.pendingTasks.total > 0) {
       message += `📝 You have ${briefing.pendingTasks.total} pending task${briefing.pendingTasks.total === 1 ? '' : 's'}:\n`;
       briefing.pendingTasks.items.forEach(task => {
@@ -45,8 +42,8 @@ const Dashboard = () => {
         message += `... and ${briefing.pendingTasks.total - 5} more tasks\n`;
       }
     }
-    if (briefing.unreadEmails === 0 && briefing.pendingTasks.total === 0) {
-      message += "🎉 You're all caught up! No pending tasks or unread emails.";
+    if (briefing.pendingTasks.total === 0) {
+      message += "🎉 You're all caught up! No pending tasks.";
     }
     return message;
   };

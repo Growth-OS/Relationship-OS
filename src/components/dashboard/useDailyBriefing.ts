@@ -16,24 +16,8 @@ export const useDailyBriefing = () => {
     },
   });
 
-  const { data: emails } = useQuery({
-    queryKey: ["emails"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .eq('is_read', false)
-        .eq('is_archived', false)
-        .eq('is_trashed', false)
-        .is('snoozed_until', null);
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const generateBriefing = (): DailyBriefing => {
     return {
-      unreadEmails: emails?.length || 0,
       pendingTasks: {
         total: tasks?.length || 0,
         items: tasks?.slice(0, 5).map(task => ({
