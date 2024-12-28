@@ -20,10 +20,10 @@ interface Email {
   is_trashed: boolean;
 }
 
-export const EmailList = () => {
+export const EmailList = ({ className }: { className?: string }) => {
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   
-  const { data: emails = [], isLoading } = useQuery({
+  const { data: emails = [], isLoading, refetch } = useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -67,6 +67,7 @@ export const EmailList = () => {
         .from("emails")
         .update({ is_read: true })
         .eq("id", email.id);
+      refetch();
     }
   };
 
@@ -76,7 +77,7 @@ export const EmailList = () => {
 
   return (
     <>
-      <ScrollArea className="h-[calc(100vh-13rem)]">
+      <ScrollArea className={`h-[calc(100vh-13rem)] ${className}`}>
         <div className="space-y-1">
           {emails.map((email) => (
             <div

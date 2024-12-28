@@ -2,13 +2,36 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen, Mail } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 export const SidebarNavigation = () => {
   const location = useLocation();
   
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['unreadEmails'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('emails')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .eq('is_trashed', false)
+        .eq('is_archived', false);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Mail, label: "Inbox", path: "/dashboard/inbox" },
+    { 
+      icon: Mail, 
+      label: "Inbox", 
+      path: "/dashboard/inbox",
+      badge: unreadCount > 0 ? unreadCount : undefined 
+    },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
@@ -35,8 +58,11 @@ export const SidebarNavigation = () => {
         {mainMenuItems.map((item) => (
           <SidebarMenuItem
             key={item.path}
-            {...item}
+            icon={item.icon}
+            label={item.label}
+            path={item.path}
             isActive={location.pathname === item.path}
+            badge={item.badge}
           />
         ))}
       </nav>
@@ -46,8 +72,11 @@ export const SidebarNavigation = () => {
           {betaFeatures.map((item) => (
             <SidebarMenuItem
               key={item.path}
-              {...item}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
               isActive={location.pathname === item.path}
+              beta={item.beta}
             />
           ))}
         </div>
