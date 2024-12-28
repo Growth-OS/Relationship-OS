@@ -29,9 +29,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
 
         // Handle OAuth redirects
-        const isOAuthRedirect = location.hash.includes('access_token') || 
-                              location.hash.includes('error') || 
-                              location.search.includes('code');
+        const hasOAuthCode = location.search.includes('code=');
+        const hasOAuthError = location.search.includes('error=');
+        const isOAuthRedirect = hasOAuthCode || hasOAuthError;
         
         if (isOAuthRedirect && session) {
           // Get the intended redirect path from localStorage or default to dashboard
@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     // Store the current path before OAuth redirect
-    if (location.pathname.startsWith('/dashboard/calendar')) {
+    if (location.pathname === '/dashboard/calendar') {
       localStorage.setItem('oauthRedirectPath', location.pathname);
     }
   }, [location.pathname]);
