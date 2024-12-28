@@ -14,6 +14,7 @@ export interface EmailMessage {
   is_trashed?: boolean;
   snoozed_until?: string | null;
   is_sent?: boolean;
+  is_read?: boolean;
 }
 
 export const useGmailMessages = () => {
@@ -45,7 +46,8 @@ export const useGmailMessages = () => {
         is_archived: email.is_archived,
         is_trashed: email.is_trashed,
         snoozed_until: email.snoozed_until,
-        is_sent: email.is_sent
+        is_sent: email.is_sent,
+        is_read: email.is_read
       }));
     },
   });
