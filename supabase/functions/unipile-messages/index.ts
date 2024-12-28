@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -24,8 +25,15 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get user from auth header
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-    if (userError || !user) throw new Error('Invalid user token');
+    const { data: { user }, error: userError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (userError || !user) {
+      throw new Error('Invalid user token');
+    }
+
+    console.log('Fetching messages for user:', user.id);
 
     // Initialize Unipile client
     const unipileClient = new UnipileClient(
@@ -35,6 +43,7 @@ serve(async (req) => {
 
     // Get messages from all connected services
     const messages = await unipileClient.messaging.getAllMessages();
+    console.log(`Fetched ${messages.length} messages from Unipile`);
 
     // Store messages in unified_messages table
     const { error: insertError } = await supabase
@@ -42,14 +51,14 @@ serve(async (req) => {
       .upsert(
         messages.map(msg => ({
           user_id: user.id,
-          source: msg.source,
+          source: msg.source?.toLowerCase() || 'email',
           external_id: msg.id,
-          sender_name: msg.sender?.name || 'Unknown',
+          sender_name: msg.sender?.name || msg.sender?.email || 'Unknown',
           sender_email: msg.sender?.email,
           sender_avatar_url: msg.sender?.avatar_url,
-          content: msg.content,
-          subject: msg.subject,
-          received_at: msg.timestamp,
+          content: msg.content || msg.snippet || 'No content available',
+          subject: msg.subject || 'No subject',
+          received_at: msg.timestamp || new Date().toISOString(),
           thread_id: msg.thread_id,
           metadata: msg
         })),
