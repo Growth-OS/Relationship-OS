@@ -6,6 +6,8 @@ import { DashboardChat } from "@/components/dashboard/DashboardChat";
 import { useDailyBriefing } from "@/components/dashboard/useDailyBriefing";
 import { Message } from "@/components/dashboard/types";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Clock, Calendar, ListTodo, FileText } from "lucide-react";
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -93,22 +95,82 @@ const Dashboard = () => {
     }
   };
 
+  const quickActions = [
+    { icon: Calendar, label: "Schedule Meeting", action: () => {} },
+    { icon: ListTodo, label: "Create Task", action: () => {} },
+    { icon: Clock, label: "Time Tracking", action: () => {} },
+    { icon: FileText, label: "New Document", action: () => {} },
+  ];
+
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back, {firstName}!</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Here's an overview of your workspace</p>
-        </div>
+      {/* Header Section */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Welcome back, {firstName}!
+        </h1>
+        <p className="text-base text-gray-600 dark:text-gray-400">
+          Here's what's happening in your workspace today
+        </p>
       </div>
 
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6 col-span-1">
-          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-          {/* Quick actions will be added here in future updates */}
-        </Card>
+        {/* Left Column */}
+        <div className="space-y-6">
+          {/* Quick Actions */}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {quickActions.map((action, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="flex items-center justify-start gap-3 h-16 px-4"
+                  onClick={action.action}
+                >
+                  <action.icon className="h-5 w-5 text-gray-600" />
+                  <span className="text-sm font-medium">{action.label}</span>
+                </Button>
+              ))}
+            </div>
+          </Card>
 
-        <div className="col-span-1">
+          {/* Activity Overview */}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Activity Overview</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Upcoming Meetings</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">2 meetings today</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">View</Button>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                    <ListTodo className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Pending Tasks</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">5 tasks due today</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="sm">View</Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column - Chat */}
+        <div>
           <DashboardChat
             messages={messages}
             input={input}
