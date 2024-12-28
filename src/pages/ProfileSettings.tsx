@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
-import { ConnectedServices } from "@/components/settings/profile/ConnectedServices";
 import { useState } from "react";
 
 const ProfileSettings = () => {
@@ -92,8 +91,6 @@ const ProfileSettings = () => {
           </div>
         </CardContent>
       </Card>
-
-      <ConnectedServices />
 
       <Card>
         <CardHeader>
