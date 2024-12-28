@@ -34,7 +34,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                               location.search.includes('code');
         
         if (isOAuthRedirect && session) {
-          navigate('/dashboard', { replace: true });
+          // Get the intended redirect path from localStorage or default to dashboard
+          const redirectPath = localStorage.getItem('oauthRedirectPath') || '/dashboard';
+          localStorage.removeItem('oauthRedirectPath'); // Clean up
+          navigate(redirectPath, { replace: true });
         }
       } catch (error) {
         console.error("Session check error:", error);
@@ -68,6 +71,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       subscription.unsubscribe();
     };
   }, [navigate, location]);
+
+  useEffect(() => {
+    // Store the current path before OAuth redirect
+    if (location.pathname.startsWith('/dashboard/calendar')) {
+      localStorage.setItem('oauthRedirectPath', location.pathname);
+    }
+  }, [location.pathname]);
 
   if (isLoading) {
     return null;

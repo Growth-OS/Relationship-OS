@@ -11,7 +11,11 @@ const Calendar = () => {
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-        redirectTo: `${window.location.origin}/dashboard/calendar`
+        redirectTo: `${window.location.origin}/dashboard/calendar`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
       }
     });
 
