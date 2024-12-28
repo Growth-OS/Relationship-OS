@@ -2,12 +2,18 @@ import { AuthProvider, OAuthConnection, Profile, Team, TeamMember, UserRole } fr
 import { AIPrompt, LinkedInProfile, SubstackPost } from './content';
 import { Deal, DealStage, LeadSource, Prospect } from './deals';
 import { AffiliateEarning, AffiliatePartner, FinancialTransaction, TransactionAttachment, TransactionType } from './finances';
+import { LinkedInMessage } from './linkedin';
 import { Project, ProjectCredential, ProjectDocument, ProjectStatus } from './projects';
 import { Task, TaskSource } from './tasks';
 
 export type Database = {
   public: {
     Tables: {
+      linkedin_messages: {
+        Row: LinkedInMessage;
+        Insert: Partial<LinkedInMessage> & Pick<LinkedInMessage, 'unipile_message_id' | 'sender_name' | 'content' | 'received_at' | 'user_id'>;
+        Update: Partial<LinkedInMessage>;
+      };
       affiliate_earnings: {
         Row: AffiliateEarning;
         Insert: Partial<AffiliateEarning> & Pick<AffiliateEarning, 'partner_id' | 'amount' | 'date' | 'user_id'>;
@@ -116,5 +122,6 @@ export * from './auth';
 export * from './content';
 export * from './deals';
 export * from './finances';
+export * from './linkedin';
 export * from './projects';
 export * from './tasks';

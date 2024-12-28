@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { LinkedInMessage } from '@/integrations/supabase/types/linkedin';
 
 export const useLinkedInMessages = () => {
   const queryClient = useQueryClient();
@@ -20,7 +21,7 @@ export const useLinkedInMessages = () => {
         .order('received_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as LinkedInMessage[];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
   });
