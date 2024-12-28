@@ -39,9 +39,13 @@ export const CreatePromptForm = ({ onSuccess }: CreatePromptFormProps) => {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Prompt Name</FormLabel>
+              <FormLabel className="text-sm font-medium text-muted-foreground">Prompt Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter prompt name" {...field} />
+                <Input 
+                  placeholder="Enter prompt name" 
+                  {...field}
+                  className="bg-background border-muted"
+                />
               </FormControl>
             </FormItem>
           )}
@@ -51,18 +55,18 @@ export const CreatePromptForm = ({ onSuccess }: CreatePromptFormProps) => {
           name="prompt"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Prompt Content</FormLabel>
+              <FormLabel className="text-sm font-medium text-muted-foreground">Prompt Content</FormLabel>
               <FormControl>
                 <Textarea 
                   placeholder="Enter your prompt here..."
-                  className="min-h-[100px]"
+                  className="min-h-[100px] bg-background border-muted"
                   {...field}
                 />
               </FormControl>
             </FormItem>
           )}
         />
-        <Button type="submit">
+        <Button type="submit" variant="outline" className="w-full">
           Create Prompt
         </Button>
       </form>

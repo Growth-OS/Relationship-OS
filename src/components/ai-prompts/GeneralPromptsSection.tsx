@@ -11,7 +11,6 @@ export const GeneralPromptsSection = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query to fetch all general prompts
   const { data: prompts, isLoading, error } = useQuery<AIPrompt[]>({
     queryKey: ["aiPrompts", "general_prompt"],
     queryFn: async () => {
@@ -26,7 +25,6 @@ export const GeneralPromptsSection = () => {
     },
   });
 
-  // Delete mutation
   const deletePromptMutation = useMutation({
     mutationFn: async (promptId: string) => {
       const { error } = await supabase
@@ -66,14 +64,14 @@ export const GeneralPromptsSection = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-none shadow-none bg-transparent">
+      <CardHeader className="px-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5" />
-          <CardTitle>AI Prompts</CardTitle>
+          <Sparkles className="w-4 h-4 text-muted-foreground" />
+          <CardTitle className="text-lg font-medium">Prompts</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-0">
         <CreatePromptForm onSuccess={handleFormSuccess} />
         <PromptsTable 
           prompts={prompts || []}
