@@ -7,7 +7,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDealForm } from "@/components/crm/CreateDealForm";
 import { stages } from "@/components/crm/form-fields/StageSelect";
-import { toast } from "sonner";
 import { DealFormData } from "@/components/crm/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
