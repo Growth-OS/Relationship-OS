@@ -7,6 +7,7 @@ import { handleDealData } from './handlers/dealHandler.ts';
 import { handleAffiliateData } from './handlers/affiliateHandler.ts';
 import { handleSubstackData } from './handlers/substackHandler.ts';
 import { handleProspectData } from './handlers/prospectHandler.ts';
+import { handleCalendarData } from './handlers/calendarHandler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -52,6 +53,10 @@ serve(async (req) => {
       await handleProspectData(supabase, userId, contextData);
     }
 
+    if (isCalendarQuery(message)) {
+      await handleCalendarData(supabase, userId, contextData);
+    }
+
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -76,6 +81,12 @@ When analyzing data:
 - Include relevant dates in DD/MM/YYYY format
 - Highlight urgent or important items
 - Provide context when relevant
+
+When discussing calendar events:
+- Format times in a user-friendly way
+- Highlight conflicts or busy periods
+- Mention free time slots when relevant
+- Group events by day when listing multiple events
 
 Current context data: ${JSON.stringify(contextData)}`,
           },
@@ -130,5 +141,10 @@ const isSubstackQuery = (message: string): boolean => {
 
 const isProspectQuery = (message: string): boolean => {
   const keywords = ['prospect', 'lead', 'contact', 'potential', 'opportunity'];
+  return keywords.some(keyword => message.toLowerCase().includes(keyword));
+};
+
+const isCalendarQuery = (message: string): boolean => {
+  const keywords = ['calendar', 'schedule', 'meeting', 'appointment', 'event', 'availability', 'free time', 'busy'];
   return keywords.some(keyword => message.toLowerCase().includes(keyword));
 };
