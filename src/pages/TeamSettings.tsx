@@ -15,14 +15,17 @@ const TeamSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { data, error } = await supabase
-        .from("teams")
-        .select("*")
-        .eq("owner_id", user.id)
+      // First get the team where the user is an owner
+      const { data: teamMember, error: teamMemberError } = await supabase
+        .from("team_members")
+        .select("team_id, teams(*)")
+        .eq("user_id", user.id)
+        .eq("role", "owner")
         .single();
 
-      if (error) throw error;
-      return data;
+      if (teamMemberError) throw teamMemberError;
+      
+      return teamMember?.teams;
     },
   });
 
