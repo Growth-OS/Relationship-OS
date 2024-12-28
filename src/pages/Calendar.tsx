@@ -10,7 +10,7 @@ const Calendar = () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        scopes: 'https://www.googleapis.com/auth/calendar.readonly',
+        scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.modify',
         redirectTo: `${window.location.origin}/dashboard/calendar`,
         queryParams: {
           access_type: 'offline',
