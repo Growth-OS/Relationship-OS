@@ -11,7 +11,7 @@ interface DashboardChatProps {
   isLoading: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
-  onMorningBriefing: () => void;
+  onMorningBriefing?: () => void;  // Made optional with ?
 }
 
 export const DashboardChat = ({ 
@@ -93,15 +93,17 @@ export const DashboardChat = ({
             </Button>
           </div>
           
-          <Button
-            onClick={onMorningBriefing}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full border-purple-100 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-gray-700 text-purple-600 dark:text-purple-400 transition-colors"
-          >
-            <Sun className="h-4 w-4 mr-2" />
-            Morning Briefing
-          </Button>
+          {onMorningBriefing && (
+            <Button
+              onClick={onMorningBriefing}
+              disabled={isLoading}
+              variant="outline"
+              className="w-full border-purple-100 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-gray-700 text-purple-600 dark:text-purple-400 transition-colors"
+            >
+              <Sun className="h-4 w-4 mr-2" />
+              Morning Briefing
+            </Button>
+          )}
         </div>
       </div>
     </Card>
