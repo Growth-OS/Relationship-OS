@@ -2,8 +2,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const UNIPILE_API_KEY = Deno.env.get('UNIPILE_API_KEY');
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,8 +24,8 @@ serve(async (req) => {
 
     // Initialize Supabase client
     const supabaseAdmin = createClient(
-      SUPABASE_URL!,
-      SUPABASE_SERVICE_ROLE_KEY!,
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     );
 
     // Verify the user's JWT
@@ -39,43 +37,66 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    const unipileHeaders = {
-      'Authorization': `Bearer ${UNIPILE_API_KEY}`,
-      'Content-Type': 'application/json',
-    };
-
     switch (action) {
       case 'getMessages': {
-        const response = await fetch('https://api.unipile.com/v1/linkedin/messages', {
-          headers: unipileHeaders,
-        });
+        console.log('Fetching messages from Unipile...');
         
-        if (!response.ok) {
-          throw new Error(`Failed to fetch messages: ${response.statusText}`);
+        // First get all chats
+        const chatsResponse = await fetch('https://api.unipile.com/v1/chats', {
+          headers: {
+            'X-API-KEY': UNIPILE_API_KEY!,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!chatsResponse.ok) {
+          throw new Error(`Failed to fetch chats: ${chatsResponse.statusText}`);
         }
 
-        const messages = await response.json();
-        
+        const chats = await chatsResponse.json();
+        console.log('Fetched chats:', chats);
+
+        // For each chat, get messages
+        const allMessages = [];
+        for (const chat of chats.data) {
+          const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
+            headers: {
+              'X-API-KEY': UNIPILE_API_KEY!,
+              'Accept': 'application/json'
+            }
+          });
+
+          if (!messagesResponse.ok) {
+            console.error(`Failed to fetch messages for chat ${chat.id}: ${messagesResponse.statusText}`);
+            continue;
+          }
+
+          const messages = await messagesResponse.json();
+          allMessages.push(...messages.data);
+        }
+
+        console.log('Total messages fetched:', allMessages.length);
+
         // Store messages in Supabase
-        for (const msg of messages.data) {
+        for (const msg of allMessages) {
           await supabaseAdmin
             .from('linkedin_messages')
             .upsert({
               user_id: user.id,
               unipile_message_id: msg.id,
-              sender_name: msg.sender.name,
+              sender_name: msg.sender.name || 'Unknown',
               sender_profile_url: msg.sender.profile_url,
               sender_avatar_url: msg.sender.avatar_url,
               content: msg.content,
-              thread_id: msg.thread_id,
-              received_at: msg.received_at,
-              is_outbound: msg.is_outbound,
+              thread_id: msg.chat_id,
+              received_at: msg.created_at,
+              is_outbound: msg.direction === 'outbound'
             }, {
-              onConflict: 'user_id,unipile_message_id'
+              onConflict: 'unipile_message_id'
             });
         }
 
-        return new Response(JSON.stringify(messages), {
+        return new Response(JSON.stringify({ success: true, count: allMessages.length }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -85,13 +106,13 @@ serve(async (req) => {
           throw new Error('Missing messageId or content');
         }
 
-        const response = await fetch('https://api.unipile.com/v1/linkedin/messages', {
+        const response = await fetch(`https://api.unipile.com/v1/chats/${messageId}/messages`, {
           method: 'POST',
-          headers: unipileHeaders,
-          body: JSON.stringify({
-            thread_id: messageId,
-            content: content,
-          }),
+          headers: {
+            'X-API-KEY': UNIPILE_API_KEY!,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content }),
         });
 
         if (!response.ok) {

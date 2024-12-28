@@ -21,7 +21,7 @@ export const useLinkedInMessages = () => {
         throw syncError;
       }
       
-      console.log('Sync completed, fetching messages from database...');
+      console.log('Sync completed, messages synced:', syncData?.count || 0);
 
       // Then fetch from our local database
       const { data, error } = await supabase
@@ -34,7 +34,7 @@ export const useLinkedInMessages = () => {
         throw error;
       }
 
-      console.log('Messages fetched:', data?.length || 0, 'messages found');
+      console.log('Messages fetched from database:', data?.length || 0, 'messages found');
       return data || [];
     },
     refetchInterval: 30000, // Refresh every 30 seconds
