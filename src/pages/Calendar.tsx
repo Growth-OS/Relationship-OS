@@ -14,7 +14,7 @@ const Calendar = () => {
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-        redirectTo: 'https://lovable.dev/projects/6496a71f-82eb-448d-83e9-3f83d5ae630c/dashboard/calendar',
+        redirectTo: window.location.origin + '/dashboard/calendar',
         queryParams: {
           access_type: 'offline',
           prompt: 'consent'
