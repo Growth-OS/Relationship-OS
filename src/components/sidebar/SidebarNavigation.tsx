@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Inbox, Euro, FolderOpen } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
 export const SidebarNavigation = () => {
@@ -20,12 +20,6 @@ export const SidebarNavigation = () => {
   ];
 
   const betaFeatures = [
-    { 
-      icon: Inbox, 
-      label: "Inbox", 
-      path: "/dashboard/inbox",
-      beta: true
-    },
     { 
       icon: Edit,
       label: "LinkedIn Content",

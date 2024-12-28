@@ -16,7 +16,6 @@ import Login from "@/pages/Login";
 import Deals from "@/pages/Deals";
 import Tasks from "@/pages/Tasks";
 import Prospects from "@/pages/Prospects";
-import Inbox from "@/pages/Inbox";
 import Calendar from "@/pages/Calendar";
 import Content from "@/pages/Content";
 import Finances from "@/pages/Finances";
@@ -61,10 +60,6 @@ export const routes: RouteObject[] = [
       {
         path: "tasks",
         element: <Tasks />,
-      },
-      {
-        path: "inbox",
-        element: <Inbox />,
       },
       {
         path: "calendar",
