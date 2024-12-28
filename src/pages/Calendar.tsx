@@ -7,14 +7,11 @@ const Calendar = () => {
   const { data: calendarData, isLoading } = useGoogleCalendar();
 
   const handleConnect = async () => {
-    // Store the full calendar path before OAuth redirect
-    localStorage.setItem('oauthRedirectPath', '/dashboard/calendar');
-    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-        redirectTo: window.location.origin + '/dashboard/calendar',
+        redirectTo: `${window.location.origin}/dashboard/calendar`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent'
@@ -44,11 +41,11 @@ const Calendar = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-2rem)] w-full">
+    <div className="h-[calc(100vh-2rem)] w-full bg-white rounded-lg shadow">
       <iframe
-        src="https://calendar.google.com/calendar/embed?src=primary&ctz=Europe%2FVilnius"
-        className="w-full h-full"
-        style={{ border: 0 }}
+        src={`https://calendar.google.com/calendar/embed?src=primary&ctz=${Intl.DateTimeFormat().resolvedOptions().timeZone}`}
+        className="w-full h-full rounded-lg"
+        frameBorder="0"
         scrolling="no"
       />
     </div>

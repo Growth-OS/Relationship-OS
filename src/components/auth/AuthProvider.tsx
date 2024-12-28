@@ -32,9 +32,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         if (code && session) {
-          // Get the stored path or default to calendar
-          const redirectPath = localStorage.getItem('oauthRedirectPath') || '/dashboard/calendar';
-          localStorage.removeItem('oauthRedirectPath'); // Clean up
+          // Get the stored path or default to dashboard
+          const redirectPath = '/dashboard/calendar';
           navigate(redirectPath, { replace: true });
           return;
         }
@@ -70,13 +69,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       subscription.unsubscribe();
     };
   }, [navigate, location]);
-
-  useEffect(() => {
-    // Store the current path before OAuth redirect
-    if (location.pathname === '/dashboard/calendar') {
-      localStorage.setItem('oauthRedirectPath', location.pathname);
-    }
-  }, [location.pathname]);
 
   if (isLoading) {
     return null;
