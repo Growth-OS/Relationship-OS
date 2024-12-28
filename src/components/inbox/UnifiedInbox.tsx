@@ -45,8 +45,11 @@ export const UnifiedInbox = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No active session');
 
+      // Get the Supabase project URL from the client
+      const supabaseUrl = supabase.supabaseUrl;
+      
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/unipile-messages`,
+        `${supabaseUrl}/functions/v1/unipile-messages`,
         {
           method: 'POST',
           headers: {
