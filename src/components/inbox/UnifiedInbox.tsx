@@ -42,11 +42,27 @@ export const UnifiedInbox = () => {
 
   const syncMessages = async () => {
     try {
-      const { error } = await supabase.functions.invoke('unipile-sync');
-      if (error) throw error;
-      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No active session');
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/unipile-messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to sync messages');
+      }
+
+      const result = await response.json();
       await refetch();
-      toast.success('Messages synced successfully');
+      toast.success(`Synced ${result.count} messages`);
     } catch (error) {
       console.error('Error syncing messages:', error);
       toast.error('Failed to sync messages');
