@@ -7,11 +7,14 @@ const Calendar = () => {
   const { data: calendarData, isLoading } = useGoogleCalendar();
 
   const handleConnect = async () => {
+    // Store the full calendar path before OAuth redirect
+    localStorage.setItem('oauthRedirectPath', '/dashboard/calendar');
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-        redirectTo: `${window.location.origin}/dashboard/calendar`,
+        redirectTo: 'https://lovable.dev/projects/6496a71f-82eb-448d-83e9-3f83d5ae630c/dashboard/calendar',
         queryParams: {
           access_type: 'offline',
           prompt: 'consent'
