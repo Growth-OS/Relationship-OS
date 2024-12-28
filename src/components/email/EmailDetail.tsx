@@ -36,7 +36,7 @@ export const EmailDetail = ({ email, isOpen, onClose }: EmailDetailProps) => {
     try {
       const { data: connection } = await supabase
         .from("oauth_connections")
-        .select("*")
+        .select("id")
         .eq("provider", "google")
         .single();
 
@@ -47,7 +47,7 @@ export const EmailDetail = ({ email, isOpen, onClose }: EmailDetailProps) => {
 
       const response = await supabase.functions.invoke("send-email", {
         body: {
-          accountId: connection.account_id,
+          accountId: connection.id, // Using the oauth connection id instead of account_id
           to: [{ identifier: email.from_email }],
           subject: `Re: ${email.subject}`,
           body: replyContent,
