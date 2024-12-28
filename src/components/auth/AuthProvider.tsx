@@ -30,11 +30,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Handle OAuth redirects
         const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (code && session) {
-          // Get the stored path or default to dashboard
-          const redirectPath = '/dashboard/calendar';
-          navigate(redirectPath, { replace: true });
+        if (params.get('provider') === 'google' && session) {
+          navigate('/dashboard/calendar', { replace: true });
           return;
         }
       } catch (error) {
