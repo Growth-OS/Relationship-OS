@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { ConnectedServices } from "@/components/settings/profile/ConnectedServices";
+import { useState } from "react";
 
 const ProfileSettings = () => {
   const [linkedinUrl, setLinkedinUrl] = useState("");
@@ -19,20 +20,6 @@ const ProfileSettings = () => {
       const { data: { user }, error } = await supabase.auth.getUser();
       if (error) throw error;
       return user;
-    },
-  });
-
-  const { data: googleConnection } = useQuery({
-    queryKey: ["google-connection"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("oauth_connections")
-        .select("*")
-        .eq("provider", "google")
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-      return data;
     },
   });
 
@@ -52,8 +39,6 @@ const ProfileSettings = () => {
 
   const handleAddProfile = async () => {
     try {
-      // In a real app, you would fetch profile data from LinkedIn API
-      // For now, we'll just save the URL and some mock data
       const mockData = {
         profile_url: linkedinUrl,
         name: "John Doe",
@@ -73,26 +58,6 @@ const ProfileSettings = () => {
     } catch (error) {
       console.error("Error adding profile:", error);
       toast.error("Failed to add profile");
-    }
-  };
-
-  const handleConnectGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          scopes: 'https://www.googleapis.com/auth/calendar.readonly',
-          redirectTo: `${window.location.origin}/settings/profile`,
-        },
-      });
-
-      if (error) {
-        toast.error("Failed to connect Google Calendar");
-        throw error;
-      }
-    } catch (error) {
-      console.error("Error connecting Google Calendar:", error);
-      toast.error("Failed to connect Google Calendar");
     }
   };
 
@@ -128,33 +93,7 @@ const ProfileSettings = () => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Connected Services</CardTitle>
-          <CardDescription>
-            Manage your connected services and integrations
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="flex items-center space-x-4">
-              <Calendar className="w-6 h-6 text-primary" />
-              <div>
-                <h3 className="font-medium">Google Calendar</h3>
-                <p className="text-sm text-muted-foreground">
-                  {googleConnection ? 'Connected' : 'Not connected'}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant={googleConnection ? "outline" : "default"}
-              onClick={handleConnectGoogle}
-            >
-              {googleConnection ? 'Reconnect' : 'Connect'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <ConnectedServices />
 
       <Card>
         <CardHeader>
