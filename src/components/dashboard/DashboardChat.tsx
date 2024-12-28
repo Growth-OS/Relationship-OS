@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Sun } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { Message } from "./types";
 
 interface DashboardChatProps {
@@ -24,51 +24,63 @@ export const DashboardChat = ({
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <Card className="w-full max-w-2xl bg-white border border-gray-100 shadow-sm">
-      <div className="h-[400px] overflow-auto" ref={scrollAreaRef}>
-        <div className="space-y-3 p-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
-              <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                  message.role === 'user'
-                    ? 'bg-black text-white'
-                    : 'bg-gray-100 text-gray-900'
-                }`}
-              >
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+    <Card className="flex flex-col h-[600px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-lg font-semibold">AI Assistant</h2>
       </div>
       
-      <div className="border-t border-gray-100">
-        <div className="flex gap-2 p-4">
-          <Input
-            placeholder="Message GrowthOS..."
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
-            disabled={isLoading}
-            className="flex-1 font-sans border-gray-200"
-          />
-          <Button 
-            onClick={onSend} 
-            disabled={isLoading}
-            size="icon"
-            className="bg-black text-white hover:bg-black/90"
+      <div 
+        className="flex-1 overflow-auto p-4 space-y-4" 
+        ref={scrollAreaRef}
+      >
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`flex ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
           >
-            <Send className="h-4 w-4" />
-          </Button>
-        </div>
-        <div className="px-4 pb-4">
+            <div
+              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                message.role === 'user'
+                  ? 'bg-black text-white dark:bg-gray-700'
+                  : 'bg-gray-100 text-gray-900 dark:bg-gray-600 dark:text-white'
+              }`}
+            >
+              <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="border-t border-gray-200 dark:border-gray-700">
+        <div className="p-4 space-y-4">
+          <div className="flex gap-2">
+            <Input
+              placeholder="Message GrowthOS..."
+              value={input}
+              onChange={(e) => onInputChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
+              disabled={isLoading}
+              className="flex-1"
+            />
+            <Button 
+              onClick={onSend} 
+              disabled={isLoading}
+              size="icon"
+              className="bg-black text-white hover:bg-black/90 dark:bg-gray-700 dark:hover:bg-gray-600"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          
           <Button
             onClick={onMorningBriefing}
             disabled={isLoading}

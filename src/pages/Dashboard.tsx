@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DashboardChat } from "@/components/dashboard/DashboardChat";
 import { useDailyBriefing } from "@/components/dashboard/useDailyBriefing";
 import { Message } from "@/components/dashboard/types";
+import { Card } from "@/components/ui/card";
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -93,15 +94,31 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <DashboardChat
-        messages={messages}
-        input={input}
-        isLoading={isLoading}
-        onInputChange={setInput}
-        onSend={handleSend}
-        onMorningBriefing={handleMorningBriefing}
-      />
+    <div className="flex flex-col gap-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back, {firstName}!</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Here's an overview of your workspace</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-6 col-span-1">
+          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+          {/* Quick actions will be added here in future updates */}
+        </Card>
+
+        <div className="col-span-1">
+          <DashboardChat
+            messages={messages}
+            input={input}
+            isLoading={isLoading}
+            onInputChange={setInput}
+            onSend={handleSend}
+            onMorningBriefing={handleMorningBriefing}
+          />
+        </div>
+      </div>
     </div>
   );
 };
