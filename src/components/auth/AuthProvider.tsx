@@ -29,9 +29,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
 
         // Handle OAuth redirects
-        const code = new URLSearchParams(location.search).get('code');
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
         if (code && session) {
-          const redirectPath = localStorage.getItem('oauthRedirectPath') || '/dashboard';
+          // Get the stored path or default to calendar
+          const redirectPath = localStorage.getItem('oauthRedirectPath') || '/dashboard/calendar';
           localStorage.removeItem('oauthRedirectPath'); // Clean up
           navigate(redirectPath, { replace: true });
           return;
