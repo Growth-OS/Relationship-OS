@@ -27,14 +27,15 @@ export const DashboardActivity = () => {
   const { data: meetings } = useQuery({
     queryKey: ["upcoming-meetings"],
     queryFn: async () => {
-      const { data: connection } = await supabase
+      const { data: connection, error } = await supabase
         .from('oauth_connections')
         .select('*')
         .eq('provider', 'google')
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-        .single();
+        .maybeSingle();
 
-      if (!connection) return null;
+      if (error) throw error;
+      if (!connection) return { todayCount: 0 };
 
       // This would normally fetch from Google Calendar
       // For now, we'll return a placeholder
