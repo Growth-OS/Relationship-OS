@@ -16,7 +16,7 @@ export const useGoogleCalendar = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("provider", "google")
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error checking Google connection:", error);
