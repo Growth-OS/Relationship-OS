@@ -41,64 +41,79 @@ serve(async (req) => {
       case 'getMessages': {
         console.log('Fetching messages from Unipile...');
         
-        // First get all chats
-        const chatsResponse = await fetch('https://api.unipile.com/v1/chats', {
-          headers: {
-            'X-API-KEY': UNIPILE_API_KEY!,
-            'Accept': 'application/json'
-          }
-        });
-
-        if (!chatsResponse.ok) {
-          throw new Error(`Failed to fetch chats: ${chatsResponse.statusText}`);
-        }
-
-        const chats = await chatsResponse.json();
-        console.log('Fetched chats:', chats);
-
-        // For each chat, get messages
-        const allMessages = [];
-        for (const chat of chats.data) {
-          const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
+        try {
+          // First get all chats
+          const chatsResponse = await fetch('https://api.unipile.com/v1/chats', {
+            method: 'GET',
             headers: {
               'X-API-KEY': UNIPILE_API_KEY!,
-              'Accept': 'application/json'
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
             }
           });
 
-          if (!messagesResponse.ok) {
-            console.error(`Failed to fetch messages for chat ${chat.id}: ${messagesResponse.statusText}`);
-            continue;
+          if (!chatsResponse.ok) {
+            console.error('Failed to fetch chats:', await chatsResponse.text());
+            throw new Error(`Failed to fetch chats: ${chatsResponse.statusText}`);
           }
 
-          const messages = await messagesResponse.json();
-          allMessages.push(...messages.data);
+          const chats = await chatsResponse.json();
+          console.log('Fetched chats:', chats);
+
+          // For each chat, get messages
+          const allMessages = [];
+          for (const chat of chats.data) {
+            try {
+              const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
+                method: 'GET',
+                headers: {
+                  'X-API-KEY': UNIPILE_API_KEY!,
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+              });
+
+              if (!messagesResponse.ok) {
+                console.error(`Failed to fetch messages for chat ${chat.id}:`, await messagesResponse.text());
+                continue;
+              }
+
+              const messages = await messagesResponse.json();
+              allMessages.push(...messages.data);
+            } catch (error) {
+              console.error(`Error fetching messages for chat ${chat.id}:`, error);
+              continue;
+            }
+          }
+
+          console.log('Total messages fetched:', allMessages.length);
+
+          // Store messages in Supabase
+          for (const msg of allMessages) {
+            await supabaseAdmin
+              .from('linkedin_messages')
+              .upsert({
+                user_id: user.id,
+                unipile_message_id: msg.id,
+                sender_name: msg.sender?.name || 'Unknown',
+                sender_profile_url: msg.sender?.profile_url,
+                sender_avatar_url: msg.sender?.avatar_url,
+                content: msg.content,
+                thread_id: msg.chat_id,
+                received_at: msg.created_at,
+                is_outbound: msg.direction === 'outbound'
+              }, {
+                onConflict: 'unipile_message_id'
+              });
+          }
+
+          return new Response(JSON.stringify({ success: true, count: allMessages.length }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } catch (error) {
+          console.error('Error in getMessages:', error);
+          throw error;
         }
-
-        console.log('Total messages fetched:', allMessages.length);
-
-        // Store messages in Supabase
-        for (const msg of allMessages) {
-          await supabaseAdmin
-            .from('linkedin_messages')
-            .upsert({
-              user_id: user.id,
-              unipile_message_id: msg.id,
-              sender_name: msg.sender.name || 'Unknown',
-              sender_profile_url: msg.sender.profile_url,
-              sender_avatar_url: msg.sender.avatar_url,
-              content: msg.content,
-              thread_id: msg.chat_id,
-              received_at: msg.created_at,
-              is_outbound: msg.direction === 'outbound'
-            }, {
-              onConflict: 'unipile_message_id'
-            });
-        }
-
-        return new Response(JSON.stringify({ success: true, count: allMessages.length }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
       }
 
       case 'sendMessage': {
@@ -111,11 +126,13 @@ serve(async (req) => {
           headers: {
             'X-API-KEY': UNIPILE_API_KEY!,
             'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify({ content }),
         });
 
         if (!response.ok) {
+          console.error('Failed to send message:', await response.text());
           throw new Error(`Failed to send message: ${response.statusText}`);
         }
 
