@@ -1,0 +1,4 @@
+project_id = "steunfbcpofecftasvin"
+
+[functions.unipile-register-webhook]
+verify_jwt = true
