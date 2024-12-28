@@ -29,15 +29,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setIsLoading(false);
 
         // Handle OAuth redirects
-        const hasOAuthCode = location.search.includes('code=');
-        const hasOAuthError = location.search.includes('error=');
-        const isOAuthRedirect = hasOAuthCode || hasOAuthError;
-        
-        if (isOAuthRedirect && session) {
-          // Get the intended redirect path from localStorage or default to dashboard
+        const code = new URLSearchParams(location.search).get('code');
+        if (code && session) {
           const redirectPath = localStorage.getItem('oauthRedirectPath') || '/dashboard';
           localStorage.removeItem('oauthRedirectPath'); // Clean up
           navigate(redirectPath, { replace: true });
+          return;
         }
       } catch (error) {
         console.error("Session check error:", error);
