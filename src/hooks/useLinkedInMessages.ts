@@ -11,40 +11,41 @@ export const useLinkedInMessages = () => {
     queryFn: async () => {
       console.log('Fetching LinkedIn messages...');
       
-      // First, sync messages from Unipile
-      const { data: syncData, error: syncError } = await supabase.functions.invoke('unipile-linkedin', {
-        body: { action: 'getMessages' }
-      });
+      try {
+        // First, sync messages from Unipile
+        const { data: syncData, error: syncError } = await supabase.functions.invoke('unipile-linkedin', {
+          body: { action: 'getMessages' }
+        });
 
-      if (syncError) {
-        console.error('Error syncing messages from Unipile:', syncError);
-        throw syncError;
-      }
-      
-      console.log('Sync completed, messages synced:', syncData?.count || 0);
+        if (syncError) {
+          console.error('Error syncing messages from Unipile:', syncError);
+          throw syncError;
+        }
+        
+        console.log('Sync completed, messages synced:', syncData?.count || 0);
 
-      // Then fetch from our local database
-      const { data, error } = await supabase
-        .from('linkedin_messages')
-        .select('*')
-        .order('received_at', { ascending: false });
+        // Then fetch from our local database
+        const { data, error } = await supabase
+          .from('linkedin_messages')
+          .select('*')
+          .order('received_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching messages from database:', error);
+        if (error) {
+          console.error('Error fetching messages from database:', error);
+          throw error;
+        }
+
+        console.log('Messages fetched from database:', data?.length || 0, 'messages found');
+        return data || [];
+      } catch (error) {
+        console.error('Error in useLinkedInMessages:', error);
+        toast.error('Failed to load LinkedIn messages. Please check your Unipile API key.');
         throw error;
       }
-
-      console.log('Messages fetched from database:', data?.length || 0, 'messages found');
-      return data || [];
     },
+    retry: 1,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
-
-  // Show error toast if there's an error
-  if (error) {
-    console.error('Error in useLinkedInMessages:', error);
-    toast.error('Failed to load LinkedIn messages');
-  }
 
   const sendMessage = useMutation({
     mutationFn: async ({ threadId, content }: { threadId: string, content: string }) => {

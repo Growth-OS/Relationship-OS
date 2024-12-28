@@ -57,11 +57,7 @@ export const sendMessage = async (chatId: string, content: string, headers: Unip
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error('Failed to send message:', {
-      status: response.status,
-      statusText: response.statusText,
-      error: errorText
-    });
+    console.error('Failed to send message:', errorText);
     throw new Error(`Failed to send message: ${response.status} ${errorText}`);
   }
 
