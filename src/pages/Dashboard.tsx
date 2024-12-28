@@ -29,6 +29,34 @@ const Dashboard = () => {
     },
   });
 
+  const { data: tasks } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('completed', false)
+        .order('due_date', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: emails } = useQuery({
+    queryKey: ["emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('emails')
+        .select('*')
+        .eq('is_read', false)
+        .eq('is_archived', false)
+        .eq('is_trashed', false)
+        .is('snoozed_until', null);
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
@@ -40,7 +68,58 @@ const Dashboard = () => {
     }
   }, [messages]);
 
+  // Show morning greeting when component mounts
+  useEffect(() => {
+    if (messages.length === 0) {
+      setMessages([{
+        role: 'assistant',
+        content: `Hi ${firstName}, would you like to know what you need to work on today?`
+      }]);
+    }
+  }, [firstName]);
+
+  const generateBriefing = async () => {
+    const unreadEmailsCount = emails?.length || 0;
+    const pendingTasksCount = tasks?.length || 0;
+
+    let briefing = `Here's your daily briefing:\n\n`;
+
+    if (unreadEmailsCount > 0) {
+      briefing += `📧 You have ${unreadEmailsCount} unread email${unreadEmailsCount === 1 ? '' : 's'}\n\n`;
+    }
+
+    if (pendingTasksCount > 0) {
+      briefing += `📝 You have ${pendingTasksCount} pending task${pendingTasksCount === 1 ? '' : 's'}:\n`;
+      tasks?.slice(0, 5).forEach(task => {
+        briefing += `• ${task.title}${task.due_date ? ` (due: ${new Date(task.due_date).toLocaleDateString()})` : ''}\n`;
+      });
+      if (pendingTasksCount > 5) {
+        briefing += `... and ${pendingTasksCount - 5} more tasks\n`;
+      }
+    }
+
+    if (unreadEmailsCount === 0 && pendingTasksCount === 0) {
+      briefing += "🎉 You're all caught up! No pending tasks or unread emails.";
+    }
+
+    return briefing;
+  };
+
   const handleSend = async () => {
+    if (!input.trim() && messages.length === 1) {
+      // Handle the response to the morning greeting
+      if (input.toLowerCase().includes('yes') || input.toLowerCase() === 'y') {
+        setIsLoading(true);
+        const briefing = await generateBriefing();
+        setMessages(prev => [...prev, 
+          { role: 'user', content: 'Yes, please.' },
+          { role: 'assistant', content: briefing }
+        ]);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     if (!input.trim()) return;
 
     try {
@@ -76,31 +155,7 @@ const Dashboard = () => {
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl bg-white border border-gray-100 shadow-sm">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-4 space-y-4">
-            <h2 className="text-2xl font-medium text-gray-900">Hi {firstName}, how can I help you today?</h2>
-            <div className="w-full">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Message GrowthOS..."
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                  disabled={isLoading}
-                  className="flex-1 font-sans border-gray-200"
-                />
-                <Button 
-                  onClick={handleSend} 
-                  disabled={isLoading}
-                  size="icon"
-                  className="bg-black text-white hover:bg-black/90"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        ) : (
+        {messages.length > 0 ? (
           <>
             <div className="h-[400px] overflow-auto" ref={scrollAreaRef}>
               <div className="space-y-3 p-4">
@@ -146,6 +201,10 @@ const Dashboard = () => {
               </div>
             </div>
           </>
+        ) : (
+          <div className="flex flex-col items-center justify-center p-4 space-y-4">
+            <h2 className="text-2xl font-medium text-gray-900">Loading...</h2>
+          </div>
         )}
       </Card>
     </div>
