@@ -20,18 +20,18 @@ export const SidebarNavigation = () => {
 
   const betaFeatures = [
     { 
+      icon: Calendar,
+      label: "Calendar",
+      path: "/dashboard/calendar",
+      beta: true
+    },
+    { 
       icon: Inbox, 
       label: "Inbox", 
       path: "/dashboard/inbox",
       beta: true
     },
     { 
-      icon: Calendar, 
-      label: "Calendar", 
-      path: "/dashboard/calendar",
-      beta: true
-    },
-    {
       icon: Edit,
       label: "LinkedIn Content",
       path: "/dashboard/content",
