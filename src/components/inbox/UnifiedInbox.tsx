@@ -13,11 +13,16 @@ export const UnifiedInbox = () => {
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived'>('all');
   
   // Query to check if Unipile accounts are connected
-  const { data: accounts, isLoading: isLoadingAccounts } = useQuery({
+  const { data: accounts, isLoading: isLoadingAccounts, error: accountsError } = useQuery({
     queryKey: ['unipile-accounts'],
     queryFn: async () => {
+      console.log('Fetching Unipile accounts...');
       const { data, error } = await supabase.functions.invoke('unipile-accounts');
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching accounts:', error);
+        throw error;
+      }
+      console.log('Accounts fetched:', data);
       return data;
     },
   });
@@ -76,6 +81,20 @@ export const UnifiedInbox = () => {
         <div className="text-center">
           <RefreshCcw className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-4" />
           <p>Checking connected accounts...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (accountsError) {
+    return (
+      <Card className="flex items-center justify-center h-[calc(100vh-13rem)]">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-2">Error connecting to Unipile</h3>
+          <p className="text-gray-500 mb-4">Please check your API key and try again</p>
+          <Button onClick={() => window.location.reload()}>
+            Retry Connection
+          </Button>
         </div>
       </Card>
     );
