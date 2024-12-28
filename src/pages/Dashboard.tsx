@@ -15,7 +15,6 @@ const Dashboard = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { generateBriefing } = useDailyBriefing();
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -29,32 +28,6 @@ const Dashboard = () => {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
-
-  const formatBriefing = (briefing: ReturnType<typeof generateBriefing>) => {
-    let message = `Here's your daily briefing:\n\n`;
-    if (briefing.pendingTasks.total > 0) {
-      message += `📝 You have ${briefing.pendingTasks.total} pending task${briefing.pendingTasks.total === 1 ? '' : 's'}:\n`;
-      briefing.pendingTasks.items.forEach(task => {
-        message += `• ${task.title}${task.due_date ? ` (due: ${new Date(task.due_date).toLocaleDateString()})` : ''}\n`;
-      });
-      if (briefing.pendingTasks.total > 5) {
-        message += `... and ${briefing.pendingTasks.total - 5} more tasks\n`;
-      }
-    }
-    if (briefing.pendingTasks.total === 0) {
-      message += "🎉 You're all caught up! No pending tasks.";
-    }
-    return message;
-  };
-
-  const handleMorningBriefing = () => {
-    setIsLoading(true);
-    const briefing = generateBriefing();
-    setMessages(prev => [...prev, 
-      { role: 'assistant', content: formatBriefing(briefing) }
-    ]);
-    setIsLoading(false);
-  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -108,7 +81,6 @@ const Dashboard = () => {
             isLoading={isLoading}
             onInputChange={setInput}
             onSend={handleSend}
-            onMorningBriefing={handleMorningBriefing}
           />
         </div>
       </div>
