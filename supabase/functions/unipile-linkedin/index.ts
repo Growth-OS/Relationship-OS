@@ -24,6 +24,10 @@ serve(async (req) => {
       throw new Error('No authorization header');
     }
 
+    if (!UNIPILE_API_KEY) {
+      throw new Error('UNIPILE_API_KEY is not set');
+    }
+
     // Initialize Supabase client
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -36,6 +40,13 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
+    const unipileHeaders = {
+      'X-API-KEY': UNIPILE_API_KEY,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'Supabase Edge Function'
+    };
+
     switch (action) {
       case 'getMessages': {
         console.log('Fetching messages from Unipile...');
@@ -44,12 +55,7 @@ serve(async (req) => {
           // First get all chats
           const chatsResponse = await fetch('https://api.unipile.com/v1/chats', {
             method: 'GET',
-            headers: {
-              'X-API-KEY': UNIPILE_API_KEY!,
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'User-Agent': 'Supabase Edge Function'
-            }
+            headers: unipileHeaders
           });
 
           if (!chatsResponse.ok) {
@@ -67,12 +73,7 @@ serve(async (req) => {
             try {
               const messagesResponse = await fetch(`https://api.unipile.com/v1/chats/${chat.id}/messages`, {
                 method: 'GET',
-                headers: {
-                  'X-API-KEY': UNIPILE_API_KEY!,
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',
-                  'User-Agent': 'Supabase Edge Function'
-                }
+                headers: unipileHeaders
               });
 
               if (!messagesResponse.ok) {
@@ -132,12 +133,7 @@ serve(async (req) => {
 
         const response = await fetch(`https://api.unipile.com/v1/chats/${messageId}/messages`, {
           method: 'POST',
-          headers: {
-            'X-API-KEY': UNIPILE_API_KEY!,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'User-Agent': 'Supabase Edge Function'
-          },
+          headers: unipileHeaders,
           body: JSON.stringify({ content }),
         });
 
