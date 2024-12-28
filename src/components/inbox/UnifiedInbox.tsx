@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Inbox, RefreshCcw, Webhook } from 'lucide-react';
+import { Inbox, RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Message } from './types';
 import { MessageList } from './MessageList';
@@ -53,17 +53,6 @@ export const UnifiedInbox = () => {
     }
   };
 
-  const registerWebhooks = async () => {
-    try {
-      const { error } = await supabase.functions.invoke('unipile-register-webhook');
-      if (error) throw error;
-      toast.success('Webhooks registered successfully');
-    } catch (error) {
-      console.error('Error registering webhooks:', error);
-      toast.error('Failed to register webhooks');
-    }
-  };
-
   // Initial sync when component mounts
   useEffect(() => {
     syncMessages();
@@ -76,26 +65,15 @@ export const UnifiedInbox = () => {
           <Inbox className="w-5 h-5" />
           Unified Inbox
         </h2>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={syncMessages}
-            disabled={isLoading}
-          >
-            <RefreshCcw className="w-4 h-4 mr-2" />
-            Sync
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={registerWebhooks}
-            disabled={isLoading}
-          >
-            <Webhook className="w-4 h-4 mr-2" />
-            Register Webhooks
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={syncMessages}
+          disabled={isLoading}
+        >
+          <RefreshCcw className="w-4 h-4 mr-2" />
+          Sync
+        </Button>
       </div>
 
       <MessageFilters 
