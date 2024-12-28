@@ -15,7 +15,13 @@ const Inbox = () => {
   const { data: emails } = useGmailMessages();
 
   // Calculate unread messages
-  const unreadCount = emails?.filter(email => !email.is_read && !email.is_archived && !email.is_trashed)?.length || 0;
+  const unreadCount = emails?.filter(email => 
+    !email.is_read && 
+    !email.is_archived && 
+    !email.is_trashed && 
+    !email.snoozed_until &&
+    !email.is_sent
+  )?.length || 0;
 
   return (
     <div className="space-y-6 animate-fade-in">
