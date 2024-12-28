@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Sun } from "lucide-react";
 import { useRef } from "react";
 import { Message } from "./types";
 
@@ -11,6 +11,7 @@ interface DashboardChatProps {
   isLoading: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  onMorningBriefing: () => void;
 }
 
 export const DashboardChat = ({ 
@@ -18,7 +19,8 @@ export const DashboardChat = ({
   input, 
   isLoading, 
   onInputChange, 
-  onSend 
+  onSend,
+  onMorningBriefing
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +68,17 @@ export const DashboardChat = ({
                 className="bg-black text-white hover:bg-black/90"
               >
                 <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="px-4 pb-4">
+              <Button
+                onClick={onMorningBriefing}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+              >
+                <Sun className="h-4 w-4 mr-2" />
+                Morning Briefing
               </Button>
             </div>
           </div>

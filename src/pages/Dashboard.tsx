@@ -26,16 +26,6 @@ const Dashboard = () => {
                    user?.email?.split('@')[0] || 
                    'there';
 
-  // Show morning greeting when component mounts
-  useState(() => {
-    if (messages.length === 0) {
-      setMessages([{
-        role: 'assistant',
-        content: `Hi ${firstName}, would you like to know what you need to work on today?`
-      }]);
-    }
-  });
-
   const formatBriefing = (briefing: ReturnType<typeof generateBriefing>) => {
     let message = `Here's your daily briefing:\n\n`;
 
@@ -60,21 +50,16 @@ const Dashboard = () => {
     return message;
   };
 
-  const handleSend = async () => {
-    if (!input.trim() && messages.length === 1) {
-      // Handle the response to the morning greeting
-      if (input.toLowerCase().includes('yes') || input.toLowerCase() === 'y') {
-        setIsLoading(true);
-        const briefing = generateBriefing();
-        setMessages(prev => [...prev, 
-          { role: 'user', content: 'Yes, please.' },
-          { role: 'assistant', content: formatBriefing(briefing) }
-        ]);
-        setIsLoading(false);
-        return;
-      }
-    }
+  const handleMorningBriefing = () => {
+    setIsLoading(true);
+    const briefing = generateBriefing();
+    setMessages(prev => [...prev, 
+      { role: 'assistant', content: formatBriefing(briefing) }
+    ]);
+    setIsLoading(false);
+  };
 
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     try {
@@ -115,6 +100,7 @@ const Dashboard = () => {
         isLoading={isLoading}
         onInputChange={setInput}
         onSend={handleSend}
+        onMorningBriefing={handleMorningBriefing}
       />
     </div>
   );
