@@ -12,6 +12,16 @@ import { MessageFilters } from './MessageFilters';
 export const UnifiedInbox = () => {
   const [filter, setFilter] = useState<'all' | 'unread' | 'starred' | 'archived'>('all');
   
+  // Query to check if Unipile accounts are connected
+  const { data: accounts, isLoading: isLoadingAccounts } = useQuery({
+    queryKey: ['unipile-accounts'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('unipile-accounts');
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data: messages, isLoading, refetch } = useQuery({
     queryKey: ['unified-messages', filter],
     queryFn: async () => {
@@ -37,7 +47,8 @@ export const UnifiedInbox = () => {
       const { data, error } = await query;
       if (error) throw error;
       return data as Message[];
-    }
+    },
+    enabled: !!accounts?.length, // Only fetch messages if accounts are connected
   });
 
   const syncMessages = async () => {
@@ -54,8 +65,36 @@ export const UnifiedInbox = () => {
   };
 
   useEffect(() => {
-    syncMessages();
-  }, []);
+    if (accounts?.length > 0) {
+      syncMessages();
+    }
+  }, [accounts]);
+
+  if (isLoadingAccounts) {
+    return (
+      <Card className="flex items-center justify-center h-[calc(100vh-13rem)]">
+        <div className="text-center">
+          <RefreshCcw className="w-8 h-8 animate-spin text-purple-500 mx-auto mb-4" />
+          <p>Checking connected accounts...</p>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!accounts?.length) {
+    return (
+      <Card className="flex items-center justify-center h-[calc(100vh-13rem)]">
+        <div className="text-center">
+          <Inbox className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No accounts connected</h3>
+          <p className="text-gray-500 mb-4">Connect your accounts to start receiving messages</p>
+          <Button onClick={() => window.open('https://api6.unipile.com:13619/oauth/authorize', '_blank')}>
+            Connect Accounts
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col h-[calc(100vh-13rem)]">
