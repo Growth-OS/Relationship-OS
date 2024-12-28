@@ -18,26 +18,84 @@ export const handleCalendarData = async (supabase: SupabaseClient, userId: strin
       return;
     }
 
-    // Invoke the calendar function to get events
-    const { data: calendarData, error } = await supabase.functions.invoke('calendar', {
-      body: { userId }
-    });
+    // Check if token needs refresh
+    if (new Date(connection.expires_at) < new Date()) {
+      console.log("Token expired, refreshing...");
+      const response = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          client_id: Deno.env.get("GOOGLE_CLIENT_ID") ?? "",
+          client_secret: Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "",
+          refresh_token: connection.refresh_token,
+          grant_type: "refresh_token",
+        }),
+      });
 
-    if (error) {
-      console.error('Error fetching calendar data:', error);
-      contextData.calendar = {
-        error: 'Failed to fetch calendar events',
-        isConnected: true
-      };
-      return;
+      if (!response.ok) {
+        throw new Error("Failed to refresh token");
+      }
+
+      const data = await response.json();
+      
+      // Update the token in the database
+      await supabase
+        .from("oauth_connections")
+        .update({
+          access_token: data.access_token,
+          expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
+        })
+        .eq("id", connection.id);
+
+      connection.access_token = data.access_token;
     }
+
+    // Fetch calendar events
+    const timeMin = new Date();
+    timeMin.setDate(timeMin.getDate() - 7); // Last 7 days
+    const timeMax = new Date();
+    timeMax.setDate(timeMax.getDate() + 30); // Next 30 days
+
+    const calendarResponse = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin.toISOString()}&timeMax=${timeMax.toISOString()}&singleEvents=true&orderBy=startTime`,
+      {
+        headers: {
+          Authorization: `Bearer ${connection.access_token}`,
+        },
+      }
+    );
+
+    if (!calendarResponse.ok) {
+      const errorText = await calendarResponse.text();
+      console.error("Calendar API error:", errorText);
+      throw new Error(`Calendar API error: ${errorText}`);
+    }
+
+    const calendarData = await calendarResponse.json();
+    console.log(`Fetched ${calendarData.items?.length ?? 0} calendar events`);
+
+    // Process events to make them more AI-friendly
+    const processedEvents = calendarData.items?.map(event => ({
+      title: event.summary,
+      start: event.start.dateTime || event.start.date,
+      end: event.end.dateTime || event.end.date,
+      description: event.description,
+      attendees: event.attendees?.length || 0,
+      isAllDay: !event.start.dateTime,
+    })) || [];
 
     // Add calendar data to context
     contextData.calendar = {
-      events: calendarData.items || [],
+      events: processedEvents,
       isConnected: true,
-      total: calendarData.items?.length || 0,
-      upcomingEvents: calendarData.items?.slice(0, 5) || []
+      total: processedEvents.length,
+      upcomingEvents: processedEvents.slice(0, 5),
+      timeRange: {
+        from: timeMin.toISOString(),
+        to: timeMax.toISOString()
+      }
     };
 
   } catch (error) {
