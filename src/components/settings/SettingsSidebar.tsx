@@ -41,8 +41,8 @@ export const SettingsSidebar = () => {
           className={({ isActive }) =>
             `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`
           }
         >
@@ -54,8 +54,8 @@ export const SettingsSidebar = () => {
           className={({ isActive }) =>
             `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`
           }
         >
@@ -67,8 +67,8 @@ export const SettingsSidebar = () => {
           className={({ isActive }) =>
             `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`
           }
         >
@@ -80,8 +80,8 @@ export const SettingsSidebar = () => {
           className={({ isActive }) =>
             `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`
           }
         >
@@ -93,8 +93,8 @@ export const SettingsSidebar = () => {
           className={({ isActive }) =>
             `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
               isActive
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100"
+                ? "bg-gray-100 text-gray-900"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
             }`
           }
         >
