@@ -1,9 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { useState } from "react";
 
 const ProfileSettings = () => {
@@ -17,11 +15,11 @@ const ProfileSettings = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-[800px] space-y-6">
       <h1 className="text-3xl font-bold">Profile Settings</h1>
       
-      <Card>
-        <CardHeader>
+      <Card className="w-full">
+        <CardHeader className="text-left">
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>
             Your account details and preferences.
@@ -33,7 +31,7 @@ const ProfileSettings = () => {
             <Input 
               value={user?.email || ''} 
               readOnly 
-              className="bg-muted"
+              className="bg-muted max-w-lg"
             />
           </div>
           
@@ -42,7 +40,7 @@ const ProfileSettings = () => {
             <Input 
               value={user?.user_metadata?.full_name || user?.email?.split('@')[0] || ''} 
               readOnly 
-              className="bg-muted"
+              className="bg-muted max-w-lg"
             />
           </div>
         </CardContent>
