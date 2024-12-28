@@ -33,6 +33,30 @@ export const MessageItem = ({ message, onRefresh }: MessageItemProps) => {
     }
   };
 
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Get source icon
+  const getSourceIcon = (source: string) => {
+    switch (source.toLowerCase()) {
+      case 'email':
+        return <Mail className="h-4 w-4 text-blue-500" />;
+      case 'whatsapp':
+        return <Mail className="h-4 w-4 text-green-500" />;
+      case 'linkedin':
+        return <Mail className="h-4 w-4 text-blue-700" />;
+      default:
+        return <Mail className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
   return (
     <div className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
       !message.is_read ? 'bg-purple-50 dark:bg-purple-900/10' : ''
@@ -41,14 +65,15 @@ export const MessageItem = ({ message, onRefresh }: MessageItemProps) => {
         <Avatar className="w-10 h-10">
           <AvatarImage src={message.sender_avatar_url ?? undefined} />
           <AvatarFallback>
-            {message.sender_name.slice(0, 2).toUpperCase()}
+            {getInitials(message.sender_name)}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-semibold truncate">
+              <span className="font-semibold truncate flex items-center gap-2">
+                {getSourceIcon(message.source)}
                 {message.sender_name}
               </span>
               <span className="text-sm text-gray-500">

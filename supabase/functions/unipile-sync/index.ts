@@ -58,24 +58,26 @@ serve(async (req) => {
 
     // Process and store messages
     if (messages.items && messages.items.length > 0) {
+      const formattedMessages = messages.items.map((msg: any) => ({
+        user_id: user.id,
+        external_id: msg.id,
+        source: msg.source?.toLowerCase() || 'email',
+        sender_name: msg.from?.name || msg.from?.email || 'Unknown Sender',
+        sender_email: msg.from?.email,
+        sender_phone: msg.from?.phone,
+        sender_avatar_url: msg.from?.avatar_url,
+        content: msg.content || msg.snippet || 'No content available',
+        subject: msg.subject || 'No subject',
+        received_at: msg.date || new Date().toISOString(),
+        is_read: msg.is_read || false,
+        is_archived: msg.is_archived || false,
+        thread_id: msg.thread_id,
+        labels: msg.labels,
+        metadata: msg.metadata
+      }));
+
       const { error: insertError } = await supabase.from('unified_messages').upsert(
-        messages.items.map((msg: any) => ({
-          user_id: user.id,
-          external_id: msg.id,
-          source: msg.source?.toLowerCase() || 'email',
-          sender_name: msg.from?.name || msg.from?.email || 'Unknown',
-          sender_email: msg.from?.email,
-          sender_phone: msg.from?.phone,
-          sender_avatar_url: msg.from?.avatar_url,
-          content: msg.content || msg.snippet || '',
-          subject: msg.subject,
-          received_at: msg.date || new Date().toISOString(),
-          is_read: msg.is_read || false,
-          is_archived: msg.is_archived || false,
-          thread_id: msg.thread_id,
-          labels: msg.labels,
-          metadata: msg.metadata
-        })),
+        formattedMessages,
         {
           onConflict: ['external_id', 'user_id']
         }
