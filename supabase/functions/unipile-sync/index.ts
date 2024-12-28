@@ -54,39 +54,50 @@ serve(async (req) => {
     }
 
     const messages = await response.json();
-    console.log('Fetched messages:', messages);
+    console.log(`Fetched ${messages.items?.length || 0} messages from Unipile`);
 
     // Process and store messages
-    const { error: insertError } = await supabase.from('unified_messages').upsert(
-      messages.items.map((msg: any) => ({
-        user_id: user.id,
-        external_id: msg.id,
-        source: msg.source?.toLowerCase() || 'email',
-        sender_name: msg.from?.name || msg.from?.email || 'Unknown',
-        sender_email: msg.from?.email,
-        sender_phone: msg.from?.phone,
-        sender_avatar_url: msg.from?.avatar_url,
-        content: msg.content || msg.snippet || '',
-        subject: msg.subject,
-        received_at: msg.date || new Date().toISOString(),
-        is_read: msg.is_read || false,
-        is_archived: msg.is_archived || false,
-        thread_id: msg.thread_id,
-        labels: msg.labels,
-        metadata: msg.metadata
-      })),
-      { onConflict: 'external_id' }
-    );
+    if (messages.items && messages.items.length > 0) {
+      const { error: insertError } = await supabase.from('unified_messages').upsert(
+        messages.items.map((msg: any) => ({
+          user_id: user.id,
+          external_id: msg.id,
+          source: msg.source?.toLowerCase() || 'email',
+          sender_name: msg.from?.name || msg.from?.email || 'Unknown',
+          sender_email: msg.from?.email,
+          sender_phone: msg.from?.phone,
+          sender_avatar_url: msg.from?.avatar_url,
+          content: msg.content || msg.snippet || '',
+          subject: msg.subject,
+          received_at: msg.date || new Date().toISOString(),
+          is_read: msg.is_read || false,
+          is_archived: msg.is_archived || false,
+          thread_id: msg.thread_id,
+          labels: msg.labels,
+          metadata: msg.metadata
+        })),
+        {
+          onConflict: 'external_id,user_id',
+          ignoreDuplicates: false
+        }
+      );
 
-    if (insertError) {
-      console.error('Error inserting messages:', insertError);
-      throw insertError;
+      if (insertError) {
+        console.error('Error inserting messages:', insertError);
+        throw insertError;
+      }
+
+      console.log('Messages sync completed successfully');
+    } else {
+      console.log('No messages found to sync');
     }
-
-    console.log('Messages sync completed successfully');
     
     return new Response(
-      JSON.stringify({ success: true, message: 'Messages synced successfully' }),
+      JSON.stringify({ 
+        success: true, 
+        message: 'Messages synced successfully',
+        count: messages.items?.length || 0
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
