@@ -38,7 +38,7 @@ const ActivityItem = ({ icon: Icon, title, subtitle, iconColor }: ActivityItemPr
   };
 
   return (
-    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
+    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <div className="flex items-center gap-3">
         <div className={`h-10 w-10 rounded-full ${colorClasses[iconColor]} flex items-center justify-center`}>
           <Icon className="h-5 w-5" />

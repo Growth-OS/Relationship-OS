@@ -31,8 +31,8 @@ export const DashboardChat = ({
   }, [messages]);
 
   return (
-    <Card className="flex flex-col h-[calc(100vh-13rem)] bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800 dark:to-gray-900 border border-purple-100 dark:border-gray-700 shadow-lg">
-      <div className="p-4 border-b border-purple-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+    <Card className="flex flex-col h-[calc(100vh-13rem)] bg-white dark:bg-gray-800 border-purple-100 dark:border-gray-700 shadow-lg">
+      <div className="p-4 border-b border-purple-100 dark:border-gray-700 bg-white dark:bg-gray-800">
         <h2 className="text-lg font-semibold flex items-center gap-2 text-purple-900 dark:text-purple-100">
           <Bot className="w-5 h-5 text-purple-500" />
           AI Assistant
@@ -72,7 +72,7 @@ export const DashboardChat = ({
         ))}
       </div>
       
-      <div className="border-t border-purple-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+      <div className="border-t border-purple-100 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="p-4 space-y-4">
           <div className="flex gap-2">
             <Input

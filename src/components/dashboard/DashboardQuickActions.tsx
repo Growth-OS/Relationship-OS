@@ -11,7 +11,7 @@ export const DashboardQuickActions = () => {
   ];
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 border-none">
+    <Card className="p-6 bg-white dark:bg-gray-800 border border-purple-100 dark:border-gray-700">
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Quick Actions</h2>
       <div className="grid grid-cols-2 gap-4">
         {actions.map((action, index) => {
