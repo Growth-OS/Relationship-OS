@@ -13,6 +13,9 @@ interface EmailItemProps {
 
 export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => {
   const archiveMutation = useArchiveEmail();
+  
+  // Get the first character of the email address, with fallback
+  const avatarInitial = message.from?.charAt(0) || '?';
 
   return (
     <div 
@@ -27,11 +30,11 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           <div className="flex items-center justify-between gap-8">
             <div className="flex items-center gap-3 min-w-0 flex-shrink">
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center text-white uppercase">
-                {message.from.charAt(0)}
+                {avatarInitial}
               </div>
               <div className="text-left min-w-0">
                 <p className="font-medium text-gray-900 truncate">
-                  {message.from}
+                  {message.from || 'Unknown Sender'}
                 </p>
                 <span className="text-xs text-gray-500">
                   {new Date(message.date).toLocaleString()}
@@ -50,7 +53,7 @@ export const EmailItem = ({ message, isSelected, onSelect }: EmailItemProps) => 
           
           <div className="text-left min-w-0">
             <p className="font-medium mb-1 text-gray-900 truncate">
-              {message.subject}
+              {message.subject || 'No Subject'}
             </p>
             {!isSelected && (
               <p className="text-sm line-clamp-1 text-gray-600">
