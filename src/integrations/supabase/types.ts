@@ -260,6 +260,51 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_outbound: boolean | null
+          received_at: string
+          sender_avatar_url: string | null
+          sender_name: string
+          sender_profile_url: string | null
+          status: string | null
+          thread_id: string | null
+          unipile_message_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_outbound?: boolean | null
+          received_at: string
+          sender_avatar_url?: string | null
+          sender_name: string
+          sender_profile_url?: string | null
+          status?: string | null
+          thread_id?: string | null
+          unipile_message_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_outbound?: boolean | null
+          received_at?: string
+          sender_avatar_url?: string | null
+          sender_name?: string
+          sender_profile_url?: string | null
+          status?: string | null
+          thread_id?: string | null
+          unipile_message_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       linkedin_profiles: {
         Row: {
           created_at: string
