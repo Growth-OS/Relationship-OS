@@ -22,7 +22,7 @@ export const EmailCompose = ({ isOpen, onClose }: EmailComposeProps) => {
     try {
       setIsSending(true);
       
-      const response = await fetch(`${process.env.SUPABASE_URL}/functions/v1/send-email`, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
