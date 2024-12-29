@@ -29,7 +29,7 @@ serve(async (req) => {
     console.log('Using Unipile base URL:', unipileBaseUrl);
 
     const url = new URL(req.url);
-    const chatId = url.searchParams.get('chatId');
+    const { chatId } = await req.json().catch(() => ({}));
 
     const headers = {
       'X-API-KEY': UNIPILE_API_KEY,
