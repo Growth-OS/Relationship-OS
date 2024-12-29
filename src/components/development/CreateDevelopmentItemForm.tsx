@@ -42,7 +42,11 @@ export const CreateDevelopmentItemForm = ({ onSuccess }: CreateDevelopmentItemFo
       const { error } = await supabase
         .from("development_items")
         .insert({
-          ...values,
+          title: values.title,
+          description: values.description,
+          category: values.category,
+          priority: values.priority,
+          due_date: values.due_date || null,
           user_id: user.id,
         });
 
