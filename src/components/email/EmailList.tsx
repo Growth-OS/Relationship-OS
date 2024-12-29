@@ -34,6 +34,8 @@ export const EmailList = ({ className }: { className?: string }) => {
       if (error) throw error;
       return data as Email[];
     },
+    // Add a refetch interval of 60 seconds (1 minute)
+    refetchInterval: 60000,
   });
 
   const handleToggleStar = async (e: React.MouseEvent, emailId: string, isStarred: boolean) => {
