@@ -84,15 +84,12 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       }
 
       const calculatedData = calculateTotals(data);
+      const { items, ...invoiceData } = calculatedData; // Separate items from invoice data
 
       // Create invoice first
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
-        .insert({
-          ...calculatedData,
-          user_id: user.id,
-          status: 'draft',
-        })
+        .insert(invoiceData)
         .select()
         .single();
 
@@ -112,7 +109,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(
-          calculatedData.items.map((item) => ({
+          items.map((item) => ({
             invoice_id: invoice.id,
             ...item,
           }))
