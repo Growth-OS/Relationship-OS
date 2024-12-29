@@ -24,7 +24,7 @@ export const LinkedInInbox = () => {
     refetchInterval: 60000, // Refetch every minute
   });
 
-  const { data: selectedChat, isLoadingChat } = useQuery({
+  const { data: selectedChat, isLoading: isLoadingSelectedChat } = useQuery({
     queryKey: ['linkedin-messages', chatsResponse?.chats?.[0]?.id],
     queryFn: async () => {
       if (!chatsResponse?.chats?.[0]?.id) return null;
@@ -71,7 +71,7 @@ export const LinkedInInbox = () => {
 
       <div className="flex-1">
         <ScrollArea className="h-[calc(100vh-12rem)] p-4">
-          {isLoadingChat ? (
+          {isLoadingSelectedChat ? (
             <div className="space-y-4">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
