@@ -1,11 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Sun, Bot, Mail } from "lucide-react";
+import { Send, Sun, Bot } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { Message } from "./types";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DashboardChatProps {
   messages: Message[];
@@ -25,21 +23,6 @@ export const DashboardChat = ({
   onMorningBriefing
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // Fetch recent emails for context
-  const { data: recentEmails } = useQuery({
-    queryKey: ['recent-emails'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .order('received_at', { ascending: false })
-        .limit(10);
-      
-      if (error) throw error;
-      return data;
-    },
-  });
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -67,14 +50,6 @@ export const DashboardChat = ({
             <p className="text-center">
               Start a conversation or get your morning briefing
             </p>
-            <div className="flex items-center gap-2 text-sm">
-              <Mail className="w-4 h-4" />
-              {recentEmails ? (
-                <span>{recentEmails.length} recent emails available for context</span>
-              ) : (
-                <span>Loading email context...</span>
-              )}
-            </div>
           </div>
         )}
         {messages.map((message, index) => (
@@ -101,7 +76,7 @@ export const DashboardChat = ({
         <div className="p-4 space-y-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Ask about your emails, tasks, or get help..."
+              placeholder="Ask about your tasks, or get help..."
               value={input}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
