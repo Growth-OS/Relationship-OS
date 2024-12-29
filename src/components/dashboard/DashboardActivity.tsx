@@ -11,6 +11,7 @@ export const DashboardActivity = () => {
   const { data: tasks, isLoading: isLoadingTasks } = useQuery({
     queryKey: ["pending-tasks"],
     queryFn: async () => {
+      console.log("Fetching pending tasks...");
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
@@ -19,7 +20,11 @@ export const DashboardActivity = () => {
         .order('due_date', { ascending: true })
         .limit(5);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching tasks:", error);
+        throw error;
+      }
+      console.log("Fetched tasks:", data);
       return data;
     }
   });
@@ -27,6 +32,7 @@ export const DashboardActivity = () => {
   const { data: meetings } = useQuery({
     queryKey: ["upcoming-meetings"],
     queryFn: async () => {
+      console.log("Checking Google Calendar connection...");
       const { data: connection, error } = await supabase
         .from('oauth_connections')
         .select('*')
@@ -34,7 +40,11 @@ export const DashboardActivity = () => {
         .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error checking calendar connection:", error);
+        throw error;
+      }
+      console.log("Calendar connection status:", !!connection);
       if (!connection) return { todayCount: 0 };
 
       // This would normally fetch from Google Calendar
@@ -46,15 +56,23 @@ export const DashboardActivity = () => {
   const { data: recentEmails, isLoading: isLoadingEmails } = useQuery({
     queryKey: ["recent-emails"],
     queryFn: async () => {
+      console.log("Fetching recent emails...");
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log("Current user:", user?.id);
+      
       const { data, error } = await supabase
         .from('emails')
         .select('*')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', user?.id)
         .eq('is_read', false)
         .order('received_at', { ascending: false })
         .limit(5);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching emails:", error);
+        throw error;
+      }
+      console.log("Fetched emails:", data);
       return data;
     }
   });

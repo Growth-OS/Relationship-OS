@@ -14,7 +14,7 @@ export const EmailInbox = () => {
   const { data: emails, isLoading, error } = useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
-      console.log("Fetching emails...");
+      console.log("Fetching emails for inbox...");
       const { data: { user } } = await supabase.auth.getUser();
       console.log("Current user:", user?.id);
       
@@ -29,8 +29,7 @@ export const EmailInbox = () => {
         console.error("Error fetching emails:", error);
         throw error;
       }
-      
-      console.log("Fetched emails:", data);
+      console.log("Fetched emails for inbox:", data);
       return data;
     }
   });
