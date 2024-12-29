@@ -1,13 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
-import { handleFinancialData } from './handlers/financialHandler.ts';
-import { handleTaskData } from './handlers/taskHandler.ts';
-import { handleDealData } from './handlers/dealHandler.ts';
-import { handleAffiliateData } from './handlers/affiliateHandler.ts';
-import { handleSubstackData } from './handlers/substackHandler.ts';
-import { handleProspectData } from './handlers/prospectHandler.ts';
-import { handleCalendarData } from './handlers/calendarHandler.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,48 +8,76 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { message, userId } = await req.json();
-    const contextData: Record<string, any> = {};
+    console.log('Received request:', { message, userId });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch all relevant data based on message content
-    if (isFinancialQuery(message)) {
-      await handleFinancialData(supabase, userId, contextData);
+    // Fetch user's context data
+    const [tasks, meetings, emails] = await Promise.all([
+      // Get pending tasks
+      supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('completed', false)
+        .order('due_date', { ascending: true })
+        .limit(5),
+      
+      // Get upcoming meetings from oauth_connections
+      supabase
+        .from('oauth_connections')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('provider', 'google')
+        .maybeSingle(),
+      
+      // Get unread emails
+      supabase
+        .from('emails')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_read', false)
+        .order('received_at', { ascending: false })
+        .limit(5)
+    ]);
+
+    console.log('Fetched context:', { tasks: tasks.data, hasMeetings: !!meetings.data, emails: emails.data });
+
+    let contextPrompt = '';
+    
+    // Add tasks context
+    if (tasks.data && tasks.data.length > 0) {
+      contextPrompt += `\nPending tasks:\n${tasks.data.map(task => 
+        `- ${task.title}${task.due_date ? ` (due: ${task.due_date})` : ''}`
+      ).join('\n')}`;
     }
 
-    if (isTaskQuery(message)) {
-      await handleTaskData(supabase, userId, contextData);
+    // Add meetings context
+    if (meetings.data) {
+      contextPrompt += '\nCalendar is connected.';
     }
 
-    if (isDealQuery(message)) {
-      await handleDealData(supabase, userId, contextData);
+    // Add emails context
+    if (emails.data && emails.data.length > 0) {
+      contextPrompt += `\nUnread emails: ${emails.data.length}`;
     }
 
-    if (isAffiliateQuery(message)) {
-      await handleAffiliateData(supabase, userId, contextData);
-    }
+    // Prepare the chat message
+    const systemPrompt = `You are a helpful AI assistant focused on productivity and task management. 
+Your responses should be clear, concise, and action-oriented.
+Current user context:${contextPrompt}`;
 
-    if (isSubstackQuery(message)) {
-      await handleSubstackData(supabase, userId, contextData);
-    }
-
-    if (isProspectQuery(message)) {
-      await handleProspectData(supabase, userId, contextData);
-    }
-
-    if (isCalendarQuery(message)) {
-      await handleCalendarData(supabase, userId, contextData);
-    }
-
+    // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -66,44 +87,22 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          {
-            role: 'system',
-            content: `You are a professional AI assistant focused on helping users manage their work and productivity in Growth OS. Your responses should be:
-
-1. Clear and concise
-2. Professional but friendly
-3. Action-oriented
-4. Specific to the user's data
-
-When analyzing data:
-- Present numbers clearly (e.g., "5 tasks" not "five tasks")
-- Use bullet points for lists
-- Include relevant dates in DD/MM/YYYY format
-- Highlight urgent or important items
-- Provide context when relevant
-
-When discussing calendar events:
-- Format times in a user-friendly way
-- Highlight conflicts or busy periods
-- Mention free time slots when relevant
-- Group events by day when listing multiple events
-
-Current context data: ${JSON.stringify(contextData)}`,
-          },
-          { role: 'user', content: message },
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
         ],
       }),
     });
 
     const aiData = await openAIResponse.json();
-    const response = aiData.choices[0].message.content;
+    console.log('OpenAI response received');
 
     return new Response(
-      JSON.stringify({ response, contextData }),
+      JSON.stringify({ response: aiData.choices[0].message.content }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
+
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in chat-with-data function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
@@ -113,38 +112,3 @@ Current context data: ${JSON.stringify(contextData)}`,
     );
   }
 });
-
-const isFinancialQuery = (message: string): boolean => {
-  const keywords = ['financ', 'money', 'transaction', 'expense', 'income', 'spent', 'earned', 'payment', 'invoice', 'budget'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isTaskQuery = (message: string): boolean => {
-  const keywords = ['task', 'todo', 'to-do', 'deadline', 'due', 'priority'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isDealQuery = (message: string): boolean => {
-  const keywords = ['deal', 'pipeline', 'client', 'prospect', 'opportunity', 'sales'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isAffiliateQuery = (message: string): boolean => {
-  const keywords = ['affiliate', 'commission', 'earning', 'partner', 'referral'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isSubstackQuery = (message: string): boolean => {
-  const keywords = ['substack', 'post', 'article', 'newsletter', 'content', 'publish'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isProspectQuery = (message: string): boolean => {
-  const keywords = ['prospect', 'lead', 'contact', 'potential', 'opportunity'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
-
-const isCalendarQuery = (message: string): boolean => {
-  const keywords = ['calendar', 'schedule', 'meeting', 'appointment', 'event', 'availability', 'free time', 'busy'];
-  return keywords.some(keyword => message.toLowerCase().includes(keyword));
-};
