@@ -21,10 +21,12 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Ensure UNIPILE_DSN starts with https://
-    const unipileDsn = UNIPILE_DSN?.startsWith('https://') 
-      ? UNIPILE_DSN 
-      : `https://${UNIPILE_DSN}`;
+    // Format the Unipile DSN correctly
+    const unipileBaseUrl = UNIPILE_DSN?.includes('://')
+      ? UNIPILE_DSN
+      : `https://${UNIPILE_DSN}:13619`;
+
+    console.log('Using Unipile base URL:', unipileBaseUrl);
 
     const url = new URL(req.url);
     const chatId = url.searchParams.get('chatId');
@@ -37,10 +39,17 @@ serve(async (req) => {
     if (chatId) {
       // Get messages for a specific chat
       console.log(`Fetching messages for chat ${chatId}`);
-      const response = await fetch(
-        `${unipileDsn}/api/v1/chats/${chatId}/messages`,
-        { headers }
-      );
+      const messagesUrl = `${unipileBaseUrl}/api/v1/chats/${chatId}/messages`;
+      console.log('Messages URL:', messagesUrl);
+      
+      const response = await fetch(messagesUrl, { headers });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Error fetching messages:', errorText);
+        throw new Error(`Failed to fetch messages: ${response.status} ${errorText}`);
+      }
+      
       const data = await response.json();
       console.log(`Retrieved ${data?.length || 0} messages`);
 
@@ -52,10 +61,17 @@ serve(async (req) => {
 
     // Get all chats
     console.log('Fetching all chats');
-    const response = await fetch(
-      `${unipileDsn}/api/v1/chats`,
-      { headers }
-    );
+    const chatsUrl = `${unipileBaseUrl}/api/v1/chats`;
+    console.log('Chats URL:', chatsUrl);
+    
+    const response = await fetch(chatsUrl, { headers });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error fetching chats:', errorText);
+      throw new Error(`Failed to fetch chats: ${response.status} ${errorText}`);
+    }
+    
     const data = await response.json();
     console.log(`Retrieved ${data?.length || 0} chats`);
 
