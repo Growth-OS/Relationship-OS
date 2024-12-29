@@ -7,6 +7,10 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 serve(async (req) => {
   try {
     const { accountId } = await req.json();
+    console.log("Registering webhook for account:", accountId);
+    
+    const webhookUrl = `${SUPABASE_URL}/functions/v1/email-webhook`;
+    console.log("Webhook URL:", webhookUrl);
     
     // Register webhook with Unipile
     const response = await fetch('https://api.unipile.com/v1/webhooks', {
@@ -17,7 +21,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         account_id: accountId,
-        url: `${SUPABASE_URL}/functions/v1/email-webhook`,
+        url: webhookUrl,
         secret: WEBHOOK_SECRET,
         events: ['email.created', 'email.updated'],
       })
