@@ -33,56 +33,35 @@ serve(async (req) => {
 
     const { chatId } = await req.json().catch(() => ({}));
 
-    // First, trigger a sync for LinkedIn messages specifically
-    console.log('Triggering sync for LinkedIn messages...');
-    try {
-      const syncResponse = await fetch(`${unipileBaseUrl}/api/v1/messages/sync`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          provider: 'linkedin',
-        }),
-      });
+    // First, get all messages without syncing
+    console.log('Fetching messages from Unipile...');
+    const messagesUrl = `${unipileBaseUrl}/api/v1/messages`;
+    const response = await fetch(messagesUrl, { 
+      method: 'GET',
+      headers,
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Failed to fetch messages: ${errorText}`);
+      throw new Error(`Failed to fetch messages: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Messages response:', data);
 
-      if (!syncResponse.ok) {
-        const errorText = await syncResponse.text();
-        console.error('Sync failed:', errorText);
-        throw new Error(`Sync failed with status ${syncResponse.status}: ${errorText}`);
-      }
-
-      console.log('Sync successful');
-    } catch (error) {
-      console.error('Error during sync:', error);
-      throw new Error(`Failed to sync messages: ${error.message}`);
+    // Ensure we have a valid response structure
+    if (!data || typeof data !== 'object') {
+      console.error('Invalid response data:', data);
+      throw new Error('Invalid response data structure');
     }
 
+    // Handle both array and object with items property
+    const messageItems = Array.isArray(data) ? data : (data.items || []);
+
     if (chatId) {
-      // Get messages for a specific chat
-      console.log(`Fetching messages for chat ${chatId}`);
-      const messagesUrl = `${unipileBaseUrl}/api/v1/messages`;
-      const response = await fetch(messagesUrl, { 
-        method: 'GET',
-        headers,
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Failed to fetch messages: ${errorText}`);
-        throw new Error(`Failed to fetch messages: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log('Messages response:', data);
-
-      // Ensure we have a valid response structure
-      if (!data || typeof data !== 'object') {
-        console.error('Invalid response data:', data);
-        throw new Error('Invalid response data structure');
-      }
-
-      // Handle both array and object with items property
-      const messageItems = Array.isArray(data) ? data : (data.items || []);
-      
+      // Filter messages for a specific chat
+      console.log(`Filtering messages for chat ${chatId}`);
       const messages = messageItems
         .filter(msg => msg.thread_id === chatId)
         .map(msg => ({
@@ -101,27 +80,8 @@ serve(async (req) => {
       );
     }
 
-    // Get all chats
-    console.log('Fetching all chats');
-    const chatsUrl = `${unipileBaseUrl}/api/v1/messages`;
-    const response = await fetch(chatsUrl, { headers });
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Failed to fetch chats: ${errorText}`);
-      throw new Error(`Failed to fetch chats: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    console.log('Chats response:', data);
-
-    if (!data || typeof data !== 'object') {
-      console.error('Invalid chats response data:', data);
-      throw new Error('Invalid chats response data structure');
-    }
-
     // Group messages by thread_id to create chat list
-    const messageItems = Array.isArray(data) ? data : (data.items || []);
+    console.log('Creating chat list from messages...');
     const chatMap = new Map();
 
     messageItems.forEach(msg => {
@@ -144,6 +104,7 @@ serve(async (req) => {
     });
 
     const chats = Array.from(chatMap.values());
+    console.log('Generated chat list:', chats);
     
     return new Response(
       JSON.stringify({ items: chats }),
