@@ -53,7 +53,7 @@ const Dashboard = () => {
   });
 
   // Update messages when chat history changes
-  useState(() => {
+  useEffect(() => {
     if (chatHistory) {
       setMessages(chatHistory);
     }
