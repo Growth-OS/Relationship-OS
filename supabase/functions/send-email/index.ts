@@ -1,20 +1,21 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
-const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN");
 const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY");
+const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN");
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    if (!UNIPILE_DSN || !UNIPILE_API_KEY) {
+    if (!UNIPILE_API_KEY || !UNIPILE_DSN) {
       throw new Error("Missing required environment variables");
     }
 
@@ -24,11 +25,36 @@ serve(async (req) => {
     // Ensure UNIPILE_DSN has the correct protocol
     const unipileDsn = UNIPILE_DSN.startsWith('https://') ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
     
+    // First, fetch the user's email accounts
+    console.log("Fetching email accounts from Unipile...");
+    const accountsResponse = await fetch(`${unipileDsn}/api/v1/accounts?provider=gmail`, {
+      headers: {
+        'X-API-KEY': UNIPILE_API_KEY,
+      },
+    });
+
+    if (!accountsResponse.ok) {
+      const error = await accountsResponse.text();
+      console.error("Failed to fetch accounts:", error);
+      throw new Error(`Failed to fetch accounts: ${error}`);
+    }
+
+    const accounts = await accountsResponse.json();
+    console.log("Fetched accounts:", accounts);
+
+    if (!accounts.length) {
+      throw new Error("No email accounts found");
+    }
+
+    // Use the first active account
+    const accountId = accounts[0].id;
+    console.log("Using account ID:", accountId);
+
     // Create form data
     const formData = new FormData();
 
     // Add required fields
-    formData.append("account_id", "kzAxdybMQ7ipVxK1U6kwZw");
+    formData.append("account_id", accountId);
     formData.append("subject", subject);
     formData.append("body", body);
     
@@ -60,15 +86,15 @@ serve(async (req) => {
     const response = await fetch(`${unipileDsn}/api/v1/emails`, {
       method: "POST",
       headers: {
-        "X-API-KEY": UNIPILE_API_KEY,
+        'X-API-KEY': UNIPILE_API_KEY,
       },
       body: formData,
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Unipile API error:", errorText);
-      throw new Error(`Failed to send email: ${errorText}`);
+      const error = await response.text();
+      console.error("Unipile API error:", error);
+      throw new Error(`Failed to send email: ${error}`);
     }
 
     const result = await response.json();
@@ -81,7 +107,7 @@ serve(async (req) => {
     console.error("Error in send-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
+      { 
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
