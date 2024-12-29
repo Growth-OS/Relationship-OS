@@ -25,6 +25,7 @@ interface InvoiceFormData {
     amount?: number;
   }[];
   tax_rate?: number;
+  payment_terms?: string;
 }
 
 interface CreateInvoiceFormProps {
@@ -38,11 +39,12 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
     defaultValues: {
       invoice_number: "",
       company_name: "Prospect Labs UAB",
-      company_address: "Verkiu g. 31B-2\nVILNIUS LT-09108\nLITHUANIA",
+      company_address: "Verkiu g. 31B2, LT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
       client_name: "",
       items: [{ description: "", quantity: 1, unit_price: 0 }],
       issue_date: new Date().toISOString().split('T')[0],
       due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      payment_terms: "Bank: Revolut\nBank Address: 09108, Verkiu 31B2, Laisves Namai, Vilnius, Lithuania\nAccount Holder: UAB Prospect Labs\nIBAN Number: LT81 3250 0549 4897 7554\nSwift / BIC: REVOLT21\nIntermediary BIC: BARCGB22"
     },
   });
 

@@ -22,6 +22,7 @@ interface InvoicePreviewProps {
     tax_amount?: number;
     total: number;
     notes?: string;
+    payment_terms?: string;
   };
 }
 
@@ -45,7 +46,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
         <div>
           <h2 className="text-xl font-bold text-gray-800">{invoice.company_name}</h2>
           {invoice.company_address && (
-            <p className="text-gray-600 text-sm">{invoice.company_address}</p>
+            <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.company_address}</p>
           )}
           {invoice.company_email && (
             <p className="text-gray-600 text-sm">{invoice.company_email}</p>
@@ -68,7 +69,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
         <h3 className="text-gray-600 font-medium mb-1 text-sm">Bill To:</h3>
         <p className="font-medium text-gray-800">{invoice.client_name}</p>
         {invoice.client_address && (
-          <p className="text-gray-600 text-sm">{invoice.client_address}</p>
+          <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.client_address}</p>
         )}
         {invoice.client_email && (
           <p className="text-gray-600 text-sm">{invoice.client_email}</p>
@@ -98,7 +99,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
       </table>
 
       {/* Totals */}
-      <div className="flex justify-end">
+      <div className="flex justify-end mb-6">
         <div className="w-64">
           <div className="flex justify-between py-1">
             <span className="text-gray-600">Subtotal:</span>
@@ -116,6 +117,14 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           </div>
         </div>
       </div>
+
+      {/* Payment Terms */}
+      {invoice.payment_terms && (
+        <div className="mt-6 border-t border-gray-200 pt-4">
+          <h3 className="text-gray-600 font-medium mb-2 text-sm">Payment Details:</h3>
+          <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.payment_terms}</p>
+        </div>
+      )}
 
       {/* Notes */}
       {invoice.notes && (
