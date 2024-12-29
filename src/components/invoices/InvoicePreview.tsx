@@ -26,6 +26,15 @@ interface InvoicePreviewProps {
 }
 
 export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, 'MMM d, yyyy');
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
+
   return (
     <div className="bg-white p-8 rounded-lg shadow-sm">
       {/* Header */}
@@ -43,10 +52,10 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">INVOICE</h1>
           <p className="text-gray-600">Invoice #: {invoice.invoice_number}</p>
           <p className="text-gray-600">
-            Issue Date: {format(new Date(invoice.issue_date), 'MMM d, yyyy')}
+            Issue Date: {formatDate(invoice.issue_date)}
           </p>
           <p className="text-gray-600">
-            Due Date: {format(new Date(invoice.due_date), 'MMM d, yyyy')}
+            Due Date: {formatDate(invoice.due_date)}
           </p>
         </div>
       </div>
