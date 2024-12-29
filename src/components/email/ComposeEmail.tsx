@@ -26,23 +26,8 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
 
     setIsSending(true);
     try {
-      const { data: connection, error: connectionError } = await supabase
-        .from("oauth_connections")
-        .select("id")
-        .eq("provider", "google")
-        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
-        .maybeSingle();
-
-      if (connectionError) throw connectionError;
-
-      if (!connection) {
-        toast.error("Please connect your Google account first");
-        return;
-      }
-
       const response = await supabase.functions.invoke("send-email", {
         body: {
-          accountId: connection.id,
           to: [{ identifier: to }],
           subject,
           body: content,
