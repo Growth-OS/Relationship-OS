@@ -52,6 +52,7 @@ export const routes: RouteObject[] = [
       },
       {
         path: "inbox",
+        errorElement: <ErrorBoundary />,
         children: [
           {
             index: true,
