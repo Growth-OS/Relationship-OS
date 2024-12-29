@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { InvoicesTable } from "@/components/invoices/InvoicesTable";
 import { CreateInvoiceDialog } from "@/components/invoices/CreateInvoiceDialog";
+import { InvoicesTable } from "@/components/invoices/InvoicesTable";
 
 const Invoices = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
