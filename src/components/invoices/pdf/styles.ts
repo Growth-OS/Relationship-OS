@@ -30,7 +30,7 @@ export const pdfStyles = `
     white-space: pre-line;
   }
   .invoice-info {
-    text-align: right;
+    text-align: left;
     font-size: 14px;
   }
   .invoice-info p {
@@ -108,7 +108,7 @@ export const pdfStyles = `
     font-size: 14px;
     color: #64748b;
   }
-  .notes h3, .payment-terms h3 {
+  .notes h3 {
     color: #0f172a;
     font-size: 14px;
     margin: 0 0 8px 0;
