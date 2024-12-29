@@ -1,181 +1,61 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY");
+const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN");
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log("Gmail function called");
-    
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
-
-    const { action, messageId, email } = await req.json();
-    const authHeader = req.headers.get("Authorization");
-    
-    if (!authHeader) {
-      console.error("No authorization header");
-      throw new Error("No authorization header");
+    if (!UNIPILE_API_KEY || !UNIPILE_DSN) {
+      throw new Error("Missing required environment variables");
     }
 
-    console.log("Action:", action);
+    const { action } = await req.json();
+    console.log("Gmail action:", action);
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.replace("Bearer ", "")
-    );
+    // Ensure UNIPILE_DSN has the correct protocol
+    const unipileDsn = UNIPILE_DSN.startsWith('https://') ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
 
-    if (userError || !user) {
-      console.error("User error:", userError);
-      throw new Error("Invalid user");
-    }
-
-    console.log("User found:", user.id);
-
-    const { data: connection, error: connectionError } = await supabase
-      .from("oauth_connections")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("provider", "google")
-      .single();
-
-    if (connectionError || !connection) {
-      console.error("Connection error:", connectionError);
-      throw new Error("No Google connection found");
-    }
-
-    console.log("Found Google connection, checking token...");
-
-    // Check if token is expired and refresh if needed
-    if (new Date(connection.expires_at) < new Date()) {
-      console.log("Token expired, refreshing...");
-      const response = await fetch("https://oauth2.googleapis.com/token", {
-        method: "POST",
+    if (action === 'get_auth_url') {
+      const response = await fetch(`${unipileDsn}/api/v1/oauth/gmail/url`, {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          'X-API-KEY': UNIPILE_API_KEY,
         },
-        body: new URLSearchParams({
-          client_id: Deno.env.get("GOOGLE_CLIENT_ID") ?? "",
-          client_secret: Deno.env.get("GOOGLE_CLIENT_SECRET") ?? "",
-          refresh_token: connection.refresh_token,
-          grant_type: "refresh_token",
-        }),
       });
 
-      const data = await response.json();
-      
       if (!response.ok) {
-        console.error("Token refresh error:", data);
-        throw new Error("Failed to refresh token");
+        const error = await response.text();
+        console.error("Failed to get auth URL:", error);
+        throw new Error(`Failed to get auth URL: ${error}`);
       }
 
-      console.log("Token refreshed successfully");
+      const data = await response.json();
+      console.log("Got auth URL:", data);
 
-      await supabase
-        .from("oauth_connections")
-        .update({
-          access_token: data.access_token,
-          expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
-        })
-        .eq("id", connection.id);
-
-      connection.access_token = data.access_token;
+      return new Response(JSON.stringify({ url: data.url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log("Token is valid, proceeding with Gmail API request");
-
-    let gmailResponse;
-    switch (action) {
-      case "listMessages":
-        console.log("Fetching messages list");
-        gmailResponse = await fetch(
-          "https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=INBOX&maxResults=20",
-          {
-            headers: {
-              Authorization: `Bearer ${connection.access_token}`,
-            },
-          }
-        );
-        break;
-      
-      case "getMessage":
-        console.log("Fetching message details:", messageId);
-        gmailResponse = await fetch(
-          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${connection.access_token}`,
-            },
-          }
-        );
-        break;
-
-      case "sendEmail":
-        console.log("Sending email");
-        const encodedEmail = btoa(email).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-        gmailResponse = await fetch(
-          'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${connection.access_token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              raw: encodedEmail,
-            }),
-          }
-        );
-        break;
-
-      case "archiveMessage":
-        console.log("Archiving message:", messageId);
-        gmailResponse = await fetch(
-          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${messageId}/modify`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${connection.access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              removeLabelIds: ["INBOX"],
-            }),
-          }
-        );
-        break;
-
-      default:
-        throw new Error("Invalid action");
-    }
-
-    if (!gmailResponse.ok) {
-      const errorText = await gmailResponse.text();
-      console.error("Gmail API error:", errorText);
-      throw new Error(`Gmail API error: ${errorText}`);
-    }
-
-    const data = await gmailResponse.json();
-    console.log("Gmail API response received");
-    
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    throw new Error("Invalid action");
   } catch (error) {
-    console.error("Function error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("Error in gmail function:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });

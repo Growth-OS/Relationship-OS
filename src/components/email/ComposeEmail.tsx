@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ComposeEmailProps {
   onClose: () => void;
@@ -17,6 +18,39 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [needsGmailConnection, setNeedsGmailConnection] = useState(false);
+
+  const handleConnectGmail = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('unipile-accounts', {
+        body: { provider: 'gmail' }
+      });
+      
+      if (error) throw error;
+      
+      // If we have accounts, we can proceed with sending
+      if (data && data.length > 0) {
+        setNeedsGmailConnection(false);
+        return;
+      }
+
+      // Redirect to Gmail OAuth
+      const { data: { url }, error: urlError } = await supabase.functions.invoke('gmail', {
+        body: { action: 'get_auth_url' }
+      });
+      
+      if (urlError) throw urlError;
+      
+      // Store the current path to return after OAuth
+      localStorage.setItem('oauth_return_path', '/dashboard/inbox/email');
+      
+      // Redirect to Gmail auth
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error connecting Gmail:", error);
+      toast.error("Failed to connect Gmail account");
+    }
+  };
 
   const handleSend = async () => {
     if (!to || !subject || !content) {
@@ -36,7 +70,11 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
       });
 
       if (response.error) {
-        console.error("Error sending email:", response.error);
+        // Check if the error is due to no email accounts
+        if (response.error.message.includes("No email accounts found")) {
+          setNeedsGmailConnection(true);
+          return;
+        }
         throw response.error;
       }
 
@@ -49,6 +87,29 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
       setIsSending(false);
     }
   };
+
+  if (needsGmailConnection) {
+    return (
+      <div className={cn("bg-white dark:bg-gray-800 p-4 flex flex-col h-full", className)}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Connect Gmail</h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <Alert className="mb-4">
+          <AlertDescription>
+            To send emails, you need to connect your Gmail account first.
+          </AlertDescription>
+        </Alert>
+
+        <Button onClick={handleConnectGmail}>
+          Connect Gmail Account
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("bg-white dark:bg-gray-800 p-4 flex flex-col h-full", className)}>
