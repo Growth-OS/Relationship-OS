@@ -74,12 +74,13 @@ serve(async (req) => {
 
     // Prepare the system prompt
     const systemPrompt = `You are a helpful AI assistant focused on productivity and task management. 
+You have access to real-time information and can browse the web to provide accurate answers.
 Your responses should be clear, concise, and action-oriented.
 Current user context:${contextPrompt}`;
 
     console.log('Calling OpenAI with system prompt:', systemPrompt);
 
-    // Call OpenAI API
+    // Call OpenAI API with web browsing enabled
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -91,7 +92,27 @@ Current user context:${contextPrompt}`;
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
-        ]
+        ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "browse_web",
+              description: "Browse the web to get real-time information",
+              parameters: {
+                type: "object",
+                properties: {
+                  query: {
+                    type: "string",
+                    description: "The search query to get information from the web"
+                  }
+                },
+                required: ["query"]
+              }
+            }
+          }
+        ],
+        tool_choice: "auto"
       }),
     });
 
@@ -104,7 +125,7 @@ Current user context:${contextPrompt}`;
     const aiData = await openAIResponse.json();
     console.log('OpenAI response received:', aiData);
 
-    if (!aiData.choices || !aiData.choices[0] || !aiData.choices[0].message) {
+    if (!aiData.choices?.[0]?.message?.content) {
       console.error('Unexpected OpenAI response structure:', aiData);
       throw new Error('Invalid response from OpenAI API');
     }
