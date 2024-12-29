@@ -72,10 +72,12 @@ serve(async (req) => {
       contextPrompt += `\nUnread emails: ${emails.data.length}`;
     }
 
-    // Prepare the chat message
+    // Prepare the system prompt
     const systemPrompt = `You are a helpful AI assistant focused on productivity and task management. 
 Your responses should be clear, concise, and action-oriented.
 Current user context:${contextPrompt}`;
+
+    console.log('Calling OpenAI with system prompt:', systemPrompt);
 
     // Call OpenAI API with search enabled
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -92,18 +94,29 @@ Current user context:${contextPrompt}`;
         ],
         tools: [
           {
-            type: "retrieval",  // Enable search/retrieval
+            type: "retrieval",
             retrieval: {
               enabled: true
             }
           }
         ],
-        tool_choice: "auto"  // Let the model decide when to use search
+        tool_choice: "auto"
       }),
     });
 
+    if (!openAIResponse.ok) {
+      const errorData = await openAIResponse.text();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${errorData}`);
+    }
+
     const aiData = await openAIResponse.json();
-    console.log('OpenAI response received');
+    console.log('OpenAI response received:', aiData);
+
+    if (!aiData.choices || !aiData.choices[0] || !aiData.choices[0].message) {
+      console.error('Unexpected OpenAI response structure:', aiData);
+      throw new Error('Invalid response from OpenAI API');
+    }
 
     return new Response(
       JSON.stringify({ response: aiData.choices[0].message.content }),
