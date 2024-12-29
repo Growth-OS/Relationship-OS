@@ -9,13 +9,11 @@ const UNIPILE_DSN = Deno.env.get('UNIPILE_DSN');
 const UNIPILE_API_KEY = Deno.env.get('UNIPILE_API_KEY');
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Format the Unipile DSN correctly
     const unipileBaseUrl = UNIPILE_DSN?.includes('://')
       ? UNIPILE_DSN
       : `https://${UNIPILE_DSN}`;
@@ -42,26 +40,32 @@ serve(async (req) => {
       console.log('Sync successful');
     }
 
-    // Then proceed with the regular request
     if (chatId) {
       // Get messages for a specific chat
       console.log(`Fetching messages for chat ${chatId}`);
       const messagesUrl = `${unipileBaseUrl}/api/v1/chats/${chatId}/messages`;
-      console.log('Messages URL:', messagesUrl);
-      
       const response = await fetch(messagesUrl, { headers });
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error fetching messages:', errorText);
-        throw new Error(`Failed to fetch messages: ${response.status} ${errorText}`);
+        throw new Error(`Failed to fetch messages: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log(`Retrieved ${data?.length || 0} messages:`, data);
+      console.log('Messages response:', data);
+
+      // Format messages data
+      const messages = data.map(msg => ({
+        id: msg.id,
+        text: msg.content,
+        sender_name: msg.sender_name,
+        sender_profile_url: msg.sender_profile_url,
+        sender_avatar_url: msg.sender_avatar_url,
+        received_at: msg.received_at,
+        is_outbound: msg.is_outbound
+      }));
 
       return new Response(
-        JSON.stringify(data),
+        JSON.stringify(messages),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -69,21 +73,28 @@ serve(async (req) => {
     // Get all chats
     console.log('Fetching all chats');
     const chatsUrl = `${unipileBaseUrl}/api/v1/chats`;
-    console.log('Chats URL:', chatsUrl);
-    
     const response = await fetch(chatsUrl, { headers });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error fetching chats:', errorText);
-      throw new Error(`Failed to fetch chats: ${response.status} ${errorText}`);
+      throw new Error(`Failed to fetch chats: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log(`Retrieved ${data?.length || 0} chats:`, data);
+    console.log('Chats response:', data);
+
+    // Format chats data
+    const chats = data.items?.map(chat => ({
+      id: chat.id,
+      sender_name: chat.sender_name,
+      sender_profile_url: chat.sender_profile_url,
+      sender_avatar_url: chat.sender_avatar_url,
+      text: chat.snippet,
+      received_at: chat.last_message_at,
+      unread_count: chat.unread_count || 0
+    })) || [];
 
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify({ items: chats }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

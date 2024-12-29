@@ -7,9 +7,16 @@ interface MessageProps {
   is_outbound: boolean;
   timestamp: string;
   sender_name?: string;
+  sender_avatar_url?: string;
 }
 
-export const Message = ({ text, is_outbound, timestamp, sender_name }: MessageProps) => {
+export const Message = ({ 
+  text, 
+  is_outbound, 
+  timestamp, 
+  sender_name,
+  sender_avatar_url 
+}: MessageProps) => {
   const formatDate = (dateString: string) => {
     try {
       const date = parseISO(dateString);
@@ -21,12 +28,16 @@ export const Message = ({ text, is_outbound, timestamp, sender_name }: MessagePr
   };
 
   return (
-    <div className={`flex ${is_outbound ? "justify-end" : "justify-start"}`}>
+    <div className={`flex ${is_outbound ? "justify-end" : "justify-start"} mb-4`}>
       {!is_outbound && (
-        <Avatar className="h-8 w-8 mr-2 mt-2">
-          <div className="bg-primary/10 h-full w-full flex items-center justify-center text-sm font-semibold text-primary">
-            {sender_name?.[0]?.toUpperCase() || "D"}
-          </div>
+        <Avatar className="h-8 w-8 mr-2">
+          {sender_avatar_url ? (
+            <img src={sender_avatar_url} alt={sender_name} className="h-full w-full object-cover rounded-full" />
+          ) : (
+            <div className="bg-primary/10 h-full w-full flex items-center justify-center text-sm font-semibold text-primary">
+              {sender_name?.[0]?.toUpperCase() || "D"}
+            </div>
+          )}
         </Avatar>
       )}
       <div
@@ -39,7 +50,7 @@ export const Message = ({ text, is_outbound, timestamp, sender_name }: MessagePr
         {!is_outbound && sender_name && (
           <p className="text-sm font-medium mb-1">{sender_name}</p>
         )}
-        <p className="text-sm">{text}</p>
+        <p className="text-sm whitespace-pre-wrap">{text}</p>
         <span className="text-xs opacity-70 mt-1 block">
           {formatDate(timestamp)}
         </span>

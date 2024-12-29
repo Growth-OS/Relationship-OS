@@ -1,5 +1,6 @@
 import { format, isValid, parseISO } from "date-fns";
 import { Avatar } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface ConversationItemProps {
   id: string;
@@ -9,6 +10,7 @@ interface ConversationItemProps {
   subject?: string;
   mailbox_name?: string;
   snippet?: string;
+  sender_avatar_url?: string;
   isSelected?: boolean;
   onClick?: () => void;
 }
@@ -17,16 +19,25 @@ export const ConversationItem = ({
   name,
   timestamp,
   unread_count,
-  subject,
-  mailbox_name,
   snippet,
+  sender_avatar_url,
   isSelected,
   onClick
 }: ConversationItemProps) => {
   const formatDate = (dateString: string) => {
     try {
       const date = parseISO(dateString);
-      return isValid(date) ? format(date, "MMM d") : "Unknown date";
+      if (!isValid(date)) return "Unknown date";
+      
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      
+      if (messageDate.getTime() === today.getTime()) {
+        return format(date, "h:mm a");
+      } else {
+        return format(date, "MMM d");
+      }
     } catch (error) {
       console.error('Error parsing date:', dateString, error);
       return "Unknown date";
@@ -36,27 +47,29 @@ export const ConversationItem = ({
   return (
     <div
       onClick={onClick}
-      className={`p-4 hover:bg-secondary cursor-pointer border-b flex items-start gap-3 transition-colors ${
+      className={cn(
+        "p-4 hover:bg-secondary cursor-pointer border-b flex items-start gap-3 transition-colors",
         isSelected ? "bg-secondary" : ""
-      }`}
+      )}
     >
       <Avatar className="h-12 w-12 shrink-0">
-        <div className="bg-primary/10 h-full w-full flex items-center justify-center text-lg font-semibold text-primary">
-          {(mailbox_name || name || "DM")?.[0]?.toUpperCase()}
-        </div>
+        {sender_avatar_url ? (
+          <img src={sender_avatar_url} alt={name} className="h-full w-full object-cover rounded-full" />
+        ) : (
+          <div className="bg-primary/10 h-full w-full flex items-center justify-center text-lg font-semibold text-primary">
+            {(name || "DM")?.[0]?.toUpperCase()}
+          </div>
+        )}
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start gap-2">
           <p className="font-semibold truncate">
-            {mailbox_name || name || "LinkedIn Member"}
+            {name || "LinkedIn Member"}
           </p>
           <span className="text-xs text-muted-foreground whitespace-nowrap">
             {formatDate(timestamp)}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground truncate mt-1">
-          {subject || "Direct Message"}
-        </p>
         {snippet && (
           <p className="text-sm text-muted-foreground truncate mt-1">
             {snippet}
