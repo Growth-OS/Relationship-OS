@@ -1,108 +1,49 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Content-Type': 'application/json'
-};
+const UNIPILE_API_KEY = Deno.env.get('UNIPILE_API_KEY')!;
+const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET')!;
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
   try {
-    const UNIPILE_API_KEY = Deno.env.get('UNIPILE_API_KEY');
-    const UNIPILE_DSN = Deno.env.get('UNIPILE_DSN');
-    const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SECRET');
-    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
-
-    if (!UNIPILE_API_KEY || !WEBHOOK_SECRET || !SUPABASE_URL || !UNIPILE_DSN) {
-      throw new Error('Missing required environment variables');
-    }
-
-    console.log('Registering webhooks with Unipile...');
-
-    // Register email webhook
-    const emailWebhookUrl = `${SUPABASE_URL}/functions/v1/email-webhook`;
-    console.log('Email Webhook URL:', emailWebhookUrl);
-
-    const emailWebhookResponse = await fetch(`https://${UNIPILE_DSN}/api/v1/webhooks/register`, {
+    const { accountId } = await req.json();
+    
+    // Register webhook with Unipile
+    const response = await fetch('https://api.unipile.com/v1/webhooks', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-KEY': UNIPILE_API_KEY,
+        'Authorization': `Bearer ${UNIPILE_API_KEY}`
       },
       body: JSON.stringify({
-        url: emailWebhookUrl,
+        account_id: accountId,
+        url: `${SUPABASE_URL}/functions/v1/email-webhook`,
         secret: WEBHOOK_SECRET,
-        events: ['mail_received', 'mail_sent'],
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/json'
-          }
-        ]
-      }),
+        events: ['email.created', 'email.updated'],
+      })
     });
 
-    if (!emailWebhookResponse.ok) {
-      const errorText = await emailWebhookResponse.text();
-      console.error('Failed to register email webhook:', errorText);
-      throw new Error(`Failed to register email webhook: ${errorText}`);
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Error registering webhook:', error);
+      throw new Error(`Failed to register webhook: ${error}`);
     }
 
-    // Register tracking webhook
-    const trackingWebhookUrl = `${SUPABASE_URL}/functions/v1/mail-tracking`;
-    console.log('Tracking Webhook URL:', trackingWebhookUrl);
+    const webhook = await response.json();
+    console.log('Webhook registered successfully:', webhook);
 
-    const trackingWebhookResponse = await fetch(`https://${UNIPILE_DSN}/api/v1/webhooks/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-KEY': UNIPILE_API_KEY,
-      },
-      body: JSON.stringify({
-        url: trackingWebhookUrl,
-        secret: WEBHOOK_SECRET,
-        events: ['mail_opened', 'mail_link_clicked'],
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/json'
-          }
-        ]
-      }),
+    return new Response(JSON.stringify({ success: true, webhook }), {
+      headers: { 'Content-Type': 'application/json' }
     });
-
-    if (!trackingWebhookResponse.ok) {
-      const errorText = await trackingWebhookResponse.text();
-      console.error('Failed to register tracking webhook:', errorText);
-      throw new Error(`Failed to register tracking webhook: ${errorText}`);
-    }
-
-    const emailWebhookData = await emailWebhookResponse.json();
-    const trackingWebhookData = await trackingWebhookResponse.json();
-
-    console.log('Webhooks registered successfully:', {
-      emailWebhook: emailWebhookData,
-      trackingWebhook: trackingWebhookData
-    });
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        emailWebhook: emailWebhookData,
-        trackingWebhook: trackingWebhookData
-      }),
-      { headers: corsHeaders }
-    );
 
   } catch (error) {
-    console.error('Error in webhook registration:', error);
+    console.error('Error:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: corsHeaders }
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     );
   }
 });
