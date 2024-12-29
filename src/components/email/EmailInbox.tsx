@@ -15,13 +15,13 @@ export const EmailInbox = () => {
     queryKey: ["emails"],
     queryFn: async () => {
       console.log("Fetching emails...");
-      const { data: user } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       console.log("Current user:", user?.id);
       
       const { data, error } = await supabase
         .from('emails')
         .select('*')
-        .eq('user_id', user.user?.id)
+        .eq('user_id', user?.id)
         .order('received_at', { ascending: false })
         .limit(50);
       
