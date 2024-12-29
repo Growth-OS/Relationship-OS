@@ -170,87 +170,6 @@ export type Database = {
         }
         Relationships: []
       }
-      email_templates: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          is_favorite: boolean | null
-          title: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_favorite?: boolean | null
-          title: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_favorite?: boolean | null
-          title?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      emails: {
-        Row: {
-          body: string | null
-          created_at: string
-          from_email: string
-          id: string
-          is_archived: boolean | null
-          is_read: boolean | null
-          is_sent: boolean | null
-          is_starred: boolean | null
-          is_trashed: boolean | null
-          message_id: string
-          received_at: string
-          snippet: string | null
-          snoozed_until: string | null
-          subject: string
-          user_id: string
-        }
-        Insert: {
-          body?: string | null
-          created_at?: string
-          from_email: string
-          id?: string
-          is_archived?: boolean | null
-          is_read?: boolean | null
-          is_sent?: boolean | null
-          is_starred?: boolean | null
-          is_trashed?: boolean | null
-          message_id: string
-          received_at: string
-          snippet?: string | null
-          snoozed_until?: string | null
-          subject: string
-          user_id: string
-        }
-        Update: {
-          body?: string | null
-          created_at?: string
-          from_email?: string
-          id?: string
-          is_archived?: boolean | null
-          is_read?: boolean | null
-          is_sent?: boolean | null
-          is_starred?: boolean | null
-          is_trashed?: boolean | null
-          message_id?: string
-          received_at?: string
-          snippet?: string | null
-          snoozed_until?: string | null
-          subject?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       financial_transactions: {
         Row: {
           amount: number
@@ -798,7 +717,6 @@ export type Database = {
         | "to_invoice"
         | "invoiced"
         | "paid"
-      email_status: "unread" | "read" | "archived" | "snoozed" | "trashed"
       lead_source:
         | "website"
         | "referral"
