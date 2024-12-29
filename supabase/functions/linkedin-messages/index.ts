@@ -25,19 +25,23 @@ serve(async (req) => {
 
     console.log('Using Unipile base URL:', unipileBaseUrl);
 
-    const { chatId } = await req.json().catch(() => ({}));
-
     const headers = {
       'X-API-KEY': UNIPILE_API_KEY,
       'accept': 'application/json',
+      'Content-Type': 'application/json',
     };
 
-    // First, trigger a sync
-    console.log('Triggering sync...');
+    const { chatId } = await req.json().catch(() => ({}));
+
+    // First, trigger a sync for LinkedIn messages specifically
+    console.log('Triggering sync for LinkedIn messages...');
     try {
-      const syncResponse = await fetch(`${unipileBaseUrl}/api/v1/chats/sync`, {
+      const syncResponse = await fetch(`${unipileBaseUrl}/api/v1/messages/sync`, {
         method: 'POST',
         headers,
+        body: JSON.stringify({
+          provider: 'linkedin',
+        }),
       });
 
       if (!syncResponse.ok) {
@@ -55,8 +59,11 @@ serve(async (req) => {
     if (chatId) {
       // Get messages for a specific chat
       console.log(`Fetching messages for chat ${chatId}`);
-      const messagesUrl = `${unipileBaseUrl}/api/v1/chats/${chatId}/messages`;
-      const response = await fetch(messagesUrl, { headers });
+      const messagesUrl = `${unipileBaseUrl}/api/v1/messages`;
+      const response = await fetch(messagesUrl, { 
+        method: 'GET',
+        headers,
+      });
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -76,15 +83,17 @@ serve(async (req) => {
       // Handle both array and object with items property
       const messageItems = Array.isArray(data) ? data : (data.items || []);
       
-      const messages = messageItems.map(msg => ({
-        id: msg.id,
-        text: msg.content || '',
-        sender_name: msg.sender_name || 'Unknown',
-        sender_profile_url: msg.sender_profile_url,
-        sender_avatar_url: msg.sender_avatar_url,
-        received_at: msg.received_at || new Date().toISOString(),
-        is_outbound: !!msg.is_outbound
-      }));
+      const messages = messageItems
+        .filter(msg => msg.thread_id === chatId)
+        .map(msg => ({
+          id: msg.id,
+          text: msg.content || '',
+          sender_name: msg.sender_name || 'Unknown',
+          sender_profile_url: msg.sender_profile_url,
+          sender_avatar_url: msg.sender_avatar_url,
+          received_at: msg.received_at || new Date().toISOString(),
+          is_outbound: !!msg.is_outbound
+        }));
 
       return new Response(
         JSON.stringify(messages),
@@ -94,7 +103,7 @@ serve(async (req) => {
 
     // Get all chats
     console.log('Fetching all chats');
-    const chatsUrl = `${unipileBaseUrl}/api/v1/chats`;
+    const chatsUrl = `${unipileBaseUrl}/api/v1/messages`;
     const response = await fetch(chatsUrl, { headers });
     
     if (!response.ok) {
@@ -111,29 +120,38 @@ serve(async (req) => {
       throw new Error('Invalid chats response data structure');
     }
 
-    const chatItems = data.items || [];
-    if (!Array.isArray(chatItems)) {
-      console.error('Chats items is not an array:', chatItems);
-      throw new Error('Invalid chats data structure');
-    }
+    // Group messages by thread_id to create chat list
+    const messageItems = Array.isArray(data) ? data : (data.items || []);
+    const chatMap = new Map();
 
-    const chats = chatItems.map(chat => ({
-      id: chat.id,
-      sender_name: chat.sender_name || 'Unknown',
-      sender_profile_url: chat.sender_profile_url,
-      sender_avatar_url: chat.sender_avatar_url,
-      text: chat.snippet || '',
-      received_at: chat.last_message_at || new Date().toISOString(),
-      unread_count: chat.unread_count || 0
-    }));
+    messageItems.forEach(msg => {
+      if (!msg.thread_id) return;
+      
+      if (!chatMap.has(msg.thread_id)) {
+        chatMap.set(msg.thread_id, {
+          id: msg.thread_id,
+          sender_name: msg.sender_name || 'Unknown',
+          sender_profile_url: msg.sender_profile_url,
+          sender_avatar_url: msg.sender_avatar_url,
+          text: msg.content || '',
+          received_at: msg.received_at || new Date().toISOString(),
+          unread_count: msg.status === 'unread' ? 1 : 0
+        });
+      } else if (msg.status === 'unread') {
+        const chat = chatMap.get(msg.thread_id);
+        chat.unread_count += 1;
+      }
+    });
 
+    const chats = Array.from(chatMap.values());
+    
     return new Response(
       JSON.stringify({ items: chats }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in linkedin-messages function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
