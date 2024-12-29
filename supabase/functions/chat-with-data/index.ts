@@ -5,6 +5,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -14,6 +15,10 @@ serve(async (req) => {
   }
 
   try {
+    if (req.method !== 'POST') {
+      throw new Error('Method not allowed');
+    }
+
     const { message, userId } = await req.json();
     console.log('Received request:', { message, userId });
 
@@ -80,7 +85,7 @@ Current user context:${contextPrompt}`;
 
     console.log('Calling Perplexity API with system prompt:', systemPrompt);
 
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${Deno.env.get('PERPLEXITY_API_KEY')}`,
@@ -105,18 +110,23 @@ Current user context:${contextPrompt}`;
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.text();
+    if (!perplexityResponse.ok) {
+      const errorData = await perplexityResponse.text();
       console.error('Perplexity API error:', errorData);
       throw new Error(`Perplexity API error: ${errorData}`);
     }
 
-    const data = await response.json();
+    const data = await perplexityResponse.json();
     console.log('Perplexity response received:', data);
 
     return new Response(
       JSON.stringify({ response: data.choices[0].message.content }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
 
   } catch (error) {
@@ -125,7 +135,10 @@ Current user context:${contextPrompt}`;
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        },
       },
     );
   }
