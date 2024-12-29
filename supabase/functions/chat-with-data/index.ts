@@ -87,7 +87,7 @@ Current user context:${contextPrompt}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
+        model: 'sonar-small-online',
         messages: [
           {
             role: 'system',
@@ -98,15 +98,10 @@ Current user context:${contextPrompt}`;
             content: message
           }
         ],
-        temperature: 0.2,
-        top_p: 0.9,
+        temperature: 0.7,
         max_tokens: 1000,
-        return_images: false,
-        return_related_questions: false,
-        search_domain_filter: ['perplexity.ai'],
-        search_recency_filter: 'month',
-        frequency_penalty: 1,
-        presence_penalty: 0
+        top_p: 1,
+        stream: false
       }),
     });
 
