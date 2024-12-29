@@ -96,7 +96,11 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         .select()
         .single();
 
-      if (invoiceError) throw invoiceError;
+      if (invoiceError) {
+        console.error('Error creating invoice:', invoiceError);
+        toast.error('Error creating invoice');
+        return;
+      }
 
       // Create invoice items
       const { error: itemsError } = await supabase
@@ -108,7 +112,11 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
           }))
         );
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Error creating invoice items:', itemsError);
+        toast.error('Error creating invoice items');
+        return;
+      }
       
       toast.success('Invoice created successfully');
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
