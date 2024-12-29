@@ -25,21 +25,6 @@ serve(async (req) => {
     // Configure webhooks for different types of events
     const webhooks = [
       {
-        // Messaging webhook (LinkedIn, etc)
-        request_url: `${baseUrl}/unipile-webhook`,
-        name: 'messaging_webhook',
-        format: 'json',
-        enabled: true,
-        headers: [
-          {
-            key: 'x-webhook-secret',
-            value: webhookSecret
-          }
-        ],
-        source: 'messaging',
-        events: ['message.created', 'message.updated']
-      },
-      {
         // Email webhook
         request_url: `${baseUrl}/email-webhook`,
         name: 'email_webhook',
@@ -53,21 +38,6 @@ serve(async (req) => {
         ],
         source: 'email',
         events: ['email.received', 'email.updated']
-      },
-      {
-        // Mail tracking webhook
-        request_url: `${baseUrl}/mail-tracking`,
-        name: 'mail_tracking_webhook',
-        format: 'json',
-        enabled: true,
-        headers: [
-          {
-            key: 'x-webhook-secret',
-            value: webhookSecret
-          }
-        ],
-        source: 'email',
-        events: ['email.tracking.opened', 'email.tracking.clicked', 'email.tracking.bounced']
       }
     ];
 
