@@ -21,6 +21,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
+    // Ensure UNIPILE_DSN starts with https://
+    const unipileDsn = UNIPILE_DSN?.startsWith('https://') 
+      ? UNIPILE_DSN 
+      : `https://${UNIPILE_DSN}`;
+
     const url = new URL(req.url);
     const chatId = url.searchParams.get('chatId');
 
@@ -31,11 +36,13 @@ serve(async (req) => {
 
     if (chatId) {
       // Get messages for a specific chat
+      console.log(`Fetching messages for chat ${chatId}`);
       const response = await fetch(
-        `${UNIPILE_DSN}/api/v1/chats/${chatId}/messages`,
+        `${unipileDsn}/api/v1/chats/${chatId}/messages`,
         { headers }
       );
       const data = await response.json();
+      console.log(`Retrieved ${data?.length || 0} messages`);
 
       return new Response(
         JSON.stringify(data),
@@ -44,11 +51,13 @@ serve(async (req) => {
     }
 
     // Get all chats
+    console.log('Fetching all chats');
     const response = await fetch(
-      `${UNIPILE_DSN}/api/v1/chats`,
+      `${unipileDsn}/api/v1/chats`,
       { headers }
     );
     const data = await response.json();
+    console.log(`Retrieved ${data?.length || 0} chats`);
 
     return new Response(
       JSON.stringify(data),
