@@ -1,0 +1,2 @@
+[functions.fetch-emails]
+verify_jwt = true

@@ -14,23 +14,46 @@ export const EmailInbox = () => {
   const { data: emails, isLoading, error } = useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
-      console.log("Fetching emails for inbox...");
+      console.log("Fetching emails from Unipile...");
+      
+      // First get the user's OAuth connection to ensure they're connected
       const { data: { user } } = await supabase.auth.getUser();
       console.log("Current user:", user?.id);
       
-      const { data, error } = await supabase
-        .from('emails')
+      const { data: connection, error: connError } = await supabase
+        .from('oauth_connections')
         .select('*')
+        .eq('provider', 'google')
         .eq('user_id', user?.id)
-        .order('received_at', { ascending: false })
-        .limit(50);
-      
-      if (error) {
-        console.error("Error fetching emails:", error);
-        throw error;
+        .maybeSingle();
+
+      if (connError) {
+        console.error("Error checking OAuth connection:", connError);
+        throw connError;
       }
-      console.log("Fetched emails for inbox:", data);
-      return data;
+
+      if (!connection) {
+        console.log("No Google connection found");
+        return [];
+      }
+
+      // Call our edge function to fetch emails from Unipile
+      const response = await fetch(`${process.env.SUPABASE_URL}/functions/v1/fetch-emails`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        }
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        console.error("Error fetching emails:", error);
+        throw new Error(error);
+      }
+
+      const data = await response.json();
+      console.log("Fetched emails from Unipile:", data);
+      return data.items || [];
     }
   });
 
