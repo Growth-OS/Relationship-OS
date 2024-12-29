@@ -78,99 +78,49 @@ You have access to real-time information and can browse the web to provide accur
 Your responses should be clear, concise, and action-oriented.
 Current user context:${contextPrompt}`;
 
-    console.log('Calling OpenAI with system prompt:', systemPrompt);
+    console.log('Calling Perplexity API with system prompt:', systemPrompt);
 
-    // Call OpenAI API
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${Deno.env.get('PERPLEXITY_API_KEY')}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'llama-3.1-sonar-small-128k-online',
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        tools: [{
-          type: "function",
-          function: {
-            name: "browse_web",
-            description: "Browse the web to get real-time information",
-            parameters: {
-              type: "object",
-              properties: {
-                query: {
-                  type: "string",
-                  description: "The search query to get information from the web"
-                }
-              },
-              required: ["query"]
-            }
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: message
           }
-        }],
-        tool_choice: {
-          type: "function",
-          function: { name: "browse_web" }
-        }
+        ],
+        temperature: 0.2,
+        top_p: 0.9,
+        max_tokens: 1000,
+        return_images: false,
+        return_related_questions: false,
+        search_domain_filter: ['perplexity.ai'],
+        search_recency_filter: 'month',
+        frequency_penalty: 1,
+        presence_penalty: 0
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const errorData = await openAIResponse.text();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${errorData}`);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Perplexity API error:', errorData);
+      throw new Error(`Perplexity API error: ${errorData}`);
     }
 
-    const aiData = await openAIResponse.json();
-    console.log('OpenAI response received:', aiData);
+    const data = await response.json();
+    console.log('Perplexity response received:', data);
 
-    // Handle the response
-    const assistantMessage = aiData.choices?.[0]?.message;
-    if (!assistantMessage) {
-      console.error('Unexpected OpenAI response structure:', aiData);
-      throw new Error('Invalid response from OpenAI API');
-    }
-
-    // If there are tool calls, process them
-    if (assistantMessage.tool_calls) {
-      console.log('Tool calls detected:', assistantMessage.tool_calls);
-      const toolCall = assistantMessage.tool_calls[0];
-      const functionArgs = JSON.parse(toolCall.function.arguments);
-      
-      // Make the web search request
-      const searchResponse = await fetch(`https://api.openai.com/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages: [
-            { role: 'system', content: 'You are a helpful assistant that provides accurate information based on web searches.' },
-            { role: 'user', content: functionArgs.query }
-          ]
-        })
-      });
-
-      if (!searchResponse.ok) {
-        throw new Error('Failed to process web search');
-      }
-
-      const searchData = await searchResponse.json();
-      const searchResult = searchData.choices[0].message.content;
-
-      return new Response(
-        JSON.stringify({ response: searchResult }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // If no tool calls, return the direct response
     return new Response(
-      JSON.stringify({ response: assistantMessage.content }),
+      JSON.stringify({ response: data.choices[0].message.content }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
