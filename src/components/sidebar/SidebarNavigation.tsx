@@ -1,6 +1,10 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Calendar, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen, Inbox, Linkedin, Bug, FileText } from "lucide-react";
+import { 
+  Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
+  Briefcase, UserPlus, Euro, FolderOpen, Inbox, Linkedin, 
+  Bug, FileText, ChartLine, ChartPie, Database 
+} from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
 export const SidebarNavigation = () => {
@@ -17,8 +21,14 @@ export const SidebarNavigation = () => {
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
-    { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
     { icon: Bug, label: "Development", path: "/dashboard/development" },
+  ];
+
+  const reportingMenuItems = [
+    { icon: ChartBar, label: "Overview", path: "/dashboard/reporting" },
+    { icon: ChartLine, label: "Revenue", path: "/dashboard/reporting?module=finances" },
+    { icon: ChartPie, label: "Pipeline", path: "/dashboard/reporting?module=deals" },
+    { icon: Database, label: "Metrics", path: "/dashboard/reporting?module=prospects" },
   ];
 
   const externalLinks = [
@@ -45,6 +55,21 @@ export const SidebarNavigation = () => {
               label={item.label}
               path={item.path}
               isActive={location.pathname === item.path}
+            />
+          ))}
+        </div>
+
+        <div className="mb-6">
+          <div className="px-4 mb-2">
+            <h3 className="text-sm font-medium text-gray-500">Reporting</h3>
+          </div>
+          {reportingMenuItems.map((item) => (
+            <SidebarMenuItem
+              key={item.path}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
+              isActive={location.pathname + location.search === item.path}
             />
           ))}
         </div>
