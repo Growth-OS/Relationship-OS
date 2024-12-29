@@ -45,31 +45,76 @@ serve(async (req) => {
       .maybeSingle();
 
     if (connError) {
+      console.error("Error checking OAuth connection:", connError);
       throw connError;
     }
 
     if (!connection) {
-      throw new Error('No Google connection found');
+      console.log("No Google connection found");
+      return new Response(
+        JSON.stringify({ items: [] }),
+        { headers: corsHeaders }
+      );
     }
 
-    console.log("Found OAuth connection, fetching emails from Unipile...");
+    const unipileDsn = Deno.env.get('UNIPILE_DSN');
+    const unipileApiKey = Deno.env.get('UNIPILE_API_KEY');
 
-    // Fetch emails from Unipile
-    const unipileResponse = await fetch(`${Deno.env.get('UNIPILE_DSN')}/api/v1/emails?account_id=${user.id}&limit=50`, {
+    if (!unipileDsn || !unipileApiKey) {
+      throw new Error('Missing Unipile configuration');
+    }
+
+    console.log("Fetching emails from Unipile with account_id:", user.id);
+
+    // Fetch emails from Unipile with proper parameters
+    const unipileResponse = await fetch(`${unipileDsn}/api/v1/emails?account_id=${user.id}&limit=50&meta_only=false`, {
       headers: {
-        'X-API-KEY': Deno.env.get('UNIPILE_API_KEY')!,
+        'X-API-KEY': unipileApiKey,
         'Accept': 'application/json'
       }
     });
 
     if (!unipileResponse.ok) {
-      const error = await unipileResponse.text();
-      console.error("Unipile API error:", error);
-      throw new Error(`Failed to fetch emails: ${error}`);
+      const errorText = await unipileResponse.text();
+      console.error("Unipile API error:", errorText);
+      throw new Error(`Failed to fetch emails: ${errorText}`);
     }
 
     const emails = await unipileResponse.json();
-    console.log("Successfully fetched emails from Unipile");
+    console.log("Successfully fetched emails from Unipile:", {
+      count: emails.items?.length || 0,
+      cursor: emails.cursor
+    });
+
+    // Store emails in Supabase for caching
+    if (emails.items?.length > 0) {
+      const { error: insertError } = await supabase
+        .from('emails')
+        .upsert(
+          emails.items.map((email: any) => ({
+            user_id: user.id,
+            message_id: email.id,
+            conversation_id: email.conversation_id,
+            from_email: email.from_attendee.identifier,
+            from_name: email.from_attendee.display_name,
+            to_emails: email.to_attendees.map((a: any) => a.identifier),
+            cc_emails: email.cc_attendees?.map((a: any) => a.identifier) || [],
+            bcc_emails: email.bcc_attendees?.map((a: any) => a.identifier) || [],
+            subject: email.subject,
+            body: email.body,
+            snippet: email.body_plain?.substring(0, 200),
+            received_at: email.date,
+            has_attachments: email.has_attachments,
+            folder: email.folders[0] || 'inbox',
+            created_at: new Date().toISOString()
+          })),
+          { onConflict: 'message_id,user_id' }
+        );
+
+      if (insertError) {
+        console.error("Error caching emails:", insertError);
+      }
+    }
 
     return new Response(
       JSON.stringify(emails),
