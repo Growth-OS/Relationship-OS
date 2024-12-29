@@ -61,11 +61,7 @@ export const routes: RouteObject[] = [
           {
             path: "email",
             element: <Inbox />,
-          },
-          {
-            path: "linkedin",
-            element: <Inbox />,
-          },
+          }
         ],
       },
       {

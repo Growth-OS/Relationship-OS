@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen, Mail, Linkedin } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen, Mail } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,12 +42,7 @@ export const SidebarNavigation = () => {
       label: "Email", 
       path: "/dashboard/inbox/email",
       badge: unreadCount > 0 ? unreadCount : undefined 
-    },
-    { 
-      icon: Linkedin, 
-      label: "LinkedIn", 
-      path: "/dashboard/inbox/linkedin"
-    },
+    }
   ];
 
   const betaFeatures = [
