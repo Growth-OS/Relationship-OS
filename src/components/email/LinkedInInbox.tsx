@@ -15,6 +15,13 @@ interface Chat {
   attendee_provider_id: string;
 }
 
+interface Message {
+  id: string;
+  text: string;
+  is_outbound: boolean;
+  timestamp: string;
+}
+
 export const LinkedInInbox = () => {
   const { data: chatsResponse, isLoading } = useQuery({
     queryKey: ['linkedin-chats'],
@@ -30,13 +37,14 @@ export const LinkedInInbox = () => {
   const { data: selectedChat, isLoading: isLoadingSelectedChat } = useQuery({
     queryKey: ['linkedin-messages', chatsResponse?.items?.[0]?.id],
     queryFn: async () => {
-      if (!chatsResponse?.items?.[0]?.id) return null;
+      if (!chatsResponse?.items?.[0]?.id) return [];
       const { data, error } = await supabase.functions.invoke('linkedin-messages', {
         body: { chatId: chatsResponse.items[0].id }
       });
       if (error) throw error;
       console.log('Selected chat response:', data);
-      return data;
+      // Ensure we always return an array
+      return Array.isArray(data) ? data : [];
     },
     enabled: !!chatsResponse?.items?.[0]?.id,
   });
@@ -96,7 +104,7 @@ export const LinkedInInbox = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {selectedChat?.map((message: any) => (
+              {(selectedChat || []).map((message: Message) => (
                 <div
                   key={message.id}
                   className={`p-3 rounded-lg max-w-[80%] ${
