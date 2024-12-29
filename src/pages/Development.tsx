@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Bug, Lightbulb, ArrowUpCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
 
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: items, isLoading } = useQuery({
+  const { data: items, isLoading, refetch } = useQuery({
     queryKey: ["development-items"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,6 +47,11 @@ const Development = () => {
     }
   };
 
+  const handleSuccess = () => {
+    setIsDialogOpen(false);
+    refetch();
+  };
+
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -53,10 +61,20 @@ const Development = () => {
             Track ideas and areas for Growth OS development
           </p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Item
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Item
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Development Item</DialogTitle>
+            </DialogHeader>
+            <CreateDevelopmentItemForm onSuccess={handleSuccess} />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <Card className="p-6">
