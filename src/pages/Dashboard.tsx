@@ -1,21 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { DashboardChat } from "@/components/dashboard/DashboardChat";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
-import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
-import { DashboardActivity } from "@/components/dashboard/DashboardActivity";
-import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { Message } from "@/components/dashboard/types";
+import { EmailInbox } from "@/components/email/EmailInbox";
 
 const Dashboard = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
@@ -29,61 +17,10 @@ const Dashboard = () => {
                    user?.email?.split('@')[0] || 
                    'there';
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-
-    try {
-      setIsLoading(true);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const userMessage = { role: 'user' as const, content: input };
-      setMessages(prev => [...prev, userMessage]);
-      setInput('');
-
-      const { data, error } = await supabase.functions.invoke('chat-with-data', {
-        body: { message: input, userId: user.id },
-      });
-
-      if (error) throw error;
-
-      const aiMessage = { role: 'assistant' as const, content: data.response };
-      setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to get response from AI",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <DashboardHeader firstName={firstName} />
-      <DashboardStats />
-      <DashboardActivityChart />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <DashboardQuickActions />
-          <DashboardActivity />
-        </div>
-        
-        <div>
-          <DashboardChat
-            messages={messages}
-            input={input}
-            isLoading={isLoading}
-            onInputChange={setInput}
-            onSend={handleSend}
-          />
-        </div>
-      </div>
+      <EmailInbox />
     </div>
   );
 };

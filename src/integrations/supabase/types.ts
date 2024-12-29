@@ -170,6 +170,33 @@ export type Database = {
         }
         Relationships: []
       }
+      email_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_favorite: boolean | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
           body: string | null
@@ -720,6 +747,39 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          default_snooze_times: Json | null
+          email_signature: string | null
+          id: string
+          keyboard_shortcuts: Json | null
+          layout_preferences: Json | null
+          theme: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_snooze_times?: Json | null
+          email_signature?: string | null
+          id?: string
+          keyboard_shortcuts?: Json | null
+          layout_preferences?: Json | null
+          theme?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_snooze_times?: Json | null
+          email_signature?: string | null
+          id?: string
+          keyboard_shortcuts?: Json | null
+          layout_preferences?: Json | null
+          theme?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -738,6 +798,7 @@ export type Database = {
         | "to_invoice"
         | "invoiced"
         | "paid"
+      email_status: "unread" | "read" | "archived" | "snoozed" | "trashed"
       lead_source:
         | "website"
         | "referral"
