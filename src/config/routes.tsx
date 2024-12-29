@@ -18,7 +18,6 @@ import Deals from "@/pages/Deals";
 import Tasks from "@/pages/Tasks";
 import Prospects from "@/pages/Prospects";
 import Calendar from "@/pages/Calendar";
-import Content from "@/pages/Content";
 import Finances from "@/pages/Finances";
 import Projects from "@/pages/Projects";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -56,10 +55,6 @@ export const routes: RouteObject[] = [
       {
         path: "deals",
         element: <Deals />,
-      },
-      {
-        path: "content",
-        element: <Content />,
       },
       {
         path: "tasks",
