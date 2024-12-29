@@ -29,6 +29,7 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${UNIPILE_API_KEY}`,
+        'X-API-KEY': UNIPILE_API_KEY,
       },
       body: JSON.stringify({
         url: webhookUrl,
