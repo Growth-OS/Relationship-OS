@@ -4,6 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
+import { Avatar } from "@/components/ui/avatar";
+import { MessageSquare, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Chat {
   id: string;
@@ -31,7 +34,7 @@ export const LinkedInInbox = () => {
       console.log('Chats response:', data);
       return data;
     },
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 60000,
   });
 
   const { data: selectedChat, isLoading: isLoadingSelectedChat } = useQuery({
@@ -43,7 +46,6 @@ export const LinkedInInbox = () => {
       });
       if (error) throw error;
       console.log('Selected chat response:', data);
-      // Ensure we always return an array
       return Array.isArray(data) ? data : [];
     },
     enabled: !!chatsResponse?.items?.[0]?.id,
@@ -59,66 +61,119 @@ export const LinkedInInbox = () => {
     );
   }
 
-  // Ensure we have an array of chats
   const chats = chatsResponse?.items || [];
 
   return (
     <Card className="flex h-full">
-      <div className="w-1/3 border-r">
-        <ScrollArea className="h-[calc(100vh-12rem)]">
+      {/* Left sidebar with conversations */}
+      <div className="w-80 border-r flex flex-col">
+        <div className="p-4 border-b">
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search messages"
+              className="pl-9"
+            />
+          </div>
+        </div>
+        <ScrollArea className="flex-1">
           {chats.map((chat: Chat) => (
             <div
               key={chat.id}
-              className="p-4 hover:bg-gray-50 cursor-pointer border-b"
+              className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer border-b flex items-start gap-3 transition-colors"
             >
-              <div className="flex justify-between items-start mb-1">
-                <p className="font-medium">
-                  {chat.mailbox_name || chat.name || 'Direct Message'}
-                </p>
+              <Avatar className="h-12 w-12">
+                <div className="bg-purple-100 dark:bg-purple-900 h-full w-full flex items-center justify-center text-lg font-semibold text-purple-700 dark:text-purple-300">
+                  {(chat.mailbox_name || chat.name || 'DM')?.[0]?.toUpperCase()}
+                </div>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-start mb-1">
+                  <p className="font-semibold truncate">
+                    {chat.mailbox_name || chat.name || 'Direct Message'}
+                  </p>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                    {format(new Date(chat.timestamp), 'MMM d')}
+                  </span>
+                </div>
+                {chat.subject && (
+                  <p className="text-sm text-muted-foreground truncate">
+                    {chat.subject}
+                  </p>
+                )}
                 {chat.unread_count > 0 && (
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                    {chat.unread_count}
+                  <span className="inline-flex items-center px-2 py-0.5 mt-1 rounded-full text-xs font-medium bg-primary text-primary-foreground">
+                    {chat.unread_count} new
                   </span>
                 )}
               </div>
-              <p className="text-sm text-gray-500">
-                {format(new Date(chat.timestamp), 'MMM d, h:mm a')}
-              </p>
-              {chat.subject && (
-                <p className="text-sm text-gray-600 mt-1 truncate">
-                  {chat.subject}
-                </p>
-              )}
             </div>
           ))}
         </ScrollArea>
       </div>
 
-      <div className="flex-1">
-        <ScrollArea className="h-[calc(100vh-12rem)] p-4">
+      {/* Right side with messages */}
+      <div className="flex-1 flex flex-col">
+        {/* Chat header */}
+        <div className="p-4 border-b flex items-center gap-3">
+          <Avatar className="h-12 w-12">
+            <div className="bg-purple-100 dark:bg-purple-900 h-full w-full flex items-center justify-center text-lg font-semibold text-purple-700 dark:text-purple-300">
+              {chats[0]?.mailbox_name?.[0]?.toUpperCase() || 'D'}
+            </div>
+          </Avatar>
+          <div>
+            <h3 className="font-semibold">
+              {chats[0]?.mailbox_name || chats[0]?.name || 'Direct Message'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {chats[0]?.subject || 'LinkedIn Member'}
+            </p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <ScrollArea className="flex-1 p-4">
           {isLoadingSelectedChat ? (
             <div className="space-y-4">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-3/4" />
+              <Skeleton className="h-12 w-3/4 ml-auto" />
+              <Skeleton className="h-12 w-3/4" />
             </div>
           ) : (
             <div className="space-y-4">
               {(selectedChat || []).map((message: Message) => (
                 <div
                   key={message.id}
-                  className={`p-3 rounded-lg max-w-[80%] ${
-                    message.is_outbound
-                      ? 'ml-auto bg-purple-600 text-white'
-                      : 'bg-gray-100'
-                  }`}
+                  className={`flex ${message.is_outbound ? 'justify-end' : 'justify-start'}`}
                 >
-                  {message.text}
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                      message.is_outbound
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-secondary'
+                    }`}
+                  >
+                    <p>{message.text}</p>
+                    <span className="text-xs opacity-70 mt-1 block">
+                      {format(new Date(message.timestamp), 'h:mm a')}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </ScrollArea>
+
+        {/* Message input */}
+        <div className="p-4 border-t">
+          <div className="bg-secondary rounded-lg p-3 flex items-start gap-2">
+            <MessageSquare className="h-5 w-5 text-muted-foreground mt-2" />
+            <textarea
+              placeholder="Write a message..."
+              className="flex-1 bg-transparent border-0 resize-none focus:outline-none min-h-[80px]"
+            />
+          </div>
+        </div>
       </div>
     </Card>
   );
