@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const UNIPILE_DSN = Deno.env.get("UNIPILE_DSN");
 const UNIPILE_API_KEY = Deno.env.get("UNIPILE_API_KEY");
@@ -10,8 +9,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  accountId: string;
-  to: { display_name?: string; identifier: string }[];
+  to: { identifier: string }[];
   subject: string;
   body: string;
   replyTo?: string;
@@ -23,10 +21,17 @@ serve(async (req) => {
   }
 
   try {
-    const { accountId, to, subject, body, replyTo } = await req.json() as EmailRequest;
+    if (!UNIPILE_DSN || !UNIPILE_API_KEY) {
+      throw new Error("Missing required environment variables");
+    }
 
+    const { to, subject, body, replyTo } = await req.json() as EmailRequest;
+    console.log("Sending email with data:", { to, subject, replyTo });
+
+    // Ensure UNIPILE_DSN has the correct protocol
+    const unipileDsn = UNIPILE_DSN.startsWith('https://') ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
+    
     const formData = new FormData();
-    formData.append("account_id", accountId);
     formData.append("subject", subject);
     formData.append("body", body);
     formData.append("to", JSON.stringify(to));
@@ -35,20 +40,18 @@ serve(async (req) => {
       formData.append("reply_to", replyTo);
     }
 
-    console.log("Sending email with data:", { accountId, to, subject, replyTo });
-
-    const response = await fetch(`${UNIPILE_DSN}/api/v1/emails`, {
+    const response = await fetch(`${unipileDsn}/api/v1/emails`, {
       method: "POST",
       headers: {
-        "X-API-KEY": UNIPILE_API_KEY!,
+        "X-API-KEY": UNIPILE_API_KEY,
       },
       body: formData,
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error("Error sending email:", error);
-      throw new Error(`Failed to send email: ${error}`);
+      const errorText = await response.text();
+      console.error("Unipile API error:", errorText);
+      throw new Error(`Failed to send email: ${errorText}`);
     }
 
     const result = await response.json();
