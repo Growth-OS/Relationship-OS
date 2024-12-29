@@ -75,6 +75,10 @@ export const LinkedInInbox = () => {
               <ConversationItem
                 key={chat.id}
                 {...chat}
+                name={chat.sender_name}
+                mailbox_name={chat.sender_name}
+                snippet={chat.text}
+                timestamp={chat.received_at}
                 isSelected={chat.id === selectedChatId}
                 onClick={() => setSelectedChatId(chat.id)}
               />
@@ -90,12 +94,12 @@ export const LinkedInInbox = () => {
               <div className="p-4 border-b flex items-center gap-3">
                 <Avatar className="h-12 w-12">
                   <div className="bg-primary/10 h-full w-full flex items-center justify-center text-lg font-semibold text-primary">
-                    {selectedChatInfo?.mailbox_name?.[0]?.toUpperCase() || "D"}
+                    {selectedChatInfo?.sender_name?.[0]?.toUpperCase() || "D"}
                   </div>
                 </Avatar>
                 <div>
                   <h3 className="font-semibold">
-                    {selectedChatInfo?.mailbox_name || selectedChatInfo?.name || "LinkedIn Member"}
+                    {selectedChatInfo?.sender_name || "LinkedIn Member"}
                   </h3>
                   <p className="text-sm text-muted-foreground">
                     {selectedChatInfo?.subject || "Direct Message"}
@@ -114,7 +118,13 @@ export const LinkedInInbox = () => {
                 ) : (
                   <div className="space-y-4">
                     {(selectedChat || []).map((message) => (
-                      <Message key={message.id} {...message} />
+                      <Message 
+                        key={message.id} 
+                        {...message}
+                        text={message.text}
+                        sender_name={message.sender_name}
+                        timestamp={message.received_at}
+                      />
                     ))}
                   </div>
                 )}
