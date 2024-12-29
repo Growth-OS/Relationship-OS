@@ -20,7 +20,7 @@ export const LinkedInInbox = () => {
     queryFn: async () => {
       if (!chats?.[0]?.id) return null;
       const { data, error } = await supabase.functions.invoke('linkedin-messages', {
-        params: { chatId: chats[0].id }
+        body: { chatId: chats[0].id }
       });
       if (error) throw error;
       return data;
