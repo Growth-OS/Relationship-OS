@@ -39,7 +39,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
     defaultValues: {
       invoice_number: "",
       company_name: "Prospect Labs UAB",
-      company_address: "Prospect Labs UAB\nVerkiu g. 31B2\nLT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
+      company_address: "Verkiu g. 31B2\nLT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
       client_name: "",
       items: [{ description: "", quantity: 1, unit_price: 0 }],
       issue_date: new Date().toISOString().split('T')[0],
