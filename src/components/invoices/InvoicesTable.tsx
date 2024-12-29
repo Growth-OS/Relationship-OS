@@ -49,6 +49,16 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
         return;
       }
 
+      // Get the logo as base64
+      const logoUrl = '/lovable-uploads/9865aa08-9927-483e-8a53-680d9ab92e1d.png';
+      const logoResponse = await fetch(logoUrl);
+      const logoBlob = await logoResponse.blob();
+      const logoBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(logoBlob);
+      });
+
       printWindow.document.write(`
         <html>
           <head>
@@ -56,6 +66,7 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
             <style>
               body { font-family: Arial, sans-serif; padding: 20px; }
               .header { display: flex; justify-content: space-between; margin-bottom: 40px; }
+              .logo { height: 48px; margin-bottom: 24px; }
               .company-info { margin-bottom: 20px; }
               .client-info { margin-bottom: 40px; }
               table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -70,13 +81,15 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
           </head>
           <body>
             <div class="header">
-              <div class="company-info">
-                <h2>${invoice.company_name}</h2>
-                ${invoice.company_address ? `<p>${invoice.company_address}</p>` : ''}
-                ${invoice.company_email ? `<p>${invoice.company_email}</p>` : ''}
+              <div>
+                <img src="${logoBase64}" alt="Company Logo" class="logo" />
+                <div class="company-info">
+                  <h2>${invoice.company_name}</h2>
+                  ${invoice.company_address ? `<p>${invoice.company_address}</p>` : ''}
+                  ${invoice.company_email ? `<p>${invoice.company_email}</p>` : ''}
+                </div>
               </div>
               <div>
-                <h1>INVOICE</h1>
                 <p>Invoice #: ${invoice.invoice_number}</p>
                 <p>Date: ${format(new Date(invoice.issue_date), 'MMM d, yyyy')}</p>
                 <p>Due Date: ${format(new Date(invoice.due_date), 'MMM d, yyyy')}</p>
@@ -134,6 +147,13 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
               <div class="notes">
                 <h3>Notes:</h3>
                 <p>${invoice.notes}</p>
+              </div>
+            ` : ''}
+
+            ${invoice.payment_terms ? `
+              <div class="payment-terms">
+                <h3>Payment Terms:</h3>
+                <p>${invoice.payment_terms}</p>
               </div>
             ` : ''}
 
