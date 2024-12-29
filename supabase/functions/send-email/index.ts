@@ -26,6 +26,7 @@ serve(async (req) => {
     
     // Create form data
     const formData = new FormData();
+    formData.append("account_id", "kzAxdybMQ7ipVxK1U6kwZw"); // Add the account_id
     formData.append("subject", subject);
     formData.append("body", body);
     formData.append("to", JSON.stringify(to));
@@ -41,6 +42,8 @@ serve(async (req) => {
       links: true
     }));
 
+    console.log("Sending request to Unipile with URL:", `${unipileDsn}/api/v1/emails`);
+    
     const response = await fetch(`${unipileDsn}/api/v1/emails`, {
       method: "POST",
       headers: {
