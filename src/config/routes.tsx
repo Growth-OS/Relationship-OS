@@ -4,11 +4,19 @@ import Dashboard from "@/pages/Dashboard";
 import Prospects from "@/pages/Prospects";
 import Tasks from "@/pages/Tasks";
 import Inbox from "@/pages/Inbox";
+import Deals from "@/pages/Deals";
+import Projects from "@/pages/Projects";
+import Calendar from "@/pages/Calendar";
+import Substack from "@/pages/Substack";
+import Affiliates from "@/pages/Affiliates";
+import Finances from "@/pages/Finances";
+import Reporting from "@/pages/Reporting";
+import { Outlet } from "react-router-dom";
 
 export const routes: RouteObject[] = [
   {
     path: "/dashboard",
-    element: <Layout />,
+    element: <Layout><Outlet /></Layout>,
     children: [
       {
         index: true,
