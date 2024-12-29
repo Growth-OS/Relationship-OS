@@ -88,21 +88,21 @@ export const DashboardActivity = () => {
           icon={Calendar}
           title="Upcoming Meetings"
           subtitle={`${meetings?.todayCount || 0} meetings today`}
-          iconColor="purple"
+          iconColor="gray"
           onClick={() => navigate('/calendar')}
         />
         <ActivityItem
           icon={ListTodo}
           title="Pending Tasks"
           subtitle={isLoadingTasks ? "Loading..." : `${pendingTasksCount} tasks due soon`}
-          iconColor="blue"
+          iconColor="gray"
           onClick={() => navigate('/tasks')}
         />
         <ActivityItem
           icon={Mail}
           title="Unread Emails"
           subtitle={isLoadingEmails ? "Loading..." : `${unreadEmailsCount} new messages`}
-          iconColor="green"
+          iconColor="gray"
           onClick={() => navigate('/emails')}
         />
       </div>
@@ -114,15 +114,13 @@ interface ActivityItemProps {
   icon: React.ElementType;
   title: string;
   subtitle: string;
-  iconColor: "purple" | "blue" | "green";
+  iconColor: "gray";
   onClick: () => void;
 }
 
 const ActivityItem = ({ icon: Icon, title, subtitle, iconColor, onClick }: ActivityItemProps) => {
   const colorClasses = {
-    purple: "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400",
-    blue: "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
-    green: "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400"
+    gray: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
   };
 
   return (

@@ -29,19 +29,12 @@ export const DashboardChat = ({
   }, [messages]);
 
   const formatMessage = (content: string) => {
-    // Enhanced formatting for headers, lists, and text
     const formattedContent = content
-      // Format main headers (H1-H2)
       .replace(/### (.*?)(?=\n|$)/g, '<h3 class="text-xl font-bold text-gray-900 dark:text-gray-100 mt-6 mb-3 text-left">$1</h3>')
-      // Format subheaders (H3-H4)
       .replace(/#### (.*?)(?=\n|$)/g, '<h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mt-4 mb-2 text-left">$1</h4>')
-      // Format bold text
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-gray-100">$1</strong>')
-      // Format bullet points with custom styling
       .replace(/- (.*?)(?=\n|$)/g, '<li class="flex items-start mb-2"><span class="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500 mt-2 mr-2 flex-shrink-0"></span><span>$1</span></li>')
-      // Wrap lists in a container
       .replace(/<li.*?<\/li>\n/g, match => `<ul class="my-3 space-y-1 pl-4">${match}</ul>`)
-      // Add spacing between paragraphs and ensure left alignment
       .split('\n\n').join('<br/><br/>');
 
     return <div className="prose prose-gray dark:prose-invert max-w-none text-left [&>*]:text-left" dangerouslySetInnerHTML={{ __html: formattedContent }} />;
