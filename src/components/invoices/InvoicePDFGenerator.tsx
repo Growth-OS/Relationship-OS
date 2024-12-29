@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { pdfStyles } from "./pdf/styles";
 import { 
-  companyInfoTemplate, 
+  generateInvoiceHeader,
   clientInfoTemplate, 
   invoiceItemsTemplate, 
   totalsTemplate 
@@ -21,18 +21,7 @@ export const generateInvoicePDF = ({ invoice, logoBase64 }: InvoicePDFGeneratorP
       </head>
       <body>
         <div class="invoice-title">Invoice</div>
-        <div class="header">
-          <div>
-            <img src="${logoBase64}" alt="Company Logo" class="logo" />
-            ${companyInfoTemplate(invoice)}
-          </div>
-          <div class="invoice-info">
-            <p><strong>Invoice #:</strong> ${invoice.invoice_number}</p>
-            <p><strong>Date:</strong> ${format(new Date(invoice.issue_date), 'MMM d, yyyy')}</p>
-            <p><strong>Due Date:</strong> ${format(new Date(invoice.due_date), 'MMM d, yyyy')}</p>
-          </div>
-        </div>
-
+        ${generateInvoiceHeader(invoice, logoBase64)}
         ${clientInfoTemplate(invoice)}
         ${invoiceItemsTemplate(invoice)}
         ${totalsTemplate(invoice)}

@@ -58,3 +58,19 @@ export const totalsTemplate = (invoice: any) => `
     </table>
   </div>
 `;
+
+export const generateInvoiceHeader = (invoice: any, logoBase64: string) => `
+  <div class="header">
+    <div>
+      <div class="invoice-info">
+        <p><strong>Invoice #:</strong> ${invoice.invoice_number}</p>
+        <p><strong>Date:</strong> ${format(new Date(invoice.issue_date), 'MMM d, yyyy')}</p>
+        <p><strong>Due Date:</strong> ${format(new Date(invoice.due_date), 'MMM d, yyyy')}</p>
+      </div>
+      ${companyInfoTemplate(invoice)}
+    </div>
+    <div>
+      <img src="${logoBase64}" alt="Company Logo" class="logo" />
+    </div>
+  </div>
+`;

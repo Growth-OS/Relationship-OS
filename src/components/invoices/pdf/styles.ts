@@ -15,7 +15,7 @@ export const pdfStyles = `
     border-bottom: 1px solid #e2e8f0;
   }
   .logo {
-    height: 40px;
+    height: 120px;  /* Increased from 40px to 120px (3x) */
     margin-bottom: 20px;
   }
   .company-info {
@@ -26,6 +26,7 @@ export const pdfStyles = `
     font-size: 14px;
     color: #334155;
     line-height: 1.6;
+    text-align: left;
   }
   .invoice-info {
     text-align: right;
@@ -33,7 +34,7 @@ export const pdfStyles = `
   }
   .invoice-info p {
     margin: 4px 0;
-    color: #64748b;
+    color: #334155;
   }
   .invoice-title {
     font-size: 42px;
