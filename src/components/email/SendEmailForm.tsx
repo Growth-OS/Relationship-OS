@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const SendEmailForm = () => {
+  const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
@@ -18,6 +19,7 @@ export const SendEmailForm = () => {
     try {
       const { data, error } = await supabase.functions.invoke("send-email", {
         body: {
+          from,
           to: to.split(",").map(email => email.trim()),
           subject,
           html: content,
@@ -27,6 +29,7 @@ export const SendEmailForm = () => {
       if (error) throw error;
 
       toast.success("Email sent successfully!");
+      setFrom("");
       setTo("");
       setSubject("");
       setContent("");
@@ -40,6 +43,20 @@ export const SendEmailForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="from" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          From
+        </label>
+        <Input
+          id="from"
+          type="email"
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+          placeholder="your@email.com"
+          required
+        />
+      </div>
+
       <div>
         <label htmlFor="to" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           To (comma-separated emails)
