@@ -16,6 +16,7 @@ serve(async (req) => {
     // Verify webhook secret
     const webhookSecret = req.headers.get('x-webhook-secret');
     if (webhookSecret !== Deno.env.get('WEBHOOK_SECRET')) {
+      console.error('Invalid webhook secret received');
       return new Response(
         JSON.stringify({ error: 'Invalid webhook secret' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -28,7 +29,7 @@ serve(async (req) => {
     );
 
     const body = await req.json();
-    console.log('Received email webhook payload:', body);
+    console.log('Received email webhook payload:', JSON.stringify(body, null, 2));
 
     const { event, data, userId } = body;
 
@@ -48,13 +49,19 @@ serve(async (req) => {
         is_sent: data.is_sent || false,
       };
 
+      console.log('Processing email data:', JSON.stringify(emailData, null, 2));
+
       const { error: upsertError } = await supabase
         .from('emails')
         .upsert(emailData, {
           onConflict: 'message_id,user_id'
         });
 
-      if (upsertError) throw upsertError;
+      if (upsertError) {
+        console.error('Error upserting email:', upsertError);
+        throw upsertError;
+      }
+      
       console.log(`Email ${event} processed successfully`);
     }
 
