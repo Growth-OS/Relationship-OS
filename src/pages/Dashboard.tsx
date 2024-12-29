@@ -52,7 +52,7 @@ const Dashboard = () => {
     enabled: !!selectedProject
   });
 
-  // Set messages when chat history changes
+  // Update messages when chat history changes
   useState(() => {
     if (chatHistory) {
       setMessages(chatHistory);
