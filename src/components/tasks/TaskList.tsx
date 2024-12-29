@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { CalendarIcon, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { EditTaskDialog } from "./EditTaskDialog";
 
 interface TaskListProps {
   source?: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
@@ -12,7 +13,7 @@ interface TaskListProps {
 }
 
 export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading, refetch } = useQuery({
     queryKey: ["tasks", source, projectId, showArchived],
     queryFn: async () => {
       let query = supabase
@@ -56,13 +57,16 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
           )}
         >
           <div className="flex items-start justify-between">
-            <div className="space-y-1 text-left">
-              <h3 className={cn(
-                "font-medium",
-                task.completed && "text-gray-500 line-through"
-              )}>
-                {task.title}
-              </h3>
+            <div className="space-y-1 text-left flex-1">
+              <div className="flex items-start justify-between">
+                <h3 className={cn(
+                  "font-medium",
+                  task.completed && "text-gray-500 line-through"
+                )}>
+                  {task.title}
+                </h3>
+                <EditTaskDialog task={task} onUpdate={refetch} />
+              </div>
               {task.description && (
                 <p className="text-sm text-gray-600">{task.description}</p>
               )}
