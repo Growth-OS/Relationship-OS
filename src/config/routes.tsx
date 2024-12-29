@@ -2,6 +2,7 @@ import { RouteObject } from "react-router-dom";
 import { Navigate, Outlet } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Affiliates from "@/pages/Affiliates";
@@ -27,10 +28,12 @@ export const routes: RouteObject[] = [
   {
     path: "/",
     element: <Landing />,
+    errorElement: <ErrorBoundary />
   },
   {
     path: "/login",
     element: <Login />,
+    errorElement: <ErrorBoundary />
   },
   {
     path: "/dashboard",
@@ -41,6 +44,7 @@ export const routes: RouteObject[] = [
         </Layout>
       </AuthProvider>
     ),
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -99,6 +103,7 @@ export const routes: RouteObject[] = [
         <SettingsLayout />
       </AuthProvider>
     ),
+    errorElement: <ErrorBoundary />,
     children: [
       {
         path: "profile",
