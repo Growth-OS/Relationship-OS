@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { EmailInbox } from "@/components/email/EmailInbox";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardActivity } from "@/components/dashboard/DashboardActivity";
+import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardChat } from "@/components/dashboard/DashboardChat";
 
 const Dashboard = () => {
   const { data: user } = useQuery({
@@ -20,7 +23,20 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <DashboardHeader firstName={firstName} />
-      <EmailInbox />
+      <DashboardStats />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <DashboardActivity />
+          <DashboardQuickActions />
+        </div>
+        <DashboardChat 
+          messages={[]}
+          input=""
+          isLoading={false}
+          onInputChange={() => {}}
+          onSend={() => {}}
+        />
+      </div>
     </div>
   );
 };
