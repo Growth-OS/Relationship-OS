@@ -21,7 +21,6 @@ import Calendar from "@/pages/Calendar";
 import Content from "@/pages/Content";
 import Finances from "@/pages/Finances";
 import Projects from "@/pages/Projects";
-import Emails from "@/pages/Emails";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
@@ -89,10 +88,6 @@ export const routes: RouteObject[] = [
       {
         path: "substack",
         element: <Substack />,
-      },
-      {
-        path: "emails",
-        element: <Emails />,
       },
     ],
   },
