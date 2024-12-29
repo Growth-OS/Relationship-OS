@@ -85,7 +85,7 @@ Current user context:${contextPrompt}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',  // Using the correct model name
+        model: 'gpt-4o',  // Using GPT-4 with search capabilities
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
