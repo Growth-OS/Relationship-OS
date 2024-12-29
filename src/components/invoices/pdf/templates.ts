@@ -1,3 +1,5 @@
+import { format } from 'date-fns';
+
 export const companyInfoTemplate = (invoice: any) => `
   <div class="company-info">
     <p>${invoice.company_name}</p>
