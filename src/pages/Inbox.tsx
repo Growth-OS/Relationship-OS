@@ -1,11 +1,13 @@
+import { useEffect } from "react";
+
 const Inbox = () => {
+  useEffect(() => {
+    window.location.href = "https://mail.superhuman.com/";
+  }, []);
+
   return (
-    <div className="h-[calc(100vh-2rem)] w-full animate-fade-in">
-      <iframe 
-        src="https://mail.superhuman.com/"
-        className="w-full h-full border-none"
-        title="Superhuman Inbox"
-      />
+    <div className="flex items-center justify-center h-[calc(100vh-2rem)] w-full animate-fade-in">
+      <p className="text-gray-500">Redirecting to Superhuman...</p>
     </div>
   );
 };
