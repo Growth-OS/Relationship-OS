@@ -21,10 +21,10 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Format the Unipile DSN correctly
+    // Format the Unipile DSN correctly - ensure port is only added once
     const unipileBaseUrl = UNIPILE_DSN?.includes('://')
       ? UNIPILE_DSN
-      : `https://${UNIPILE_DSN}:13619`;
+      : `https://${UNIPILE_DSN}`;
 
     console.log('Using Unipile base URL:', unipileBaseUrl);
 
