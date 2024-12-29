@@ -19,17 +19,26 @@ serve(async (req) => {
     }
 
     const { to, subject, body, replyTo } = await req.json();
-    console.log("Sending email with data:", { to, subject, replyTo });
+    console.log("Received request with data:", { to, subject, replyTo });
 
     // Ensure UNIPILE_DSN has the correct protocol
     const unipileDsn = UNIPILE_DSN.startsWith('https://') ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
     
     // Create form data
     const formData = new FormData();
-    formData.append("account_id", "kzAxdybMQ7ipVxK1U6kwZw"); // Add the account_id
+
+    // Add required fields
+    formData.append("account_id", "kzAxdybMQ7ipVxK1U6kwZw");
     formData.append("subject", subject);
     formData.append("body", body);
-    formData.append("to", JSON.stringify(to));
+    
+    // Ensure 'to' is properly formatted as a string
+    if (Array.isArray(to)) {
+      formData.append("to", JSON.stringify(to));
+    } else {
+      console.error("Invalid 'to' format:", to);
+      throw new Error("Invalid 'to' format");
+    }
 
     // Add reply_to if provided
     if (replyTo) {
@@ -43,7 +52,11 @@ serve(async (req) => {
     }));
 
     console.log("Sending request to Unipile with URL:", `${unipileDsn}/api/v1/emails`);
-    
+    console.log("Form data entries:");
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
     const response = await fetch(`${unipileDsn}/api/v1/emails`, {
       method: "POST",
       headers: {
