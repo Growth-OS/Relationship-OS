@@ -1,4 +1,4 @@
-import { EmailMessage } from "@/integrations/supabase/types";
+import { EmailMessage } from "@/integrations/supabase/types/email";
 import { formatDistanceToNow } from "date-fns";
 import { Mail, Star, StarOff } from "lucide-react";
 import { useState } from "react";

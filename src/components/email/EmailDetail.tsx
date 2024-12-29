@@ -1,4 +1,4 @@
-import { EmailMessage } from "@/integrations/supabase/types";
+import { EmailMessage } from "@/integrations/supabase/types/email";
 import { format } from "date-fns";
 import { Archive, Star, StarOff, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EmailList } from "./EmailList";
 import { EmailDetail } from "./EmailDetail";
 import { useState } from "react";
-import { EmailMessage } from "@/integrations/supabase/types";
+import { EmailMessage } from "@/integrations/supabase/types/email";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const EmailInbox = () => {

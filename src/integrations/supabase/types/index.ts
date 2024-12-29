@@ -5,6 +5,7 @@ import { AffiliateEarning, AffiliatePartner, FinancialTransaction, TransactionAt
 import { LinkedInMessage } from './linkedin';
 import { Project, ProjectCredential, ProjectDocument, ProjectStatus } from './projects';
 import { Task, TaskSource } from './tasks';
+import { EmailMessage } from './email';
 
 export type Database = {
   public: {
@@ -125,5 +126,4 @@ export * from './finances';
 export * from './linkedin';
 export * from './projects';
 export * from './tasks';
-
 export * from './email';
