@@ -125,3 +125,5 @@ export * from './finances';
 export * from './linkedin';
 export * from './projects';
 export * from './tasks';
+
+export * from './email';
