@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardChat } from "@/components/dashboard/DashboardChat";
 import { Message } from "@/components/dashboard/types";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -30,24 +31,21 @@ const Dashboard = () => {
     setMessages(prev => [...prev, { role: 'user', content: input }]);
     
     try {
-      const response = await fetch('/api/chat-with-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat-with-data', {
+        body: {
           message: input,
           userId: user?.id,
-        }),
+        },
       });
 
-      const data = await response.json();
+      if (error) throw error;
       
-      if (data.response) {
+      if (data?.response) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      toast.error('Failed to get a response. Please try again.');
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error. Please try again.' 
@@ -66,24 +64,21 @@ const Dashboard = () => {
     }]);
 
     try {
-      const response = await fetch('/api/chat-with-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat-with-data', {
+        body: {
           message: 'Generate a morning briefing with my latest tasks, upcoming meetings, and important updates.',
           userId: user?.id,
-        }),
+        },
       });
 
-      const data = await response.json();
+      if (error) throw error;
       
-      if (data.response) {
+      if (data?.response) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
       }
     } catch (error) {
       console.error('Error getting morning briefing:', error);
+      toast.error('Failed to get morning briefing. Please try again.');
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Sorry, I encountered an error generating your morning briefing. Please try again.' 
