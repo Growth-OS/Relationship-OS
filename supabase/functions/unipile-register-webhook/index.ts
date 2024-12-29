@@ -25,9 +25,9 @@ serve(async (req) => {
     // Configure webhooks for different types of events
     const webhooks = [
       {
-        // Email webhook
-        request_url: `${baseUrl}/email-webhook`,
-        name: 'email_webhook',
+        // LinkedIn messaging webhook
+        request_url: `${baseUrl}/linkedin-webhook`,
+        name: 'linkedin_messaging_webhook',
         format: 'json',
         enabled: true,
         headers: [
@@ -36,8 +36,8 @@ serve(async (req) => {
             value: webhookSecret
           }
         ],
-        source: 'email',
-        events: ['email.received', 'email.updated']
+        source: 'messaging',
+        events: ['message.received', 'message.updated']
       }
     ];
 
