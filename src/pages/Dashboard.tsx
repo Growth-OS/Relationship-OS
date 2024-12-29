@@ -56,38 +56,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleMorningBriefing = async () => {
-    setIsLoading(true);
-    setMessages(prev => [...prev, { 
-      role: 'user', 
-      content: 'Can you give me my morning briefing?' 
-    }]);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('chat-with-data', {
-        body: {
-          message: 'Generate a morning briefing with my latest tasks, upcoming meetings, and important updates.',
-          userId: user?.id,
-        },
-      });
-
-      if (error) throw error;
-      
-      if (data?.response) {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
-      }
-    } catch (error) {
-      console.error('Error getting morning briefing:', error);
-      toast.error('Failed to get morning briefing. Please try again.');
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error generating your morning briefing. Please try again.' 
-      }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6 animate-fade-in">
       <DashboardHeader firstName={firstName} />
@@ -97,7 +65,6 @@ const Dashboard = () => {
         isLoading={isLoading}
         onInputChange={setInput}
         onSend={handleSendMessage}
-        onMorningBriefing={handleMorningBriefing}
       />
     </div>
   );
