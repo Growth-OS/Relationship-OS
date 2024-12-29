@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, ListTodo } from "lucide-react";
+import { Calendar, ListTodo, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -43,7 +43,24 @@ export const DashboardActivity = () => {
     }
   });
 
+  const { data: recentEmails, isLoading: isLoadingEmails } = useQuery({
+    queryKey: ["recent-emails"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('emails')
+        .select('*')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('is_read', false)
+        .order('received_at', { ascending: false })
+        .limit(5);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   const pendingTasksCount = tasks?.length || 0;
+  const unreadEmailsCount = recentEmails?.length || 0;
 
   return (
     <Card className="p-6">
@@ -63,6 +80,13 @@ export const DashboardActivity = () => {
           iconColor="blue"
           onClick={() => navigate('/tasks')}
         />
+        <ActivityItem
+          icon={Mail}
+          title="Unread Emails"
+          subtitle={isLoadingEmails ? "Loading..." : `${unreadEmailsCount} new messages`}
+          iconColor="green"
+          onClick={() => navigate('/emails')}
+        />
       </div>
     </Card>
   );
@@ -72,7 +96,7 @@ interface ActivityItemProps {
   icon: React.ElementType;
   title: string;
   subtitle: string;
-  iconColor: "purple" | "blue";
+  iconColor: "purple" | "blue" | "green";
   onClick: () => void;
 }
 
@@ -80,6 +104,7 @@ const ActivityItem = ({ icon: Icon, title, subtitle, iconColor, onClick }: Activ
   const colorClasses = {
     purple: "bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400",
     blue: "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400",
+    green: "bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400"
   };
 
   return (
