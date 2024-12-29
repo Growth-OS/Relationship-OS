@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
+  'Content-Type': 'application/json'
 };
 
 serve(async (req) => {
@@ -19,7 +20,7 @@ serve(async (req) => {
       console.error('Invalid webhook secret received');
       return new Response(
         JSON.stringify({ error: 'Invalid webhook secret' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: corsHeaders }
       );
     }
 
@@ -29,55 +30,83 @@ serve(async (req) => {
     );
 
     const body = await req.json();
-    console.log('Received email webhook payload:', JSON.stringify(body, null, 2));
+    console.log('Received webhook payload:', JSON.stringify(body, null, 2));
 
-    const { event, data, userId } = body;
+    const { event, email_id, account_id, date, from_attendee, to_attendees, subject, body: emailBody, has_attachments, folders, tracking_id } = body;
 
-    if (event === 'email.received' || event === 'email.updated') {
-      const emailData = {
-        user_id: userId,
-        message_id: data.id,
-        from_email: data.from?.email || 'Unknown Sender',
-        subject: data.subject || 'No subject',
-        snippet: data.snippet,
-        body: data.content,
-        received_at: data.date || new Date().toISOString(),
-        is_read: data.is_read || false,
-        is_archived: data.is_archived || false,
-        is_starred: data.is_starred || false,
-        is_trashed: data.is_trashed || false,
-        is_sent: data.is_sent || false,
-      };
+    switch (event) {
+      case 'mail_received':
+      case 'mail_sent': {
+        // Process new email
+        const emailData = {
+          message_id: email_id,
+          user_id: account_id,
+          from_email: from_attendee.identifier,
+          from_name: from_attendee.display_name,
+          to_emails: to_attendees.map((a: any) => a.identifier),
+          subject: subject,
+          body: emailBody,
+          received_at: date,
+          has_attachments: has_attachments,
+          folder: folders?.[0] || 'inbox',
+          tracking_id: tracking_id
+        };
 
-      console.log('Processing email data:', JSON.stringify(emailData, null, 2));
+        const { error: upsertError } = await supabase
+          .from('emails')
+          .upsert(emailData, {
+            onConflict: 'message_id,user_id'
+          });
 
-      const { error: upsertError } = await supabase
-        .from('emails')
-        .upsert(emailData, {
-          onConflict: 'message_id,user_id'
-        });
-
-      if (upsertError) {
-        console.error('Error upserting email:', upsertError);
-        throw upsertError;
+        if (upsertError) {
+          console.error('Error upserting email:', upsertError);
+          throw upsertError;
+        }
+        
+        console.log(`Email ${event} processed successfully`);
+        break;
       }
-      
-      console.log(`Email ${event} processed successfully`);
+
+      case 'mail_opened':
+      case 'mail_link_clicked': {
+        // Process tracking event
+        const trackingData = {
+          email_id: email_id,
+          user_id: account_id,
+          event_type: event,
+          occurred_at: date,
+          ip_address: body.ip,
+          user_agent: body.user_agent,
+          url: body.url // Only for mail_link_clicked
+        };
+
+        const { error: trackingError } = await supabase
+          .from('email_tracking')
+          .insert(trackingData);
+
+        if (trackingError) {
+          console.error('Error inserting tracking event:', trackingError);
+          throw trackingError;
+        }
+
+        console.log(`Email tracking event ${event} processed successfully`);
+        break;
+      }
+
+      default:
+        console.warn(`Unhandled webhook event type: ${event}`);
     }
 
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: corsHeaders }
     );
 
   } catch (error) {
-    console.error('Error processing email webhook:', error);
+    console.error('Error processing webhook:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      { status: 500, headers: corsHeaders }
     );
   }
 });

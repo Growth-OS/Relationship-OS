@@ -3,6 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Content-Type': 'application/json'
 };
 
 serve(async (req) => {
@@ -34,7 +35,13 @@ serve(async (req) => {
       body: JSON.stringify({
         url: webhookUrl,
         secret: WEBHOOK_SECRET,
-        events: ['email.received', 'email.updated'],
+        events: ['mail_received', 'mail_sent', 'mail_opened', 'mail_link_clicked'],
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json'
+          }
+        ]
       }),
     });
 
@@ -48,17 +55,14 @@ serve(async (req) => {
     console.log('Webhook registered successfully:', data);
 
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: corsHeaders,
     });
 
   } catch (error) {
     console.error('Error in webhook registration:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
+      { status: 500, headers: corsHeaders }
     );
   }
 });
