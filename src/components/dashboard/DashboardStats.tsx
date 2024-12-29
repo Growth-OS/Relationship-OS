@@ -72,7 +72,7 @@ export const DashboardStats = () => {
   });
 
   const handleCardClick = (route: string) => {
-    navigate(route);
+    navigate(`/dashboard${route}`);
   };
 
   const stats = [
