@@ -12,6 +12,7 @@ import Affiliates from "@/pages/Affiliates";
 import Finances from "@/pages/Finances";
 import Reporting from "@/pages/Reporting";
 import Development from "@/pages/Development";
+import Invoices from "@/pages/Invoices";
 import { Outlet } from "react-router-dom";
 
 export const routes: RouteObject[] = [
@@ -58,6 +59,10 @@ export const routes: RouteObject[] = [
       {
         path: "finances",
         element: <Finances />,
+      },
+      {
+        path: "invoices",
+        element: <Invoices />,
       },
       {
         path: "reporting",
