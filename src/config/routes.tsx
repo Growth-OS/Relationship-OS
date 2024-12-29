@@ -52,7 +52,20 @@ export const routes: RouteObject[] = [
       },
       {
         path: "inbox",
-        element: <Inbox />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="email" replace />,
+          },
+          {
+            path: "email",
+            element: <Inbox />,
+          },
+          {
+            path: "linkedin",
+            element: <Inbox />,
+          },
+        ],
       },
       {
         path: "prospects",
