@@ -27,7 +27,6 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch user's context data
     const [tasks, meetings, emails] = await Promise.all([
       // Get pending tasks
       supabase
@@ -83,6 +82,22 @@ You have access to real-time information and can browse the web to provide accur
 Your responses should be clear, concise, and action-oriented.
 Current user context:${contextPrompt}`;
 
+    // Clean up response text by removing citations and references
+    const cleanResponse = (text: string) => {
+      return text
+        // Remove numbered citations [1], [2], etc.
+        .replace(/\[\d+\]/g, '')
+        // Remove reference lists that might appear at the end
+        .replace(/References:[\s\S]*$/i, '')
+        // Remove any remaining square brackets with numbers
+        .replace(/\[(\d+,?\s?)+\]/g, '')
+        // Clean up any double spaces created by removing citations
+        .replace(/\s+/g, ' ')
+        // Clean up any spaces before punctuation
+        .replace(/\s+([.,!?])/g, '$1')
+        .trim();
+    };
+
     console.log('Calling Perplexity API with system prompt:', systemPrompt);
 
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -119,8 +134,11 @@ Current user context:${contextPrompt}`;
     const data = await perplexityResponse.json();
     console.log('Perplexity response received:', data);
 
+    // Clean the response before sending it back
+    const cleanedContent = cleanResponse(data.choices[0].message.content);
+
     return new Response(
-      JSON.stringify({ response: data.choices[0].message.content }),
+      JSON.stringify({ response: cleanedContent }),
       { 
         headers: { 
           ...corsHeaders, 
