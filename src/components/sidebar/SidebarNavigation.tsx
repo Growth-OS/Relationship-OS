@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
   Briefcase, UserPlus, Euro, FolderOpen, Inbox, Linkedin, 
-  Bug, FileText, ChartLine, ChartPie, Database 
+  Bug, FileText, ChartLine, ChartPie, Database, Mail, 
+  MailPlus, MailSearch, MailWarning 
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -21,14 +22,15 @@ export const SidebarNavigation = () => {
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
+    { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
     { icon: Bug, label: "Development", path: "/dashboard/development" },
   ];
 
-  const reportingMenuItems = [
-    { icon: ChartBar, label: "Overview", path: "/dashboard/reporting" },
-    { icon: ChartLine, label: "Revenue", path: "/dashboard/reporting?module=finances" },
-    { icon: ChartPie, label: "Pipeline", path: "/dashboard/reporting?module=deals" },
-    { icon: Database, label: "Metrics", path: "/dashboard/reporting?module=prospects" },
+  const emailMenuItems = [
+    { icon: Mail, label: "Inbox", path: "/dashboard/email/inbox" },
+    { icon: MailPlus, label: "Compose", path: "/dashboard/email/compose" },
+    { icon: MailSearch, label: "Search", path: "/dashboard/email/search" },
+    { icon: MailWarning, label: "Spam", path: "/dashboard/email/spam" },
   ];
 
   const externalLinks = [
@@ -61,15 +63,15 @@ export const SidebarNavigation = () => {
 
         <div className="mb-6">
           <div className="px-4 mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Reporting</h3>
+            <h3 className="text-sm font-medium text-gray-500">Email</h3>
           </div>
-          {reportingMenuItems.map((item) => (
+          {emailMenuItems.map((item) => (
             <SidebarMenuItem
               key={item.path}
               icon={item.icon}
               label={item.label}
               path={item.path}
-              isActive={location.pathname + location.search === item.path}
+              isActive={location.pathname === item.path}
             />
           ))}
         </div>
