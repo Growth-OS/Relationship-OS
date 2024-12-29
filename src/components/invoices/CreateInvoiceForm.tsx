@@ -85,7 +85,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
 
       const calculatedData = calculateTotals(data);
 
-      // Create invoice
+      // Create invoice first
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
@@ -102,7 +102,13 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         return;
       }
 
-      // Create invoice items
+      if (!invoice) {
+        console.error('No invoice data returned');
+        toast.error('Error creating invoice');
+        return;
+      }
+
+      // Then create invoice items
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(
@@ -113,11 +119,13 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         );
 
       if (itemsError) {
+        // If items creation fails, we should probably delete the invoice
+        await supabase.from('invoices').delete().eq('id', invoice.id);
         console.error('Error creating invoice items:', itemsError);
         toast.error('Error creating invoice items');
         return;
       }
-      
+
       toast.success('Invoice created successfully');
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       onSuccess?.();
