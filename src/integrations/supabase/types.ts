@@ -1072,7 +1072,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      invoice_metrics: {
+        Row: {
+          avg_payment_days: number | null
+          overdue_amount: number | null
+          overdue_invoices: number | null
+          paid_amount: number | null
+          paid_invoices: number | null
+          total_amount: number | null
+          total_invoices: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
