@@ -1,37 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-interface EmailAttendee {
-  identifier: string;
-  display_name: string | null;
-}
-
-interface NewEmailWebhookPayload {
-  email_id: string;
-  account_id: string;
-  event: 'mail_received' | 'mail_sent';
-  webhook_name: string;
-  date: string;
-  from_attendee: EmailAttendee;
-  to_attendees: EmailAttendee[];
-  bcc_attendees: EmailAttendee[];
-  cc_attendees: EmailAttendee[];
-  reply_to_attendees: EmailAttendee[];
-  provider_id: string;
-  message_id: string;
-  has_attachments: boolean;
-  subject: string | null;
-  body: string;
-  body_plain: string;
-  attachments: any[];
-  folders: string[];
-  role: string;
-  read_date: string | null;
-  is_complete: boolean;
-  tracking_id?: string;
-  origin: 'unipile' | 'external';
-}
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
@@ -44,8 +13,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Received webhook request');
+    
     // Verify webhook secret
     const webhookSecret = req.headers.get('x-webhook-secret');
+    console.log('Webhook secret received:', webhookSecret ? 'Yes' : 'No');
+    
     if (webhookSecret !== Deno.env.get('WEBHOOK_SECRET')) {
       console.error('Invalid webhook secret received');
       return new Response(
@@ -61,25 +34,26 @@ serve(async (req) => {
 
     const payload = await req.json();
     console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
-
-    const emailPayload = payload as NewEmailWebhookPayload;
     
     // Process new email
     const emailData = {
-      message_id: emailPayload.message_id,
-      user_id: emailPayload.account_id,
-      from_email: emailPayload.from_attendee.identifier,
-      from_name: emailPayload.from_attendee.display_name,
-      to_emails: emailPayload.to_attendees.map(a => a.identifier),
-      cc_emails: emailPayload.cc_attendees.map(a => a.identifier),
-      bcc_emails: emailPayload.bcc_attendees.map(a => a.identifier),
-      subject: emailPayload.subject,
-      body: emailPayload.body,
-      received_at: emailPayload.date,
-      has_attachments: emailPayload.has_attachments,
-      folder: emailPayload.folders[0] || 'inbox',
-      tracking_id: emailPayload.tracking_id
+      message_id: payload.message_id,
+      user_id: payload.account_id,
+      from_email: payload.from_attendee.identifier,
+      from_name: payload.from_attendee.display_name,
+      to_emails: payload.to_attendees.map((a: any) => a.identifier),
+      cc_emails: payload.cc_attendees?.map((a: any) => a.identifier) || [],
+      bcc_emails: payload.bcc_attendees?.map((a: any) => a.identifier) || [],
+      subject: payload.subject,
+      body: payload.body,
+      snippet: payload.body_plain?.substring(0, 200),
+      received_at: payload.date,
+      has_attachments: payload.has_attachments,
+      folder: payload.folders[0] || 'inbox',
+      created_at: new Date().toISOString()
     };
+
+    console.log('Processing email data:', JSON.stringify(emailData, null, 2));
 
     const { error: upsertError } = await supabase
       .from('emails')
@@ -92,7 +66,7 @@ serve(async (req) => {
       throw upsertError;
     }
     
-    console.log(`Email ${payload.event} processed successfully`);
+    console.log('Email processed successfully');
 
     return new Response(
       JSON.stringify({ success: true }),
