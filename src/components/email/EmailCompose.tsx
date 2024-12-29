@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailComposeProps {
   isOpen: boolean;
