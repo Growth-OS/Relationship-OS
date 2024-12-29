@@ -1,4 +1,4 @@
-import { format, isValid } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { Avatar } from "@/components/ui/avatar";
 
 interface MessageProps {
@@ -11,8 +11,13 @@ interface MessageProps {
 
 export const Message = ({ text, is_outbound, timestamp, sender_name }: MessageProps) => {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return isValid(date) ? format(date, "h:mm a") : "Unknown time";
+    try {
+      const date = parseISO(dateString);
+      return isValid(date) ? format(date, "h:mm a") : "Unknown time";
+    } catch (error) {
+      console.error('Error parsing date:', dateString, error);
+      return "Unknown time";
+    }
   };
 
   return (

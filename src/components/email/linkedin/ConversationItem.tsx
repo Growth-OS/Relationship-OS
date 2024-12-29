@@ -1,4 +1,4 @@
-import { format, isValid } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { Avatar } from "@/components/ui/avatar";
 
 interface ConversationItemProps {
@@ -24,8 +24,13 @@ export const ConversationItem = ({
   onClick
 }: ConversationItemProps) => {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return isValid(date) ? format(date, "MMM d") : "Unknown date";
+    try {
+      const date = parseISO(dateString);
+      return isValid(date) ? format(date, "MMM d") : "Unknown date";
+    } catch (error) {
+      console.error('Error parsing date:', dateString, error);
+      return "Unknown date";
+    }
   };
 
   return (

@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,12 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
-
-    // Format the Unipile DSN correctly - ensure port is only added once
+    // Format the Unipile DSN correctly
     const unipileBaseUrl = UNIPILE_DSN?.includes('://')
       ? UNIPILE_DSN
       : `https://${UNIPILE_DSN}`;
@@ -36,6 +30,19 @@ serve(async (req) => {
       'accept': 'application/json',
     };
 
+    // First, trigger a sync
+    const syncResponse = await fetch(`${unipileBaseUrl}/api/v1/chats/sync`, {
+      method: 'POST',
+      headers,
+    });
+
+    if (!syncResponse.ok) {
+      console.error('Sync failed:', await syncResponse.text());
+    } else {
+      console.log('Sync successful');
+    }
+
+    // Then proceed with the regular request
     if (chatId) {
       // Get messages for a specific chat
       console.log(`Fetching messages for chat ${chatId}`);
@@ -51,7 +58,7 @@ serve(async (req) => {
       }
       
       const data = await response.json();
-      console.log(`Retrieved ${data?.length || 0} messages`);
+      console.log(`Retrieved ${data?.length || 0} messages:`, data);
 
       return new Response(
         JSON.stringify(data),
@@ -73,7 +80,7 @@ serve(async (req) => {
     }
     
     const data = await response.json();
-    console.log(`Retrieved ${data?.length || 0} chats`);
+    console.log(`Retrieved ${data?.length || 0} chats:`, data);
 
     return new Response(
       JSON.stringify(data),
