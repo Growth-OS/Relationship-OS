@@ -79,7 +79,7 @@ Current user context:${contextPrompt}`;
 
     console.log('Calling OpenAI with system prompt:', systemPrompt);
 
-    // Call OpenAI API with search enabled
+    // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -91,16 +91,7 @@ Current user context:${contextPrompt}`;
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
-        ],
-        tools: [
-          {
-            type: "retrieval",
-            retrieval: {
-              enabled: true
-            }
-          }
-        ],
-        tool_choice: "auto"
+        ]
       }),
     });
 
