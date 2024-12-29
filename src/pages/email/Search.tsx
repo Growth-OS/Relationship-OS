@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Mail, Loader2, Search as SearchIcon } from "lucide-react";
+import { EmailMessage } from "@/components/dashboard/types";
 
 const SearchPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,8 +20,9 @@ const SearchPage = () => {
         .order("received_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as EmailMessage[];
     },
+    enabled: searchQuery.length > 0,
   });
 
   return (

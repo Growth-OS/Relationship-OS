@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { EmailMessage } from "@/components/dashboard/types";
 
 const SpamPage = () => {
   const { data: spamEmails, isLoading } = useQuery({
@@ -13,7 +14,7 @@ const SpamPage = () => {
         .order("received_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as EmailMessage[];
     },
   });
 
