@@ -1,48 +1,14 @@
 import { RouteObject } from "react-router-dom";
-import { Navigate, Outlet } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { SettingsLayout } from "@/components/settings/SettingsLayout";
-import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
-import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
-import Affiliates from "@/pages/Affiliates";
-import Reporting from "@/pages/Reporting";
-import Substack from "@/pages/Substack";
-import AIPrompts from "@/pages/AIPrompts";
-import AIPersona from "@/pages/AIPersona";
-import ProfileSettings from "@/pages/ProfileSettings";
-import BrandingSettings from "@/pages/BrandingSettings";
-import TeamSettings from "@/pages/TeamSettings";
-import Login from "@/pages/Login";
-import Deals from "@/pages/Deals";
-import Tasks from "@/pages/Tasks";
 import Prospects from "@/pages/Prospects";
-import Calendar from "@/pages/Calendar";
-import Finances from "@/pages/Finances";
-import Projects from "@/pages/Projects";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import Tasks from "@/pages/Tasks";
+import Inbox from "@/pages/Inbox";
 
 export const routes: RouteObject[] = [
   {
-    path: "/",
-    element: <Landing />,
-    errorElement: <ErrorBoundary />
-  },
-  {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorBoundary />
-  },
-  {
     path: "/dashboard",
-    element: (
-      <AuthProvider>
-        <Layout>
-          <Outlet />
-        </Layout>
-      </AuthProvider>
-    ),
-    errorElement: <ErrorBoundary />,
+    element: <Layout />,
     children: [
       {
         index: true,
@@ -53,16 +19,28 @@ export const routes: RouteObject[] = [
         element: <Prospects />,
       },
       {
-        path: "deals",
-        element: <Deals />,
-      },
-      {
         path: "tasks",
         element: <Tasks />,
       },
       {
+        path: "inbox",
+        element: <Inbox />,
+      },
+      {
+        path: "deals",
+        element: <Deals />,
+      },
+      {
+        path: "projects",
+        element: <Projects />,
+      },
+      {
         path: "calendar",
         element: <Calendar />,
+      },
+      {
+        path: "substack",
+        element: <Substack />,
       },
       {
         path: "affiliates",
@@ -73,51 +51,8 @@ export const routes: RouteObject[] = [
         element: <Finances />,
       },
       {
-        path: "projects",
-        element: <Projects />,
-      },
-      {
         path: "reporting",
         element: <Reporting />,
-      },
-      {
-        path: "substack",
-        element: <Substack />,
-      },
-    ],
-  },
-  {
-    path: "/settings",
-    element: (
-      <AuthProvider>
-        <SettingsLayout />
-      </AuthProvider>
-    ),
-    errorElement: <ErrorBoundary />,
-    children: [
-      {
-        path: "profile",
-        element: <ProfileSettings />,
-      },
-      {
-        path: "branding",
-        element: <BrandingSettings />,
-      },
-      {
-        path: "team",
-        element: <TeamSettings />,
-      },
-      {
-        path: "ai-prompts",
-        element: <AIPrompts />,
-      },
-      {
-        path: "ai-persona",
-        element: <AIPersona />,
-      },
-      {
-        index: true,
-        element: <Navigate to="profile" replace />,
       },
     ],
   },
