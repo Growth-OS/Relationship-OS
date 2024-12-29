@@ -170,6 +170,42 @@ export type Database = {
         }
         Relationships: []
       }
+      development_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       email_attachments: {
         Row: {
           content_type: string | null
