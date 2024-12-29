@@ -131,9 +131,9 @@ const Dashboard = () => {
       
       <div className="w-full max-w-xs mb-4">
         <Select
-          value={selectedProject || ""}
+          value={selectedProject || "general"}
           onValueChange={(value) => {
-            setSelectedProject(value || null);
+            setSelectedProject(value === "general" ? null : value);
             setMessages([]);
           }}
         >
@@ -141,7 +141,7 @@ const Dashboard = () => {
             <SelectValue placeholder="Select a project chat" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">General Chat</SelectItem>
+            <SelectItem value="general">General Chat</SelectItem>
             {projects?.map((project) => (
               <SelectItem key={project.id} value={project.id}>
                 {project.name}
