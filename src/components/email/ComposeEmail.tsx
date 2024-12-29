@@ -26,6 +26,7 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
 
     setIsSending(true);
     try {
+      console.log("Sending email to:", to);
       const response = await supabase.functions.invoke("send-email", {
         body: {
           to: [{ identifier: to }],
@@ -34,7 +35,10 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
         },
       });
 
-      if (response.error) throw response.error;
+      if (response.error) {
+        console.error("Error sending email:", response.error);
+        throw response.error;
+      }
 
       toast.success("Email sent successfully");
       onClose();

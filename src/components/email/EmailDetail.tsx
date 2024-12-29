@@ -34,20 +34,9 @@ export const EmailDetail = ({ email, isOpen, onClose }: EmailDetailProps) => {
 
     setIsSending(true);
     try {
-      const { data: connection } = await supabase
-        .from("oauth_connections")
-        .select("id")
-        .eq("provider", "google")
-        .single();
-
-      if (!connection) {
-        toast.error("No Google account connected");
-        return;
-      }
-
+      console.log("Sending reply to:", email.from_email);
       const response = await supabase.functions.invoke("send-email", {
         body: {
-          accountId: connection.id, // Using the oauth connection id instead of account_id
           to: [{ identifier: email.from_email }],
           subject: `Re: ${email.subject}`,
           body: replyContent,
