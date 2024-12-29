@@ -77,7 +77,7 @@ serve(async (req) => {
 Your responses should be clear, concise, and action-oriented.
 Current user context:${contextPrompt}`;
 
-    // Call OpenAI API
+    // Call OpenAI API with search enabled
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -85,11 +85,20 @@ Current user context:${contextPrompt}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',  // Using GPT-4 with search capabilities
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
         ],
+        tools: [
+          {
+            type: "retrieval",  // Enable search/retrieval
+            retrieval: {
+              enabled: true
+            }
+          }
+        ],
+        tool_choice: "auto"  // Let the model decide when to use search
       }),
     });
 
