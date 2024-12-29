@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, Navigate } from "react-router-dom";
 import { routes } from "./config/routes";
 import { Toaster } from "./components/ui/sonner";
 import "./App.css";
@@ -13,7 +13,13 @@ const queryClient = new QueryClient({
   },
 });
 
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Navigate to="/dashboard" replace />,
+  },
+  ...routes,
+]);
 
 function App() {
   return (
