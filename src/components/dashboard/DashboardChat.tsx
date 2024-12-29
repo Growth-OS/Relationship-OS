@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Sun, Bot } from "lucide-react";
+import { Send, Bot } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { Message } from "./types";
 
@@ -11,7 +11,6 @@ interface DashboardChatProps {
   isLoading: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
-  onMorningBriefing?: () => void;
 }
 
 export const DashboardChat = ({ 
@@ -20,7 +19,6 @@ export const DashboardChat = ({
   isLoading, 
   onInputChange, 
   onSend,
-  onMorningBriefing
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +65,7 @@ export const DashboardChat = ({
           <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 space-y-4">
             <Bot className="w-12 h-12 text-purple-400 animate-bounce" />
             <p className="text-center">
-              Start a conversation or get your morning briefing
+              Start a conversation with your AI assistant
             </p>
           </div>
         )}
@@ -98,7 +96,7 @@ export const DashboardChat = ({
       </div>
       
       <div className="border-t border-purple-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="p-4 space-y-4">
+        <div className="p-4">
           <div className="flex gap-2">
             <Input
               placeholder="Ask about your tasks, or get help..."
@@ -117,18 +115,6 @@ export const DashboardChat = ({
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          
-          {onMorningBriefing && (
-            <Button
-              onClick={onMorningBriefing}
-              disabled={isLoading}
-              variant="outline"
-              className="w-full border-purple-100 dark:border-gray-600 hover:bg-purple-50 dark:hover:bg-gray-700 text-purple-600 dark:text-purple-400 transition-colors"
-            >
-              <Sun className="h-4 w-4 mr-2" />
-              Morning Briefing
-            </Button>
-          )}
         </div>
       </div>
     </Card>
