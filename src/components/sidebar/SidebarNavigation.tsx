@@ -13,7 +13,6 @@ export const SidebarNavigation = () => {
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
-    { icon: Inbox, label: "Inbox", path: "/dashboard/inbox" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
@@ -25,6 +24,11 @@ export const SidebarNavigation = () => {
       icon: Linkedin, 
       label: "LinkedIn", 
       path: "https://www.linkedin.com/messaging/thread/2-Mjc2YWRjMTItZDM5My00MjBmLTk1NmItMzBhNzNkOThmMTE3XzAxMg==/",
+    },
+    {
+      icon: Inbox,
+      label: "Inbox",
+      path: "https://mail.superhuman.com/",
     }
   ];
 
