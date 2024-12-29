@@ -30,6 +30,17 @@ export const DashboardChat = ({
     }
   }, [messages]);
 
+  const formatMessage = (content: string) => {
+    // Replace markdown headers with styled divs
+    const formattedContent = content
+      .replace(/### (.*?)\n/g, '<h3 class="text-lg font-semibold mt-4 mb-2 text-purple-700 dark:text-purple-400">$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+      .replace(/- (.*?)(?=\n|$)/g, '<li class="ml-4 mb-1">$1</li>')
+      .split('\n\n').join('<br/><br/>');
+
+    return <div dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+  };
+
   return (
     <Card className="flex flex-col h-[calc(100vh-13rem)] bg-white dark:bg-gray-800 border-purple-100 dark:border-gray-700 shadow-lg">
       <div className="p-4 border-b border-purple-100 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -60,13 +71,19 @@ export const DashboardChat = ({
             } animate-fade-in`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 shadow-sm ${
+              className={`max-w-[90%] rounded-lg px-6 py-4 shadow-sm prose prose-purple dark:prose-invert ${
                 message.role === 'user'
-                  ? 'bg-purple-600 text-white dark:bg-purple-700 ml-12'
+                  ? 'bg-purple-600 text-white dark:bg-purple-700 ml-12 prose-headings:text-white dark:prose-headings:text-white'
                   : 'bg-white text-gray-900 dark:bg-gray-700 dark:text-white mr-12'
               } transition-all duration-200 hover:shadow-md`}
             >
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+              {message.role === 'user' ? (
+                <p className="whitespace-pre-wrap text-sm leading-relaxed m-0">{message.content}</p>
+              ) : (
+                <div className="text-sm leading-relaxed prose-ul:list-none prose-li:pl-0 prose-p:mb-2 prose-headings:mb-2">
+                  {formatMessage(message.content)}
+                </div>
+              )}
             </div>
           </div>
         ))}
