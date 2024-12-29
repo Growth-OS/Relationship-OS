@@ -15,7 +15,7 @@ export const pdfStyles = `
     border-bottom: 1px solid #e2e8f0;
   }
   .logo {
-    height: 120px;  /* Increased from 40px to 120px (3x) */
+    height: 120px;
     margin-bottom: 20px;
   }
   .company-info {
@@ -27,6 +27,7 @@ export const pdfStyles = `
     color: #334155;
     line-height: 1.6;
     text-align: left;
+    white-space: pre-line;
   }
   .invoice-info {
     text-align: right;
@@ -53,6 +54,11 @@ export const pdfStyles = `
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin: 0 0 12px 0;
+  }
+  .client-info p {
+    margin: 0;
+    white-space: pre-line;
+    line-height: 1.6;
   }
   table {
     width: 100%;
@@ -106,6 +112,11 @@ export const pdfStyles = `
     color: #0f172a;
     font-size: 14px;
     margin: 0 0 8px 0;
+  }
+  .notes p {
+    margin: 0;
+    white-space: pre-line;
+    line-height: 1.6;
   }
   @media print {
     body { padding: 20px; }
