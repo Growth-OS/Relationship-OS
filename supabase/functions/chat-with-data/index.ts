@@ -80,7 +80,7 @@ Current user context:${contextPrompt}`;
 
     console.log('Calling OpenAI with system prompt:', systemPrompt);
 
-    // Call OpenAI API with web browsing enabled
+    // Call OpenAI API
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -109,7 +109,11 @@ Current user context:${contextPrompt}`;
               required: ["query"]
             }
           }
-        }]
+        }],
+        tool_choice: {
+          type: "function",
+          function: { name: "browse_web" }
+        }
       }),
     });
 
@@ -122,27 +126,52 @@ Current user context:${contextPrompt}`;
     const aiData = await openAIResponse.json();
     console.log('OpenAI response received:', aiData);
 
-    // Check for tool calls in the response
+    // Handle the response
     const assistantMessage = aiData.choices?.[0]?.message;
     if (!assistantMessage) {
       console.error('Unexpected OpenAI response structure:', aiData);
       throw new Error('Invalid response from OpenAI API');
     }
 
-    // If there are tool calls, we need to handle them
+    // If there are tool calls, process them
     if (assistantMessage.tool_calls) {
       console.log('Tool calls detected:', assistantMessage.tool_calls);
-      // For now, we'll just return the assistant's message
+      const toolCall = assistantMessage.tool_calls[0];
+      const functionArgs = JSON.parse(toolCall.function.arguments);
+      
+      // Make the web search request
+      const searchResponse = await fetch(`https://api.openai.com/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant that provides accurate information based on web searches.' },
+            { role: 'user', content: functionArgs.query }
+          ]
+        })
+      });
+
+      if (!searchResponse.ok) {
+        throw new Error('Failed to process web search');
+      }
+
+      const searchData = await searchResponse.json();
+      const searchResult = searchData.choices[0].message.content;
+
       return new Response(
-        JSON.stringify({ response: assistantMessage.content || "I'm processing your request..." }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        JSON.stringify({ response: searchResult }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     // If no tool calls, return the direct response
     return new Response(
       JSON.stringify({ response: assistantMessage.content }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
