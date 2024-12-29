@@ -2,14 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EmailList } from "./EmailList";
 import { EmailDetail } from "./EmailDetail";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EmailMessage } from "@/integrations/supabase/types/email";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/components/ui/use-toast";
 
 export const EmailInbox = () => {
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+  const { toast } = useToast();
 
-  const { data: emails, isLoading } = useQuery({
+  const { data: emails, isLoading, refetch } = useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -23,6 +25,32 @@ export const EmailInbox = () => {
       return data;
     }
   });
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'emails'
+        },
+        (payload) => {
+          toast({
+            title: "New Email",
+            description: `From: ${payload.new.from_name || payload.new.from_email}`,
+          });
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetch, toast]);
 
   if (isLoading) {
     return (
