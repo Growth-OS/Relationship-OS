@@ -15,7 +15,7 @@ interface TaskListProps {
 }
 
 export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
-  const { data: tasks = [], isLoading, error } = useQuery({
+  const { data: tasks = [], isLoading, error, refetch } = useQuery({
     queryKey: ["tasks", source, projectId, showArchived],
     queryFn: async () => {
       try {
