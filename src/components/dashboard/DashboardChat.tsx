@@ -34,19 +34,19 @@ export const DashboardChat = ({
     // Enhanced formatting for headers, lists, and text
     const formattedContent = content
       // Format main headers (H1-H2)
-      .replace(/### (.*?)(?=\n|$)/g, '<h3 class="text-xl font-bold text-purple-700 dark:text-purple-400 mt-6 mb-3">$1</h3>')
+      .replace(/### (.*?)(?=\n|$)/g, '<h3 class="text-xl font-bold text-purple-700 dark:text-purple-400 mt-6 mb-3 text-left">$1</h3>')
       // Format subheaders (H3-H4)
-      .replace(/#### (.*?)(?=\n|$)/g, '<h4 class="text-lg font-semibold text-purple-600 dark:text-purple-300 mt-4 mb-2">$1</h4>')
+      .replace(/#### (.*?)(?=\n|$)/g, '<h4 class="text-lg font-semibold text-purple-600 dark:text-purple-300 mt-4 mb-2 text-left">$1</h4>')
       // Format bold text
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-purple-900 dark:text-purple-100">$1</strong>')
       // Format bullet points with custom styling
-      .replace(/- (.*?)(?=\n|$)/g, '<li class="flex items-start mb-2 ml-4"><span class="w-2 h-2 rounded-full bg-purple-400 dark:bg-purple-500 mt-2 mr-2 flex-shrink-0"></span><span>$1</span></li>')
+      .replace(/- (.*?)(?=\n|$)/g, '<li class="flex items-start mb-2"><span class="w-2 h-2 rounded-full bg-purple-400 dark:bg-purple-500 mt-2 mr-2 flex-shrink-0"></span><span>$1</span></li>')
       // Wrap lists in a container
-      .replace(/<li.*?<\/li>\n/g, match => `<ul class="my-3 space-y-1">${match}</ul>`)
-      // Add spacing between paragraphs
+      .replace(/<li.*?<\/li>\n/g, match => `<ul class="my-3 space-y-1 pl-4">${match}</ul>`)
+      // Add spacing between paragraphs and ensure left alignment
       .split('\n\n').join('<br/><br/>');
 
-    return <div className="prose prose-purple dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+    return <div className="prose prose-purple dark:prose-invert max-w-none text-left [&>*]:text-left" dangerouslySetInnerHTML={{ __html: formattedContent }} />;
   };
 
   return (
@@ -86,7 +86,7 @@ export const DashboardChat = ({
               }`}
             >
               {message.role === 'user' ? (
-                <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
+                <p className="whitespace-pre-wrap text-sm leading-relaxed text-left">{message.content}</p>
               ) : (
                 <div className="text-sm leading-relaxed">
                   {formatMessage(message.content)}
