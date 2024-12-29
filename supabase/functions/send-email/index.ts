@@ -8,13 +8,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface EmailRequest {
-  to: { identifier: string }[];
-  subject: string;
-  body: string;
-  replyTo?: string;
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -25,20 +18,28 @@ serve(async (req) => {
       throw new Error("Missing required environment variables");
     }
 
-    const { to, subject, body, replyTo } = await req.json() as EmailRequest;
+    const { to, subject, body, replyTo } = await req.json();
     console.log("Sending email with data:", { to, subject, replyTo });
 
     // Ensure UNIPILE_DSN has the correct protocol
     const unipileDsn = UNIPILE_DSN.startsWith('https://') ? UNIPILE_DSN : `https://${UNIPILE_DSN}`;
     
+    // Create form data
     const formData = new FormData();
     formData.append("subject", subject);
     formData.append("body", body);
     formData.append("to", JSON.stringify(to));
-    
+
+    // Add reply_to if provided
     if (replyTo) {
       formData.append("reply_to", replyTo);
     }
+
+    // Add tracking options
+    formData.append("tracking_options", JSON.stringify({
+      opens: true,
+      links: true
+    }));
 
     const response = await fetch(`${unipileDsn}/api/v1/emails`, {
       method: "POST",
