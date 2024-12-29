@@ -97,20 +97,10 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
           user_id: user.id,
           status: 'draft'
         })
-        .select()
+        .select('id')
         .single();
 
-      if (invoiceError) {
-        console.error('Error creating invoice:', invoiceError);
-        toast.error('Error creating invoice');
-        return;
-      }
-
-      if (!invoice) {
-        console.error('No invoice data returned');
-        toast.error('Error creating invoice');
-        return;
-      }
+      if (invoiceError) throw invoiceError;
 
       // Then create invoice items
       const { error: itemsError } = await supabase
@@ -123,11 +113,9 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         );
 
       if (itemsError) {
-        // If items creation fails, we should probably delete the invoice
+        // If items creation fails, we should delete the invoice
         await supabase.from('invoices').delete().eq('id', invoice.id);
-        console.error('Error creating invoice items:', itemsError);
-        toast.error('Error creating invoice items');
-        return;
+        throw itemsError;
       }
 
       toast.success('Invoice created successfully');
