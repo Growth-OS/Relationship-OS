@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen, Mail } from "lucide-react";
+import { Home, Calendar, Edit, ListTodo, Users, ChartBar, BookOpen, Briefcase, UserPlus, Euro, FolderOpen } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
 export const SidebarNavigation = () => {
@@ -8,7 +8,6 @@ export const SidebarNavigation = () => {
 
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Mail, label: "Inbox", path: "/dashboard/emails", badge: 0 },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
@@ -40,7 +39,6 @@ export const SidebarNavigation = () => {
               label={item.label}
               path={item.path}
               isActive={location.pathname === item.path}
-              badge={item.badge}
             />
           ))}
         </div>
