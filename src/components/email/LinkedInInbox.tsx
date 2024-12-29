@@ -8,8 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
 import { ConversationItem } from "./linkedin/ConversationItem";
 import { Message } from "./linkedin/Message";
+import { useState } from "react";
 
 export const LinkedInInbox = () => {
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+
   const { data: chatsResponse, isLoading } = useQuery({
     queryKey: ['linkedin-chats'],
     queryFn: async () => {
@@ -22,18 +25,21 @@ export const LinkedInInbox = () => {
   });
 
   const { data: selectedChat, isLoading: isLoadingSelectedChat } = useQuery({
-    queryKey: ['linkedin-messages', chatsResponse?.items?.[0]?.id],
+    queryKey: ['linkedin-messages', selectedChatId],
     queryFn: async () => {
-      if (!chatsResponse?.items?.[0]?.id) return [];
+      if (!selectedChatId) return [];
       const { data, error } = await supabase.functions.invoke('linkedin-messages', {
-        body: { chatId: chatsResponse.items[0].id }
+        body: { chatId: selectedChatId }
       });
       if (error) throw error;
       console.log('Selected chat response:', data);
       return Array.isArray(data) ? data : [];
     },
-    enabled: !!chatsResponse?.items?.[0]?.id,
+    enabled: !!selectedChatId,
   });
+
+  const chats = chatsResponse?.items || [];
+  const selectedChatInfo = chats.find(chat => chat.id === selectedChatId);
 
   if (isLoading) {
     return (
@@ -44,8 +50,6 @@ export const LinkedInInbox = () => {
       </Card>
     );
   }
-
-  const chats = chatsResponse?.items || [];
 
   return (
     <div className="flex flex-col h-full space-y-4">
@@ -71,7 +75,8 @@ export const LinkedInInbox = () => {
               <ConversationItem
                 key={chat.id}
                 {...chat}
-                isSelected={chat.id === chatsResponse?.items?.[0]?.id}
+                isSelected={chat.id === selectedChatId}
+                onClick={() => setSelectedChatId(chat.id)}
               />
             ))}
           </ScrollArea>
@@ -79,50 +84,58 @@ export const LinkedInInbox = () => {
 
         {/* Right side with messages */}
         <div className="flex-1 flex flex-col bg-background">
-          {/* Chat header */}
-          <div className="p-4 border-b flex items-center gap-3">
-            <Avatar className="h-12 w-12">
-              <div className="bg-primary/10 h-full w-full flex items-center justify-center text-lg font-semibold text-primary">
-                {chats[0]?.mailbox_name?.[0]?.toUpperCase() || "D"}
+          {selectedChatInfo ? (
+            <>
+              {/* Chat header */}
+              <div className="p-4 border-b flex items-center gap-3">
+                <Avatar className="h-12 w-12">
+                  <div className="bg-primary/10 h-full w-full flex items-center justify-center text-lg font-semibold text-primary">
+                    {selectedChatInfo?.mailbox_name?.[0]?.toUpperCase() || "D"}
+                  </div>
+                </Avatar>
+                <div>
+                  <h3 className="font-semibold">
+                    {selectedChatInfo?.mailbox_name || selectedChatInfo?.name || "LinkedIn Member"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedChatInfo?.subject || "Direct Message"}
+                  </p>
+                </div>
               </div>
-            </Avatar>
-            <div>
-              <h3 className="font-semibold">
-                {chats[0]?.mailbox_name || chats[0]?.name || "LinkedIn Member"}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {chats[0]?.subject || "Direct Message"}
-              </p>
-            </div>
-          </div>
 
-          {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
-            {isLoadingSelectedChat ? (
-              <div className="space-y-4">
-                <Skeleton className="h-12 w-3/4" />
-                <Skeleton className="h-12 w-3/4 ml-auto" />
-                <Skeleton className="h-12 w-3/4" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {(selectedChat || []).map((message) => (
-                  <Message key={message.id} {...message} />
-                ))}
-              </div>
-            )}
-          </ScrollArea>
+              {/* Messages */}
+              <ScrollArea className="flex-1 p-4">
+                {isLoadingSelectedChat ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-12 w-3/4" />
+                    <Skeleton className="h-12 w-3/4 ml-auto" />
+                    <Skeleton className="h-12 w-3/4" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {(selectedChat || []).map((message) => (
+                      <Message key={message.id} {...message} />
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
 
-          {/* Message input */}
-          <div className="p-4 border-t bg-background">
-            <div className="bg-secondary rounded-lg p-3 flex items-start gap-2">
-              <MessageSquare className="h-5 w-5 text-muted-foreground mt-2" />
-              <textarea
-                placeholder="Write a message..."
-                className="flex-1 bg-transparent border-0 resize-none focus:outline-none min-h-[80px] text-sm"
-              />
+              {/* Message input */}
+              <div className="p-4 border-t bg-background">
+                <div className="bg-secondary rounded-lg p-3 flex items-start gap-2">
+                  <MessageSquare className="h-5 w-5 text-muted-foreground mt-2" />
+                  <textarea
+                    placeholder="Write a message..."
+                    className="flex-1 bg-transparent border-0 resize-none focus:outline-none min-h-[80px] text-sm"
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              Select a conversation to view messages
             </div>
-          </div>
+          )}
         </div>
       </Card>
     </div>

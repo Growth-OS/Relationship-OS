@@ -10,6 +10,7 @@ interface ConversationItemProps {
   mailbox_name?: string;
   snippet?: string;
   isSelected?: boolean;
+  onClick?: () => void;
 }
 
 export const ConversationItem = ({
@@ -19,10 +20,12 @@ export const ConversationItem = ({
   subject,
   mailbox_name,
   snippet,
-  isSelected
+  isSelected,
+  onClick
 }: ConversationItemProps) => {
   return (
     <div
+      onClick={onClick}
       className={`p-4 hover:bg-secondary cursor-pointer border-b flex items-start gap-3 transition-colors ${
         isSelected ? "bg-secondary" : ""
       }`}
