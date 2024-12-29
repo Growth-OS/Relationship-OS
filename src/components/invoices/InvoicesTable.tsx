@@ -6,6 +6,13 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { generateInvoicePDF } from "./InvoicePDFGenerator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Invoice {
   id: string;
@@ -29,7 +36,34 @@ const statusColors = {
   cancelled: "bg-gray-100 text-gray-800",
 };
 
+const statusLabels = {
+  draft: "Draft",
+  sent: "Sent",
+  paid: "Paid",
+  overdue: "Overdue",
+  cancelled: "Cancelled",
+};
+
 export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
+  const queryClient = useQueryClient();
+
+  const updateInvoiceStatus = async (invoiceId: string, newStatus: Invoice['status']) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ status: newStatus })
+        .eq('id', invoiceId);
+
+      if (error) throw error;
+
+      toast.success(`Invoice status updated to ${statusLabels[newStatus]}`);
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    } catch (error) {
+      console.error('Error updating invoice status:', error);
+      toast.error("Failed to update invoice status");
+    }
+  };
+
   const handleDownload = async (invoiceId: string) => {
     try {
       const { data: invoice, error: invoiceError } = await supabase
@@ -107,9 +141,25 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
             <TableCell>{format(new Date(invoice.due_date), 'MMM d, yyyy')}</TableCell>
             <TableCell>€{invoice.total.toFixed(2)}</TableCell>
             <TableCell>
-              <Badge className={statusColors[invoice.status]}>
-                {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-              </Badge>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-auto p-0">
+                    <Badge className={statusColors[invoice.status]}>
+                      {statusLabels[invoice.status]}
+                    </Badge>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {Object.entries(statusLabels).map(([status, label]) => (
+                    <DropdownMenuItem
+                      key={status}
+                      onClick={() => updateInvoiceStatus(invoice.id, status as Invoice['status'])}
+                    >
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </TableCell>
             <TableCell>
               <Button
