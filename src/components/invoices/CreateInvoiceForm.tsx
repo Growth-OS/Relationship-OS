@@ -6,18 +6,49 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { InvoiceFormFields } from "./form/InvoiceFormFields";
 import { InvoiceItemsField } from "./form/InvoiceItemsField";
+import { useEffect } from "react";
 
 interface CreateInvoiceFormProps {
   onSuccess?: () => void;
+  onDataChange?: (data: any) => void;
 }
 
-export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
+export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceFormProps) => {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
       items: [{ description: "", quantity: 1, unit_price: 0 }],
     },
   });
+
+  const calculateTotals = (data: any) => {
+    const items = data.items.map((item: any) => ({
+      ...item,
+      amount: item.quantity * item.unit_price,
+    }));
+
+    const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+    const taxAmount = subtotal * (data.tax_rate || 0) / 100;
+    const total = subtotal + taxAmount;
+
+    return {
+      ...data,
+      items,
+      subtotal,
+      tax_amount: taxAmount,
+      total,
+    };
+  };
+
+  // Update preview data whenever form values change
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      if (onDataChange && data.invoice_number) {
+        onDataChange(calculateTotals(data));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, onDataChange]);
 
   const onSubmit = async (data: any) => {
     try {
@@ -28,25 +59,14 @@ export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
         return;
       }
 
-      // Calculate totals
-      const items = data.items.map((item: any) => ({
-        ...item,
-        amount: item.quantity * item.unit_price,
-      }));
-
-      const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
-      const taxAmount = subtotal * (data.tax_rate || 0) / 100;
-      const total = subtotal + taxAmount;
+      const calculatedData = calculateTotals(data);
 
       // Create invoice
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
-          ...data,
+          ...calculatedData,
           user_id: user.id,
-          subtotal,
-          tax_amount: taxAmount,
-          total,
           status: 'draft',
         })
         .select()
@@ -58,7 +78,7 @@ export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(
-          items.map((item: any) => ({
+          calculatedData.items.map((item: any) => ({
             invoice_id: invoice.id,
             ...item,
           }))
