@@ -29,6 +29,7 @@ serve(async (req) => {
     };
 
     // First, trigger a sync
+    console.log('Triggering sync...');
     const syncResponse = await fetch(`${unipileBaseUrl}/api/v1/chats/sync`, {
       method: 'POST',
       headers,
@@ -36,9 +37,9 @@ serve(async (req) => {
 
     if (!syncResponse.ok) {
       console.error('Sync failed:', await syncResponse.text());
-    } else {
-      console.log('Sync successful');
+      throw new Error('Failed to sync messages');
     }
+    console.log('Sync successful');
 
     if (chatId) {
       // Get messages for a specific chat
@@ -53,8 +54,8 @@ serve(async (req) => {
       const data = await response.json();
       console.log('Messages response:', data);
 
-      // Format messages data
-      const messages = data.map(msg => ({
+      // Ensure data.items exists and is an array before mapping
+      const messages = Array.isArray(data.items) ? data.items.map(msg => ({
         id: msg.id,
         text: msg.content,
         sender_name: msg.sender_name,
@@ -62,7 +63,7 @@ serve(async (req) => {
         sender_avatar_url: msg.sender_avatar_url,
         received_at: msg.received_at,
         is_outbound: msg.is_outbound
-      }));
+      })) : [];
 
       return new Response(
         JSON.stringify(messages),
@@ -82,8 +83,8 @@ serve(async (req) => {
     const data = await response.json();
     console.log('Chats response:', data);
 
-    // Format chats data
-    const chats = data.items?.map(chat => ({
+    // Ensure data.items exists and is an array before mapping
+    const chats = Array.isArray(data.items) ? data.items.map(chat => ({
       id: chat.id,
       sender_name: chat.sender_name,
       sender_profile_url: chat.sender_profile_url,
@@ -91,7 +92,7 @@ serve(async (req) => {
       text: chat.snippet,
       received_at: chat.last_message_at,
       unread_count: chat.unread_count || 0
-    })) || [];
+    })) : [];
 
     return new Response(
       JSON.stringify({ items: chats }),
