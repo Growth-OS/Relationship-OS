@@ -18,12 +18,20 @@ export const useEmails = () => {
   return useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
+      console.log("Fetching emails...");
       const { data, error } = await supabase
         .from("emails")
         .select("*")
+        .eq('is_archived', false)
+        .eq('is_trashed', false)
         .order("received_at", { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching emails:", error);
+        throw error;
+      }
+      
+      console.log("Fetched emails:", data?.length || 0);
       return data as Email[];
     },
     refetchInterval: 60000, // Refetch every minute
