@@ -29,5 +29,7 @@ export interface EmailMessage {
   from_name: string | null;
   received_at: string;
   is_read: boolean;
+  is_starred?: boolean;
   snippet: string | null;
+  folder?: string;
 }
