@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Avatar } from "@/components/ui/avatar";
 
 interface ConversationItemProps {
@@ -23,6 +23,11 @@ export const ConversationItem = ({
   isSelected,
   onClick
 }: ConversationItemProps) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return isValid(date) ? format(date, "MMM d") : "Unknown date";
+  };
+
   return (
     <div
       onClick={onClick}
@@ -41,7 +46,7 @@ export const ConversationItem = ({
             {mailbox_name || name || "LinkedIn Member"}
           </p>
           <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {format(new Date(timestamp), "MMM d")}
+            {formatDate(timestamp)}
           </span>
         </div>
         <p className="text-sm text-muted-foreground truncate mt-1">

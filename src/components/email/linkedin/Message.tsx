@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import { Avatar } from "@/components/ui/avatar";
 
 interface MessageProps {
@@ -10,6 +10,11 @@ interface MessageProps {
 }
 
 export const Message = ({ text, is_outbound, timestamp, sender_name }: MessageProps) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return isValid(date) ? format(date, "h:mm a") : "Unknown time";
+  };
+
   return (
     <div className={`flex ${is_outbound ? "justify-end" : "justify-start"}`}>
       {!is_outbound && (
@@ -31,7 +36,7 @@ export const Message = ({ text, is_outbound, timestamp, sender_name }: MessagePr
         )}
         <p className="text-sm">{text}</p>
         <span className="text-xs opacity-70 mt-1 block">
-          {format(new Date(timestamp), "h:mm a")}
+          {formatDate(timestamp)}
         </span>
       </div>
     </div>
