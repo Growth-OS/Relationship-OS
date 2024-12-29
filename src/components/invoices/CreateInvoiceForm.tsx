@@ -8,6 +8,25 @@ import { InvoiceFormFields } from "./form/InvoiceFormFields";
 import { InvoiceItemsField } from "./form/InvoiceItemsField";
 import { useEffect } from "react";
 
+interface InvoiceFormData {
+  invoice_number: string;
+  company_name: string;
+  company_address?: string;
+  company_email?: string;
+  client_name: string;
+  client_address?: string;
+  client_email?: string;
+  issue_date: string;
+  due_date: string;
+  items: {
+    description: string;
+    quantity: number;
+    unit_price: number;
+    amount?: number;
+  }[];
+  tax_rate?: number;
+}
+
 interface CreateInvoiceFormProps {
   onSuccess?: () => void;
   onDataChange?: (data: any) => void;
@@ -15,21 +34,24 @@ interface CreateInvoiceFormProps {
 
 export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceFormProps) => {
   const queryClient = useQueryClient();
-  const form = useForm({
+  const form = useForm<InvoiceFormData>({
     defaultValues: {
+      invoice_number: "",
+      company_name: "",
+      client_name: "",
       items: [{ description: "", quantity: 1, unit_price: 0 }],
       issue_date: new Date().toISOString().split('T')[0],
       due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     },
   });
 
-  const calculateTotals = (data: any) => {
-    const items = data.items.map((item: any) => ({
+  const calculateTotals = (data: InvoiceFormData) => {
+    const items = data.items.map((item) => ({
       ...item,
       amount: item.quantity * item.unit_price,
     }));
 
-    const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+    const subtotal = items.reduce((sum, item) => sum + (item.amount || 0), 0);
     const taxAmount = subtotal * (data.tax_rate || 0) / 100;
     const total = subtotal + taxAmount;
 
@@ -46,13 +68,13 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
   useEffect(() => {
     const subscription = form.watch((data) => {
       if (onDataChange && data.invoice_number) {
-        onDataChange(calculateTotals(data));
+        onDataChange(calculateTotals(data as InvoiceFormData));
       }
     });
     return () => subscription.unsubscribe();
   }, [form.watch, onDataChange]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: InvoiceFormData) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -80,7 +102,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(
-          calculatedData.items.map((item: any) => ({
+          calculatedData.items.map((item) => ({
             invoice_id: invoice.id,
             ...item,
           }))

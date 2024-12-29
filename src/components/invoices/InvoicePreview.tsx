@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 
 interface InvoicePreviewProps {
   invoice: {
@@ -28,7 +28,10 @@ interface InvoicePreviewProps {
 export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString);
+      const date = parseISO(dateString);
+      if (!isValid(date)) {
+        return 'Invalid date';
+      }
       return format(date, 'MMM d, yyyy');
     } catch (error) {
       return 'Invalid date';
