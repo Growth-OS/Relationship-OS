@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { NewEmailWebhookPayload, EmailTrackingWebhookPayload } from '../../../src/types/unipile/webhook.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,7 +9,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -29,27 +29,28 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const body = await req.json();
-    console.log('Received webhook payload:', JSON.stringify(body, null, 2));
+    const payload = await req.json();
+    console.log('Received webhook payload:', JSON.stringify(payload, null, 2));
 
-    const { event, email_id, account_id, date, from_attendee, to_attendees, subject, body: emailBody, has_attachments, folders, tracking_id } = body;
-
-    switch (event) {
+    switch (payload.event) {
       case 'mail_received':
       case 'mail_sent': {
+        const emailPayload = payload as NewEmailWebhookPayload;
         // Process new email
         const emailData = {
-          message_id: email_id,
-          user_id: account_id,
-          from_email: from_attendee.identifier,
-          from_name: from_attendee.display_name,
-          to_emails: to_attendees.map((a: any) => a.identifier),
-          subject: subject,
-          body: emailBody,
-          received_at: date,
-          has_attachments: has_attachments,
-          folder: folders?.[0] || 'inbox',
-          tracking_id: tracking_id
+          message_id: emailPayload.message_id,
+          user_id: emailPayload.account_id,
+          from_email: emailPayload.from_attendee.identifier,
+          from_name: emailPayload.from_attendee.display_name,
+          to_emails: emailPayload.to_attendees.map(a => a.identifier),
+          cc_emails: emailPayload.cc_attendees.map(a => a.identifier),
+          bcc_emails: emailPayload.bcc_attendees.map(a => a.identifier),
+          subject: emailPayload.subject,
+          body: emailPayload.body,
+          received_at: emailPayload.date,
+          has_attachments: emailPayload.has_attachments,
+          folder: emailPayload.folders[0] || 'inbox',
+          tracking_id: emailPayload.tracking_id
         };
 
         const { error: upsertError } = await supabase
@@ -63,21 +64,22 @@ serve(async (req) => {
           throw upsertError;
         }
         
-        console.log(`Email ${event} processed successfully`);
+        console.log(`Email ${payload.event} processed successfully`);
         break;
       }
 
       case 'mail_opened':
       case 'mail_link_clicked': {
+        const trackingPayload = payload as EmailTrackingWebhookPayload;
         // Process tracking event
         const trackingData = {
-          email_id: email_id,
-          user_id: account_id,
-          event_type: event,
-          occurred_at: date,
-          ip_address: body.ip,
-          user_agent: body.user_agent,
-          url: body.url // Only for mail_link_clicked
+          email_id: trackingPayload.email_id,
+          user_id: trackingPayload.account_id,
+          event_type: trackingPayload.event,
+          occurred_at: trackingPayload.date,
+          ip_address: trackingPayload.ip,
+          user_agent: trackingPayload.user_agent,
+          url: trackingPayload.url
         };
 
         const { error: trackingError } = await supabase
@@ -89,12 +91,12 @@ serve(async (req) => {
           throw trackingError;
         }
 
-        console.log(`Email tracking event ${event} processed successfully`);
+        console.log(`Email tracking event ${payload.event} processed successfully`);
         break;
       }
 
       default:
-        console.warn(`Unhandled webhook event type: ${event}`);
+        console.warn(`Unhandled webhook event type: ${payload.event}`);
     }
 
     return new Response(
@@ -106,7 +108,10 @@ serve(async (req) => {
     console.error('Error processing webhook:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: corsHeaders }
+      { 
+        status: 500,
+        headers: corsHeaders
+      }
     );
   }
 });
