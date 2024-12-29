@@ -7,7 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useFieldArray } from "react-hook-form";
 import { Trash2 } from "lucide-react";
 
 interface InvoiceItemsFieldProps {
@@ -15,7 +15,8 @@ interface InvoiceItemsFieldProps {
 }
 
 export const InvoiceItemsField = ({ form }: InvoiceItemsFieldProps) => {
-  const { fields, append, remove } = form.useFieldArray({
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
     name: "items",
   });
 
