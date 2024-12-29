@@ -2,9 +2,8 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
-  Briefcase, UserPlus, Euro, FolderOpen, Inbox, Linkedin, 
-  Bug, FileText, ChartLine, ChartPie, Database, Mail, 
-  MailPlus, MailSearch, MailWarning 
+  Briefcase, UserPlus, Euro, FolderOpen, Mail,
+  Bug, FileText, ChartLine, ChartPie, Database
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -18,6 +17,7 @@ export const SidebarNavigation = () => {
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
+    { icon: Mail, label: "Email Marketing", path: "/dashboard/email/inbox" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
@@ -26,23 +26,16 @@ export const SidebarNavigation = () => {
     { icon: Bug, label: "Development", path: "/dashboard/development" },
   ];
 
-  const emailMenuItems = [
-    { icon: Mail, label: "Inbox", path: "/dashboard/email/inbox" },
-    { icon: MailPlus, label: "Compose", path: "/dashboard/email/compose" },
-    { icon: MailSearch, label: "Search", path: "/dashboard/email/search" },
-    { icon: MailWarning, label: "Spam", path: "/dashboard/email/spam" },
-  ];
-
   const externalLinks = [
     { 
-      icon: Linkedin, 
-      label: "LinkedIn", 
-      path: "https://www.linkedin.com/messaging/thread/2-Mjc2YWRjMTItZDM5My00MjBmLTk1NmItMzBhNzNkOThmMTE3XzAxMg==/",
+      icon: Mail, 
+      label: "Superhuman", 
+      path: "https://mail.superhuman.com/",
     },
     {
-      icon: Inbox,
-      label: "Inbox",
-      path: "https://mail.superhuman.com/",
+      icon: Users,
+      label: "LinkedIn",
+      path: "https://www.linkedin.com/messaging/thread/2-Mjc2YWRjMTItZDM5My00MjBmLTk1NmItMzBhNzNkOThmMTE3XzAxMg==/",
     }
   ];
 
@@ -56,22 +49,7 @@ export const SidebarNavigation = () => {
               icon={item.icon}
               label={item.label}
               path={item.path}
-              isActive={location.pathname === item.path}
-            />
-          ))}
-        </div>
-
-        <div className="mb-6">
-          <div className="px-4 mb-2">
-            <h3 className="text-sm font-medium text-gray-500">Email</h3>
-          </div>
-          {emailMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.path}
-              icon={item.icon}
-              label={item.label}
-              path={item.path}
-              isActive={location.pathname === item.path}
+              isActive={location.pathname.startsWith(item.path)}
             />
           ))}
         </div>
