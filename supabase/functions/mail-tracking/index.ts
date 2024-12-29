@@ -1,6 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { EmailTrackingWebhookPayload } from '../../../src/types/unipile/webhook.ts';
+
+interface EmailTrackingWebhookPayload {
+  event: 'mail_link_clicked' | 'mail_opened';
+  event_id: string;
+  tracking_id: string;
+  date: string;
+  email_id: string;
+  account_id: string;
+  ip: string;
+  user_agent: string;
+  url?: string;
+  label?: string;
+  custom_domain?: string;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

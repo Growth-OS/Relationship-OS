@@ -1,6 +1,36 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { NewEmailWebhookPayload } from '../../../src/types/unipile/webhook.ts';
+
+interface EmailAttendee {
+  identifier: string;
+  display_name: string | null;
+}
+
+interface NewEmailWebhookPayload {
+  email_id: string;
+  account_id: string;
+  event: 'mail_received' | 'mail_sent';
+  webhook_name: string;
+  date: string;
+  from_attendee: EmailAttendee;
+  to_attendees: EmailAttendee[];
+  bcc_attendees: EmailAttendee[];
+  cc_attendees: EmailAttendee[];
+  reply_to_attendees: EmailAttendee[];
+  provider_id: string;
+  message_id: string;
+  has_attachments: boolean;
+  subject: string | null;
+  body: string;
+  body_plain: string;
+  attachments: any[];
+  folders: string[];
+  role: string;
+  read_date: string | null;
+  is_complete: boolean;
+  tracking_id?: string;
+  origin: 'unipile' | 'external';
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
