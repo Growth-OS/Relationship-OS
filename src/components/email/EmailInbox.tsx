@@ -6,9 +6,13 @@ import { useState, useEffect } from "react";
 import { EmailMessage } from "@/integrations/supabase/types/email";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { PenSquare } from "lucide-react";
+import { EmailCompose } from "./EmailCompose";
 
 export const EmailInbox = () => {
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
+  const [isComposeOpen, setIsComposeOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: emails, isLoading, error } = useQuery({
@@ -16,7 +20,6 @@ export const EmailInbox = () => {
     queryFn: async () => {
       console.log("Fetching emails from Unipile...");
       
-      // First get the user's OAuth connection to ensure they're connected
       const { data: { user } } = await supabase.auth.getUser();
       console.log("Current user:", user?.id);
       
@@ -37,7 +40,6 @@ export const EmailInbox = () => {
         return [];
       }
 
-      // Call our edge function to fetch emails from Unipile
       const response = await fetch(`${process.env.SUPABASE_URL}/functions/v1/fetch-emails`, {
         method: 'GET',
         headers: {
@@ -57,7 +59,6 @@ export const EmailInbox = () => {
     }
   });
 
-  // Subscribe to real-time updates
   useEffect(() => {
     console.log("Setting up realtime subscription...");
     const channel = supabase
@@ -106,12 +107,27 @@ export const EmailInbox = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 h-[calc(100vh-13rem)]">
-      <EmailList 
-        emails={emails || []} 
-        selectedEmail={selectedEmail}
-        onSelectEmail={setSelectedEmail}
-      />
+      <div className="border-r border-gray-200 dark:border-gray-700">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <Button 
+            onClick={() => setIsComposeOpen(true)}
+            className="w-full"
+          >
+            <PenSquare className="w-4 h-4 mr-2" />
+            Compose
+          </Button>
+        </div>
+        <EmailList 
+          emails={emails || []} 
+          selectedEmail={selectedEmail}
+          onSelectEmail={setSelectedEmail}
+        />
+      </div>
       <EmailDetail email={selectedEmail} />
+      <EmailCompose 
+        isOpen={isComposeOpen}
+        onClose={() => setIsComposeOpen(false)}
+      />
     </div>
   );
 };
