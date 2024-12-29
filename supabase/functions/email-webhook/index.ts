@@ -33,35 +33,25 @@ serve(async (req) => {
     const { event, data, userId } = body;
 
     if (event === 'email.received' || event === 'email.updated') {
-      const message = {
+      const emailData = {
         user_id: userId,
-        external_id: data.id,
-        source: 'email',
-        sender_name: data.from?.name || data.from?.email || 'Unknown Sender',
-        sender_email: data.from?.email,
-        sender_avatar_url: data.from?.avatar_url,
-        content: data.content || data.snippet || 'No content available',
+        message_id: data.id,
+        from_email: data.from?.email || 'Unknown Sender',
         subject: data.subject || 'No subject',
+        snippet: data.snippet,
+        body: data.content,
         received_at: data.date || new Date().toISOString(),
         is_read: data.is_read || false,
         is_archived: data.is_archived || false,
         is_starred: data.is_starred || false,
-        thread_id: data.thread_id,
-        labels: data.labels,
-        metadata: {
-          ...data.metadata,
-          email_specific: {
-            cc: data.cc,
-            bcc: data.bcc,
-            attachments: data.attachments,
-          }
-        }
+        is_trashed: data.is_trashed || false,
+        is_sent: data.is_sent || false,
       };
 
       const { error: upsertError } = await supabase
-        .from('unified_messages')
-        .upsert(message, {
-          onConflict: ['external_id', 'user_id']
+        .from('emails')
+        .upsert(emailData, {
+          onConflict: 'message_id,user_id'
         });
 
       if (upsertError) throw upsertError;
@@ -78,7 +68,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
