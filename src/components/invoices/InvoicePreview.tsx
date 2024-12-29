@@ -40,44 +40,41 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg text-sm">
+    <div className="bg-white p-8 rounded-lg text-sm">
       {/* Header */}
-      <div className="flex justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">{invoice.company_name}</h2>
-          {invoice.company_address && (
-            <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.company_address}</p>
-          )}
-          {invoice.company_email && (
-            <p className="text-gray-600 text-sm">{invoice.company_email}</p>
-          )}
+      <div className="flex justify-between mb-8">
+        <div className="w-1/2">
+          <h1 className="text-3xl font-bold mb-6">INVOICE</h1>
+          <div className="space-y-1">
+            <h2 className="text-lg font-semibold">{invoice.client_name}</h2>
+            {invoice.client_address && (
+              <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.client_address}</p>
+            )}
+            {invoice.client_email && (
+              <p className="text-gray-600 text-sm">{invoice.client_email}</p>
+            )}
+          </div>
         </div>
-        <div className="text-right">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">INVOICE</h1>
-          <p className="text-gray-600 text-sm">Invoice #: {invoice.invoice_number}</p>
-          <p className="text-gray-600 text-sm">
-            Issue Date: {formatDate(invoice.issue_date)}
-          </p>
-          <p className="text-gray-600 text-sm">
-            Due Date: {formatDate(invoice.due_date)}
-          </p>
+        <div className="space-y-2">
+          <div className="text-right">
+            <p className="text-gray-600">Invoice #: {invoice.invoice_number}</p>
+            <p className="text-gray-600">Date: {formatDate(invoice.issue_date)}</p>
+            <p className="text-gray-600">Due Date: {formatDate(invoice.due_date)}</p>
+          </div>
+          <div className="text-right mt-4">
+            <h2 className="font-semibold">{invoice.company_name}</h2>
+            {invoice.company_address && (
+              <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.company_address}</p>
+            )}
+            {invoice.company_email && (
+              <p className="text-gray-600 text-sm">{invoice.company_email}</p>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Bill To */}
-      <div className="mb-6">
-        <h3 className="text-gray-600 font-medium mb-1 text-sm">Bill To:</h3>
-        <p className="font-medium text-gray-800">{invoice.client_name}</p>
-        {invoice.client_address && (
-          <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.client_address}</p>
-        )}
-        {invoice.client_email && (
-          <p className="text-gray-600 text-sm">{invoice.client_email}</p>
-        )}
       </div>
 
       {/* Items Table */}
-      <table className="w-full mb-6 text-sm">
+      <table className="w-full mb-6">
         <thead>
           <tr className="border-b border-gray-200">
             <th className="text-left py-2 text-gray-600">Description</th>
@@ -99,7 +96,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
       </table>
 
       {/* Totals */}
-      <div className="flex justify-end mb-6">
+      <div className="flex justify-end mb-8">
         <div className="w-64">
           <div className="flex justify-between py-1">
             <span className="text-gray-600">Subtotal:</span>
@@ -120,8 +117,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
 
       {/* Payment Terms */}
       {invoice.payment_terms && (
-        <div className="mt-6 border-t border-gray-200 pt-4">
-          <h3 className="text-gray-600 font-medium mb-2 text-sm">Payment Details:</h3>
+        <div className="mt-8 pt-4">
           <p className="text-gray-600 text-sm whitespace-pre-line">{invoice.payment_terms}</p>
         </div>
       )}
