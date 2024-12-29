@@ -93,26 +93,23 @@ Current user context:${contextPrompt}`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "browse_web",
-              description: "Browse the web to get real-time information",
-              parameters: {
-                type: "object",
-                properties: {
-                  query: {
-                    type: "string",
-                    description: "The search query to get information from the web"
-                  }
-                },
-                required: ["query"]
-              }
+        tools: [{
+          type: "function",
+          function: {
+            name: "browse_web",
+            description: "Browse the web to get real-time information",
+            parameters: {
+              type: "object",
+              properties: {
+                query: {
+                  type: "string",
+                  description: "The search query to get information from the web"
+                }
+              },
+              required: ["query"]
             }
           }
-        ],
-        tool_choice: "auto"
+        }]
       }),
     });
 
@@ -125,13 +122,26 @@ Current user context:${contextPrompt}`;
     const aiData = await openAIResponse.json();
     console.log('OpenAI response received:', aiData);
 
-    if (!aiData.choices?.[0]?.message?.content) {
+    // Check for tool calls in the response
+    const assistantMessage = aiData.choices?.[0]?.message;
+    if (!assistantMessage) {
       console.error('Unexpected OpenAI response structure:', aiData);
       throw new Error('Invalid response from OpenAI API');
     }
 
+    // If there are tool calls, we need to handle them
+    if (assistantMessage.tool_calls) {
+      console.log('Tool calls detected:', assistantMessage.tool_calls);
+      // For now, we'll just return the assistant's message
+      return new Response(
+        JSON.stringify({ response: assistantMessage.content || "I'm processing your request..." }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // If no tool calls, return the direct response
     return new Response(
-      JSON.stringify({ response: aiData.choices[0].message.content }),
+      JSON.stringify({ response: assistantMessage.content }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
 
