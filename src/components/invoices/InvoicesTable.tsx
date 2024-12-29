@@ -43,12 +43,6 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
 
       if (invoiceError) throw invoiceError;
 
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        toast.error("Unable to open print window. Please check your popup settings.");
-        return;
-      }
-
       // Get the logo as base64
       const logoUrl = '/lovable-uploads/9865aa08-9927-483e-8a53-680d9ab92e1d.png';
       const logoResponse = await fetch(logoUrl);
@@ -59,20 +53,32 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
         reader.readAsDataURL(logoBlob);
       });
 
-      // Generate and write the PDF content
-      const pdfContent = generateInvoicePDF({ invoice, logoBase64: logoBase64 as string });
+      // Generate the PDF content
+      const pdfContent = generateInvoicePDF({ 
+        invoice, 
+        logoBase64: logoBase64 as string 
+      });
+
+      // Open a new window and write the content
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast.error("Unable to open print window. Please check your popup settings.");
+        return;
+      }
+
+      // Write the content and ensure it's loaded before printing
       printWindow.document.write(pdfContent);
       printWindow.document.close();
 
-      // Add print trigger
-      printWindow.document.write(`
-        <script>
-          window.onload = () => {
-            window.print();
-            window.onafterprint = () => window.close();
-          };
-        </script>
-      `);
+      // Wait for content to load before printing
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          // Close window after print dialog is closed
+          printWindow.onafterprint = () => printWindow.close();
+        }, 500); // Small delay to ensure styles are applied
+      };
+
     } catch (error) {
       console.error('Error downloading invoice:', error);
       toast.error("Failed to download invoice");
@@ -93,7 +99,7 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
+        {invoices?.map((invoice) => (
           <TableRow key={invoice.id}>
             <TableCell>{invoice.invoice_number}</TableCell>
             <TableCell>{invoice.client_name}</TableCell>
