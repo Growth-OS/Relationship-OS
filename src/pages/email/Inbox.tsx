@@ -6,28 +6,29 @@ import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { EmailTrackingIndicators } from "@/components/email/EmailTrackingIndicators";
 
 const InboxPage = () => {
   const navigate = useNavigate();
   
-  const { data: emails, isLoading, refetch } = useQuery({
+  const { data: emailsWithTracking, isLoading, refetch } = useQuery({
     queryKey: ["inbox-emails"],
     queryFn: async () => {
       console.log("Fetching inbox emails...");
-      const { data, error } = await supabase
+      const { data: emails, error: emailsError } = await supabase
         .from("emails")
-        .select("*")
+        .select("*, email_tracking(*)")
         .eq("folder", "inbox")
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
         .order("received_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching emails:", error);
-        throw error;
+      if (emailsError) {
+        console.error("Error fetching emails:", emailsError);
+        throw emailsError;
       }
       
-      console.log("Fetched emails:", data);
-      return data as EmailMessage[];
+      console.log("Fetched emails:", emails);
+      return emails as (EmailMessage & { email_tracking: any[] })[];
     },
   });
 
@@ -130,14 +131,14 @@ const InboxPage = () => {
         <div className="flex items-center justify-center h-48">
           <Loader2 className="w-6 h-6 animate-spin" />
         </div>
-      ) : !emails?.length ? (
+      ) : !emailsWithTracking?.length ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-500">
           <Mail className="w-12 h-12 mb-4" />
           <p>Your inbox is empty</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {emails.map((email) => (
+          {emailsWithTracking.map((email) => (
             <div
               key={email.id}
               className={`p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer ${
@@ -153,6 +154,10 @@ const InboxPage = () => {
                         New
                       </span>
                     )}
+                    <EmailTrackingIndicators 
+                      emailId={email.id} 
+                      trackingEvents={email.email_tracking}
+                    />
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">{email.subject}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
