@@ -44,7 +44,11 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
       {/* Header */}
       <div className="flex justify-between mb-8">
         <div className="w-1/2">
-          <h1 className="text-3xl font-bold mb-6">INVOICE</h1>
+          <img 
+            src="/lovable-uploads/9865aa08-9927-483e-8a53-680d9ab92e1d.png" 
+            alt="Company Logo" 
+            className="h-12 mb-6"
+          />
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">{invoice.client_name}</h2>
             {invoice.client_address && (
