@@ -11,23 +11,33 @@ export const EmailInbox = () => {
   const [selectedEmail, setSelectedEmail] = useState<EmailMessage | null>(null);
   const { toast } = useToast();
 
-  const { data: emails, isLoading, refetch } = useQuery({
+  const { data: emails, isLoading, error } = useQuery({
     queryKey: ["emails"],
     queryFn: async () => {
+      console.log("Fetching emails...");
+      const { data: user } = await supabase.auth.getUser();
+      console.log("Current user:", user?.id);
+      
       const { data, error } = await supabase
         .from('emails')
         .select('*')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', user.user?.id)
         .order('received_at', { ascending: false })
         .limit(50);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching emails:", error);
+        throw error;
+      }
+      
+      console.log("Fetched emails:", data);
       return data;
     }
   });
 
   // Subscribe to real-time updates
   useEffect(() => {
+    console.log("Setting up realtime subscription...");
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -38,19 +48,29 @@ export const EmailInbox = () => {
           table: 'emails'
         },
         (payload) => {
+          console.log("New email received:", payload);
           toast({
             title: "New Email",
             description: `From: ${payload.new.from_name || payload.new.from_email}`,
           });
-          refetch();
         }
       )
       .subscribe();
 
     return () => {
+      console.log("Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
-  }, [refetch, toast]);
+  }, [toast]);
+
+  if (error) {
+    console.error("Render error:", error);
+    return (
+      <div className="p-4 text-red-500">
+        Error loading emails: {error.message}
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
