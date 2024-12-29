@@ -26,14 +26,17 @@ export const ComposeEmail = ({ onClose, className }: ComposeEmailProps) => {
 
     setIsSending(true);
     try {
-      const { data: connection } = await supabase
+      const { data: connection, error: connectionError } = await supabase
         .from("oauth_connections")
         .select("id")
         .eq("provider", "google")
-        .single();
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .maybeSingle();
+
+      if (connectionError) throw connectionError;
 
       if (!connection) {
-        toast.error("No Google account connected");
+        toast.error("Please connect your Google account first");
         return;
       }
 
