@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
 
 type Board = Database["public"]["Tables"]["boards"]["Row"];
@@ -17,6 +18,7 @@ const Boards = () => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const navigate = useNavigate();
 
   const { data: boards = [], isLoading, refetch } = useQuery({
     queryKey: ['boards'],
@@ -63,6 +65,10 @@ const Boards = () => {
       console.error('Error creating board:', error);
       toast.error("Failed to create board");
     }
+  };
+
+  const handleBoardClick = (boardId: string) => {
+    navigate(`/dashboard/boards/${boardId}`);
   };
 
   if (isLoading) {
@@ -125,7 +131,7 @@ const Boards = () => {
           <div
             key={board.id}
             className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => window.location.href = `/dashboard/boards/${board.id}`}
+            onClick={() => handleBoardClick(board.id)}
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{board.name}</h3>
             {board.description && (

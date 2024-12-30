@@ -13,6 +13,7 @@ import Reporting from "@/pages/Reporting";
 import Development from "@/pages/Development";
 import Invoices from "@/pages/Invoices";
 import Boards from "@/pages/Boards";
+import BoardView from "@/pages/BoardView";
 import { Outlet } from "react-router-dom";
 
 export const routes: RouteObject[] = [
@@ -71,6 +72,10 @@ export const routes: RouteObject[] = [
       {
         path: "boards",
         element: <Boards />,
+      },
+      {
+        path: "boards/:boardId",
+        element: <BoardView />,
       },
     ],
   },
