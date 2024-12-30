@@ -16,6 +16,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { CreateTransactionForm } from "./CreateTransactionForm";
 import { FinancialTransaction } from "@/integrations/supabase/types/finances";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TransactionsListProps {
   type?: 'income' | 'expense';
@@ -87,6 +88,14 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
     }
   };
 
+  const truncateFileName = (fileName: string, maxLength: number = 20) => {
+    if (fileName.length <= maxLength) return fileName;
+    const extension = fileName.split('.').pop();
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+    const truncated = nameWithoutExt.substring(0, maxLength - 4) + '...';
+    return `${truncated}.${extension}`;
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -116,17 +125,28 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
                 €{Number(transaction.amount).toFixed(2)}
               </TableCell>
               <TableCell>
-                {transaction.transaction_attachments?.map((attachment) => (
-                  <Button
-                    key={attachment.id}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDownload(attachment.file_path, attachment.file_name)}
-                  >
-                    <FileIcon className="h-4 w-4 mr-1" />
-                    {attachment.file_name}
-                  </Button>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {transaction.transaction_attachments?.map((attachment) => (
+                    <Tooltip key={attachment.id}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownload(attachment.file_path, attachment.file_name)}
+                          className="h-8 px-2"
+                        >
+                          <FileIcon className="h-4 w-4 mr-1 flex-shrink-0" />
+                          <span className="truncate max-w-[150px]">
+                            {truncateFileName(attachment.file_name)}
+                          </span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{attachment.file_name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex gap-2">
