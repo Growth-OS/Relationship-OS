@@ -10,31 +10,42 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
   const { data: messages } = useQuery({
     queryKey: ['chat-messages', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const query = supabase
         .from('project_chat_history')
         .select('*')
-        .eq('project_id', projectId || '')
         .order('created_at', { ascending: true });
 
+      if (projectId) {
+        query.eq('project_id', projectId);
+      } else {
+        query.is('project_id', null);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-      return data as Message[];
+
+      return data.map(msg => ({
+        ...msg,
+        content: msg.message, // Map the message field to content
+        role: msg.role as 'user' | 'assistant'
+      })) as Message[];
     },
-    enabled: !!projectId,
+    enabled: true, // Always fetch messages, even for general chat
   });
 
   if (!messages?.length) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
-        {projectId ? "No messages in this project chat yet" : "Select a project to start chatting"}
+        {projectId ? "No messages in this project chat yet" : "No messages in general chat yet"}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {messages.map((message, index) => (
+      {messages.map((message) => (
         <div
-          key={index}
+          key={message.id}
           className={`flex ${
             message.role === 'user' ? 'justify-end' : 'justify-start'
           }`}

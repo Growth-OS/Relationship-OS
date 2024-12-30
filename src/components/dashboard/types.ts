@@ -9,6 +9,10 @@ export interface DailyBriefing {
 }
 
 export interface Message {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  project_id: string | null;
+  created_at: string;
+  message: string;
 }

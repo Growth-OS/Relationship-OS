@@ -61,7 +61,7 @@ const Dashboard = () => {
             </Select>
           </div>
 
-          <DashboardChat />
+          <DashboardChat projectId={selectedProject} />
         </div>
 
         <div>
