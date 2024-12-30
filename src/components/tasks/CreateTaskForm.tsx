@@ -5,6 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface CreateTaskFormProps {
   source: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
@@ -16,6 +21,7 @@ interface CreateTaskFormProps {
 export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: CreateTaskFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState<Date>();
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -40,6 +46,7 @@ export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: Creat
       source_id: sourceId,
       project_id: projectId,
       user_id: user.id,
+      due_date: dueDate?.toISOString().split('T')[0],
     });
 
     if (error) {
@@ -50,6 +57,7 @@ export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: Creat
     toast.success("Task created successfully");
     setTitle("");
     setDescription("");
+    setDueDate(undefined);
     onSuccess?.();
   };
 
@@ -66,6 +74,28 @@ export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: Creat
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !dueDate && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {dueDate ? format(dueDate, "PPP") : "Pick a due date"}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={dueDate}
+            onSelect={setDueDate}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
       <Button type="submit">Create Task</Button>
     </form>
   );
