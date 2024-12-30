@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { PlusCircle, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { useState } from "react";
+import { StrategyForm } from "./components/StrategyForm";
+import { StrategyDisplay } from "./components/StrategyDisplay";
 
 interface ContentStrategy {
   id: string;
@@ -15,7 +15,6 @@ interface ContentStrategy {
   target_audience: string | null;
   key_topics: string[];
   content_pillars: string[];
-  publishing_frequency: string | null;
 }
 
 export const ContentStrategySection = () => {
@@ -27,7 +26,6 @@ export const ContentStrategySection = () => {
     target_audience: "",
     key_topics: [],
     content_pillars: [],
-    publishing_frequency: "",
   });
 
   const { data: existingStrategy, isLoading } = useQuery({
@@ -46,6 +44,9 @@ export const ContentStrategySection = () => {
 
   const mutation = useMutation({
     mutationFn: async (newStrategy: Partial<ContentStrategy>) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user");
+
       if (existingStrategy?.id) {
         const { error } = await supabase
           .from("content_strategy")
@@ -55,7 +56,7 @@ export const ContentStrategySection = () => {
       } else {
         const { error } = await supabase
           .from("content_strategy")
-          .insert([newStrategy]);
+          .insert([{ ...newStrategy, user_id: user.id }]);
         if (error) throw error;
       }
     },
@@ -82,8 +83,11 @@ export const ContentStrategySection = () => {
       target_audience: "",
       key_topics: [],
       content_pillars: [],
-      publishing_frequency: "",
     });
+  };
+
+  const handleChange = (field: string, value: any) => {
+    setStrategy((prev) => ({ ...prev, [field]: value }));
   };
 
   if (isLoading) {
@@ -105,127 +109,11 @@ export const ContentStrategySection = () => {
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
         {!isEditing && existingStrategy ? (
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium mb-1">Title</h3>
-              <p>{existingStrategy.title}</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">Description</h3>
-              <p>{existingStrategy.description}</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">Target Audience</h3>
-              <p>{existingStrategy.target_audience}</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">Key Topics</h3>
-              <div className="flex flex-wrap gap-2">
-                {existingStrategy.key_topics?.map((topic, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
-                  >
-                    {topic}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">Content Pillars</h3>
-              <div className="flex flex-wrap gap-2">
-                {existingStrategy.content_pillars?.map((pillar, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
-                  >
-                    {pillar}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="font-medium mb-1">Publishing Frequency</h3>
-              <p>{existingStrategy.publishing_frequency}</p>
-            </div>
-          </div>
+          <StrategyDisplay strategy={existingStrategy} />
         ) : (
-          <div className="space-y-4">
-            <div>
-              <label className="font-medium mb-1 block">Title</label>
-              <Input
-                value={strategy.title || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({ ...prev, title: e.target.value }))
-                }
-                placeholder="Enter strategy title"
-              />
-            </div>
-            <div>
-              <label className="font-medium mb-1 block">Description</label>
-              <Textarea
-                value={strategy.description || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({ ...prev, description: e.target.value }))
-                }
-                placeholder="Describe your content strategy"
-              />
-            </div>
-            <div>
-              <label className="font-medium mb-1 block">Target Audience</label>
-              <Textarea
-                value={strategy.target_audience || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({
-                    ...prev,
-                    target_audience: e.target.value,
-                  }))
-                }
-                placeholder="Describe your target audience"
-              />
-            </div>
-            <div>
-              <label className="font-medium mb-1 block">Key Topics</label>
-              <Input
-                value={strategy.key_topics?.join(", ") || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({
-                    ...prev,
-                    key_topics: e.target.value.split(",").map((t) => t.trim()),
-                  }))
-                }
-                placeholder="Enter topics separated by commas"
-              />
-            </div>
-            <div>
-              <label className="font-medium mb-1 block">Content Pillars</label>
-              <Input
-                value={strategy.content_pillars?.join(", ") || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({
-                    ...prev,
-                    content_pillars: e.target.value.split(",").map((t) => t.trim()),
-                  }))
-                }
-                placeholder="Enter content pillars separated by commas"
-              />
-            </div>
-            <div>
-              <label className="font-medium mb-1 block">Publishing Frequency</label>
-              <Input
-                value={strategy.publishing_frequency || ""}
-                onChange={(e) =>
-                  setStrategy((prev) => ({
-                    ...prev,
-                    publishing_frequency: e.target.value,
-                  }))
-                }
-                placeholder="e.g., Weekly, Bi-weekly, Monthly"
-              />
-            </div>
-          </div>
+          <StrategyForm strategy={strategy} onChange={handleChange} />
         )}
       </CardContent>
     </Card>
