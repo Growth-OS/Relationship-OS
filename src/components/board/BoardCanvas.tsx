@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { BoardToolbar } from './BoardToolbar';
 import { toast } from 'sonner';
+import { fabric } from 'fabric';
 
 export const BoardCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
