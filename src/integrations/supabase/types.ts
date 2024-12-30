@@ -561,7 +561,7 @@ export type Database = {
           deal_id: string | null
           id: string
           message: string
-          project_id: string
+          project_id: string | null
           role: string
           user_id: string
         }
@@ -570,7 +570,7 @@ export type Database = {
           deal_id?: string | null
           id?: string
           message: string
-          project_id: string
+          project_id?: string | null
           role: string
           user_id: string
         }
@@ -579,7 +579,7 @@ export type Database = {
           deal_id?: string | null
           id?: string
           message?: string
-          project_id?: string
+          project_id?: string | null
           role?: string
           user_id?: string
         }

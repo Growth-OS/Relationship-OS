@@ -83,20 +83,33 @@ serve(async (req) => {
     const responseContent = aiResponse.choices[0].message.content;
 
     console.log('Storing conversation in database...');
+    
+    // Determine project_id and deal_id based on projectId parameter
+    let project_id = null;
+    let deal_id = null;
+    
+    if (projectId) {
+      if (projectId.startsWith('deal-')) {
+        deal_id = projectId.replace('deal-', '');
+      } else {
+        project_id = projectId;
+      }
+    }
+
     // Store the conversation in the database
     const { error: chatError } = await supabase
       .from('project_chat_history')
       .insert([
         {
-          project_id: projectId?.startsWith('deal-') ? null : projectId,
-          deal_id: projectId?.startsWith('deal-') ? projectId.replace('deal-', '') : null,
+          project_id,
+          deal_id,
           user_id: user.id,
           message: message,
           role: 'user'
         },
         {
-          project_id: projectId?.startsWith('deal-') ? null : projectId,
-          deal_id: projectId?.startsWith('deal-') ? projectId.replace('deal-', '') : null,
+          project_id,
+          deal_id,
           user_id: user.id,
           message: responseContent,
           role: 'assistant'
