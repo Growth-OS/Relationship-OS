@@ -7,7 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileUploader } from "./chat/FileUploader";
 import { ChatMessages } from "./chat/ChatMessages";
 
-export const DashboardChat = () => {
+interface DashboardChatProps {
+  projectId: string | null;
+}
+
+export const DashboardChat = ({ projectId }: DashboardChatProps) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<{ name: string; url: string }[]>([]);
@@ -24,6 +28,7 @@ export const DashboardChat = () => {
         body: JSON.stringify({
           message,
           files: uploadedFiles,
+          projectId, // Include projectId in the request
         }),
       });
 
@@ -47,7 +52,9 @@ export const DashboardChat = () => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = projectId 
+        ? `projects/${projectId}/${fileName}`
+        : `general/${fileName}`;
 
       const { error: uploadError, data } = await supabase.storage
         .from('chat_files')
@@ -73,7 +80,7 @@ export const DashboardChat = () => {
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [projectId, toast]);
 
   const removeFile = (fileName: string) => {
     setUploadedFiles(prev => prev.filter(file => file.name !== fileName));
@@ -82,7 +89,7 @@ export const DashboardChat = () => {
   return (
     <Card className="flex flex-col h-[600px] p-4">
       <div className="flex-1 overflow-y-auto mb-4">
-        <ChatMessages />
+        <ChatMessages projectId={projectId} />
       </div>
 
       <div className="space-y-2">
@@ -129,7 +136,7 @@ export const DashboardChat = () => {
               type="text"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Ask me anything..."
+              placeholder={`Ask me anything${projectId ? ' about this project' : ''}...`}
               className="flex-1 bg-background rounded-md border px-3 py-2"
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             />
