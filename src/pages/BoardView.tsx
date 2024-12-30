@@ -16,6 +16,8 @@ const BoardView = () => {
   const [fabricCanvas, setFabricCanvas] = useState<fabric.Canvas | null>(null);
   const [activeTool, setActiveTool] = useState<string>('select');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [undoStack, setUndoStack] = useState<string[]>([]);
+  const [currentStateIndex, setCurrentStateIndex] = useState(-1);
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
@@ -44,8 +46,15 @@ const BoardView = () => {
     canvas.freeDrawingBrush.width = 2;
     canvas.freeDrawingBrush.color = '#000000';
 
+    // Save initial state
+    saveCanvasState(canvas);
+
+    // Add event listener for object modifications
+    canvas.on('object:modified', () => {
+      saveCanvasState(canvas);
+    });
+
     setFabricCanvas(canvas);
-    toast.success("Canvas ready!");
 
     const handleResize = () => {
       canvas.setDimensions({
@@ -65,15 +74,29 @@ const BoardView = () => {
 
   useEffect(() => {
     if (!fabricCanvas) return;
+    
+    // Update canvas mode based on active tool
     fabricCanvas.isDrawingMode = activeTool === 'draw';
-    fabricCanvas.selection = activeTool === 'select';
-
+    
+    // Update cursor and selection based on tool
     if (activeTool === 'select') {
+      fabricCanvas.selection = true;
       fabricCanvas.defaultCursor = 'default';
+      fabricCanvas.hoverCursor = 'move';
     } else if (activeTool === 'draw') {
+      fabricCanvas.selection = false;
       fabricCanvas.defaultCursor = 'crosshair';
+      fabricCanvas.hoverCursor = 'crosshair';
     }
+    
+    fabricCanvas.renderAll();
   }, [activeTool, fabricCanvas]);
+
+  const saveCanvasState = (canvas: fabric.Canvas) => {
+    const json = JSON.stringify(canvas.toJSON());
+    setUndoStack(prev => [...prev.slice(0, currentStateIndex + 1), json]);
+    setCurrentStateIndex(prev => prev + 1);
+  };
 
   const handleImageUpload = () => {
     fileInputRef.current?.click();
@@ -91,7 +114,9 @@ const BoardView = () => {
       fabric.Image.fromURL(e.target.result, (img) => {
         img.scaleToWidth(200);
         fabricCanvas.add(img);
+        fabricCanvas.setActiveObject(img);
         fabricCanvas.renderAll();
+        saveCanvasState(fabricCanvas);
       });
     };
 
@@ -99,24 +124,35 @@ const BoardView = () => {
   };
 
   const handleUndo = () => {
-    if (!fabricCanvas) return;
-    if (fabricCanvas._objects.length > 0) {
-      fabricCanvas._objects.pop();
+    if (!fabricCanvas || currentStateIndex <= 0) return;
+    
+    const previousState = undoStack[currentStateIndex - 1];
+    fabricCanvas.loadFromJSON(previousState, () => {
       fabricCanvas.renderAll();
-    }
+      setCurrentStateIndex(prev => prev - 1);
+    });
   };
 
   const handleRedo = () => {
-    toast.info("Redo functionality coming soon!");
+    if (!fabricCanvas || currentStateIndex >= undoStack.length - 1) return;
+    
+    const nextState = undoStack[currentStateIndex + 1];
+    fabricCanvas.loadFromJSON(nextState, () => {
+      fabricCanvas.renderAll();
+      setCurrentStateIndex(prev => prev + 1);
+    });
   };
 
   const handleDelete = () => {
     if (!fabricCanvas) return;
+    
     const activeObjects = fabricCanvas.getActiveObjects();
     if (activeObjects.length > 0) {
       activeObjects.forEach(obj => fabricCanvas.remove(obj));
       fabricCanvas.discardActiveObject();
       fabricCanvas.renderAll();
+      saveCanvasState(fabricCanvas);
+      toast.success("Objects deleted");
     }
   };
 
