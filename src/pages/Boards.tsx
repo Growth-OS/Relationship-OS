@@ -9,6 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import type { Database } from "@/integrations/supabase/types";
+
+type Board = Database["public"]["Tables"]["boards"]["Row"];
 
 const Boards = () => {
   const [open, setOpen] = useState(false);
@@ -27,7 +30,7 @@ const Boards = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as Board[];
     },
   });
 
@@ -42,11 +45,12 @@ const Boards = () => {
 
       const { error } = await supabase
         .from('boards')
-        .insert([{ 
-          name, 
+        .insert({
+          name,
           description,
-          user_id: user.user.id 
-        }]);
+          user_id: user.user.id,
+          last_edited_at: new Date().toISOString()
+        });
 
       if (error) throw error;
 
