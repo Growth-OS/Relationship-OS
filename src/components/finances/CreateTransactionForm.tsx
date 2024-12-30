@@ -90,7 +90,9 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         const files = (form.getValues('files') as FileList)?.[0];
         if (files) {
           const fileExt = files.name.split('.').pop();
-          const filePath = `${user.id}/${initialData.id}/${crypto.randomUUID()}.${fileExt}`;
+          // Generate a simple sequential filename
+          const timestamp = Date.now();
+          const filePath = `${user.id}/${initialData.id}/${timestamp}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('financial_docs')
@@ -131,7 +133,9 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         const files = (form.getValues('files') as FileList)?.[0];
         if (files && transaction) {
           const fileExt = files.name.split('.').pop();
-          const filePath = `${user.id}/${transaction.id}/${crypto.randomUUID()}.${fileExt}`;
+          // Generate a simple sequential filename
+          const timestamp = Date.now();
+          const filePath = `${user.id}/${transaction.id}/${timestamp}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('financial_docs')
