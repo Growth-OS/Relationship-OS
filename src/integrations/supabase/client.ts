@@ -34,8 +34,8 @@ export const supabase = createClient<Database>(
 // Handle auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
-    // Clear any cached data if needed
     console.log('User signed out, clearing cached data');
+    localStorage.clear(); // Clear all cached data
   } else if (event === 'SIGNED_IN') {
     console.log('User signed in, session established');
   } else if (event === 'TOKEN_REFRESHED') {
@@ -47,7 +47,15 @@ supabase.auth.onAuthStateChange((event, session) => {
 export const checkAuth = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
-    if (error) throw error;
+    if (error) {
+      console.error('Auth check error:', error);
+      throw error;
+    }
+    if (!session) {
+      console.log('No active session found');
+      return null;
+    }
+    console.log('Active session found for user:', session.user.id);
     return session;
   } catch (error) {
     console.error('Error checking auth status:', error);

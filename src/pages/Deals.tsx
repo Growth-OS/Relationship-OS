@@ -7,6 +7,7 @@ import { CreateDealForm } from "@/components/crm/CreateDealForm";
 import { DealHeader } from "@/components/crm/DealHeader";
 import { DealBoard } from "@/components/crm/DealBoard";
 import { Deal } from "@/integrations/supabase/types/deals";
+import { toast } from "sonner";
 
 const Deals = () => {
   const [open, setOpen] = useState(false);
@@ -18,19 +19,24 @@ const Deals = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        toast.error('Not authenticated');
         throw new Error('Not authenticated');
       }
 
+      console.log('Fetching deals for user:', user.id);
       const { data, error } = await supabase
         .from('deals')
         .select('*')
+        .eq('user_id', user.id)
         .order('last_activity_date', { ascending: false });
       
       if (error) {
         console.error('Error fetching deals:', error);
+        toast.error('Error loading deals');
         throw error;
       }
 
+      console.log('Deals fetched:', data?.length || 0);
       return data || [];
     },
     retry: 1,
