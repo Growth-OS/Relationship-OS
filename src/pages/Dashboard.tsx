@@ -30,6 +30,19 @@ const Dashboard = () => {
     },
   });
 
+  const { data: preparationDeals } = useQuery({
+    queryKey: ["preparation-deals"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deals")
+        .select("*")
+        .eq("stage", "project_preparation")
+        .order("last_activity_date", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
@@ -48,13 +61,18 @@ const Dashboard = () => {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a project chat" />
+                <SelectValue placeholder="Select a project or deal to discuss" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="general">General Chat</SelectItem>
                 {projects?.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
-                    {project.name}
+                    📁 {project.name}
+                  </SelectItem>
+                ))}
+                {preparationDeals?.map((deal) => (
+                  <SelectItem key={`deal-${deal.id}`} value={`deal-${deal.id}`}>
+                    🤝 {deal.company_name} (Deal)
                   </SelectItem>
                 ))}
               </SelectContent>

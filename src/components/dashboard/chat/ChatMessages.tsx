@@ -1,9 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Message } from "../types";
 
 interface ChatMessagesProps {
   projectId: string | null;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  role: 'user' | 'assistant';
+  created_at: string;
 }
 
 export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
@@ -17,9 +23,15 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
           .order('created_at', { ascending: true });
 
         if (projectId) {
-          query.eq('project_id', projectId);
+          // If the projectId starts with 'deal-', it's a deal chat
+          if (projectId.startsWith('deal-')) {
+            const dealId = projectId.replace('deal-', '');
+            query.eq('deal_id', dealId);
+          } else {
+            query.eq('project_id', projectId);
+          }
         } else {
-          query.is('project_id', null);
+          query.is('project_id', null).is('deal_id', null);
         }
 
         const { data, error } = await query;
@@ -57,7 +69,7 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
   if (!messages?.length) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
-        {projectId ? "No messages in this project chat yet" : "No messages in general chat yet"}
+        No messages yet. Start a conversation!
       </div>
     );
   }
@@ -67,19 +79,13 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`flex ${
-            message.role === 'user' ? 'justify-end' : 'justify-start'
+          className={`p-4 rounded-lg ${
+            message.role === 'assistant'
+              ? 'bg-muted'
+              : 'bg-primary text-primary-foreground'
           }`}
         >
-          <div
-            className={`max-w-[80%] rounded-lg px-4 py-2 ${
-              message.role === 'user'
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted'
-            }`}
-          >
-            {message.content}
-          </div>
+          {message.content}
         </div>
       ))}
     </div>
