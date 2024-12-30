@@ -90,7 +90,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       const { items, deal_id, ...invoiceData } = calculatedData;
 
       // Create invoice first
-      const { data: invoice, error: invoiceError } = await supabase
+      const { data: invoiceData: newInvoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
           ...invoiceData,
@@ -99,23 +99,24 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
           deal_id: deal_id || null
         })
         .select('id')
-        .single();
+        .maybeSingle();
 
       if (invoiceError) throw invoiceError;
+      if (!newInvoice) throw new Error('Failed to create invoice');
 
       // Then create invoice items
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(
           items.map((item) => ({
-            invoice_id: invoice.id,
+            invoice_id: newInvoice.id,
             ...item,
           }))
         );
 
       if (itemsError) {
         // If items creation fails, we should delete the invoice
-        await supabase.from('invoices').delete().eq('id', invoice.id);
+        await supabase.from('invoices').delete().eq('id', newInvoice.id);
         throw itemsError;
       }
 
