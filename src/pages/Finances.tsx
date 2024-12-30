@@ -4,6 +4,7 @@ import { TransactionsList } from "@/components/finances/TransactionsList";
 import { CreateTransactionButton } from "@/components/finances/CreateTransactionButton";
 import { FinancialOverview } from "@/components/finances/FinancialOverview";
 import { ExportTransactions } from "@/components/finances/ExportTransactions";
+import { MonthlyReport } from "@/components/finances/MonthlyReport";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const Finances = () => {
@@ -15,6 +16,7 @@ const Finances = () => {
           <p className="text-sm text-gray-600">Manage your income and expenses</p>
         </div>
         <div className="flex gap-2">
+          <MonthlyReport />
           <ExportTransactions />
           <CreateTransactionButton />
         </div>
