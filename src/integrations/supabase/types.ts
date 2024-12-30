@@ -594,6 +594,7 @@ export type Database = {
           budget: number | null
           client_name: string
           created_at: string
+          deal_id: string | null
           description: string | null
           end_date: string | null
           id: string
@@ -607,6 +608,7 @@ export type Database = {
           budget?: number | null
           client_name: string
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
@@ -620,6 +622,7 @@ export type Database = {
           budget?: number | null
           client_name?: string
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           end_date?: string | null
           id?: string
@@ -629,7 +632,22 @@ export type Database = {
           status?: Database["public"]["Enums"]["project_status"] | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_project_deal"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prospects: {
         Row: {

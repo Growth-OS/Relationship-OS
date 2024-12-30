@@ -44,7 +44,7 @@ export const DealSelect = ({ form, onDealSelect }: DealSelectProps) => {
             value={field.value}
           >
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select a deal" />
               </SelectTrigger>
             </FormControl>

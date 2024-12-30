@@ -37,6 +37,7 @@ export const CreateProjectForm = ({ onSuccess }: CreateProjectFormProps) => {
           user_id: user.id,
           start_date: data.start_date?.toISOString().split('T')[0],
           end_date: data.end_date?.toISOString().split('T')[0],
+          deal_id: data.deal_id || null,
         });
 
       if (error) throw error;
