@@ -18,6 +18,7 @@ interface InvoiceFormData {
   client_email?: string;
   issue_date: string;
   due_date: string;
+  deal_id?: string;
   items: {
     description: string;
     quantity: number;
@@ -67,7 +68,6 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
     };
   };
 
-  // Update preview data whenever form values change
   useEffect(() => {
     const subscription = form.watch((data) => {
       if (onDataChange && data.invoice_number) {
@@ -87,7 +87,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       }
 
       const calculatedData = calculateTotals(data);
-      const { items, ...invoiceData } = calculatedData;
+      const { items, deal_id, ...invoiceData } = calculatedData;
 
       // Create invoice first
       const { data: invoice, error: invoiceError } = await supabase
@@ -95,7 +95,8 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         .insert({
           ...invoiceData,
           user_id: user.id,
-          status: 'draft'
+          status: 'draft',
+          deal_id: deal_id || null
         })
         .select('id')
         .single();
@@ -118,8 +119,22 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
         throw itemsError;
       }
 
+      // If there's a deal_id, update the deal stage to 'invoiced'
+      if (deal_id) {
+        const { error: dealError } = await supabase
+          .from('deals')
+          .update({ stage: 'invoiced' })
+          .eq('id', deal_id);
+
+        if (dealError) {
+          console.error('Error updating deal stage:', dealError);
+          toast.error('Invoice created but failed to update deal stage');
+        }
+      }
+
       toast.success('Invoice created successfully');
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['deals'] });
       onSuccess?.();
     } catch (error) {
       console.error('Error creating invoice:', error);

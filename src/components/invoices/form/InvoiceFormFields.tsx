@@ -7,12 +7,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface InvoiceFormFieldsProps {
   form: UseFormReturn<any>;
 }
 
 export const InvoiceFormFields = ({ form }: InvoiceFormFieldsProps) => {
+  const { data: deals = [] } = useQuery({
+    queryKey: ['deals-to-invoice'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .eq('stage', 'to_invoice');
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const handleDealSelect = (dealId: string) => {
+    const selectedDeal = deals.find(deal => deal.id === dealId);
+    if (selectedDeal) {
+      form.setValue('client_name', selectedDeal.company_name);
+      form.setValue('client_email', selectedDeal.contact_email || '');
+      form.setValue('deal_id', selectedDeal.id);
+    }
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <FormField
@@ -66,6 +91,31 @@ export const InvoiceFormFields = ({ form }: InvoiceFormFieldsProps) => {
             <FormControl>
               <Input type="email" placeholder="company@example.com" {...field} />
             </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="deal_id"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Select Deal</FormLabel>
+            <Select onValueChange={handleDealSelect} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a deal to invoice" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {deals.map((deal) => (
+                  <SelectItem key={deal.id} value={deal.id}>
+                    {deal.company_name} (${deal.deal_value.toLocaleString()})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <FormMessage />
           </FormItem>
         )}
