@@ -13,6 +13,7 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   project_id: string | null;
+  deal_id: string | null;
   created_at: string;
   message: string;
 }

@@ -1,15 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Message } from "../types";
 
 interface ChatMessagesProps {
   projectId: string | null;
-}
-
-interface Message {
-  id: string;
-  content: string;
-  role: 'user' | 'assistant';
-  created_at: string;
 }
 
 export const ChatMessages = ({ projectId }: ChatMessagesProps) => {

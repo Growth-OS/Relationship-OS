@@ -558,6 +558,7 @@ export type Database = {
       project_chat_history: {
         Row: {
           created_at: string
+          deal_id: string | null
           id: string
           message: string
           project_id: string
@@ -566,6 +567,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deal_id?: string | null
           id?: string
           message: string
           project_id: string
@@ -574,6 +576,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deal_id?: string | null
           id?: string
           message?: string
           project_id?: string
@@ -581,6 +584,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "project_chat_history_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "project_chat_history_project_id_fkey"
             columns: ["project_id"]
