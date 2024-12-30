@@ -15,7 +15,8 @@ export const handleAttachment = async (
 
     if (downloadError) throw downloadError;
 
-    const attachmentBytes = await fileData.arrayBuffer();
+    // Convert the blob to ArrayBuffer
+    const arrayBuffer = await fileData.arrayBuffer();
     const attachmentPage = pdfDoc.addPage();
     const { width, height } = attachmentPage.getSize();
 
@@ -48,10 +49,12 @@ export const handleAttachment = async (
     if (attachment.file_type?.startsWith('image/')) {
       try {
         let image;
+        const uint8Array = new Uint8Array(arrayBuffer);
+
         if (attachment.file_type === 'image/png') {
-          image = await pdfDoc.embedPng(attachmentBytes);
+          image = await pdfDoc.embedPng(uint8Array);
         } else if (attachment.file_type === 'image/jpeg' || attachment.file_type === 'image/jpg') {
-          image = await pdfDoc.embedJpg(attachmentBytes);
+          image = await pdfDoc.embedJpg(uint8Array);
         }
 
         if (image) {
