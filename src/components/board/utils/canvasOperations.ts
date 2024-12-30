@@ -52,33 +52,35 @@ export const addShape = (
 };
 
 export const addArrow = (canvas: fabric.Canvas) => {
-  const arrow = new fabric.Path('M 0 0 L 200 0 L 190 -10 M 200 0 L 190 10', {
-    left: 100,
-    top: 100,
+  // Create a group for the arrow
+  const line = new fabric.Line([0, 0, 200, 0], {
     stroke: '#4C1D95',
     strokeWidth: 2,
-    fill: '',
-    selectable: true,
-    hasControls: true,
-    hasBorders: true,
-    lockScalingY: true,
-    perPixelTargetFind: true,
   });
 
-  // Add the arrow to canvas
+  const arrowHead = new fabric.Triangle({
+    left: 200 - 15, // Position at the end of the line
+    top: -10,
+    width: 20,
+    height: 20,
+    fill: '#4C1D95',
+    angle: 90,
+  });
+
+  // Group the line and arrowhead together
+  const arrow = new fabric.Group([line, arrowHead], {
+    left: 100,
+    top: 100,
+    originX: 'center',
+    originY: 'center',
+    selectable: true,
+    hasControls: true,
+  });
+
+  // Add the arrow group to canvas
   canvas.add(arrow);
   canvas.setActiveObject(arrow);
   canvas.renderAll();
-
-  // Add event listener for object movement
-  arrow.on('moving', () => {
-    canvas.renderAll();
-  });
-
-  // Add event listener for object rotation
-  arrow.on('rotating', () => {
-    canvas.renderAll();
-  });
 };
 
 export const addText = (canvas: fabric.Canvas) => {
