@@ -9,6 +9,7 @@ import {
   Trash2, 
   Move,
   ArrowRight,
+  Save,
 } from "lucide-react";
 import { BoardToolbarButton } from "./BoardToolbarButton";
 import { fabric } from "fabric";
@@ -37,6 +38,8 @@ interface BoardToolbarProps {
   handleUndo: () => void;
   handleRedo: () => void;
   handleDelete: () => void;
+  handleSave: () => void;
+  isSaving: boolean;
 }
 
 export const BoardToolbar = ({
@@ -47,6 +50,8 @@ export const BoardToolbar = ({
   handleUndo,
   handleRedo,
   handleDelete,
+  handleSave,
+  isSaving,
 }: BoardToolbarProps) => {
   return (
     <div className="flex flex-wrap gap-2 border-t pt-4">
@@ -149,6 +154,19 @@ export const BoardToolbar = ({
         tooltip="Delete Selected"
         onClick={handleDelete}
       />
+
+      <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+      
+      <Button 
+        variant="outline"
+        size="sm"
+        onClick={handleSave}
+        disabled={isSaving}
+        className="flex items-center gap-2"
+      >
+        <Save className="h-4 w-4" />
+        {isSaving ? 'Saving...' : 'Save'}
+      </Button>
     </div>
   );
 };

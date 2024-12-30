@@ -3,10 +3,18 @@ import { useCanvas } from '@/hooks/useCanvas';
 import { BoardToolbar } from './BoardToolbar';
 import { toast } from 'sonner';
 import { fabric } from 'fabric';
+import { useParams } from 'react-router-dom';
 
 export const BoardCanvas = () => {
+  const { boardId } = useParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  if (!boardId) {
+    toast.error('Board ID is required');
+    return null;
+  }
+
   const {
     fabricCanvas,
     activeTool,
@@ -15,7 +23,9 @@ export const BoardCanvas = () => {
     currentStateIndex,
     setCurrentStateIndex,
     setUndoStack,
-  } = useCanvas(canvasRef);
+    handleSave,
+    isSaving,
+  } = useCanvas(canvasRef, boardId);
 
   const handleImageUpload = () => {
     fileInputRef.current?.click();
@@ -92,6 +102,8 @@ export const BoardCanvas = () => {
         handleUndo={handleUndo}
         handleRedo={handleRedo}
         handleDelete={handleDelete}
+        handleSave={handleSave}
+        isSaving={isSaving}
       />
       <div className="border border-gray-200 rounded-lg">
         <canvas ref={canvasRef} className="max-w-full" />
