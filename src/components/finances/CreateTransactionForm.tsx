@@ -13,6 +13,7 @@ import { DateField } from "./form-fields/DateField";
 import { NotesField } from "./form-fields/NotesField";
 import { AttachmentField } from "./form-fields/AttachmentField";
 import { FinancialTransaction } from "@/integrations/supabase/types/finances";
+import { useQuery } from "@tanstack/react-query";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -30,6 +31,22 @@ interface CreateTransactionFormProps {
 }
 
 export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransactionFormProps) => {
+  // Fetch existing attachments if editing
+  const { data: existingAttachments } = useQuery({
+    queryKey: ['transaction-attachments', initialData?.id],
+    queryFn: async () => {
+      if (!initialData?.id) return [];
+      const { data, error } = await supabase
+        .from('transaction_attachments')
+        .select('*')
+        .eq('transaction_id', initialData.id);
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!initialData?.id,
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -152,7 +169,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         <CategorySelect form={form} transactionType={form.watch('type')} />
         <DateField form={form} />
         <NotesField form={form} />
-        <AttachmentField form={form} />
+        <AttachmentField form={form} existingAttachments={existingAttachments} />
         <Button type="submit" className="w-full">
           {initialData ? 'Update Transaction' : 'Add Transaction'}
         </Button>
