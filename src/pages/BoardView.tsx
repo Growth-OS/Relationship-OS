@@ -5,6 +5,23 @@ import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import {
+  Circle,
+  Image,
+  Pencil,
+  Square,
+  Type,
+  Undo2,
+  Redo2,
+  Trash2,
+  Move,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Board = Database["public"]["Tables"]["boards"]["Row"];
 
@@ -12,6 +29,8 @@ const BoardView = () => {
   const { boardId } = useParams();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<fabric.Canvas | null>(null);
+  const [activeTool, setActiveTool] = useState<'select' | 'draw' | 'shape' | 'text'>('select');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
@@ -34,12 +53,15 @@ const BoardView = () => {
       width: window.innerWidth - 100,
       height: window.innerHeight - 300,
       backgroundColor: '#ffffff',
+      isDrawingMode: false,
     });
+
+    canvas.freeDrawingBrush.width = 2;
+    canvas.freeDrawingBrush.color = '#000000';
 
     setFabricCanvas(canvas);
     toast.success("Canvas ready!");
 
-    // Add event listener for window resize
     const handleResize = () => {
       canvas.setDimensions({
         width: window.innerWidth - 100,
@@ -50,25 +72,48 @@ const BoardView = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Cleanup
     return () => {
       canvas.dispose();
       window.removeEventListener('resize', handleResize);
     };
   }, []);
 
-  const addRectangle = () => {
+  useEffect(() => {
+    if (!fabricCanvas) return;
+    fabricCanvas.isDrawingMode = activeTool === 'draw';
+    fabricCanvas.selection = activeTool === 'select';
+
+    if (activeTool === 'select') {
+      fabricCanvas.defaultCursor = 'default';
+    } else if (activeTool === 'draw') {
+      fabricCanvas.defaultCursor = 'crosshair';
+    }
+  }, [activeTool, fabricCanvas]);
+
+  const addShape = (type: 'rect' | 'circle') => {
     if (!fabricCanvas) return;
     
-    const rect = new fabric.Rect({
+    const commonProps = {
       left: 100,
       top: 100,
       fill: '#8B5CF6',
-      width: 100,
-      height: 100,
-    });
+      strokeWidth: 2,
+      stroke: '#4C1D95',
+    };
+
+    const shape = type === 'rect' 
+      ? new fabric.Rect({
+          ...commonProps,
+          width: 100,
+          height: 100,
+        })
+      : new fabric.Circle({
+          ...commonProps,
+          radius: 50,
+        });
     
-    fabricCanvas.add(rect);
+    fabricCanvas.add(shape);
+    fabricCanvas.setActiveObject(shape);
     fabricCanvas.renderAll();
   };
 
@@ -80,10 +125,54 @@ const BoardView = () => {
       top: 100,
       fontSize: 20,
       fill: '#1F2937',
+      fontFamily: 'sans-serif',
     });
     
     fabricCanvas.add(text);
+    fabricCanvas.setActiveObject(text);
     fabricCanvas.renderAll();
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!fabricCanvas || !event.target.files?.[0]) return;
+
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      if (typeof e.target?.result !== 'string') return;
+
+      fabric.Image.fromURL(e.target.result, (img) => {
+        img.scaleToWidth(200);
+        fabricCanvas.add(img);
+        fabricCanvas.renderAll();
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleUndo = () => {
+    if (!fabricCanvas) return;
+    if (fabricCanvas._objects.length > 0) {
+      fabricCanvas._objects.pop();
+      fabricCanvas.renderAll();
+    }
+  };
+
+  const handleRedo = () => {
+    // Implement redo functionality when history is added
+    toast.info("Redo functionality coming soon!");
+  };
+
+  const handleDelete = () => {
+    if (!fabricCanvas) return;
+    const activeObjects = fabricCanvas.getActiveObjects();
+    if (activeObjects.length > 0) {
+      activeObjects.forEach(obj => fabricCanvas.remove(obj));
+      fabricCanvas.discardActiveObject();
+      fabricCanvas.renderAll();
+    }
   };
 
   if (isLoading) {
@@ -106,29 +195,148 @@ const BoardView = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{board.name}</h1>
-            {board.description && (
-              <p className="text-gray-600 dark:text-gray-400 mt-2">{board.description}</p>
-            )}
-            <div className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-              Last edited: {new Date(board.last_edited_at).toLocaleDateString()}
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{board.name}</h1>
+              {board.description && (
+                <p className="text-gray-600 dark:text-gray-400 mt-2">{board.description}</p>
+              )}
+              <div className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+                Last edited: {new Date(board.last_edited_at).toLocaleDateString()}
+              </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={addRectangle}
-              className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
-            >
-              Add Shape
-            </button>
-            <button
-              onClick={addText}
-              className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
-            >
-              Add Text
-            </button>
+          
+          <div className="flex flex-wrap gap-2 border-t pt-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={activeTool === 'select' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  onClick={() => setActiveTool('select')}
+                >
+                  <Move className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Select & Move</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={activeTool === 'draw' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  onClick={() => setActiveTool('draw')}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Draw</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => addShape('rect')}
+                >
+                  <Square className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add Rectangle</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => addShape('circle')}
+                >
+                  <Circle className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add Circle</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={addText}
+                >
+                  <Type className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Add Text</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Image className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Upload Image</TooltipContent>
+            </Tooltip>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleImageUpload}
+            />
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleUndo}
+                >
+                  <Undo2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Undo</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRedo}
+                >
+                  <Redo2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Redo</TooltipContent>
+            </Tooltip>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Delete Selected</TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>
