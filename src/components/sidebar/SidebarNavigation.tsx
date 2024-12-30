@@ -48,23 +48,6 @@ export const SidebarNavigation = () => {
           ))}
         </div>
       </nav>
-
-      <div className="pt-4 border-t border-gray-200">
-        <div className="mb-4 space-y-1">
-          {externalLinks.map((item) => (
-            <a
-              key={item.path}
-              href={item.path}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
-            >
-              <item.icon className="w-5 h-5 mr-3" />
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </div>
-      </div>
     </>
   );
 };
