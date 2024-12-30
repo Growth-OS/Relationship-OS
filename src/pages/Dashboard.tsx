@@ -56,6 +56,8 @@ const Dashboard = () => {
   useEffect(() => {
     if (chatHistory) {
       setMessages(chatHistory);
+    } else {
+      setMessages([]); // Clear messages when no project is selected
     }
   }, [chatHistory]);
 
@@ -137,7 +139,7 @@ const Dashboard = () => {
             setMessages([]);
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger className="bg-white">
             <SelectValue placeholder="Select a project chat" />
           </SelectTrigger>
           <SelectContent>

@@ -42,7 +42,9 @@ export const CreateProjectForm = ({ onSuccess }: CreateProjectFormProps) => {
       if (error) throw error;
       
       toast.success('Project created successfully');
+      // Invalidate both the projects query and the chat-history query
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['chat-history'] });
       onSuccess?.();
     } catch (error) {
       console.error('Error creating project:', error);
