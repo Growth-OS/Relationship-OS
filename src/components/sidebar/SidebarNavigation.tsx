@@ -2,7 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
-  Briefcase, UserPlus, Euro, FolderOpen, Mail,
+  Briefcase, UserPlus, Euro, FolderOpen,
   Bug, FileText, ChartLine, ChartPie, Database
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
@@ -17,7 +17,6 @@ export const SidebarNavigation = () => {
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
-    { icon: Mail, label: "Email Marketing", path: "/dashboard/email/inbox" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
@@ -27,11 +26,6 @@ export const SidebarNavigation = () => {
   ];
 
   const externalLinks = [
-    { 
-      icon: Mail, 
-      label: "Superhuman", 
-      path: "https://mail.superhuman.com/",
-    },
     {
       icon: Users,
       label: "LinkedIn",

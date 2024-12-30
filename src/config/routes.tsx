@@ -12,10 +12,6 @@ import Finances from "@/pages/Finances";
 import Reporting from "@/pages/Reporting";
 import Development from "@/pages/Development";
 import Invoices from "@/pages/Invoices";
-import InboxPage from "@/pages/email/Inbox";
-import ComposePage from "@/pages/email/Compose";
-import SearchPage from "@/pages/email/Search";
-import SpamPage from "@/pages/email/Spam";
 import { Outlet } from "react-router-dom";
 
 export const routes: RouteObject[] = [
@@ -70,22 +66,6 @@ export const routes: RouteObject[] = [
       {
         path: "development",
         element: <Development />,
-      },
-      {
-        path: "email/inbox",
-        element: <InboxPage />,
-      },
-      {
-        path: "email/compose",
-        element: <ComposePage />,
-      },
-      {
-        path: "email/search",
-        element: <SearchPage />,
-      },
-      {
-        path: "email/spam",
-        element: <SpamPage />,
       },
     ],
   },
