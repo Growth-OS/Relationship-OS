@@ -5,6 +5,12 @@ import { ArrowRight } from "lucide-react";
 export const HeroSection = () => {
   const navigate = useNavigate();
   
+  const handleGetStarted = () => {
+    // Since we don't have a dedicated signup page yet, navigate to login
+    navigate('/login');
+    console.log('Navigating to login page');
+  };
+  
   return (
     <section className="pt-32 pb-20 bg-black">
       <div className="container mx-auto px-6 text-center">
@@ -17,7 +23,7 @@ export const HeroSection = () => {
         <div className="max-w-md mx-auto space-y-4">
           <Button 
             className="w-full h-14 text-lg bg-white hover:bg-white/90 text-black group"
-            onClick={() => navigate('/signup')}
+            onClick={handleGetStarted}
           >
             Get Started
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
