@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardChat } from "@/components/dashboard/DashboardChat";
+import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTasks";
 import { Message } from "@/components/dashboard/types";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -131,35 +132,43 @@ const Dashboard = () => {
     <div className="flex flex-col gap-6 animate-fade-in">
       <DashboardHeader firstName={firstName} />
       
-      <div className="w-full max-w-xs mb-4">
-        <Select
-          value={selectedProject || "general"}
-          onValueChange={(value) => {
-            setSelectedProject(value === "general" ? null : value);
-            setMessages([]);
-          }}
-        >
-          <SelectTrigger className="bg-white">
-            <SelectValue placeholder="Select a project chat" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="general">General Chat</SelectItem>
-            {projects?.map((project) => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          <div className="w-full max-w-xs">
+            <Select
+              value={selectedProject || "general"}
+              onValueChange={(value) => {
+                setSelectedProject(value === "general" ? null : value);
+                setMessages([]);
+              }}
+            >
+              <SelectTrigger className="bg-white">
+                <SelectValue placeholder="Select a project chat" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="general">General Chat</SelectItem>
+                {projects?.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <DashboardChat 
-        messages={messages}
-        input={input}
-        isLoading={isLoading}
-        onInputChange={setInput}
-        onSend={handleSendMessage}
-      />
+          <DashboardChat 
+            messages={messages}
+            input={input}
+            isLoading={isLoading}
+            onInputChange={setInput}
+            onSend={handleSendMessage}
+          />
+        </div>
+
+        <div>
+          <DashboardWeeklyTasks />
+        </div>
+      </div>
     </div>
   );
 };
