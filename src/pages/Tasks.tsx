@@ -18,6 +18,7 @@ const Tasks = () => {
         <Tabs defaultValue="active" className="w-full">
           <TabsList className="mb-4">
             <TabsTrigger value="active">Active Tasks</TabsTrigger>
+            <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="deals">Deals</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
@@ -28,6 +29,9 @@ const Tasks = () => {
 
           <TabsContent value="active">
             <TaskList showArchived={false} />
+          </TabsContent>
+          <TabsContent value="projects">
+            <TaskList source="projects" showArchived={false} />
           </TabsContent>
           <TabsContent value="deals">
             <TaskList source="deals" showArchived={false} />
