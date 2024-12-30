@@ -1,7 +1,7 @@
 import { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Login from "@/pages/Login";
+import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
 import Prospects from "@/pages/Prospects";
 import Tasks from "@/pages/Tasks";
@@ -21,7 +21,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Navigate to="/dashboard" replace />,
+    element: <Landing />,
   },
   {
     path: "/login",
