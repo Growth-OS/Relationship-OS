@@ -1,4 +1,5 @@
 import { RouteObject } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
@@ -18,6 +19,10 @@ import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
+  {
+    path: "/",
+    element: <Navigate to="/dashboard" replace />,
+  },
   {
     path: "/login",
     element: <Login />,
