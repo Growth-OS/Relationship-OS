@@ -76,7 +76,8 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent event bubbling
     try {
       const { error } = await supabase
         .from('deals')
@@ -87,7 +88,7 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
       
       toast.success('Deal deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['deals'] });
-      onSuccess();
+      onSuccess(); // This will close the dialog
     } catch (error) {
       console.error('Error deleting deal:', error);
       toast.error('Error deleting deal');
