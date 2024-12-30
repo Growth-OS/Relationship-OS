@@ -1,4 +1,4 @@
-import { PDFDocument, PDFPage, rgb } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
