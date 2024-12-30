@@ -32,6 +32,7 @@ export const DashboardChat = ({ projectId }: DashboardChatProps) => {
 
       if (error) throw error;
 
+      // Clear message and files but don't affect projectId
       setMessage("");
       setUploadedFiles([]);
     } catch (error) {
