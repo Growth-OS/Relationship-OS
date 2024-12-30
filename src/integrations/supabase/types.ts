@@ -143,6 +143,42 @@ export type Database = {
         }
         Relationships: []
       }
+      content_strategy: {
+        Row: {
+          content_pillars: string[] | null
+          created_at: string
+          description: string | null
+          id: string
+          key_topics: string[] | null
+          publishing_frequency: string | null
+          target_audience: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content_pillars?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_topics?: string[] | null
+          publishing_frequency?: string | null
+          target_audience?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          content_pillars?: string[] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          key_topics?: string[] | null
+          publishing_frequency?: string | null
+          target_audience?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           company_name: string
@@ -720,31 +756,46 @@ export type Database = {
       }
       substack_posts: {
         Row: {
+          ai_suggestions: Json | null
+          category: string | null
           content: string | null
           created_at: string
           id: string
+          last_auto_save_at: string | null
           publish_date: string
           status: string
+          tags: string[] | null
           title: string
           user_id: string
+          version_history: Json[] | null
         }
         Insert: {
+          ai_suggestions?: Json | null
+          category?: string | null
           content?: string | null
           created_at?: string
           id?: string
+          last_auto_save_at?: string | null
           publish_date: string
           status?: string
+          tags?: string[] | null
           title: string
           user_id: string
+          version_history?: Json[] | null
         }
         Update: {
+          ai_suggestions?: Json | null
+          category?: string | null
           content?: string | null
           created_at?: string
           id?: string
+          last_auto_save_at?: string | null
           publish_date?: string
           status?: string
+          tags?: string[] | null
           title?: string
           user_id?: string
+          version_history?: Json[] | null
         }
         Relationships: []
       }
