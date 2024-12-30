@@ -113,7 +113,7 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
               <TableCell>{transaction.description}</TableCell>
               <TableCell>{transaction.category}</TableCell>
               <TableCell className="text-right">
-                €{transaction.amount.toFixed(2)}
+                €{Number(transaction.amount).toFixed(2)}
               </TableCell>
               <TableCell>
                 {transaction.transaction_attachments?.map((attachment) => (
@@ -151,7 +151,15 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
         </TableBody>
       </Table>
 
-      <Dialog open={!!editingTransaction} onOpenChange={() => setEditingTransaction(null)}>
+      <Dialog 
+        open={!!editingTransaction} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingTransaction(null);
+            refetch(); // Refetch transactions when dialog closes
+          }
+        }}
+      >
         <DialogContent className="max-w-lg">
           {editingTransaction && (
             <CreateTransactionForm 
