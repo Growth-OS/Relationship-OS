@@ -52,19 +52,22 @@ export const addShape = (
 };
 
 export const addArrow = (canvas: fabric.Canvas) => {
-  // Create a group for the arrow
+  // Create the line
   const line = new fabric.Line([0, 0, 200, 0], {
     stroke: '#4C1D95',
     strokeWidth: 2,
   });
 
+  // Create the arrowhead
   const arrowHead = new fabric.Triangle({
-    left: 200 - 15, // Position at the end of the line
-    top: -10,
     width: 20,
     height: 20,
     fill: '#4C1D95',
+    left: 200,
+    top: 0,
     angle: 90,
+    originX: 'center',
+    originY: 'center',
   });
 
   // Group the line and arrowhead together
@@ -75,6 +78,7 @@ export const addArrow = (canvas: fabric.Canvas) => {
     originY: 'center',
     selectable: true,
     hasControls: true,
+    lockScalingFlip: true, // Prevent flipping which would invert the arrow
   });
 
   // Add the arrow group to canvas
