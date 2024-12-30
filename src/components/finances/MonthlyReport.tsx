@@ -9,7 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,6 +70,35 @@ export const MonthlyReport = () => {
     }
   };
 
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(i);
+    return {
+      value: i,
+      label: format(date, 'MMMM'),
+    };
+  });
+
+  const years = Array.from({ length: 5 }, (_, i) => {
+    const year = new Date().getFullYear() - 2 + i;
+    return {
+      value: year,
+      label: year.toString(),
+    };
+  });
+
+  const handleMonthSelect = (month: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(month);
+    setSelectedDate(newDate);
+  };
+
+  const handleYearSelect = (year: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setFullYear(year);
+    setSelectedDate(newDate);
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Popover>
@@ -80,13 +108,39 @@ export const MonthlyReport = () => {
             {format(selectedDate, 'MMMM yyyy')}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <CalendarComponent
-            mode="single"
-            selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
-            initialFocus
-          />
+        <PopoverContent className="w-auto p-4" align="start">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Month</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {months.map((month) => (
+                  <Button
+                    key={month.value}
+                    variant={selectedDate.getMonth() === month.value ? "default" : "outline"}
+                    className="text-xs"
+                    onClick={() => handleMonthSelect(month.value)}
+                  >
+                    {month.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Year</h4>
+              <div className="flex gap-2">
+                {years.map((year) => (
+                  <Button
+                    key={year.value}
+                    variant={selectedDate.getFullYear() === year.value ? "default" : "outline"}
+                    className="text-xs"
+                    onClick={() => handleYearSelect(year.value)}
+                  >
+                    {year.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </div>
         </PopoverContent>
       </Popover>
 
