@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const code = params.get('code');
         if (code && session) {
           // Get the stored return path or default to calendar
-          const storedPath = localStorage.getItem('oauth_return_path') || '/dashboard/calendar';
+          const storedPath = localStorage.getItem('oauth_return_path') || '/dashboard';
           localStorage.removeItem('oauth_return_path'); // Clean up
           navigate(storedPath, { replace: true });
           return;
@@ -52,6 +52,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
+        localStorage.clear(); // Clear all local storage
         navigate('/login', { replace: true });
         toast.success('Signed out successfully');
       } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
@@ -59,9 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsAuthenticated(true);
           // Don't redirect if we're handling an OAuth callback
           if (!window.location.search.includes('code=')) {
-            if (location.pathname === '/login') {
-              navigate('/dashboard', { replace: true });
-            }
+            navigate('/dashboard', { replace: true });
           }
         } else {
           setIsAuthenticated(false);

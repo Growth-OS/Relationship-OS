@@ -10,11 +10,21 @@ export const SidebarFooter = () => {
   
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate('/');
-      toast.success('Signed out successfully');
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error("Sign out error:", error);
+        toast.error("Failed to sign out. Please try again.");
+        return;
+      }
+
+      // Clear local storage and redirect
+      localStorage.clear();
+      navigate("/login", { replace: true });
+      toast.success("Signed out successfully");
     } catch (error) {
-      toast.error('Error signing out');
+      console.error("Sign out error:", error);
+      toast.error("An unexpected error occurred");
     }
   };
 

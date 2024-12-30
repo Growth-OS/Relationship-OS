@@ -8,12 +8,6 @@ export const SettingsSidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const { error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        navigate("/login", { replace: true });
-        return;
-      }
-
       const { error } = await supabase.auth.signOut();
       
       if (error) {
@@ -22,13 +16,14 @@ export const SettingsSidebar = () => {
         return;
       }
 
-      toast.success("Successfully logged out");
+      // Clear local storage and redirect
+      localStorage.clear();
       navigate("/login", { replace: true });
+      toast.success("Successfully logged out");
       
     } catch (error) {
       console.error("Logout error:", error);
       toast.error("An unexpected error occurred");
-      navigate("/login", { replace: true });
     }
   };
 
