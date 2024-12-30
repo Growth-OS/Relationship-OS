@@ -50,11 +50,27 @@ export const addArrow = (canvas: fabric.Canvas) => {
     stroke: '#4C1D95',
     strokeWidth: 2,
     fill: '',
+    selectable: true,
+    hasControls: true,
+    hasBorders: true,
+    lockScalingY: true,
+    perPixelTargetFind: true,
   });
 
+  // Add the arrow to canvas
   canvas.add(arrow);
   canvas.setActiveObject(arrow);
   canvas.renderAll();
+
+  // Add event listener for object movement
+  arrow.on('moving', () => {
+    canvas.renderAll();
+  });
+
+  // Add event listener for object rotation
+  arrow.on('rotating', () => {
+    canvas.renderAll();
+  });
 };
 
 export const addText = (canvas: fabric.Canvas) => {
