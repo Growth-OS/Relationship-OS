@@ -4,6 +4,7 @@ import { TransactionsList } from "@/components/finances/TransactionsList";
 import { CreateTransactionButton } from "@/components/finances/CreateTransactionButton";
 import { FinancialOverview } from "@/components/finances/FinancialOverview";
 import { ExportTransactions } from "@/components/finances/ExportTransactions";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const Finances = () => {
   return (
@@ -22,25 +23,27 @@ const Finances = () => {
       <FinancialOverview />
 
       <Card className="p-6">
-        <Tabs defaultValue="all">
-          <TabsList>
-            <TabsTrigger value="all">All Transactions</TabsTrigger>
-            <TabsTrigger value="income">Income</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          </TabsList>
+        <TooltipProvider>
+          <Tabs defaultValue="all">
+            <TabsList>
+              <TabsTrigger value="all">All Transactions</TabsTrigger>
+              <TabsTrigger value="income">Income</TabsTrigger>
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            </TabsList>
 
-          <div className="mt-4">
-            <TabsContent value="all">
-              <TransactionsList />
-            </TabsContent>
-            <TabsContent value="income">
-              <TransactionsList type="income" />
-            </TabsContent>
-            <TabsContent value="expenses">
-              <TransactionsList type="expense" />
-            </TabsContent>
-          </div>
-        </Tabs>
+            <div className="mt-4">
+              <TabsContent value="all">
+                <TransactionsList />
+              </TabsContent>
+              <TabsContent value="income">
+                <TransactionsList type="income" />
+              </TabsContent>
+              <TabsContent value="expenses">
+                <TransactionsList type="expense" />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </TooltipProvider>
       </Card>
     </div>
   );
