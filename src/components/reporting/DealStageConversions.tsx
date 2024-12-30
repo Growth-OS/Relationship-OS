@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export const DealStageConversions = () => {
   const { data: deals = [] } = useQuery({
-    queryKey: ['deals'],
+    queryKey: ['dealConversions'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')

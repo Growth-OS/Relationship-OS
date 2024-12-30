@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -13,6 +13,7 @@ import { DealStageColumn } from "@/components/crm/DealStageColumn";
 const Deals = () => {
   const [open, setOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<any>(null);
+  const queryClient = useQueryClient();
 
   const { data: deals = [], isLoading, error, refetch } = useQuery({
     queryKey: ['deals'],
@@ -54,7 +55,14 @@ const Deals = () => {
           .eq('id', draggableId);
 
         if (error) throw error;
-        refetch();
+        
+        // Invalidate both deals and reporting queries
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['deals'] }),
+          queryClient.invalidateQueries({ queryKey: ['dealConversions'] })
+        ]);
+        
+        toast.success('Deal stage updated successfully');
       } catch (error) {
         console.error('Error updating deal stage:', error);
         toast.error('Failed to update deal stage');
