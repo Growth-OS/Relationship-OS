@@ -114,8 +114,10 @@ export const generatePDFReport = async (transactions: any[], selectedDate: Date)
             // Convert attachment to bytes
             const attachmentBytes = await fileData.arrayBuffer();
 
-            // Embed attachment in PDF
+            // Create a new page for the attachment
             const attachmentPage = pdfDoc.addPage();
+            
+            // Add attachment header
             attachmentPage.drawText(`Attachment: ${attachment.file_name}`, {
               x: 50,
               y: height - 50,
@@ -129,6 +131,50 @@ export const generatePDFReport = async (transactions: any[], selectedDate: Date)
               size: 10,
               font: timesRomanFont,
             });
+
+            // Embed the image if it's an image file
+            if (attachment.file_type?.startsWith('image/')) {
+              try {
+                const image = await pdfDoc.embedPng(attachmentBytes);
+                const imgDims = image.scale(0.5); // Scale down to 50%
+                
+                // Calculate dimensions to fit within page while maintaining aspect ratio
+                const maxWidth = width - 100; // 50px margin on each side
+                const maxHeight = height - 150; // Account for header text
+                let imgWidth = imgDims.width;
+                let imgHeight = imgDims.height;
+
+                if (imgWidth > maxWidth) {
+                  const scale = maxWidth / imgWidth;
+                  imgWidth *= scale;
+                  imgHeight *= scale;
+                }
+                if (imgHeight > maxHeight) {
+                  const scale = maxHeight / imgHeight;
+                  imgWidth *= scale;
+                  imgHeight *= scale;
+                }
+
+                // Center the image horizontally
+                const xPosition = (width - imgWidth) / 2;
+                
+                attachmentPage.drawImage(image, {
+                  x: xPosition,
+                  y: height - 120 - imgHeight, // Position below the header text
+                  width: imgWidth,
+                  height: imgHeight,
+                });
+              } catch (imageError) {
+                console.error('Error embedding image:', imageError);
+                attachmentPage.drawText('Error: Could not embed image', {
+                  x: 50,
+                  y: height - 100,
+                  size: 10,
+                  font: timesRomanFont,
+                  color: rgb(1, 0, 0), // Red text for error
+                });
+              }
+            }
 
             // List attachment in transaction page
             transactionsPage.drawText(`   • ${attachment.file_name}`, {
