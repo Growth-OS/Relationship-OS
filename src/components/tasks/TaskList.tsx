@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface TaskListProps {
   source?: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
@@ -15,13 +16,15 @@ interface TaskListProps {
 }
 
 export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
+  const navigate = useNavigate();
+
   const { data: tasks = [], isLoading, error, refetch } = useQuery({
     queryKey: ["tasks", source, projectId, showArchived],
     queryFn: async () => {
       try {
         let query = supabase
           .from("tasks")
-          .select("*");
+          .select("*, projects(id, name), deals(id, company_name), substack_posts(id, title)")
 
         if (source) {
           query = query.eq("source", source);
@@ -76,6 +79,18 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
     }
   };
 
+  const handleTaskClick = (task: any) => {
+    if (task.source === 'projects' && task.projects) {
+      navigate(`/dashboard/projects?id=${task.projects.id}`);
+    } else if (task.source === 'deals' && task.deals) {
+      navigate(`/dashboard/deals?id=${task.deals.id}`);
+    } else if (task.source === 'substack' && task.substack_posts) {
+      navigate(`/dashboard/substack?id=${task.substack_posts.id}`);
+    } else if (task.source === 'ideas') {
+      navigate('/dashboard/development');
+    }
+  };
+
   if (isLoading) {
     return <div className="text-sm text-gray-500">Loading tasks...</div>;
   }
@@ -94,17 +109,21 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         <Card 
           key={task.id} 
           className={cn(
-            "p-4 hover:shadow-md transition-shadow",
+            "p-4 hover:shadow-md transition-shadow cursor-pointer",
             task.completed ? "bg-gray-50" : "bg-white"
           )}
+          onClick={() => handleTaskClick(task)}
         >
           <div className="flex items-start justify-between">
             <div className="space-y-1 text-left flex-1">
               <div className="flex items-start gap-3">
                 <Checkbox
                   checked={task.completed || false}
-                  onCheckedChange={(checked) => handleComplete(task.id, checked as boolean)}
+                  onCheckedChange={(checked) => {
+                    handleComplete(task.id, checked as boolean);
+                  }}
                   className="mt-1"
+                  onClick={(e) => e.stopPropagation()} // Prevent card click when clicking checkbox
                 />
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
@@ -114,7 +133,11 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
                     )}>
                       {task.title}
                     </h3>
-                    <EditTaskDialog task={task} onUpdate={refetch} />
+                    <EditTaskDialog 
+                      task={task} 
+                      onUpdate={refetch}
+                      onClick={(e) => e.stopPropagation()} // Prevent card click when clicking edit
+                    />
                   </div>
                   {task.description && (
                     <p className="text-sm text-gray-600">{task.description}</p>
