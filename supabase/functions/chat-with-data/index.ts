@@ -1,11 +1,9 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -15,92 +13,34 @@ serve(async (req) => {
   }
 
   try {
-    if (req.method !== 'POST') {
-      throw new Error('Method not allowed');
-    }
-
-    const { message, userId, projectId, fileContent, fileName } = await req.json();
-    console.log('Received request:', { message, userId, projectId, fileName });
+    const { message, files, projectId } = await req.json();
+    console.log('Received request:', { message, files, projectId });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const [tasks, meetings, emails] = await Promise.all([
-      // Get pending tasks
-      supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('completed', false)
-        .order('due_date', { ascending: true })
-        .limit(5),
-      
-      // Get upcoming meetings from oauth_connections
-      supabase
-        .from('oauth_connections')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('provider', 'google')
-        .maybeSingle(),
-      
-      // Get unread emails
-      supabase
-        .from('emails')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_read', false)
-        .order('received_at', { ascending: false })
-        .limit(5)
-    ]);
-
-    console.log('Fetched context:', { tasks: tasks.data, hasMeetings: !!meetings.data, emails: emails.data });
-
-    let contextPrompt = '';
-    
-    // Add tasks context
-    if (tasks.data && tasks.data.length > 0) {
-      contextPrompt += `\nPending tasks:\n${tasks.data.map(task => 
-        `- ${task.title}${task.due_date ? ` (due: ${task.due_date})` : ''}`
-      ).join('\n')}`;
+    // Get the user ID from the authorization header
+    const authHeader = req.headers.get('Authorization')?.split('Bearer ')[1];
+    if (!authHeader) {
+      throw new Error('No authorization header');
     }
 
-    // Add meetings context
-    if (meetings.data) {
-      contextPrompt += '\nCalendar is connected.';
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
+    if (userError) throw userError;
+
+    if (!user) {
+      throw new Error('User not found');
     }
 
-    // Add emails context
-    if (emails.data && emails.data.length > 0) {
-      contextPrompt += `\nUnread emails: ${emails.data.length}`;
+    // Process files if any
+    let fileContent = '';
+    if (files && files.length > 0) {
+      fileContent = `Files attached: ${files.map(f => f.name).join(', ')}`;
     }
 
-    // Add file context if present
-    let fileContext = '';
-    if (fileContent && fileName) {
-      fileContext = `\nI'm sharing a file named "${fileName}" with the following content:\n\n${fileContent}\n\nPlease analyze this content and incorporate it into your response.`;
-    }
-
-    // Prepare the system prompt
-    const systemPrompt = `You are a helpful AI assistant focused on productivity and task management. 
-You have access to real-time information and can analyze files to provide accurate answers.
-Your responses should be clear, concise, and action-oriented.
-Current user context:${contextPrompt}${fileContext}`;
-
-    // Clean up response text by removing citations and references
-    const cleanResponse = (text: string) => {
-      return text
-        .replace(/\[\d+\]/g, '')
-        .replace(/References:[\s\S]*$/i, '')
-        .replace(/\[(\d+,?\s?)+\]/g, '')
-        .replace(/\s+/g, ' ')
-        .replace(/\s+([.,!?])/g, '$1')
-        .trim();
-    };
-
-    console.log('Calling Perplexity API with system prompt:', systemPrompt);
-
+    // Use Perplexity API for chat completion
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -112,7 +52,7 @@ Current user context:${contextPrompt}${fileContext}`;
         messages: [
           {
             role: 'system',
-            content: systemPrompt
+            content: `You are a helpful AI assistant. ${fileContent}`
           },
           {
             role: 'user',
@@ -121,29 +61,43 @@ Current user context:${contextPrompt}${fileContext}`;
         ],
         temperature: 0.7,
         max_tokens: 1000,
-        top_p: 1,
-        stream: false
       }),
     });
 
     if (!perplexityResponse.ok) {
-      const errorData = await perplexityResponse.text();
-      console.error('Perplexity API error:', errorData);
-      throw new Error(`Perplexity API error: ${errorData}`);
+      throw new Error(`Perplexity API error: ${await perplexityResponse.text()}`);
     }
 
-    const data = await perplexityResponse.json();
-    console.log('Perplexity response received:', data);
+    const aiResponse = await perplexityResponse.json();
+    const responseContent = aiResponse.choices[0].message.content;
 
-    const cleanedContent = cleanResponse(data.choices[0].message.content);
+    // Store the conversation in the database
+    const { error: chatError } = await supabase
+      .from('project_chat_history')
+      .insert([
+        {
+          project_id: projectId,
+          user_id: user.id,
+          message: message,
+          role: 'user'
+        },
+        {
+          project_id: projectId,
+          user_id: user.id,
+          message: responseContent,
+          role: 'assistant'
+        }
+      ]);
+
+    if (chatError) throw chatError;
 
     return new Response(
-      JSON.stringify({ response: cleanedContent }),
+      JSON.stringify({ response: responseContent }),
       { 
         headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       }
     );
 
@@ -154,10 +108,10 @@ Current user context:${contextPrompt}${fileContext}`;
       { 
         status: 500,
         headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        },
-      },
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 });

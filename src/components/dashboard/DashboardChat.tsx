@@ -22,17 +22,15 @@ export const DashboardChat = ({ projectId }: DashboardChatProps) => {
 
     setIsLoading(true);
     try {
-      const response = await fetch("/api/chat-with-data", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat-with-data', {
+        body: {
           message,
           files: uploadedFiles,
-          projectId, // Include projectId in the request
-        }),
+          projectId,
+        },
       });
 
-      if (!response.ok) throw new Error("Failed to send message");
+      if (error) throw error;
 
       setMessage("");
       setUploadedFiles([]);
