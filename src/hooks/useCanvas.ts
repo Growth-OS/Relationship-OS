@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fabric } from 'fabric';
-import { updateCanvasMode } from '@/components/board/utils/canvasOperations';
+import { initializeCanvas, updateCanvasMode } from '@/components/board/utils/canvasOperations';
 
 export const useCanvas = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const [fabricCanvas, setFabricCanvas] = useState<fabric.Canvas | null>(null);
@@ -11,15 +11,7 @@ export const useCanvas = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
-      width: window.innerWidth - 100,
-      height: window.innerHeight - 300,
-      backgroundColor: '#ffffff',
-      isDrawingMode: false,
-    });
-
-    canvas.freeDrawingBrush.width = 2;
-    canvas.freeDrawingBrush.color = '#000000';
+    const canvas = initializeCanvas(canvasRef.current);
 
     // Save initial state
     const initialState = JSON.stringify(canvas.toJSON());
@@ -51,9 +43,11 @@ export const useCanvas = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
     };
   }, [canvasRef]);
 
+  // Only update canvas mode when both fabricCanvas and activeTool are available
   useEffect(() => {
-    if (!fabricCanvas) return;
-    updateCanvasMode(fabricCanvas, activeTool);
+    if (fabricCanvas) {
+      updateCanvasMode(fabricCanvas, activeTool);
+    }
   }, [activeTool, fabricCanvas]);
 
   return {
