@@ -58,7 +58,7 @@ export const DashboardWeeklyTasks = () => {
 
   if (isLoading) {
     return (
-      <Card className="p-4 space-y-4">
+      <Card className="p-4 space-y-4 bg-background border">
         <div className="space-y-3">
           <Skeleton className="h-4 w-[200px]" />
           <Skeleton className="h-20 w-full" />
@@ -69,7 +69,7 @@ export const DashboardWeeklyTasks = () => {
   }
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 bg-background border h-[calc(100vh-16rem)] overflow-auto">
       <h2 className="text-lg font-semibold mb-4">
         This Week ({format(startDate, "MMM d")} - {format(endDate, "MMM d")})
       </h2>
@@ -77,7 +77,7 @@ export const DashboardWeeklyTasks = () => {
       <div className="space-y-6">
         {groupedTasks && Object.entries(groupedTasks).map(([source, sourceTasks]) => (
           <div key={source} className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <h3 className="text-sm font-medium text-muted-foreground">
               {getSourceTitle(source)}
             </h3>
             <div className="space-y-2">
@@ -95,7 +95,7 @@ export const DashboardWeeklyTasks = () => {
         ))}
         
         {(!tasks || tasks.length === 0) && (
-          <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-6 text-muted-foreground">
             No tasks due this week
           </div>
         )}

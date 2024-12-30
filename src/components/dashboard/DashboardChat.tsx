@@ -51,22 +51,22 @@ export const DashboardChat = ({
   };
 
   return (
-    <Card className="flex flex-col h-[calc(100vh-13rem)] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
-          <Bot className="w-5 h-5 text-gray-500" />
+    <Card className="flex flex-col h-[calc(100vh-16rem)] bg-background border">
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
+          <Bot className="w-5 h-5 text-muted-foreground" />
           AI Assistant
           <span className="w-2 h-2 bg-green-500 rounded-full ml-2 animate-pulse"></span>
         </h2>
       </div>
       
       <div 
-        className="flex-1 overflow-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-600" 
+        className="flex-1 overflow-auto p-6 space-y-6" 
         ref={scrollAreaRef}
       >
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400 space-y-4">
-            <Bot className="w-12 h-12 text-gray-400 animate-bounce" />
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground space-y-4">
+            <Bot className="w-12 h-12 animate-bounce" />
             <p className="text-center">
               Start a conversation with your AI assistant
             </p>
@@ -80,10 +80,10 @@ export const DashboardChat = ({
             } animate-fade-in`}
           >
             <div
-              className={`max-w-[85%] rounded-lg px-6 py-4 shadow-sm ${
+              className={`max-w-[85%] rounded-lg px-6 py-4 ${
                 message.role === 'user'
-                  ? 'bg-gray-900 text-white dark:bg-gray-700'
-                  : 'bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-white border border-gray-100 dark:border-gray-700'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground border'
               }`}
             >
               {message.role === 'user' ? (
@@ -98,7 +98,7 @@ export const DashboardChat = ({
         ))}
       </div>
       
-      <div className="border-t border-gray-200 dark:border-gray-700">
+      <div className="border-t">
         <div className="p-4">
           <div className="flex gap-3">
             <Input
@@ -107,13 +107,13 @@ export const DashboardChat = ({
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
               disabled={isLoading}
-              className="flex-1 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:ring-gray-500"
+              className="flex-1"
             />
             <Button 
               onClick={onSend} 
               disabled={isLoading}
               size="icon"
-              className="bg-gray-900 text-white hover:bg-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Send className="h-4 w-4" />
             </Button>

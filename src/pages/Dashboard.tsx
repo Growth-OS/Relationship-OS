@@ -129,12 +129,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 animate-fade-in">
+    <div className="flex flex-col gap-6">
       <DashboardHeader firstName={firstName} />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-6">
-          <div className="w-full max-w-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+        <div className="space-y-4">
+          <div className="bg-background rounded-lg p-4 border">
             <Select
               value={selectedProject || "general"}
               onValueChange={(value) => {
@@ -142,7 +142,7 @@ const Dashboard = () => {
                 setMessages([]);
               }}
             >
-              <SelectTrigger className="bg-white">
+              <SelectTrigger>
                 <SelectValue placeholder="Select a project chat" />
               </SelectTrigger>
               <SelectContent>
