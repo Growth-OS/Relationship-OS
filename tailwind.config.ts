@@ -19,46 +19,39 @@ export default {
     },
     extend: {
       colors: {
-        ivory: "#FFFFF3",
-        timberwolf: "#E4DAD1",
-        lion: "#CDA46F",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#CDA46F",
-          foreground: "#FFFFF3",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#E4DAD1",
-          foreground: "#000000",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
-          DEFAULT: "#E4DAD1",
-          foreground: "#666666",
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "#CDA46F",
-          foreground: "#FFFFF3",
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT: "#FFFFF3",
-          foreground: "#000000",
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "#FFFFF3",
-          foreground: "#000000",
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
         },
-      },
-      fontFamily: {
-        sans: ['Gramatika', 'sans-serif'],
-        display: ['Octave', 'serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,19 +82,15 @@ export default {
               textDecoration: 'none',
             },
             h1: {
-              fontFamily: 'Octave, serif',
               color: 'inherit',
             },
             h2: {
-              fontFamily: 'Octave, serif',
               color: 'inherit',
             },
             h3: {
-              fontFamily: 'Octave, serif',
               color: 'inherit',
             },
             h4: {
-              fontFamily: 'Octave, serif',
               color: 'inherit',
             },
           },
