@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, ListTodo, Mail } from "lucide-react";
+import { Calendar, ListTodo } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -53,32 +53,7 @@ export const DashboardActivity = () => {
     }
   });
 
-  const { data: recentEmails, isLoading: isLoadingEmails } = useQuery({
-    queryKey: ["recent-emails"],
-    queryFn: async () => {
-      console.log("Fetching recent emails...");
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log("Current user:", user?.id);
-      
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_read', false)
-        .order('received_at', { ascending: false })
-        .limit(5);
-      
-      if (error) {
-        console.error("Error fetching emails:", error);
-        throw error;
-      }
-      console.log("Fetched emails:", data);
-      return data;
-    }
-  });
-
   const pendingTasksCount = tasks?.length || 0;
-  const unreadEmailsCount = recentEmails?.length || 0;
 
   return (
     <Card className="p-6">
@@ -97,13 +72,6 @@ export const DashboardActivity = () => {
           subtitle={isLoadingTasks ? "Loading..." : `${pendingTasksCount} tasks due soon`}
           iconColor="gray"
           onClick={() => navigate('/tasks')}
-        />
-        <ActivityItem
-          icon={Mail}
-          title="Unread Emails"
-          subtitle={isLoadingEmails ? "Loading..." : `${unreadEmailsCount} new messages`}
-          iconColor="gray"
-          onClick={() => navigate('/emails')}
         />
       </div>
     </Card>
