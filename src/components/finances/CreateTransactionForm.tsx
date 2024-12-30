@@ -34,7 +34,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: initialData?.type || 'expense',
-      amount: initialData?.amount || '',
+      amount: initialData?.amount ? Number(initialData.amount) : undefined,
       description: initialData?.description || '',
       category: initialData?.category || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
