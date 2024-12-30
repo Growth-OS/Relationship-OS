@@ -3,14 +3,13 @@ import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
   Briefcase, UserPlus, Euro, FolderOpen,
-  Bug, FileText, ChartLine, ChartPie, Database
+  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
 export const SidebarNavigation = () => {
   const location = useLocation();
 
-  // Function to check if a path is active, considering nested routes
   const isPathActive = (path: string) => {
     if (path === "/dashboard") {
       return location.pathname === "/dashboard";
@@ -23,6 +22,7 @@ export const SidebarNavigation = () => {
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
+    { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
