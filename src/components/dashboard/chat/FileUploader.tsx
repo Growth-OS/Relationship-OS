@@ -26,7 +26,7 @@ export const FileUploader = ({ onUpload }: FileUploaderProps) => {
         ref={fileInputRef}
         onChange={handleFileChange}
         className="hidden"
-        accept=".txt,.md,.csv,.json"
+        accept=".txt,.md,.csv,.json,.pdf,.png,.jpg,.jpeg,.gif"
       />
       <Button
         variant="outline"
