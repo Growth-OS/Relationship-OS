@@ -35,6 +35,11 @@ export const MonthlyReport = () => {
 
       if (error) throw error;
 
+      if (!transactions || transactions.length === 0) {
+        toast.error('No transactions found for the previous month');
+        return;
+      }
+
       // Create PDF document
       const pdfDoc = await PDFDocument.create();
       const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
@@ -60,12 +65,12 @@ export const MonthlyReport = () => {
 
       // Calculate totals
       const totalIncome = transactions
-        ?.filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
 
       const totalExpenses = transactions
-        ?.filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + Number(t.amount), 0);
 
       const netIncome = totalIncome - totalExpenses;
 
@@ -104,7 +109,8 @@ export const MonthlyReport = () => {
       let yPosition = height - 80;
       const lineHeight = 20;
 
-      transactions?.forEach((transaction, index) => {
+      // Add transactions with attachments
+      for (const transaction of transactions) {
         // Add new page if needed
         if (yPosition < 50) {
           const newPage = pdfDoc.addPage();
@@ -113,7 +119,7 @@ export const MonthlyReport = () => {
 
         const transactionText = `${format(new Date(transaction.date), 'yyyy-MM-dd')} - ${
           transaction.type
-        } - €${transaction.amount.toFixed(2)} - ${transaction.description || 'No description'}`;
+        } - €${Number(transaction.amount).toFixed(2)} - ${transaction.description || 'No description'}`;
 
         transactionsPage.drawText(transactionText, {
           x: 50,
@@ -124,21 +130,54 @@ export const MonthlyReport = () => {
 
         yPosition -= lineHeight;
 
-        // List attachments if any
-        transaction.transaction_attachments?.forEach(async (attachment) => {
-          const attachmentText = `   • ${attachment.file_name}`;
-          yPosition -= lineHeight;
-          
-          transactionsPage.drawText(attachmentText, {
-            x: 70,
-            y: yPosition,
-            size: 10,
-            font: timesRomanFont,
-          });
-        });
+        // List and embed attachments if any
+        if (transaction.transaction_attachments && transaction.transaction_attachments.length > 0) {
+          for (const attachment of transaction.transaction_attachments) {
+            try {
+              // Download attachment
+              const { data: fileData, error: downloadError } = await supabase.storage
+                .from('financial_docs')
+                .download(attachment.file_path);
+
+              if (downloadError) throw downloadError;
+
+              // Convert attachment to bytes
+              const attachmentBytes = await fileData.arrayBuffer();
+
+              // Embed attachment in PDF
+              const attachmentPage = pdfDoc.addPage();
+              attachmentPage.drawText(`Attachment: ${attachment.file_name}`, {
+                x: 50,
+                y: height - 50,
+                size: 12,
+                font: boldFont,
+              });
+
+              attachmentPage.drawText(`For transaction: ${format(new Date(transaction.date), 'yyyy-MM-dd')} - ${transaction.description || 'No description'}`, {
+                x: 50,
+                y: height - 70,
+                size: 10,
+                font: timesRomanFont,
+              });
+
+              // List attachment in transaction page
+              transactionsPage.drawText(`   • ${attachment.file_name}`, {
+                x: 70,
+                y: yPosition,
+                size: 10,
+                font: timesRomanFont,
+              });
+
+              yPosition -= lineHeight;
+            } catch (error) {
+              console.error('Error processing attachment:', error);
+              // Continue with next attachment if one fails
+            }
+          }
+        }
 
         yPosition -= lineHeight;
-      });
+      }
 
       // Save the PDF
       const pdfBytes = await pdfDoc.save();
