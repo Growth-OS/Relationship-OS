@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Deal } from "@/integrations/supabase/types/deals";
+import { Deal, DealStage } from "@/integrations/supabase/types/deals";
 import { DropResult } from "@hello-pangea/dnd";
 
 export const useDealDragAndDrop = () => {
@@ -17,7 +17,7 @@ export const useDealDragAndDrop = () => {
         const { error } = await supabase
           .from('deals')
           .update({ 
-            stage: destination.droppableId,
+            stage: destination.droppableId as DealStage,
             last_activity_date: new Date().toISOString()
           })
           .eq('id', draggableId);
