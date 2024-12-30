@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar } from "lucide-react";
+import { FileText, Calendar, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { toast } from "sonner";
@@ -11,6 +11,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const MonthlyReport = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -206,6 +212,80 @@ export const MonthlyReport = () => {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setIsGenerating(true);
+      
+      // Get selected month's date range
+      const startDate = startOfMonth(selectedDate);
+      const endDate = endOfMonth(selectedDate);
+
+      // Fetch transactions with attachments
+      const { data: transactions, error } = await supabase
+        .from('financial_transactions')
+        .select(`
+          *,
+          transaction_attachments (
+            id,
+            file_name,
+            file_path
+          )
+        `)
+        .gte('date', startDate.toISOString())
+        .lte('date', endDate.toISOString())
+        .order('date', { ascending: true });
+
+      if (error) throw error;
+
+      // Prepare CSV data
+      const csvRows = [
+        ['Date', 'Type', 'Amount', 'Description', 'Category', 'Notes', 'Attachments']
+      ];
+
+      for (const transaction of transactions || []) {
+        const attachmentLinks = await Promise.all(
+          (transaction.transaction_attachments || []).map(async (attachment) => {
+            const { data } = await supabase.storage
+              .from('financial_docs')
+              .createSignedUrl(attachment.file_path, 60 * 60); // 1 hour expiry
+            return `${attachment.file_name}: ${data?.signedUrl}`;
+          })
+        );
+
+        csvRows.push([
+          format(new Date(transaction.date), 'yyyy-MM-dd'),
+          transaction.type,
+          transaction.amount.toString(),
+          transaction.description || '',
+          transaction.category || '',
+          transaction.notes || '',
+          attachmentLinks.join('\n')
+        ]);
+      }
+
+      // Convert to CSV
+      const csvContent = csvRows
+        .map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `finances_${format(selectedDate, 'yyyy-MM')}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('Export completed successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export transactions');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Popover>
@@ -225,14 +305,24 @@ export const MonthlyReport = () => {
         </PopoverContent>
       </Popover>
       
-      <Button 
-        variant="outline" 
-        onClick={generateReport} 
-        disabled={isGenerating}
-      >
-        <FileText className="h-4 w-4 mr-2" />
-        {isGenerating ? 'Generating...' : 'Generate Report'}
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={isGenerating}>
+            <FileText className="h-4 w-4 mr-2" />
+            {isGenerating ? 'Processing...' : 'Export'}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={generateReport}>
+            <FileText className="h-4 w-4 mr-2" />
+            Generate PDF Report
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export as CSV
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
