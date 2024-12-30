@@ -4,6 +4,9 @@ import { ProjectCredentials } from "./portal/ProjectCredentials";
 import { ProjectTasks } from "./portal/ProjectTasks";
 import { ProjectFiles } from "./portal/ProjectFiles";
 import { ProjectDetails } from "./portal/ProjectDetails";
+import { Badge } from "@/components/ui/badge";
+import { CalendarDays, DollarSign } from "lucide-react";
+import { format } from "date-fns";
 
 interface Project {
   id: string;
@@ -22,17 +25,63 @@ interface ProjectPortalProps {
   onClose: () => void;
 }
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "active":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "completed":
+      return "bg-blue-50 text-blue-700 border-blue-200";
+    case "on_hold":
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    default:
+      return "bg-gray-50 text-gray-700 border-gray-200";
+  }
+};
+
 export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) => {
   if (!project) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[80vh]">
-        <DialogHeader>
-          <DialogTitle>{project.name} - {project.client_name}</DialogTitle>
+        <DialogHeader className="space-y-4">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <DialogTitle className="text-xl font-semibold">{project.name}</DialogTitle>
+              <p className="text-sm text-muted-foreground">{project.client_name}</p>
+            </div>
+            <Badge className={`${getStatusColor(project.status)} border capitalize`}>
+              {project.status}
+            </Badge>
+          </div>
+          
+          <div className="flex items-center gap-6 pt-2 text-sm text-muted-foreground">
+            {project.budget && (
+              <div className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                <span className="font-medium">${project.budget.toLocaleString()}</span>
+              </div>
+            )}
+            {(project.start_date || project.end_date) && (
+              <div className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4" />
+                <span>
+                  {project.start_date && format(new Date(project.start_date), "MMM d, yyyy")}
+                  {project.end_date && ` - ${format(new Date(project.end_date), "MMM d, yyyy")}`}
+                </span>
+              </div>
+            )}
+          </div>
+          
+          {project.description && (
+            <p className="text-sm text-muted-foreground border-t pt-4">
+              {project.description}
+            </p>
+          )}
         </DialogHeader>
+
         <Tabs defaultValue="details" className="h-full">
-          <TabsList>
+          <TabsList className="w-full justify-start">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
