@@ -34,7 +34,6 @@ const Deals = () => {
     const { source, destination, draggableId } = result;
     
     if (source.droppableId !== destination.droppableId) {
-      // Update the deal's stage in Supabase
       const { error } = await supabase
         .from('deals')
         .update({ stage: destination.droppableId })
@@ -45,7 +44,6 @@ const Deals = () => {
         return;
       }
 
-      // Refetch deals to update the UI
       refetch();
     }
   };
@@ -59,8 +57,8 @@ const Deals = () => {
   }
 
   return (
-    <div className="space-y-6 h-[calc(100vh-4rem)] flex flex-col animate-fade-in">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+    <div className="space-y-4 h-[calc(100vh-4rem)] flex flex-col animate-fade-in">
+      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm sticky top-0 z-10">
         <div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-[#33C3F0] to-[#1EAEDB] bg-clip-text text-transparent">
             CRM Pipeline
@@ -86,14 +84,14 @@ const Deals = () => {
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-8 gap-4 flex-1 min-h-0 px-6">
+        <div className="grid grid-cols-8 gap-3 flex-1 min-h-0 px-4 pb-4 overflow-x-auto">
           {stages.map((stage) => {
             const stageDeals = deals.filter(deal => deal.stage === stage.id);
             const totalValue = stageDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);
             
             return (
-              <div key={stage.id} className="flex flex-col min-h-0 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
-                <div className="flex justify-between items-center mb-4">
+              <div key={stage.id} className="flex flex-col min-h-0 bg-white dark:bg-gray-800 rounded-lg shadow-sm min-w-[320px]">
+                <div className="flex justify-between items-center p-3 border-b">
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium text-sm">{stage.label}</h3>
                     <span className="text-xs px-2 py-1 rounded-full bg-[#E3F2FD] text-[#1EAEDB] font-medium">
@@ -106,11 +104,11 @@ const Deals = () => {
                 </div>
                 <Droppable droppableId={stage.id}>
                   {(provided) => (
-                    <ScrollArea className="flex-1">
+                    <ScrollArea className="flex-1 p-2">
                       <div 
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="space-y-3 pr-2"
+                        className="space-y-2"
                       >
                         {stageDeals.map((deal, index) => (
                           <Draggable 
@@ -123,11 +121,11 @@ const Deals = () => {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="p-4 hover:shadow-md transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1 min-w-[280px]"
+                                className="p-3 hover:shadow-md transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1"
                                 onClick={() => setEditingDeal(deal)}
                               >
                                 <div className="flex justify-between items-start mb-2">
-                                  <h4 className="font-medium text-sm">{deal.company_name}</h4>
+                                  <h4 className="font-medium text-sm line-clamp-2">{deal.company_name}</h4>
                                   <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <CreateTaskButton sourceId={deal.id} source="deals" variant="ghost" size="icon" />
                                     <Button 
@@ -150,7 +148,7 @@ const Deals = () => {
                                   <p className="text-xs text-muted-foreground mb-1">{deal.contact_job_title}</p>
                                 )}
                                 {deal.notes && (
-                                  <p className="text-xs text-muted-foreground line-clamp-3">{deal.notes}</p>
+                                  <p className="text-xs text-muted-foreground line-clamp-2">{deal.notes}</p>
                                 )}
                                 {deal.country && (
                                   <div className="flex items-center gap-1 mt-2">

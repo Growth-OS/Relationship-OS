@@ -10,7 +10,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-gray-900">
       <Sidebar />
       <main className="ml-64 w-[calc(100%-16rem)] min-h-screen dark:bg-gray-900">
-        <div className="max-w-[1200px] mx-auto px-6 py-8">
+        <div className="mx-auto px-4 py-6">
           {children}
         </div>
       </main>
