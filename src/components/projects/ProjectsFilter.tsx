@@ -7,9 +7,9 @@ interface ProjectsFilterProps {
 
 export const ProjectsFilter = ({ value, onChange }: ProjectsFilterProps) => {
   return (
-    <div className="w-[200px]">
+    <div className="w-[180px]">
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className="bg-background">
           <SelectValue placeholder="Filter by status" />
         </SelectTrigger>
         <SelectContent>

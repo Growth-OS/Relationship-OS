@@ -12,6 +12,7 @@ import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
 import { ProjectsSort } from "@/components/projects/ProjectsSort";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { ProjectStats } from "@/components/projects/ProjectStats";
+import { LayoutGrid, List, Kanban, Calendar } from "lucide-react";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -60,8 +61,8 @@ const Projects = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary mb-1">Projects</h1>
-          <p className="text-sm text-gray-600">Manage your client projects</p>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">Projects</h1>
+          <p className="text-sm text-muted-foreground mt-1">Manage and track your client projects</p>
         </div>
         <CreateProjectButton />
       </div>
@@ -79,24 +80,38 @@ const Projects = () => {
           </div>
 
           <Tabs defaultValue="grid" className="w-full">
-            <TabsList>
-              <TabsTrigger value="grid">Grid</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
-              <TabsTrigger value="kanban">Kanban</TabsTrigger>
-              <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="grid" className="flex items-center gap-2">
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden sm:inline">Grid</span>
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                <span className="hidden sm:inline">List</span>
+              </TabsTrigger>
+              <TabsTrigger value="kanban" className="flex items-center gap-2">
+                <Kanban className="h-4 w-4" />
+                <span className="hidden sm:inline">Kanban</span>
+              </TabsTrigger>
+              <TabsTrigger value="timeline" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">Timeline</span>
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="grid">
-              <ProjectsGrid projects={projects} isLoading={isLoading} />
-            </TabsContent>
-            <TabsContent value="list">
-              <ProjectsList projects={projects} isLoading={isLoading} />
-            </TabsContent>
-            <TabsContent value="kanban">
-              <ProjectsKanban projects={projects} isLoading={isLoading} />
-            </TabsContent>
-            <TabsContent value="timeline">
-              <ProjectsTimeline projects={projects} isLoading={isLoading} />
-            </TabsContent>
+            <div className="mt-6">
+              <TabsContent value="grid">
+                <ProjectsGrid projects={projects} isLoading={isLoading} />
+              </TabsContent>
+              <TabsContent value="list">
+                <ProjectsList projects={projects} isLoading={isLoading} />
+              </TabsContent>
+              <TabsContent value="kanban">
+                <ProjectsKanban projects={projects} isLoading={isLoading} />
+              </TabsContent>
+              <TabsContent value="timeline">
+                <ProjectsTimeline projects={projects} isLoading={isLoading} />
+              </TabsContent>
+            </div>
           </Tabs>
         </div>
       </Card>
