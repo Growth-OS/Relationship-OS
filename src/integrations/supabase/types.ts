@@ -766,20 +766,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "fk_task_deal"
-            columns: ["deal_id"]
-            isOneToOne: false
-            referencedRelation: "deals"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_task_substack"
-            columns: ["substack_post_id"]
-            isOneToOne: false
-            referencedRelation: "substack_posts"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "tasks_deal_id_fkey"
             columns: ["deal_id"]
             isOneToOne: false
