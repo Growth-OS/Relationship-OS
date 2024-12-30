@@ -17,16 +17,16 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
       control={form.control}
       name="files"
       render={({ field: { value, onChange, ...field } }) => (
-        <FormItem className="space-y-2">
+        <FormItem>
           <FormLabel>Attachments</FormLabel>
           {existingAttachments && existingAttachments.length > 0 && (
-            <div className="rounded-md border border-border bg-muted/50 p-3">
+            <div className="mb-3 rounded-md border border-border bg-muted/50 p-2.5">
               {existingAttachments.map((attachment) => (
                 <div 
                   key={attachment.file_path} 
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-2 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileIcon className="h-4 w-4" />
+                  <FileIcon className="h-4 w-4 flex-shrink-0" />
                   <span className="truncate">{attachment.file_name}</span>
                 </div>
               ))}

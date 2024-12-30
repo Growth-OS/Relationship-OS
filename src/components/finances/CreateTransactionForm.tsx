@@ -14,6 +14,7 @@ import { NotesField } from "./form-fields/NotesField";
 import { AttachmentField } from "./form-fields/AttachmentField";
 import { FinancialTransaction } from "@/integrations/supabase/types/finances";
 import { useQuery } from "@tanstack/react-query";
+import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -161,19 +162,27 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <TransactionTypeField form={form} />
-        <AmountField form={form} />
-        <DescriptionField form={form} />
-        <CategorySelect form={form} transactionType={form.watch('type')} />
-        <DateField form={form} />
-        <NotesField form={form} />
-        <AttachmentField form={form} existingAttachments={existingAttachments} />
-        <Button type="submit" className="w-full">
-          {initialData ? 'Update Transaction' : 'Add Transaction'}
-        </Button>
-      </form>
-    </Form>
+    <div className="space-y-6 py-2 px-1">
+      <DialogHeader>
+        <DialogTitle>
+          {initialData ? 'Edit Transaction' : 'Add Transaction'}
+        </DialogTitle>
+      </DialogHeader>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <TransactionTypeField form={form} />
+          <AmountField form={form} />
+          <DescriptionField form={form} />
+          <CategorySelect form={form} transactionType={form.watch('type')} />
+          <DateField form={form} />
+          <NotesField form={form} />
+          <AttachmentField form={form} existingAttachments={existingAttachments} />
+          <Button type="submit" className="w-full">
+            {initialData ? 'Update Transaction' : 'Add Transaction'}
+          </Button>
+        </form>
+      </Form>
+    </div>
   );
 };
