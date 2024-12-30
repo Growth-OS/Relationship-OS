@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTasks";
+import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { DashboardQuickActions } from "@/components/dashboard/DashboardQuickActions";
+import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
 
 const Dashboard = () => {
   const { data: user } = useQuery({
@@ -19,11 +22,19 @@ const Dashboard = () => {
                    'there';
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="space-y-6 animate-fade-in">
       <DashboardHeader firstName={firstName} />
       
-      <div className="grid grid-cols-1 gap-6 pb-6">
-        <DashboardWeeklyTasks />
+      <div className="grid gap-6">
+        <DashboardStats />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DashboardWeeklyTasks />
+          <div className="space-y-6">
+            <DashboardQuickActions />
+            <DashboardActivityChart />
+          </div>
+        </div>
       </div>
     </div>
   );
