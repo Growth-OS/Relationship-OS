@@ -28,7 +28,10 @@ serve(async (req) => {
     }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
-    if (userError) throw userError;
+    if (userError) {
+      console.error('User auth error:', userError);
+      throw userError;
+    }
 
     if (!user) {
       throw new Error('User not found');
@@ -41,10 +44,16 @@ serve(async (req) => {
     }
 
     // Use Perplexity API for chat completion
+    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
+    if (!perplexityApiKey) {
+      throw new Error('Perplexity API key not configured');
+    }
+
+    console.log('Calling Perplexity API...');
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('PERPLEXITY_API_KEY')}`,
+        'Authorization': `Bearer ${perplexityApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -65,31 +74,39 @@ serve(async (req) => {
     });
 
     if (!perplexityResponse.ok) {
-      throw new Error(`Perplexity API error: ${await perplexityResponse.text()}`);
+      const errorText = await perplexityResponse.text();
+      console.error('Perplexity API error:', errorText);
+      throw new Error(`Perplexity API error: ${errorText}`);
     }
 
     const aiResponse = await perplexityResponse.json();
     const responseContent = aiResponse.choices[0].message.content;
 
+    console.log('Storing conversation in database...');
     // Store the conversation in the database
     const { error: chatError } = await supabase
       .from('project_chat_history')
       .insert([
         {
-          project_id: projectId,
+          project_id: projectId?.startsWith('deal-') ? null : projectId,
+          deal_id: projectId?.startsWith('deal-') ? projectId.replace('deal-', '') : null,
           user_id: user.id,
           message: message,
           role: 'user'
         },
         {
-          project_id: projectId,
+          project_id: projectId?.startsWith('deal-') ? null : projectId,
+          deal_id: projectId?.startsWith('deal-') ? projectId.replace('deal-', '') : null,
           user_id: user.id,
           message: responseContent,
           role: 'assistant'
         }
       ]);
 
-    if (chatError) throw chatError;
+    if (chatError) {
+      console.error('Database error:', chatError);
+      throw chatError;
+    }
 
     return new Response(
       JSON.stringify({ response: responseContent }),
