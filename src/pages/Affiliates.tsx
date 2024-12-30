@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, HandshakeIcon } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
 import { StatsCards } from "@/components/affiliates/StatsCards";
 import { PartnersTable } from "@/components/affiliates/PartnersTable";
@@ -74,7 +74,7 @@ const Affiliates = () => {
       <div className="flex justify-between items-center">
         <div>
           <div className="flex items-center gap-2">
-            <HandshakeIcon className="w-8 h-8 text-primary" />
+            <Users className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold text-primary">Affiliate Partners</h1>
           </div>
           <p className="text-gray-600 mt-2">Manage your affiliate relationships and track performance</p>
