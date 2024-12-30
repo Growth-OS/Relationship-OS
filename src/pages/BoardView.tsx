@@ -45,44 +45,43 @@ const BoardView = () => {
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Board not found
         </h2>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <p className="text-gray-500 dark:text-gray-400 mt-2">
           The board you're looking for doesn't exist or you don't have access to it.
         </p>
+        <Button variant="outline" className="mt-4" onClick={handleBackClick}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Boards
+        </Button>
       </div>
     );
   }
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleBackClick}
-                className="mb-4"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Boards
-              </Button>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {board.name}
-              </h1>
-              {board.description && (
-                <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  {board.description}
-                </p>
-              )}
-              <div className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                Last edited: {new Date(board.last_edited_at).toLocaleDateString()}
-              </div>
-            </div>
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackClick}
+            className="hover:bg-transparent hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              {board.name}
+            </h1>
+            {board.description && (
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {board.description}
+              </p>
+            )}
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="bg-white dark:bg-gray-800/50 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
           <BoardCanvas />
         </div>
       </div>

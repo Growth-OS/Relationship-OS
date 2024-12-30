@@ -81,21 +81,21 @@ const Boards = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Brainstorming Boards</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Boards</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Create and manage your visual brainstorming sessions
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+            <Button>
               <Plus className="w-4 h-4 mr-2" />
               New Board
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Board</DialogTitle>
             </DialogHeader>
@@ -126,27 +126,29 @@ const Boards = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {boards.map((board) => (
           <div
             key={board.id}
             onClick={() => handleBoardClick(board.id)}
-            className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100 dark:border-gray-700"
+            className="group relative bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 dark:border-gray-700 hover:border-primary/20 dark:hover:border-primary/20"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{board.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary">
+              {board.name}
+            </h3>
             {board.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
                 {board.description}
               </p>
             )}
-            <div className="text-xs text-gray-500 dark:text-gray-400 mt-4">
+            <div className="text-xs text-gray-400 dark:text-gray-500 mt-4">
               Last edited {format(new Date(board.last_edited_at), 'MMM d, yyyy')}
             </div>
           </div>
         ))}
         {boards.length === 0 && (
-          <div className="col-span-full text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+            <p className="text-gray-500 dark:text-gray-400 text-center">
               No boards yet. Create your first board to get started!
             </p>
           </div>
