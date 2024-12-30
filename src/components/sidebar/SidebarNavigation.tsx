@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
-  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard
+  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, Sparkles
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -35,6 +35,12 @@ export const SidebarNavigation = () => {
       icon: MessageSquare, 
       label: "LinkedIn", 
       path: "https://www.linkedin.com/messaging/",
+      external: true 
+    },
+    { 
+      icon: Sparkles, 
+      label: "AI", 
+      path: "https://chat.openai.com",
       external: true 
     },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
