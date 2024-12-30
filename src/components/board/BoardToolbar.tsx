@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { addShape, addArrow, addText } from "./utils/canvasOperations";
 
 const SHAPE_COLORS = {
   purple: '#9b87f5',
@@ -47,49 +48,6 @@ export const BoardToolbar = ({
   handleRedo,
   handleDelete,
 }: BoardToolbarProps) => {
-  const addShape = (shape: 'rect' | 'circle', color: string) => {
-    if (!fabricCanvas) return;
-    
-    const commonProps = {
-      left: 100,
-      top: 100,
-      fill: color,
-      strokeWidth: 2,
-      stroke: '#4C1D95',
-    };
-
-    const object = shape === 'rect' 
-      ? new fabric.Rect({
-          ...commonProps,
-          width: 100,
-          height: 100,
-        })
-      : new fabric.Circle({
-          ...commonProps,
-          radius: 50,
-        });
-
-    fabricCanvas.add(object);
-    fabricCanvas.setActiveObject(object);
-    fabricCanvas.renderAll();
-  };
-
-  const addArrow = () => {
-    if (!fabricCanvas) return;
-    
-    const arrow = new fabric.Path('M 0 0 L 200 0 L 190 -10 M 200 0 L 190 10', {
-      left: 100,
-      top: 100,
-      stroke: '#4C1D95',
-      strokeWidth: 2,
-      fill: '',
-    });
-
-    fabricCanvas.add(arrow);
-    fabricCanvas.setActiveObject(arrow);
-    fabricCanvas.renderAll();
-  };
-
   return (
     <div className="flex flex-wrap gap-2 border-t pt-4">
       <BoardToolbarButton
@@ -122,7 +80,7 @@ export const BoardToolbar = ({
                 key={name}
                 className="w-8 h-8 rounded-full"
                 style={{ backgroundColor: color }}
-                onClick={() => addShape('rect', color)}
+                onClick={() => fabricCanvas && addShape(fabricCanvas, 'rect', color)}
               />
             ))}
           </div>
@@ -146,7 +104,7 @@ export const BoardToolbar = ({
                 key={name}
                 className="w-8 h-8 rounded-full"
                 style={{ backgroundColor: color }}
-                onClick={() => addShape('circle', color)}
+                onClick={() => fabricCanvas && addShape(fabricCanvas, 'circle', color)}
               />
             ))}
           </div>
@@ -156,25 +114,13 @@ export const BoardToolbar = ({
       <BoardToolbarButton
         icon={ArrowRight}
         tooltip="Add Arrow"
-        onClick={addArrow}
+        onClick={() => fabricCanvas && addArrow(fabricCanvas)}
       />
 
       <BoardToolbarButton
         icon={Type}
         tooltip="Add Text"
-        onClick={() => {
-          if (!fabricCanvas) return;
-          const text = new fabric.IText('Double click to edit', {
-            left: 100,
-            top: 100,
-            fontSize: 20,
-            fill: '#1F2937',
-            fontFamily: 'sans-serif',
-          });
-          fabricCanvas.add(text);
-          fabricCanvas.setActiveObject(text);
-          fabricCanvas.renderAll();
-        }}
+        onClick={() => fabricCanvas && addText(fabricCanvas)}
       />
       
       <BoardToolbarButton

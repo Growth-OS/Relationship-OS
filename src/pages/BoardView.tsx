@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 import { BoardToolbar } from "@/components/board/BoardToolbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { initializeCanvas, updateCanvasMode } from "@/components/board/utils/canvasOperations";
 
 type Board = Database["public"]["Tables"]["boards"]["Row"];
 
@@ -36,16 +37,8 @@ const BoardView = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const canvas = new fabric.Canvas(canvasRef.current, {
-      width: window.innerWidth - 100,
-      height: window.innerHeight - 300,
-      backgroundColor: '#ffffff',
-      isDrawingMode: false,
-    });
-
-    canvas.freeDrawingBrush.width = 2;
-    canvas.freeDrawingBrush.color = '#000000';
-
+    const canvas = initializeCanvas(canvasRef.current);
+    
     // Save initial state
     saveCanvasState(canvas);
 
@@ -74,22 +67,7 @@ const BoardView = () => {
 
   useEffect(() => {
     if (!fabricCanvas) return;
-    
-    // Update canvas mode based on active tool
-    fabricCanvas.isDrawingMode = activeTool === 'draw';
-    
-    // Update cursor and selection based on tool
-    if (activeTool === 'select') {
-      fabricCanvas.selection = true;
-      fabricCanvas.defaultCursor = 'default';
-      fabricCanvas.hoverCursor = 'move';
-    } else if (activeTool === 'draw') {
-      fabricCanvas.selection = false;
-      fabricCanvas.defaultCursor = 'crosshair';
-      fabricCanvas.hoverCursor = 'crosshair';
-    }
-    
-    fabricCanvas.renderAll();
+    updateCanvasMode(fabricCanvas, activeTool);
   }, [activeTool, fabricCanvas]);
 
   const saveCanvasState = (canvas: fabric.Canvas) => {
