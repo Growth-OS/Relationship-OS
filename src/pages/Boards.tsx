@@ -80,17 +80,17 @@ const Boards = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8">
       <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Brainstorming Boards</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Create and manage your brainstorming sessions
+            Create and manage your visual brainstorming sessions
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
               <Plus className="w-4 h-4 mr-2" />
               New Board
             </Button>
@@ -116,7 +116,7 @@ const Boards = () => {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter board description"
+                  placeholder="Enter board description (optional)"
                   rows={3}
                 />
               </div>
@@ -130,12 +130,14 @@ const Boards = () => {
         {boards.map((board) => (
           <div
             key={board.id}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => handleBoardClick(board.id)}
+            className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-gray-100 dark:border-gray-700"
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{board.name}</h3>
             {board.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">{board.description}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                {board.description}
+              </p>
             )}
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-4">
               Last edited {format(new Date(board.last_edited_at), 'MMM d, yyyy')}
@@ -144,7 +146,9 @@ const Boards = () => {
         ))}
         {boards.length === 0 && (
           <div className="col-span-full text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">No boards yet. Create your first board to get started!</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              No boards yet. Create your first board to get started!
+            </p>
           </div>
         )}
       </div>

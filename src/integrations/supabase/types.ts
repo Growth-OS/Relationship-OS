@@ -113,61 +113,9 @@ export type Database = {
         }
         Relationships: []
       }
-      board_elements: {
-        Row: {
-          board_id: string
-          content: Json
-          created_at: string
-          height: number | null
-          id: string
-          position_x: number
-          position_y: number
-          rotation: number | null
-          style: Json | null
-          type: Database["public"]["Enums"]["board_element_type"]
-          width: number | null
-          z_index: number | null
-        }
-        Insert: {
-          board_id: string
-          content: Json
-          created_at?: string
-          height?: number | null
-          id?: string
-          position_x: number
-          position_y: number
-          rotation?: number | null
-          style?: Json | null
-          type: Database["public"]["Enums"]["board_element_type"]
-          width?: number | null
-          z_index?: number | null
-        }
-        Update: {
-          board_id?: string
-          content?: Json
-          created_at?: string
-          height?: number | null
-          id?: string
-          position_x?: number
-          position_y?: number
-          rotation?: number | null
-          style?: Json | null
-          type?: Database["public"]["Enums"]["board_element_type"]
-          width?: number | null
-          z_index?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "board_elements_board_id_fkey"
-            columns: ["board_id"]
-            isOneToOne: false
-            referencedRelation: "boards"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       boards: {
         Row: {
+          canvas_data: Json | null
           created_at: string
           description: string | null
           id: string
@@ -176,6 +124,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          canvas_data?: Json | null
           created_at?: string
           description?: string | null
           id?: string
@@ -184,6 +133,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          canvas_data?: Json | null
           created_at?: string
           description?: string | null
           id?: string
