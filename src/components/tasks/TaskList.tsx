@@ -21,40 +21,36 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
   const { data: tasks = [], isLoading, error, refetch } = useQuery({
     queryKey: ["tasks", source, projectId, showArchived],
     queryFn: async () => {
-      try {
-        let query = supabase
-          .from("tasks")
-          .select("*, projects(id, name), deals(id, company_name), substack_posts(id, title)")
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error("User not authenticated");
 
-        if (source) {
-          query = query.eq("source", source);
-        }
+      let query = supabase
+        .from("tasks")
+        .select("*, projects(id, name), deals(id, company_name), substack_posts(id, title)");
 
-        if (projectId) {
-          query = query.eq("project_id", projectId);
-        }
-
-        if (!showArchived) {
-          query = query.eq("completed", false);
-        }
-
-        const { data, error } = await query
-          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
-          .order('due_date', { ascending: true });
-
-        if (error) {
-          console.error("Error fetching tasks:", error);
-          throw error;
-        }
-
-        return data || [];
-      } catch (err) {
-        console.error("Failed to fetch tasks:", err);
-        toast.error("Failed to load tasks. Please try again.");
-        throw err;
+      if (source) {
+        query = query.eq("source", source);
       }
+
+      if (projectId) {
+        query = query.eq("project_id", projectId);
+      }
+
+      if (!showArchived) {
+        query = query.eq("completed", false);
+      }
+
+      const { data, error } = await query
+        .eq('user_id', user.user.id)
+        .order('due_date', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching tasks:", error);
+        throw error;
+      }
+
+      return data || [];
     },
-    retry: 1,
   });
 
   const handleComplete = async (taskId: string, completed: boolean) => {
@@ -62,8 +58,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
       const { error } = await supabase
         .from("tasks")
         .update({ completed })
-        .eq("id", taskId)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq("id", taskId);
 
       if (error) {
         console.error("Error updating task:", error);
@@ -123,7 +118,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
                     handleComplete(task.id, checked as boolean);
                   }}
                   className="mt-1"
-                  onClick={(e) => e.stopPropagation()} // Prevent card click when clicking checkbox
+                  onClick={(e) => e.stopPropagation()}
                 />
                 <div className="flex-1">
                   <div className="flex items-start justify-between">
@@ -133,11 +128,12 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
                     )}>
                       {task.title}
                     </h3>
-                    <EditTaskDialog 
-                      task={task} 
-                      onUpdate={refetch}
-                      onClick={(e) => e.stopPropagation()} // Prevent card click when clicking edit
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <EditTaskDialog 
+                        task={task} 
+                        onUpdate={refetch}
+                      />
+                    </div>
                   </div>
                   {task.description && (
                     <p className="text-sm text-gray-600">{task.description}</p>
