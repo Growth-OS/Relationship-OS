@@ -355,6 +355,7 @@ export type Database = {
           company_email: string | null
           company_name: string
           created_at: string
+          deal_id: string | null
           due_date: string
           id: string
           invoice_number: string
@@ -376,6 +377,7 @@ export type Database = {
           company_email?: string | null
           company_name: string
           created_at?: string
+          deal_id?: string | null
           due_date: string
           id?: string
           invoice_number: string
@@ -397,6 +399,7 @@ export type Database = {
           company_email?: string | null
           company_name?: string
           created_at?: string
+          deal_id?: string | null
           due_date?: string
           id?: string
           invoice_number?: string
@@ -410,7 +413,15 @@ export type Database = {
           total?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       linkedin_messages: {
         Row: {

@@ -7,6 +7,7 @@ import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSectio
 import { ModuleFilter } from "@/components/reporting/ModuleFilter";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
 import { useState } from "react";
+import { ChartBarIcon } from "lucide-react";
 
 const Reporting = () => {
   const [selectedModule, setSelectedModule] = useState("all");
@@ -64,11 +65,18 @@ const Reporting = () => {
   const shouldShowFinances = selectedModule === 'all' || selectedModule === 'finances';
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-fade-in p-6 bg-[#FAFAFA] dark:bg-gray-900 min-h-screen">
+      <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-primary mb-1">Reporting</h1>
-          <p className="text-sm text-gray-600">Track and analyse your business metrics</p>
+          <div className="flex items-center gap-2">
+            <ChartBarIcon className="w-6 h-6 text-primary" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              Reporting Dashboard
+            </h1>
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            Track and analyse your business metrics
+          </p>
         </div>
         <ModuleFilter 
           value={selectedModule} 
@@ -76,27 +84,35 @@ const Reporting = () => {
         />
       </div>
 
-      {shouldShowDeals && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TotalDealValueCard totalDealValue={totalDealValue} />
-          <DealStageConversions />
-        </div>
-      )}
+      <div className="grid gap-6">
+        {shouldShowDeals && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TotalDealValueCard totalDealValue={totalDealValue} />
+            <DealStageConversions />
+          </div>
+        )}
 
-      {shouldShowProspects && (
-        <LeadsChartSection prospects={prospects} />
-      )}
-      
-      {shouldShowAffiliates && (
-        <MonthlyChartsSection 
-          prospects={prospects}
-          earnings={earnings || []}
-        />
-      )}
+        {shouldShowProspects && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <LeadsChartSection prospects={prospects} />
+          </div>
+        )}
+        
+        {shouldShowAffiliates && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <MonthlyChartsSection 
+              prospects={prospects}
+              earnings={earnings || []}
+            />
+          </div>
+        )}
 
-      {shouldShowFinances && (
-        <FinancialReporting />
-      )}
+        {shouldShowFinances && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <FinancialReporting />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
