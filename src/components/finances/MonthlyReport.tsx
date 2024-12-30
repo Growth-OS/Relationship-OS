@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Calendar, Download, Archive } from "lucide-react";
+import { Calendar, Archive } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { toast } from "sonner";
@@ -9,14 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { generatePDFReport } from "./exports/PDFExporter";
-import { exportToCSV } from "./exports/CSVExporter";
 import { generateZIPReport } from "./exports/ZIPExporter";
 
 export const MonthlyReport = () => {
@@ -45,43 +37,15 @@ export const MonthlyReport = () => {
     return transactions;
   };
 
-  const handleGenerateReport = async () => {
-    try {
-      setIsGenerating(true);
-      const transactions = await fetchTransactions();
-      await generatePDFReport(transactions, selectedDate);
-      toast.success('PDF report generated successfully');
-    } catch (error) {
-      console.error('Error generating report:', error);
-      toast.error('Failed to generate monthly report');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleGenerateZIP = async () => {
-    try {
-      setIsGenerating(true);
-      const transactions = await fetchTransactions();
-      await generateZIPReport(transactions, selectedDate);
-      toast.success('ZIP report with images generated successfully');
-    } catch (error) {
-      console.error('Error generating ZIP report:', error);
-      toast.error('Failed to generate ZIP report');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const handleExport = async () => {
     try {
       setIsGenerating(true);
       const transactions = await fetchTransactions();
-      await exportToCSV(transactions, selectedDate);
-      toast.success('CSV exported successfully');
+      await generateZIPReport(transactions, selectedDate);
+      toast.success('Report generated successfully');
     } catch (error) {
-      console.error('Export error:', error);
-      toast.error('Failed to export transactions');
+      console.error('Error generating report:', error);
+      toast.error('Failed to generate report');
     } finally {
       setIsGenerating(false);
     }
@@ -161,28 +125,15 @@ export const MonthlyReport = () => {
         </PopoverContent>
       </Popover>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={isGenerating} className="gap-2">
-            <FileText className="h-4 w-4" />
-            {isGenerating ? 'Processing...' : 'Export'}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="bg-background">
-          <DropdownMenuItem onClick={handleGenerateReport} className="cursor-pointer">
-            <FileText className="h-4 w-4 mr-2" />
-            Generate PDF Report
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleGenerateZIP} className="cursor-pointer">
-            <Archive className="h-4 w-4 mr-2" />
-            Export PDF + Images (ZIP)
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleExport} className="cursor-pointer">
-            <Download className="h-4 w-4 mr-2" />
-            Export as CSV
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button 
+        variant="outline" 
+        disabled={isGenerating} 
+        onClick={handleExport}
+        className="gap-2"
+      >
+        <Archive className="h-4 w-4" />
+        {isGenerating ? 'Processing...' : 'Export'}
+      </Button>
     </div>
   );
 };
