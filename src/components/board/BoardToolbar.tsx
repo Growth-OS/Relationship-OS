@@ -7,10 +7,26 @@ import {
   Undo2, 
   Redo2, 
   Trash2, 
-  Move 
+  Move,
+  ArrowRight,
 } from "lucide-react";
 import { BoardToolbarButton } from "./BoardToolbarButton";
 import { fabric } from "fabric";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
+const SHAPE_COLORS = {
+  purple: '#9b87f5',
+  blue: '#0EA5E9',
+  green: '#10B981',
+  yellow: '#F59E0B',
+  red: '#EF4444',
+  gray: '#6B7280',
+};
 
 interface BoardToolbarProps {
   fabricCanvas: fabric.Canvas | null;
@@ -31,6 +47,49 @@ export const BoardToolbar = ({
   handleRedo,
   handleDelete,
 }: BoardToolbarProps) => {
+  const addShape = (shape: 'rect' | 'circle', color: string) => {
+    if (!fabricCanvas) return;
+    
+    const commonProps = {
+      left: 100,
+      top: 100,
+      fill: color,
+      strokeWidth: 2,
+      stroke: '#4C1D95',
+    };
+
+    const object = shape === 'rect' 
+      ? new fabric.Rect({
+          ...commonProps,
+          width: 100,
+          height: 100,
+        })
+      : new fabric.Circle({
+          ...commonProps,
+          radius: 50,
+        });
+
+    fabricCanvas.add(object);
+    fabricCanvas.setActiveObject(object);
+    fabricCanvas.renderAll();
+  };
+
+  const addArrow = () => {
+    if (!fabricCanvas) return;
+    
+    const arrow = new fabric.Path('M 0 0 L 200 0 L 190 -10 M 200 0 L 190 10', {
+      left: 100,
+      top: 100,
+      stroke: '#4C1D95',
+      strokeWidth: 2,
+      fill: '',
+    });
+
+    fabricCanvas.add(arrow);
+    fabricCanvas.setActiveObject(arrow);
+    fabricCanvas.renderAll();
+  };
+
   return (
     <div className="flex flex-wrap gap-2 border-t pt-4">
       <BoardToolbarButton
@@ -45,43 +104,61 @@ export const BoardToolbar = ({
         onClick={() => setActiveTool('draw')}
         active={activeTool === 'draw'}
       />
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant={activeTool === 'rectangle' ? "secondary" : "ghost"}
+            size="icon"
+            className="relative"
+          >
+            <Square className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-32 bg-white">
+          <div className="grid grid-cols-3 gap-1 p-2">
+            {Object.entries(SHAPE_COLORS).map(([name, color]) => (
+              <button
+                key={name}
+                className="w-8 h-8 rounded-full"
+                style={{ backgroundColor: color }}
+                onClick={() => addShape('rect', color)}
+              />
+            ))}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant={activeTool === 'circle' ? "secondary" : "ghost"}
+            size="icon"
+            className="relative"
+          >
+            <Circle className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-32 bg-white">
+          <div className="grid grid-cols-3 gap-1 p-2">
+            {Object.entries(SHAPE_COLORS).map(([name, color]) => (
+              <button
+                key={name}
+                className="w-8 h-8 rounded-full"
+                style={{ backgroundColor: color }}
+                onClick={() => addShape('circle', color)}
+              />
+            ))}
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
       <BoardToolbarButton
-        icon={Square}
-        tooltip="Add Rectangle"
-        onClick={() => {
-          if (!fabricCanvas) return;
-          const rect = new fabric.Rect({
-            left: 100,
-            top: 100,
-            fill: '#8B5CF6',
-            width: 100,
-            height: 100,
-            strokeWidth: 2,
-            stroke: '#4C1D95',
-          });
-          fabricCanvas.add(rect);
-          fabricCanvas.setActiveObject(rect);
-          fabricCanvas.renderAll();
-        }}
+        icon={ArrowRight}
+        tooltip="Add Arrow"
+        onClick={addArrow}
       />
-      <BoardToolbarButton
-        icon={Circle}
-        tooltip="Add Circle"
-        onClick={() => {
-          if (!fabricCanvas) return;
-          const circle = new fabric.Circle({
-            left: 100,
-            top: 100,
-            fill: '#8B5CF6',
-            radius: 50,
-            strokeWidth: 2,
-            stroke: '#4C1D95',
-          });
-          fabricCanvas.add(circle);
-          fabricCanvas.setActiveObject(circle);
-          fabricCanvas.renderAll();
-        }}
-      />
+
       <BoardToolbarButton
         icon={Type}
         tooltip="Add Text"
@@ -99,12 +176,15 @@ export const BoardToolbar = ({
           fabricCanvas.renderAll();
         }}
       />
+      
       <BoardToolbarButton
         icon={Image}
         tooltip="Upload Image"
         onClick={handleImageUpload}
       />
+      
       <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+      
       <BoardToolbarButton
         icon={Undo2}
         tooltip="Undo"
@@ -115,7 +195,9 @@ export const BoardToolbar = ({
         tooltip="Redo"
         onClick={handleRedo}
       />
+      
       <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+      
       <BoardToolbarButton
         icon={Trash2}
         tooltip="Delete Selected"
