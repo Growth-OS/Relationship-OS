@@ -7,7 +7,6 @@ import Tasks from "@/pages/Tasks";
 import Deals from "@/pages/Deals";
 import Projects from "@/pages/Projects";
 import Calendar from "@/pages/Calendar";
-import Substack from "@/pages/Substack";
 import Affiliates from "@/pages/Affiliates";
 import Finances from "@/pages/Finances";
 import Reporting from "@/pages/Reporting";
@@ -50,10 +49,6 @@ export const routes: RouteObject[] = [
       {
         path: "calendar",
         element: <Calendar />,
-      },
-      {
-        path: "substack",
-        element: <Substack />,
       },
       {
         path: "affiliates",

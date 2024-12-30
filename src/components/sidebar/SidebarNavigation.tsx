@@ -1,8 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { 
-  Home, Calendar, ListTodo, Users, ChartBar, BookOpen, 
-  Briefcase, UserPlus, Euro, FolderOpen,
+  Home, Calendar, ListTodo, Users, ChartBar, Mail, 
+  Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
@@ -25,7 +25,18 @@ export const SidebarNavigation = () => {
     { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
-    { icon: BookOpen, label: "Substack", path: "/dashboard/substack" },
+    { 
+      icon: Mail, 
+      label: "Superhuman", 
+      path: "https://mail.superhuman.com/patrick@relationshipofsales.com",
+      external: true 
+    },
+    { 
+      icon: MessageSquare, 
+      label: "LinkedIn", 
+      path: "https://www.linkedin.com/messaging/",
+      external: true 
+    },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
@@ -43,7 +54,8 @@ export const SidebarNavigation = () => {
               icon={item.icon}
               label={item.label}
               path={item.path}
-              isActive={isPathActive(item.path)}
+              isActive={!item.external && isPathActive(item.path)}
+              external={item.external}
             />
           ))}
         </div>
