@@ -8,46 +8,56 @@ export const useCanvas = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
   const [undoStack, setUndoStack] = useState<string[]>([]);
   const [currentStateIndex, setCurrentStateIndex] = useState(-1);
 
+  // Initialize canvas
   useEffect(() => {
-    if (!canvasRef.current) return;
+    // Wait for the next frame to ensure DOM is ready
+    const timer = requestAnimationFrame(() => {
+      if (!canvasRef.current) return;
 
-    const canvas = initializeCanvas(canvasRef.current);
+      const canvas = initializeCanvas(canvasRef.current);
+      
+      if (!canvas) return;
 
-    // Save initial state
-    const initialState = JSON.stringify(canvas.toJSON());
-    setUndoStack([initialState]);
-    setCurrentStateIndex(0);
+      // Save initial state
+      const initialState = JSON.stringify(canvas.toJSON());
+      setUndoStack([initialState]);
+      setCurrentStateIndex(0);
 
-    // Add event listener for object modifications
-    canvas.on('object:modified', () => {
-      const json = JSON.stringify(canvas.toJSON());
-      setUndoStack(prev => [...prev.slice(0, currentStateIndex + 1), json]);
-      setCurrentStateIndex(prev => prev + 1);
-    });
-
-    setFabricCanvas(canvas);
-
-    const handleResize = () => {
-      canvas.setDimensions({
-        width: window.innerWidth - 100,
-        height: window.innerHeight - 300,
+      // Add event listener for object modifications
+      canvas.on('object:modified', () => {
+        const json = JSON.stringify(canvas.toJSON());
+        setUndoStack(prev => [...prev.slice(0, currentStateIndex + 1), json]);
+        setCurrentStateIndex(prev => prev + 1);
       });
-      canvas.renderAll();
-    };
 
-    window.addEventListener('resize', handleResize);
+      setFabricCanvas(canvas);
 
-    return () => {
-      canvas.dispose();
-      window.removeEventListener('resize', handleResize);
-    };
+      const handleResize = () => {
+        canvas.setDimensions({
+          width: window.innerWidth - 100,
+          height: window.innerHeight - 300,
+        });
+        canvas.renderAll();
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        cancelAnimationFrame(timer);
+        canvas.dispose();
+        window.removeEventListener('resize', handleResize);
+      };
+    });
   }, [canvasRef]);
 
-  // Only update canvas mode when both fabricCanvas and activeTool are available
+  // Update canvas mode
   useEffect(() => {
-    if (fabricCanvas) {
+    if (!fabricCanvas) return;
+    
+    // Ensure the canvas is ready before updating mode
+    requestAnimationFrame(() => {
       updateCanvasMode(fabricCanvas, activeTool);
-    }
+    });
   }, [activeTool, fabricCanvas]);
 
   return {

@@ -1,17 +1,24 @@
 import { fabric } from "fabric";
 
-export const initializeCanvas = (canvasElement: HTMLCanvasElement) => {
-  const canvas = new fabric.Canvas(canvasElement, {
-    width: window.innerWidth - 100,
-    height: window.innerHeight - 300,
-    backgroundColor: '#ffffff',
-    isDrawingMode: false,
-  });
+export const initializeCanvas = (canvasElement: HTMLCanvasElement): fabric.Canvas | null => {
+  try {
+    const canvas = new fabric.Canvas(canvasElement, {
+      width: window.innerWidth - 100,
+      height: window.innerHeight - 300,
+      backgroundColor: '#ffffff',
+      isDrawingMode: false,
+    });
 
-  canvas.freeDrawingBrush.width = 2;
-  canvas.freeDrawingBrush.color = '#000000';
+    if (!canvas) return null;
 
-  return canvas;
+    canvas.freeDrawingBrush.width = 2;
+    canvas.freeDrawingBrush.color = '#000000';
+
+    return canvas;
+  } catch (error) {
+    console.error('Error initializing canvas:', error);
+    return null;
+  }
 };
 
 export const addShape = (
@@ -91,19 +98,23 @@ export const updateCanvasMode = (
   canvas: fabric.Canvas, 
   tool: string
 ) => {
-  if (!canvas) return;
+  if (!canvas || !canvas.getContext()) return;
 
-  canvas.isDrawingMode = tool === 'draw';
-  
-  if (tool === 'select') {
-    canvas.selection = true;
-    canvas.defaultCursor = 'default';
-    canvas.hoverCursor = 'move';
-  } else if (tool === 'draw') {
-    canvas.selection = false;
-    canvas.defaultCursor = 'crosshair';
-    canvas.hoverCursor = 'crosshair';
+  try {
+    canvas.isDrawingMode = tool === 'draw';
+    
+    if (tool === 'select') {
+      canvas.selection = true;
+      canvas.defaultCursor = 'default';
+      canvas.hoverCursor = 'move';
+    } else if (tool === 'draw') {
+      canvas.selection = false;
+      canvas.defaultCursor = 'crosshair';
+      canvas.hoverCursor = 'crosshair';
+    }
+    
+    canvas.renderAll();
+  } catch (error) {
+    console.error('Error updating canvas mode:', error);
   }
-  
-  canvas.renderAll();
 };
