@@ -89,20 +89,20 @@ export const MonthlyReport = () => {
           />
         </PopoverContent>
       </Popover>
-      
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" disabled={isGenerating}>
-            <FileText className="h-4 w-4 mr-2" />
+          <Button variant="outline" disabled={isGenerating} className="gap-2">
+            <FileText className="h-4 w-4" />
             {isGenerating ? 'Processing...' : 'Export'}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleGenerateReport}>
+        <DropdownMenuContent align="end" className="bg-background">
+          <DropdownMenuItem onClick={handleGenerateReport} className="cursor-pointer">
             <FileText className="h-4 w-4 mr-2" />
             Generate PDF Report
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleExport}>
+          <DropdownMenuItem onClick={handleExport} className="cursor-pointer">
             <Download className="h-4 w-4 mr-2" />
             Export as CSV
           </DropdownMenuItem>
