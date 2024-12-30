@@ -18,6 +18,9 @@ const Boards = () => {
   const { data: boards = [], isLoading, refetch } = useQuery({
     queryKey: ['boards'],
     queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('boards')
         .select('*')
@@ -31,9 +34,19 @@ const Boards = () => {
   const handleCreateBoard = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        toast.error("You must be logged in to create a board");
+        return;
+      }
+
       const { error } = await supabase
         .from('boards')
-        .insert([{ name, description }]);
+        .insert([{ 
+          name, 
+          description,
+          user_id: user.user.id 
+        }]);
 
       if (error) throw error;
 
