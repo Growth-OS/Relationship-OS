@@ -40,7 +40,23 @@ serve(async (req) => {
     // Process files if any
     let fileContent = '';
     if (files && files.length > 0) {
-      fileContent = `Files attached: ${files.map(f => f.name).join(', ')}`;
+      console.log('Processing files:', files);
+      
+      // Download and analyze each file
+      for (const file of files) {
+        try {
+          const response = await fetch(file.url);
+          if (!response.ok) {
+            console.error('Failed to fetch file:', file.url);
+            continue;
+          }
+          
+          const content = await response.text();
+          fileContent += `\nFile ${file.name} content:\n${content}\n`;
+        } catch (error) {
+          console.error('Error processing file:', file.name, error);
+        }
+      }
     }
 
     // Use Perplexity API for chat completion
@@ -61,7 +77,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a helpful AI assistant. ${fileContent}`
+            content: `You are a helpful AI assistant. ${fileContent ? 'Please analyze the following file content and incorporate it into your response:' + fileContent : ''}`
           },
           {
             role: 'user',
