@@ -15,12 +15,9 @@ export const handleAttachment = async (
 
     if (downloadError) throw downloadError;
 
-    // Convert the blob to ArrayBuffer
-    const arrayBuffer = await fileData.arrayBuffer();
+    // Add attachment header
     const attachmentPage = pdfDoc.addPage();
     const { width, height } = attachmentPage.getSize();
-
-    // Add attachment header
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
@@ -48,9 +45,11 @@ export const handleAttachment = async (
     // Handle image embedding based on file type
     if (attachment.file_type?.startsWith('image/')) {
       try {
-        let image;
+        // Convert Blob to ArrayBuffer, then to Uint8Array
+        const arrayBuffer = await fileData.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
-
+        
+        let image;
         if (attachment.file_type === 'image/png') {
           image = await pdfDoc.embedPng(uint8Array);
         } else if (attachment.file_type === 'image/jpeg' || attachment.file_type === 'image/jpg') {
@@ -83,6 +82,13 @@ export const handleAttachment = async (
             y: yPosition,
             width: scaledWidth,
             height: scaledHeight,
+          });
+
+          // Add debug information
+          console.log('Image dimensions:', {
+            original: { width: imgDims.width, height: imgDims.height },
+            scaled: { width: scaledWidth, height: scaledHeight },
+            position: { x: xPosition, y: yPosition }
           });
         }
       } catch (imageError) {
