@@ -80,7 +80,7 @@ export const BoardCanvas = () => {
     
     const activeObjects = fabricCanvas.getActiveObjects();
     if (activeObjects.length > 0) {
-      activeObjects.forEach(obj => fabricCanvas.remove(obj));
+      fabricCanvas.remove(...activeObjects);
       fabricCanvas.discardActiveObject();
       fabricCanvas.renderAll();
       
@@ -89,6 +89,8 @@ export const BoardCanvas = () => {
       setCurrentStateIndex(prev => prev + 1);
       
       toast.success("Objects deleted");
+    } else {
+      toast.error("No objects selected");
     }
   };
 
