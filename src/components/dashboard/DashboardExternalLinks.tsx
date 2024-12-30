@@ -20,7 +20,7 @@ export const DashboardExternalLinks = () => {
     },
     {
       icon: Sparkles,
-      label: "ChatGPT",
+      label: "AI",
       href: "https://chat.openai.com",
     },
   ];
