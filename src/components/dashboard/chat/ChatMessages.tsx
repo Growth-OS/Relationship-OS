@@ -1,13 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Message } from "../types";
+import { useEffect } from "react";
 
 interface ChatMessagesProps {
   projectId: string | null;
 }
 
 export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
-  const { data: messages, error } = useQuery({
+  const { data: messages, error, refetch } = useQuery({
     queryKey: ['chat-messages', projectId],
     queryFn: async () => {
       try {
@@ -17,7 +18,6 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
           .order('created_at', { ascending: true });
 
         if (projectId) {
-          // If the projectId starts with 'deal-', it's a deal chat
           if (projectId.startsWith('deal-')) {
             const dealId = projectId.replace('deal-', '');
             query.eq('deal_id', dealId);
@@ -35,11 +35,7 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
           throw error;
         }
 
-        if (!data) {
-          return [];
-        }
-
-        return data.map(msg => ({
+        return data?.map(msg => ({
           ...msg,
           content: msg.message,
           role: msg.role as 'user' | 'assistant'
@@ -51,6 +47,34 @@ export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
     },
     enabled: true,
   });
+
+  // Subscribe to new messages
+  useEffect(() => {
+    const channel = supabase
+      .channel('chat_messages')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'project_chat_history',
+          filter: projectId 
+            ? projectId.startsWith('deal-')
+              ? `deal_id=eq.${projectId.replace('deal-', '')}`
+              : `project_id=eq.${projectId}`
+            : 'project_id=is.null,deal_id=is.null'
+        },
+        () => {
+          console.log('New message received, refetching...');
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, refetch]);
 
   if (error) {
     return (
