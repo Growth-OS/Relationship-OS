@@ -39,6 +39,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
       category: initialData?.category || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
       notes: initialData?.notes || '',
+      files: undefined, // Reset files field when editing
     },
   });
 

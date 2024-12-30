@@ -11,7 +11,7 @@ export const AttachmentField = ({ form }: AttachmentFieldProps) => {
     <FormField
       control={form.control}
       name="files"
-      render={({ field: { onChange, ...field } }) => (
+      render={({ field: { value, onChange, ...field } }) => (
         <FormItem>
           <FormLabel>Attachments (Optional)</FormLabel>
           <FormControl>
