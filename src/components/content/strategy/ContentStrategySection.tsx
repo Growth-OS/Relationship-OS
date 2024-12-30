@@ -15,12 +15,15 @@ interface ContentStrategy {
   target_audience: string | null;
   key_topics: string[];
   content_pillars: string[];
+  user_id: string;
 }
+
+type ContentStrategyInput = Omit<ContentStrategy, 'id' | 'user_id'>;
 
 export const ContentStrategySection = () => {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [strategy, setStrategy] = useState<Partial<ContentStrategy>>({
+  const [strategy, setStrategy] = useState<ContentStrategyInput>({
     title: "",
     description: "",
     target_audience: "",
@@ -43,20 +46,25 @@ export const ContentStrategySection = () => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (newStrategy: Partial<ContentStrategy>) => {
+    mutationFn: async (newStrategy: ContentStrategyInput) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No authenticated user");
+
+      const strategyWithUserId = {
+        ...newStrategy,
+        user_id: user.id,
+      };
 
       if (existingStrategy?.id) {
         const { error } = await supabase
           .from("content_strategy")
-          .update(newStrategy)
+          .update(strategyWithUserId)
           .eq("id", existingStrategy.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("content_strategy")
-          .insert([{ ...newStrategy, user_id: user.id }]);
+          .insert(strategyWithUserId);
         if (error) throw error;
       }
     },
@@ -77,13 +85,18 @@ export const ContentStrategySection = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
-    setStrategy(existingStrategy || {
-      title: "",
-      description: "",
-      target_audience: "",
-      key_topics: [],
-      content_pillars: [],
-    });
+    if (existingStrategy) {
+      const { id, user_id, ...rest } = existingStrategy;
+      setStrategy(rest);
+    } else {
+      setStrategy({
+        title: "",
+        description: "",
+        target_audience: "",
+        key_topics: [],
+        content_pillars: [],
+      });
+    }
   };
 
   const handleChange = (field: string, value: any) => {

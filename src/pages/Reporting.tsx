@@ -5,7 +5,6 @@ import { DealStageConversions } from "@/components/reporting/DealStageConversion
 import { LeadsChartSection } from "@/components/reporting/LeadsChartSection";
 import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSection";
 import { ModuleFilter } from "@/components/reporting/ModuleFilter";
-import { SubstackReporting } from "@/components/substack/reporting/SubstackReporting";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
 import { useState } from "react";
 
@@ -62,7 +61,6 @@ const Reporting = () => {
   const shouldShowDeals = selectedModule === 'all' || selectedModule === 'deals';
   const shouldShowProspects = selectedModule === 'all' || selectedModule === 'prospects';
   const shouldShowAffiliates = selectedModule === 'all' || selectedModule === 'affiliate';
-  const shouldShowSubstack = selectedModule === 'all' || selectedModule === 'substack';
   const shouldShowFinances = selectedModule === 'all' || selectedModule === 'finances';
 
   return (
@@ -94,10 +92,6 @@ const Reporting = () => {
           prospects={prospects}
           earnings={earnings || []}
         />
-      )}
-
-      {shouldShowSubstack && (
-        <SubstackReporting />
       )}
 
       {shouldShowFinances && (
