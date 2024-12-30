@@ -78,6 +78,7 @@ export const CreateDealForm = ({ onSuccess, initialData }: CreateDealFormProps) 
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent event bubbling
+    e.stopPropagation(); // Stop event propagation
     try {
       const { error } = await supabase
         .from('deals')
