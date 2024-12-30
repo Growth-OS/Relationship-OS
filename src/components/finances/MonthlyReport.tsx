@@ -1,22 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth } from "date-fns";
 import { toast } from "sonner";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 export const MonthlyReport = () => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const generateReport = async () => {
     try {
       setIsGenerating(true);
       
-      // Get previous month's date range
-      const previousMonth = subMonths(new Date(), 1);
-      const startDate = startOfMonth(previousMonth);
-      const endDate = endOfMonth(previousMonth);
+      // Get selected month's date range
+      const startDate = startOfMonth(selectedDate);
+      const endDate = endOfMonth(selectedDate);
 
       // Fetch transactions with attachments
       const { data: transactions, error } = await supabase
@@ -36,7 +42,7 @@ export const MonthlyReport = () => {
       if (error) throw error;
 
       if (!transactions || transactions.length === 0) {
-        toast.error('No transactions found for the previous month');
+        toast.error(`No transactions found for ${format(selectedDate, 'MMMM yyyy')}`);
         return;
       }
 
@@ -56,7 +62,7 @@ export const MonthlyReport = () => {
         font: boldFont,
       });
 
-      coverPage.drawText(format(previousMonth, 'MMMM yyyy'), {
+      coverPage.drawText(format(selectedDate, 'MMMM yyyy'), {
         x: 50,
         y: height - 140,
         size: 18,
@@ -185,7 +191,7 @@ export const MonthlyReport = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `financial_report_${format(previousMonth, 'yyyy-MM')}.pdf`;
+      link.download = `financial_report_${format(selectedDate, 'yyyy-MM')}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -201,13 +207,32 @@ export const MonthlyReport = () => {
   };
 
   return (
-    <Button 
-      variant="outline" 
-      onClick={generateReport} 
-      disabled={isGenerating}
-    >
-      <FileText className="h-4 w-4 mr-2" />
-      {isGenerating ? 'Generating...' : 'Monthly Report'}
-    </Button>
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="gap-2">
+            <Calendar className="h-4 w-4" />
+            {format(selectedDate, 'MMMM yyyy')}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <CalendarComponent
+            mode="single"
+            selected={selectedDate}
+            onSelect={(date) => date && setSelectedDate(date)}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      
+      <Button 
+        variant="outline" 
+        onClick={generateReport} 
+        disabled={isGenerating}
+      >
+        <FileText className="h-4 w-4 mr-2" />
+        {isGenerating ? 'Generating...' : 'Generate Report'}
+      </Button>
+    </div>
   );
 };
