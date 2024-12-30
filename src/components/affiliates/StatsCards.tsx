@@ -1,49 +1,63 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EuroIcon, Users, Percent } from "lucide-react";
+import { EuroIcon, Users, Percent, TrendingUp } from "lucide-react";
 
 type StatCardProps = {
   totalPartners: number;
   monthlyEarnings: number;
   avgCommission: string;
+  yearlyGrowth?: number;
 };
 
-export const StatsCards = ({ totalPartners, monthlyEarnings, avgCommission }: StatCardProps) => {
+export const StatsCards = ({ totalPartners, monthlyEarnings, avgCommission, yearlyGrowth = 0 }: StatCardProps) => {
   const stats = [
     {
-      title: "Total Partners",
+      title: "Active Partners",
       value: totalPartners.toString(),
-      trend: "Active partners",
+      trend: "Total partnerships",
       icon: Users,
       color: "text-blue-500",
+      bgColor: "bg-blue-50",
     },
     {
-      title: "Monthly Earnings",
+      title: "Monthly Revenue",
       value: `€${monthlyEarnings.toFixed(2)}`,
-      trend: "Current month",
+      trend: "Current month earnings",
       icon: EuroIcon,
-      color: "text-purple-500",
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-50",
     },
     {
       title: "Avg. Commission",
       value: avgCommission,
-      trend: "Industry avg: 25%",
+      trend: "Across all partners",
       icon: Percent,
+      color: "text-purple-500",
+      bgColor: "bg-purple-50",
+    },
+    {
+      title: "YoY Growth",
+      value: `${yearlyGrowth}%`,
+      trend: "Year over year",
+      icon: TrendingUp,
       color: "text-orange-500",
+      bgColor: "bg-orange-50",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index}>
+          <Card key={index} className="hover:shadow-md transition-shadow">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium text-gray-500">
                   {stat.title}
                 </CardTitle>
-                <Icon className={`w-4 h-4 ${stat.color}`} />
+                <div className={`p-2 rounded-full ${stat.bgColor}`}>
+                  <Icon className={`w-4 h-4 ${stat.color}`} />
+                </div>
               </div>
             </CardHeader>
             <CardContent>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, HandshakeIcon } from "lucide-react";
 import { AffiliateForm } from "@/components/affiliates/AffiliateForm";
 import { StatsCards } from "@/components/affiliates/StatsCards";
 import { PartnersTable } from "@/components/affiliates/PartnersTable";
@@ -66,16 +66,22 @@ const Affiliates = () => {
     `${(avgCommission / affiliates.length).toFixed(1)}%` : 
     "N/A";
 
+  // Calculate YoY growth (mock data for now)
+  const yearlyGrowth = 23.5; // This could be calculated from real data in the future
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">Affiliate Partners</h1>
-          <p className="text-gray-600">Manage your affiliate relationships and track performance</p>
+          <div className="flex items-center gap-2">
+            <HandshakeIcon className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">Affiliate Partners</h1>
+          </div>
+          <p className="text-gray-600 mt-2">Manage your affiliate relationships and track performance</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-secondary hover:bg-secondary/90">
+            <Button className="bg-primary hover:bg-primary/90">
               <Plus className="w-4 h-4 mr-2" />
               Add Partner
             </Button>
@@ -93,6 +99,7 @@ const Affiliates = () => {
         totalPartners={affiliates?.length ?? 0}
         monthlyEarnings={monthlyEarnings}
         avgCommission={avgCommissionRate}
+        yearlyGrowth={yearlyGrowth}
       />
 
       <Card>
