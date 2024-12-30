@@ -10,6 +10,14 @@ import { SidebarMenuItem } from "./SidebarMenuItem";
 export const SidebarNavigation = () => {
   const location = useLocation();
 
+  // Function to check if a path is active, considering nested routes
+  const isPathActive = (path: string) => {
+    if (path === "/dashboard") {
+      return location.pathname === "/dashboard";
+    }
+    return location.pathname.startsWith(path);
+  };
+
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
@@ -25,14 +33,6 @@ export const SidebarNavigation = () => {
     { icon: Bug, label: "Development", path: "/dashboard/development" },
   ];
 
-  const externalLinks = [
-    {
-      icon: Users,
-      label: "LinkedIn",
-      path: "https://www.linkedin.com/messaging/thread/2-Mjc2YWRjMTItZDM5My00MjBmLTk1NmItMzBhNzNkOThmMTE3XzAxMg==/",
-    }
-  ];
-
   return (
     <>
       <nav className="space-y-1 flex-1">
@@ -43,7 +43,7 @@ export const SidebarNavigation = () => {
               icon={item.icon}
               label={item.label}
               path={item.path}
-              isActive={location.pathname.startsWith(item.path)}
+              isActive={isPathActive(item.path)}
             />
           ))}
         </div>
