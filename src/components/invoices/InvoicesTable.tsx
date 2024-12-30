@@ -1,7 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, ChevronUp, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 interface Invoice {
   id: string;
@@ -29,11 +30,11 @@ interface InvoicesTableProps {
 }
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-800",
-  sent: "bg-blue-100 text-blue-800",
-  paid: "bg-green-100 text-green-800",
-  overdue: "bg-red-100 text-red-800",
-  cancelled: "bg-gray-100 text-gray-800",
+  draft: "bg-gray-100 text-gray-800 hover:bg-gray-200",
+  sent: "bg-blue-100 text-blue-800 hover:bg-blue-200",
+  paid: "bg-green-100 text-green-800 hover:bg-green-200",
+  overdue: "bg-red-100 text-red-800 hover:bg-red-200",
+  cancelled: "bg-gray-100 text-gray-800 hover:bg-gray-200",
 };
 
 const statusLabels = {
@@ -46,6 +47,8 @@ const statusLabels = {
 
 export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
   const queryClient = useQueryClient();
+  const [sortField, setSortField] = useState<keyof Invoice>('issue_date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const updateInvoiceStatus = async (invoiceId: string, newStatus: Invoice['status']) => {
     try {
@@ -63,6 +66,28 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
       toast.error("Failed to update invoice status");
     }
   };
+
+  const handleSort = (field: keyof Invoice) => {
+    setSortDirection(current => 
+      sortField === field 
+        ? current === 'asc' 
+          ? 'desc' 
+          : 'asc'
+        : 'asc'
+    );
+    setSortField(field);
+  };
+
+  const sortedInvoices = [...invoices].sort((a, b) => {
+    if (sortField === 'total') {
+      return sortDirection === 'asc' 
+        ? a[sortField] - b[sortField]
+        : b[sortField] - a[sortField];
+    }
+    return sortDirection === 'asc'
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   const handleDownload = async (invoiceId: string) => {
     try {
@@ -119,60 +144,96 @@ export const InvoicesTable = ({ invoices }: InvoicesTableProps) => {
     }
   };
 
+  const SortIcon = ({ field }: { field: keyof Invoice }) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? (
+      <ChevronUp className="h-4 w-4 inline-block ml-1" />
+    ) : (
+      <ChevronDown className="h-4 w-4 inline-block ml-1" />
+    );
+  };
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Invoice #</TableHead>
-          <TableHead>Client</TableHead>
-          <TableHead>Issue Date</TableHead>
-          <TableHead>Due Date</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices?.map((invoice) => (
-          <TableRow key={invoice.id}>
-            <TableCell>{invoice.invoice_number}</TableCell>
-            <TableCell>{invoice.client_name}</TableCell>
-            <TableCell>{format(new Date(invoice.issue_date), 'MMM d, yyyy')}</TableCell>
-            <TableCell>{format(new Date(invoice.due_date), 'MMM d, yyyy')}</TableCell>
-            <TableCell>€{invoice.total.toFixed(2)}</TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-auto p-0">
-                    <Badge className={statusColors[invoice.status]}>
-                      {statusLabels[invoice.status]}
-                    </Badge>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {Object.entries(statusLabels).map(([status, label]) => (
-                    <DropdownMenuItem
-                      key={status}
-                      onClick={() => updateInvoiceStatus(invoice.id, status as Invoice['status'])}
-                    >
-                      {label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-            <TableCell>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDownload(invoice.id)}
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-            </TableCell>
+    <div className="border rounded-lg">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/70"
+              onClick={() => handleSort('invoice_number')}
+            >
+              Invoice # <SortIcon field="invoice_number" />
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/70"
+              onClick={() => handleSort('client_name')}
+            >
+              Client <SortIcon field="client_name" />
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/70"
+              onClick={() => handleSort('issue_date')}
+            >
+              Issue Date <SortIcon field="issue_date" />
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/70"
+              onClick={() => handleSort('due_date')}
+            >
+              Due Date <SortIcon field="due_date" />
+            </TableHead>
+            <TableHead 
+              className="cursor-pointer hover:bg-muted/70 text-right"
+              onClick={() => handleSort('total')}
+            >
+              Amount <SortIcon field="total" />
+            </TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {sortedInvoices.map((invoice) => (
+            <TableRow key={invoice.id} className="hover:bg-muted/50">
+              <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
+              <TableCell>{invoice.client_name}</TableCell>
+              <TableCell>{format(new Date(invoice.issue_date), 'MMM d, yyyy')}</TableCell>
+              <TableCell>{format(new Date(invoice.due_date), 'MMM d, yyyy')}</TableCell>
+              <TableCell className="text-right font-medium">€{invoice.total.toFixed(2)}</TableCell>
+              <TableCell>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-auto p-0">
+                      <Badge className={statusColors[invoice.status]}>
+                        {statusLabels[invoice.status]}
+                      </Badge>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {Object.entries(statusLabels).map(([status, label]) => (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => updateInvoiceStatus(invoice.id, status as Invoice['status'])}
+                      >
+                        {label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDownload(invoice.id)}
+                >
+                  <Download className="h-4 w-4" />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
