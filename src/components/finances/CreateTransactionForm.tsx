@@ -12,6 +12,7 @@ import { DescriptionField } from "./form-fields/DescriptionField";
 import { DateField } from "./form-fields/DateField";
 import { NotesField } from "./form-fields/NotesField";
 import { AttachmentField } from "./form-fields/AttachmentField";
+import { FinancialTransaction } from "@/integrations/supabase/types/finances";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -25,14 +26,19 @@ const formSchema = z.object({
 
 interface CreateTransactionFormProps {
   onSuccess: () => void;
+  initialData?: FinancialTransaction;
 }
 
-export const CreateTransactionForm = ({ onSuccess }: CreateTransactionFormProps) => {
+export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransactionFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: 'expense',
-      date: new Date().toISOString().split('T')[0],
+      type: initialData?.type || 'expense',
+      amount: initialData?.amount?.toString() || '',
+      description: initialData?.description || '',
+      category: initialData?.category || '',
+      date: initialData?.date || new Date().toISOString().split('T')[0],
+      notes: initialData?.notes || '',
     },
   });
 
@@ -45,54 +51,70 @@ export const CreateTransactionForm = ({ onSuccess }: CreateTransactionFormProps)
         return;
       }
 
-      // Insert transaction
-      const { data: transaction, error: transactionError } = await supabase
-        .from('financial_transactions')
-        .insert({
-          user_id: user.id,
-          type: values.type,
-          amount: values.amount,
-          description: values.description,
-          category: values.category,
-          date: values.date,
-          notes: values.notes,
-        })
-        .select()
-        .single();
+      if (initialData) {
+        // Update existing transaction
+        const { error: transactionError } = await supabase
+          .from('financial_transactions')
+          .update({
+            type: values.type,
+            amount: values.amount,
+            description: values.description,
+            category: values.category,
+            date: values.date,
+            notes: values.notes,
+          })
+          .eq('id', initialData.id);
 
-      if (transactionError) throw transactionError;
-
-      // Handle file uploads
-      const files = (form.getValues('files') as FileList)?.[0];
-      if (files && transaction) {
-        const fileExt = files.name.split('.').pop();
-        const filePath = `${user.id}/${transaction.id}/${crypto.randomUUID()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('financial_docs')
-          .upload(filePath, files);
-
-        if (uploadError) throw uploadError;
-
-        // Save file metadata
-        const { error: attachmentError } = await supabase
-          .from('transaction_attachments')
+        if (transactionError) throw transactionError;
+      } else {
+        // Insert new transaction
+        const { data: transaction, error: transactionError } = await supabase
+          .from('financial_transactions')
           .insert({
-            transaction_id: transaction.id,
-            file_path: filePath,
-            file_name: files.name,
-            file_type: files.type,
-          });
+            user_id: user.id,
+            type: values.type,
+            amount: values.amount,
+            description: values.description,
+            category: values.category,
+            date: values.date,
+            notes: values.notes,
+          })
+          .select()
+          .single();
 
-        if (attachmentError) throw attachmentError;
+        if (transactionError) throw transactionError;
+
+        // Handle file uploads for new transactions
+        const files = (form.getValues('files') as FileList)?.[0];
+        if (files && transaction) {
+          const fileExt = files.name.split('.').pop();
+          const filePath = `${user.id}/${transaction.id}/${crypto.randomUUID()}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('financial_docs')
+            .upload(filePath, files);
+
+          if (uploadError) throw uploadError;
+
+          const { error: attachmentError } = await supabase
+            .from('transaction_attachments')
+            .insert({
+              transaction_id: transaction.id,
+              file_path: filePath,
+              file_name: files.name,
+              file_type: files.type,
+            });
+
+          if (attachmentError) throw attachmentError;
+        }
       }
 
-      toast.success('Transaction added successfully');
+      toast.success(initialData ? 'Transaction updated successfully' : 'Transaction added successfully');
       onSuccess();
       form.reset();
     } catch (error) {
-      console.error('Error adding transaction:', error);
-      toast.error('Error adding transaction');
+      console.error('Error with transaction:', error);
+      toast.error(initialData ? 'Error updating transaction' : 'Error adding transaction');
     }
   };
 
@@ -105,8 +127,10 @@ export const CreateTransactionForm = ({ onSuccess }: CreateTransactionFormProps)
         <CategorySelect form={form} transactionType={form.watch('type')} />
         <DateField form={form} />
         <NotesField form={form} />
-        <AttachmentField form={form} />
-        <Button type="submit" className="w-full">Add Transaction</Button>
+        {!initialData && <AttachmentField form={form} />}
+        <Button type="submit" className="w-full">
+          {initialData ? 'Update Transaction' : 'Add Transaction'}
+        </Button>
       </form>
     </Form>
   );
