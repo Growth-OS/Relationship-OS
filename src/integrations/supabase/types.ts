@@ -722,6 +722,7 @@ export type Database = {
         Row: {
           completed: boolean | null
           created_at: string
+          deal_id: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -729,12 +730,14 @@ export type Database = {
           project_id: string | null
           source: Database["public"]["Enums"]["task_source"] | null
           source_id: string | null
+          substack_post_id: string | null
           title: string
           user_id: string
         }
         Insert: {
           completed?: boolean | null
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -742,12 +745,14 @@ export type Database = {
           project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
+          substack_post_id?: string | null
           title: string
           user_id: string
         }
         Update: {
           completed?: boolean | null
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -755,15 +760,44 @@ export type Database = {
           project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
+          substack_post_id?: string | null
           title?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "fk_task_deal"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_task_substack"
+            columns: ["substack_post_id"]
+            isOneToOne: false
+            referencedRelation: "substack_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_substack_post_id_fkey"
+            columns: ["substack_post_id"]
+            isOneToOne: false
+            referencedRelation: "substack_posts"
             referencedColumns: ["id"]
           },
         ]

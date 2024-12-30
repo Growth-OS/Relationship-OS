@@ -26,7 +26,12 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
 
       let query = supabase
         .from("tasks")
-        .select("*, projects(id, name)")
+        .select(`
+          *,
+          projects(id, name),
+          deals(id, company_name),
+          substack_posts(id, title)
+        `)
         .eq('user_id', user.user.id);
 
       if (source) {
@@ -76,10 +81,10 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
   const handleTaskClick = (task: any) => {
     if (task.source === 'projects' && task.projects) {
       navigate(`/dashboard/projects?id=${task.projects.id}`);
-    } else if (task.source === 'deals') {
-      navigate(`/dashboard/deals?id=${task.source_id}`);
-    } else if (task.source === 'substack') {
-      navigate(`/dashboard/substack?id=${task.source_id}`);
+    } else if (task.source === 'deals' && task.deals) {
+      navigate(`/dashboard/deals?id=${task.deals.id}`);
+    } else if (task.source === 'substack' && task.substack_posts) {
+      navigate(`/dashboard/substack?id=${task.substack_posts.id}`);
     } else if (task.source === 'ideas') {
       navigate('/dashboard/development');
     }
