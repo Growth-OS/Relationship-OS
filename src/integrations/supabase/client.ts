@@ -28,12 +28,10 @@ export const supabase = createClient<Database>(
     db: {
       schema: 'public'
     },
-    // Add proper error handling
-    shouldThrowOnError: true,
   }
 );
 
-// Add error handling for auth state changes
+// Handle auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     // Clear any cached data if needed
@@ -45,12 +43,14 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
 });
 
-// Add a helper to check auth status
+// Helper to check auth status
 export const checkAuth = async () => {
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error) {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session;
+  } catch (error) {
     console.error('Error checking auth status:', error);
     throw error;
   }
-  return session;
 };
