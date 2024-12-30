@@ -32,11 +32,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         if (code && session) {
-          // Get the stored return path or default to calendar
+          // Get the stored return path or default to dashboard
           const storedPath = localStorage.getItem('oauth_return_path') || '/dashboard';
           localStorage.removeItem('oauth_return_path'); // Clean up
           navigate(storedPath, { replace: true });
-          return;
         }
       } catch (error) {
         console.error("Session check error:", error);
@@ -47,23 +46,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state change:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
-        localStorage.clear(); // Clear all local storage
+        localStorage.clear();
         navigate('/login', { replace: true });
         toast.success('Signed out successfully');
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session) {
-          setIsAuthenticated(true);
-          // Don't redirect if we're handling an OAuth callback
-          if (!window.location.search.includes('code=')) {
-            navigate('/dashboard', { replace: true });
-          }
-        } else {
-          setIsAuthenticated(false);
+      } else if (event === 'SIGNED_IN') {
+        setIsAuthenticated(true);
+        // Only navigate if we're not already on a valid route
+        if (location.pathname === '/login' || location.pathname === '/') {
+          navigate('/dashboard', { replace: true });
         }
       }
     });
@@ -71,13 +66,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, location]);
+  }, [navigate, location.pathname]);
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated && location.pathname !== '/login') {
     // Save the current location to redirect back after login
     const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
     return <Navigate to={`/login?returnTo=${returnPath}`} replace />;
