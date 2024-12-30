@@ -22,12 +22,12 @@ import { Button } from "@/components/ui/button";
 import { addShape, addArrow, addText } from "./utils/canvasOperations";
 
 const SHAPE_COLORS = {
-  purple: '#9b87f5',
-  blue: '#0EA5E9',
-  green: '#10B981',
-  yellow: '#F59E0B',
-  red: '#EF4444',
-  gray: '#6B7280',
+  purple: 'rgba(155, 135, 245, 0.5)',  // translucent purple
+  blue: 'rgba(14, 165, 233, 0.5)',     // translucent blue
+  green: 'rgba(16, 185, 129, 0.5)',    // translucent green
+  yellow: 'rgba(245, 158, 11, 0.5)',   // translucent yellow
+  red: 'rgba(239, 68, 68, 0.5)',       // translucent red
+  gray: 'rgba(107, 114, 128, 0.5)',    // translucent gray
 };
 
 interface BoardToolbarProps {

@@ -30,8 +30,9 @@ export const addShape = (
     left: 100,
     top: 100,
     fill: color,
-    strokeWidth: 2,
-    stroke: '#4C1D95',
+    strokeWidth: 1,
+    stroke: 'rgba(76, 29, 149, 0.3)', // translucent stroke
+    opacity: 1,
   };
 
   const object = shape === 'rect' 
