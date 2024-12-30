@@ -1,5 +1,6 @@
 import { RouteObject } from "react-router-dom";
 import Layout from "@/components/Layout";
+import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Prospects from "@/pages/Prospects";
 import Tasks from "@/pages/Tasks";
@@ -15,11 +16,16 @@ import Invoices from "@/pages/Invoices";
 import Boards from "@/pages/Boards";
 import BoardView from "@/pages/BoardView";
 import { Outlet } from "react-router-dom";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const routes: RouteObject[] = [
   {
+    path: "/login",
+    element: <Login />,
+  },
+  {
     path: "/dashboard",
-    element: <Layout><Outlet /></Layout>,
+    element: <AuthProvider><Layout><Outlet /></Layout></AuthProvider>,
     children: [
       {
         index: true,
