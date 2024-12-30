@@ -16,7 +16,7 @@ import { FinancialTransaction } from "@/integrations/supabase/types/finances";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
-  amount: z.string().min(1).transform(Number),
+  amount: z.coerce.number().min(0.01, "Amount must be greater than 0"),
   description: z.string().min(1),
   category: z.string().min(1),
   date: z.string().min(1),
@@ -34,7 +34,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
     resolver: zodResolver(formSchema),
     defaultValues: {
       type: initialData?.type || 'expense',
-      amount: initialData?.amount?.toString() || '',
+      amount: initialData?.amount || '',
       description: initialData?.description || '',
       category: initialData?.category || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
@@ -66,6 +66,30 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
           .eq('id', initialData.id);
 
         if (transactionError) throw transactionError;
+
+        // Handle file upload for edited transactions
+        const files = (form.getValues('files') as FileList)?.[0];
+        if (files) {
+          const fileExt = files.name.split('.').pop();
+          const filePath = `${user.id}/${initialData.id}/${crypto.randomUUID()}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('financial_docs')
+            .upload(filePath, files);
+
+          if (uploadError) throw uploadError;
+
+          const { error: attachmentError } = await supabase
+            .from('transaction_attachments')
+            .insert({
+              transaction_id: initialData.id,
+              file_path: filePath,
+              file_name: files.name,
+              file_type: files.type,
+            });
+
+          if (attachmentError) throw attachmentError;
+        }
       } else {
         // Insert new transaction
         const { data: transaction, error: transactionError } = await supabase
@@ -127,7 +151,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         <CategorySelect form={form} transactionType={form.watch('type')} />
         <DateField form={form} />
         <NotesField form={form} />
-        {!initialData && <AttachmentField form={form} />}
+        <AttachmentField form={form} />
         <Button type="submit" className="w-full">
           {initialData ? 'Update Transaction' : 'Add Transaction'}
         </Button>
