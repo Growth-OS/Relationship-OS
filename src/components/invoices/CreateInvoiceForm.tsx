@@ -90,7 +90,7 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       const { items, deal_id, ...invoiceData } = calculatedData;
 
       // Create invoice first
-      const { data: invoiceData: newInvoice, error: invoiceError } = await supabase
+      const { data: newInvoice, error: invoiceError } = await supabase
         .from('invoices')
         .insert({
           ...invoiceData,
