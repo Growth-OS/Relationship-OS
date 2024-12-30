@@ -7,31 +7,52 @@ interface ChatMessagesProps {
 }
 
 export const ChatMessages = ({ projectId }: ChatMessagesProps) => {
-  const { data: messages } = useQuery({
+  const { data: messages, error } = useQuery({
     queryKey: ['chat-messages', projectId],
     queryFn: async () => {
-      const query = supabase
-        .from('project_chat_history')
-        .select('*')
-        .order('created_at', { ascending: true });
+      try {
+        const query = supabase
+          .from('project_chat_history')
+          .select('*')
+          .order('created_at', { ascending: true });
 
-      if (projectId) {
-        query.eq('project_id', projectId);
-      } else {
-        query.is('project_id', null);
+        if (projectId) {
+          query.eq('project_id', projectId);
+        } else {
+          query.is('project_id', null);
+        }
+
+        const { data, error } = await query;
+        
+        if (error) {
+          console.error('Supabase query error:', error);
+          throw error;
+        }
+
+        if (!data) {
+          return [];
+        }
+
+        return data.map(msg => ({
+          ...msg,
+          content: msg.message,
+          role: msg.role as 'user' | 'assistant'
+        })) as Message[];
+      } catch (err) {
+        console.error('Error fetching messages:', err);
+        throw err;
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      return data.map(msg => ({
-        ...msg,
-        content: msg.message, // Map the message field to content
-        role: msg.role as 'user' | 'assistant'
-      })) as Message[];
     },
-    enabled: true, // Always fetch messages, even for general chat
+    enabled: true,
   });
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full text-destructive">
+        Error loading messages. Please try again later.
+      </div>
+    );
+  }
 
   if (!messages?.length) {
     return (
