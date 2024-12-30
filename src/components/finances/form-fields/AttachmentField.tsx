@@ -17,14 +17,17 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
       control={form.control}
       name="files"
       render={({ field: { value, onChange, ...field } }) => (
-        <FormItem>
+        <FormItem className="space-y-2">
           <FormLabel>Attachments</FormLabel>
           {existingAttachments && existingAttachments.length > 0 && (
-            <div className="mb-2 space-y-1">
+            <div className="rounded-md border border-border bg-muted/50 p-3">
               {existingAttachments.map((attachment) => (
-                <div key={attachment.file_path} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div 
+                  key={attachment.file_path} 
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
                   <FileIcon className="h-4 w-4" />
-                  <span>{attachment.file_name}</span>
+                  <span className="truncate">{attachment.file_name}</span>
                 </div>
               ))}
             </div>
@@ -34,6 +37,7 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
               type="file"
               accept="image/*,.pdf"
               onChange={(e) => onChange(e.target.files)}
+              className="cursor-pointer file:cursor-pointer"
               {...field}
             />
           </FormControl>
