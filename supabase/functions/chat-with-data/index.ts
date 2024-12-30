@@ -19,8 +19,8 @@ serve(async (req) => {
       throw new Error('Method not allowed');
     }
 
-    const { message, userId } = await req.json();
-    console.log('Received request:', { message, userId });
+    const { message, userId, projectId, fileContent, fileName } = await req.json();
+    console.log('Received request:', { message, userId, projectId, fileName });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -76,24 +76,25 @@ serve(async (req) => {
       contextPrompt += `\nUnread emails: ${emails.data.length}`;
     }
 
+    // Add file context if present
+    let fileContext = '';
+    if (fileContent && fileName) {
+      fileContext = `\nI'm sharing a file named "${fileName}" with the following content:\n\n${fileContent}\n\nPlease analyze this content and incorporate it into your response.`;
+    }
+
     // Prepare the system prompt
     const systemPrompt = `You are a helpful AI assistant focused on productivity and task management. 
-You have access to real-time information and can browse the web to provide accurate answers.
+You have access to real-time information and can analyze files to provide accurate answers.
 Your responses should be clear, concise, and action-oriented.
-Current user context:${contextPrompt}`;
+Current user context:${contextPrompt}${fileContext}`;
 
     // Clean up response text by removing citations and references
     const cleanResponse = (text: string) => {
       return text
-        // Remove numbered citations [1], [2], etc.
         .replace(/\[\d+\]/g, '')
-        // Remove reference lists that might appear at the end
         .replace(/References:[\s\S]*$/i, '')
-        // Remove any remaining square brackets with numbers
         .replace(/\[(\d+,?\s?)+\]/g, '')
-        // Clean up any double spaces created by removing citations
         .replace(/\s+/g, ' ')
-        // Clean up any spaces before punctuation
         .replace(/\s+([.,!?])/g, '$1')
         .trim();
     };
@@ -134,7 +135,6 @@ Current user context:${contextPrompt}`;
     const data = await perplexityResponse.json();
     console.log('Perplexity response received:', data);
 
-    // Clean the response before sending it back
     const cleanedContent = cleanResponse(data.choices[0].message.content);
 
     return new Response(

@@ -13,6 +13,7 @@ const Dashboard = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [currentFile, setCurrentFile] = useState<{ content: string; name: string } | null>(null);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -53,18 +54,32 @@ const Dashboard = () => {
     enabled: !!selectedProject
   });
 
-  // Update messages when chat history changes
   useEffect(() => {
     if (chatHistory) {
       setMessages(chatHistory);
     } else {
-      setMessages([]); // Clear messages when no project is selected
+      setMessages([]);
     }
   }, [chatHistory]);
 
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 
                    user?.email?.split('@')[0] || 
                    'there';
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const content = e.target?.result as string;
+        setCurrentFile({ content, name: file.name });
+        toast.success(`File "${file.name}" loaded and ready for analysis`);
+      };
+      reader.readAsText(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      toast.error('Failed to read file. Please try again.');
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -78,7 +93,6 @@ const Dashboard = () => {
     setMessages(prev => [...prev, newMessage]);
     
     try {
-      // Save user message
       if (selectedProject) {
         await supabase.from("project_chat_history").insert({
           project_id: selectedProject,
@@ -92,7 +106,9 @@ const Dashboard = () => {
         body: {
           message: input,
           userId: user.id,
-          projectId: selectedProject
+          projectId: selectedProject,
+          fileContent: currentFile?.content,
+          fileName: currentFile?.name
         },
       });
 
@@ -105,7 +121,6 @@ const Dashboard = () => {
         };
         setMessages(prev => [...prev, assistantMessage]);
 
-        // Save assistant message
         if (selectedProject) {
           await supabase.from("project_chat_history").insert({
             project_id: selectedProject,
@@ -115,6 +130,9 @@ const Dashboard = () => {
           });
         }
       }
+
+      // Clear the current file after processing
+      setCurrentFile(null);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to get a response. Please try again.');
@@ -162,6 +180,8 @@ const Dashboard = () => {
             isLoading={isLoading}
             onInputChange={setInput}
             onSend={handleSendMessage}
+            onFileUpload={handleFileUpload}
+            currentFile={currentFile}
           />
         </div>
 

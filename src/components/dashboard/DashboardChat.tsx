@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Bot } from "lucide-react";
+import { Send, Bot, FileUp, X } from "lucide-react";
 import { useRef, useEffect } from "react";
 import { Message } from "./types";
 
@@ -9,18 +9,23 @@ interface DashboardChatProps {
   messages: Message[];
   input: string;
   isLoading: boolean;
+  currentFile: { content: string; name: string } | null;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  onFileUpload: (file: File) => void;
 }
 
 export const DashboardChat = ({ 
   messages, 
   input, 
   isLoading, 
+  currentFile,
   onInputChange, 
   onSend,
+  onFileUpload,
 }: DashboardChatProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -28,18 +33,24 @@ export const DashboardChat = ({
     }
   }, [messages]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onFileUpload(file);
+    }
+    // Reset the input
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
   const formatMessage = (content: string) => {
-    // Enhanced formatting for better readability
     const formattedContent = content
-      // Headers with proper spacing
       .replace(/### (.*?)(?=\n|$)/g, '<h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mt-8 mb-4">$1</h3>')
       .replace(/#### (.*?)(?=\n|$)/g, '<h4 class="text-lg font-medium text-gray-800 dark:text-gray-200 mt-6 mb-3">$1</h4>')
-      // Bold text
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-medium text-gray-900 dark:text-gray-100">$1</strong>')
-      // List items with proper spacing and bullets
       .replace(/- (.*?)(?=\n|$)/g, '<li class="flex items-start mb-3"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 mt-2 mr-3 flex-shrink-0"></span><span class="text-gray-700 dark:text-gray-300">$1</span></li>')
       .replace(/<li.*?<\/li>\n/g, match => `<ul class="my-4 space-y-2 ml-2">${match}</ul>`)
-      // Paragraphs with proper spacing
       .split('\n\n').join('</p><p class="mb-4 text-gray-700 dark:text-gray-300">');
 
     return (
@@ -99,10 +110,39 @@ export const DashboardChat = ({
       </div>
       
       <div className="border-t">
-        <div className="p-4">
+        <div className="p-4 space-y-4">
+          {currentFile && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 p-2 rounded-md">
+              <FileUp className="h-4 w-4" />
+              <span className="flex-1 truncate">{currentFile.name}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-4 w-4 text-muted-foreground hover:text-foreground"
+                onClick={() => onFileUpload(new File([], ""))}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
           <div className="flex gap-3">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept=".txt,.md,.csv,.json"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+            >
+              <FileUp className="h-4 w-4" />
+            </Button>
             <Input
-              placeholder="Ask about your tasks, or get help..."
+              placeholder="Ask about your tasks, analyze files, or get help..."
               value={input}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && onSend()}
