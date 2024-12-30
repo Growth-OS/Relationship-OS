@@ -29,7 +29,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         .select(`
           *,
           projects(id, name),
-          deals(id, company_name),
+          deals!tasks_deal_id_fkey(id, company_name),
           substack_posts(id, title)
         `)
         .eq('user_id', user.user.id);
