@@ -8,6 +8,7 @@ export const handleAttachment = async (
   transaction: any
 ) => {
   try {
+    // Download the file from Supabase storage
     const { data: fileData, error: downloadError } = await supabase.storage
       .from('financial_docs')
       .download(attachment.file_path);
@@ -19,8 +20,8 @@ export const handleAttachment = async (
     const { width, height } = attachmentPage.getSize();
 
     // Add attachment header
-    const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-    const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
     attachmentPage.drawText(`Attachment: ${attachment.file_name}`, {
       x: 50,
@@ -29,17 +30,24 @@ export const handleAttachment = async (
       font: boldFont,
     });
 
-    attachmentPage.drawText(`For transaction: ${format(new Date(transaction.date), 'yyyy-MM-dd')} - ${transaction.description || 'No description'}`, {
+    attachmentPage.drawText(`Transaction Date: ${format(new Date(transaction.date), 'dd/MM/yyyy')}`, {
       x: 50,
       y: height - 70,
       size: 10,
-      font: timesRomanFont,
+      font: regularFont,
     });
 
-    // Handle image embedding
+    attachmentPage.drawText(`Description: ${transaction.description || 'No description'}`, {
+      x: 50,
+      y: height - 90,
+      size: 10,
+      font: regularFont,
+    });
+
+    // Handle image embedding based on file type
     if (attachment.file_type?.startsWith('image/')) {
-      let image;
       try {
+        let image;
         if (attachment.file_type === 'image/png') {
           image = await pdfDoc.embedPng(attachmentBytes);
         } else if (attachment.file_type === 'image/jpeg' || attachment.file_type === 'image/jpg') {
@@ -47,42 +55,40 @@ export const handleAttachment = async (
         }
 
         if (image) {
-          const imgDims = image.scale(0.5);
-          const maxWidth = width - 100;
-          const maxHeight = height - 150;
+          // Calculate dimensions to fit within page while maintaining aspect ratio
+          const maxWidth = width - 100; // 50px margin on each side
+          const maxHeight = height - 150; // Space for header and margins
           
-          let imgWidth = imgDims.width;
-          let imgHeight = imgDims.height;
+          const imgDims = image.scale(1); // Get original dimensions
+          let scaledWidth = imgDims.width;
+          let scaledHeight = imgDims.height;
 
-          // Calculate dimensions to fit within page
-          if (imgWidth > maxWidth) {
-            const scale = maxWidth / imgWidth;
-            imgWidth *= scale;
-            imgHeight *= scale;
-          }
-          if (imgHeight > maxHeight) {
-            const scale = maxHeight / imgHeight;
-            imgWidth *= scale;
-            imgHeight *= scale;
-          }
+          // Calculate scale to fit within page bounds
+          const widthScale = maxWidth / scaledWidth;
+          const heightScale = maxHeight / scaledHeight;
+          const scale = Math.min(widthScale, heightScale, 1); // Don't upscale images
 
-          // Center the image horizontally
-          const xPosition = (width - imgWidth) / 2;
-          
+          scaledWidth *= scale;
+          scaledHeight *= scale;
+
+          // Center the image on the page
+          const xPosition = (width - scaledWidth) / 2;
+          const yPosition = height - 120 - scaledHeight; // Position below the header
+
           attachmentPage.drawImage(image, {
             x: xPosition,
-            y: height - 120 - imgHeight,
-            width: imgWidth,
-            height: imgHeight,
+            y: yPosition,
+            width: scaledWidth,
+            height: scaledHeight,
           });
         }
       } catch (imageError) {
         console.error('Error embedding image:', imageError);
         attachmentPage.drawText('Error: Could not embed image', {
           x: 50,
-          y: height - 100,
+          y: height - 120,
           size: 10,
-          font: timesRomanFont,
+          font: regularFont,
           color: rgb(1, 0, 0),
         });
       }
