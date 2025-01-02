@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 interface StepFormValues {
   step_type: "email" | "linkedin";
@@ -49,6 +50,7 @@ export const AddStepDialog = ({ open, onOpenChange, onSubmit }: AddStepDialogPro
   const handleSubmit = (values: StepFormValues) => {
     onSubmit(values);
     form.reset();
+    toast.success("Step added successfully - a task will be created when this step is due");
   };
 
   return (

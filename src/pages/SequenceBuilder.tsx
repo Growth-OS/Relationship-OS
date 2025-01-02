@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { AddStepDialog } from "@/components/sequences/AddStepDialog";
 import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
+import { addDays, format } from "date-fns";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
@@ -41,7 +42,8 @@ const SequenceBuilder = () => {
     }) => {
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
       
-      const { data, error } = await supabase
+      // First create the sequence step
+      const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
           sequence_id: sequenceId,
@@ -50,14 +52,31 @@ const SequenceBuilder = () => {
           message_template: values.message_template,
           delay_days: values.delay_days,
           preferred_time: values.preferred_time,
+        })
+        .select()
+        .single();
+
+      if (stepError) throw stepError;
+
+      // Then create a task for this step
+      const dueDate = addDays(new Date(), values.delay_days);
+      const { error: taskError } = await supabase
+        .from("tasks")
+        .insert({
+          title: `${values.step_type === 'email' ? 'Send email' : 'Send LinkedIn message'} for sequence "${sequence?.name}" - Step ${nextStepNumber}`,
+          description: `Action required: ${values.message_template}\n\nPreferred time: ${values.preferred_time || 'Any time'}`,
+          due_date: format(dueDate, 'yyyy-MM-dd'),
+          source: 'other',
+          priority: 'medium',
         });
 
-      if (error) throw error;
-      return data;
+      if (taskError) throw taskError;
+
+      return stepData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });
-      toast.success("Step added successfully");
+      toast.success("Step added successfully and task created");
       setIsAddStepOpen(false);
     },
     onError: (error) => {
