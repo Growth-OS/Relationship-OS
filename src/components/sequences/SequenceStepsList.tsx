@@ -1,7 +1,7 @@
 interface SequenceStep {
   id: string;
   step_number: number;
-  step_type: "email" | "linkedin";
+  step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
   message_template: string;
   delay_days: number;
   preferred_time?: string;
@@ -12,6 +12,17 @@ interface SequenceStepsListProps {
 }
 
 export const SequenceStepsList = ({ steps }: SequenceStepsListProps) => {
+  const getStepTypeDisplay = (stepType: SequenceStep["step_type"]) => {
+    const displayMap = {
+      email_1: "Email 1",
+      email_2: "Email 2",
+      linkedin_connection: "LinkedIn Connection Request",
+      linkedin_message_1: "LinkedIn Message 1",
+      linkedin_message_2: "LinkedIn Message 2"
+    };
+    return displayMap[stepType];
+  };
+
   return (
     <div className="space-y-4">
       {steps?.length === 0 ? (
@@ -23,7 +34,7 @@ export const SequenceStepsList = ({ steps }: SequenceStepsListProps) => {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-medium">Step {step.step_number}</h3>
-                  <p className="text-sm text-muted-foreground capitalize">{step.step_type}</p>
+                  <p className="text-sm text-muted-foreground">{getStepTypeDisplay(step.step_type)}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {step.delay_days} day{step.delay_days !== 1 ? 's' : ''} delay

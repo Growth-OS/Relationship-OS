@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 interface StepFormValues {
-  step_type: "email" | "linkedin";
+  step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
   message_template: string;
   delay_days: number;
   preferred_time?: string;
@@ -41,7 +41,7 @@ interface AddStepDialogProps {
 export const AddStepDialog = ({ open, onOpenChange, onSubmit }: AddStepDialogProps) => {
   const form = useForm<StepFormValues>({
     defaultValues: {
-      step_type: "email",
+      step_type: "email_1",
       message_template: "",
       delay_days: 1,
     },
@@ -77,8 +77,11 @@ export const AddStepDialog = ({ open, onOpenChange, onSubmit }: AddStepDialogPro
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="linkedin">LinkedIn Message</SelectItem>
+                      <SelectItem value="email_1">Email 1</SelectItem>
+                      <SelectItem value="email_2">Email 2</SelectItem>
+                      <SelectItem value="linkedin_connection">LinkedIn Connection Request</SelectItem>
+                      <SelectItem value="linkedin_message_1">LinkedIn Message 1</SelectItem>
+                      <SelectItem value="linkedin_message_2">LinkedIn Message 2</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
