@@ -820,6 +820,13 @@ export type Database = {
             foreignKeyName: "sequence_assignments_prospect_id_fkey"
             columns: ["prospect_id"]
             isOneToOne: true
+            referencedRelation: "prospect_sequence_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_assignments_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: true
             referencedRelation: "prospects"
             referencedColumns: ["id"]
           },
@@ -1258,6 +1265,26 @@ export type Database = {
           total_amount: number | null
           transaction_count: number | null
           type: Database["public"]["Enums"]["transaction_type"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      prospect_sequence_info: {
+        Row: {
+          company_name: string | null
+          completed_at: string | null
+          contact_email: string | null
+          contact_job_title: string | null
+          contact_linkedin: string | null
+          created_at: string | null
+          current_step: number | null
+          id: string | null
+          notes: string | null
+          paused_at: string | null
+          sequence_name: string | null
+          sequence_status: string | null
+          source: Database["public"]["Enums"]["lead_source"] | null
+          status: string | null
           user_id: string | null
         }
         Relationships: []
