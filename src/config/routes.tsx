@@ -15,6 +15,7 @@ import Development from "@/pages/Development";
 import Invoices from "@/pages/Invoices";
 import Boards from "@/pages/Boards";
 import BoardView from "@/pages/BoardView";
+import Sequences from "@/pages/Sequences";
 import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
@@ -34,6 +35,10 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: "sequences",
+        element: <Sequences />,
       },
       {
         path: "prospects",
