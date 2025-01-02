@@ -10,7 +10,9 @@ interface Sequence {
   name: string;
   status: string;
   created_at: string;
-  sequence_steps: { count: number };
+  sequence_steps: {
+    count: number;
+  }[];
   sequence_assignments: {
     id: string;
     status: string;
@@ -79,7 +81,7 @@ export const SequencesList = ({ sequences, isLoading }: SequencesListProps) => {
                 </Badge>
               </TableCell>
               <TableCell>
-                {sequence.sequence_steps.count} / 5
+                {sequence.sequence_steps.reduce((total, step) => total + step.count, 0)} / 5
               </TableCell>
               <TableCell>
                 {sequence.sequence_assignments.length} prospects
