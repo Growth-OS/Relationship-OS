@@ -18,7 +18,7 @@ export const DashboardStats = () => {
     },
   });
 
-  const { data: activeDeals, isLoading: isLoadingDeals } = useQuery({
+  const { data: activeDeals = 0, isLoading: isLoadingDeals } = useQuery({
     queryKey: ["active-deals", user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
@@ -35,7 +35,7 @@ export const DashboardStats = () => {
     enabled: !!user?.id,
   });
 
-  const { data: activeProjects, isLoading: isLoadingProjects } = useQuery({
+  const { data: activeProjects = 0, isLoading: isLoadingProjects } = useQuery({
     queryKey: ["active-projects", user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
@@ -51,7 +51,7 @@ export const DashboardStats = () => {
     enabled: !!user?.id,
   });
 
-  const { data: completedTasks, isLoading: isLoadingTasks } = useQuery({
+  const { data: completedTasks = 0, isLoading: isLoadingTasks } = useQuery({
     queryKey: ["completed-tasks", user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
@@ -67,7 +67,7 @@ export const DashboardStats = () => {
     enabled: !!user?.id,
   });
 
-  const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
+  const { data: monthlyRevenue = 0, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ["monthly-revenue", user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;
@@ -126,7 +126,7 @@ export const DashboardStats = () => {
     {
       icon: DollarSign,
       label: "Monthly Revenue",
-      value: isLoadingRevenue ? "..." : `$${monthlyRevenue.toLocaleString()}`,
+      value: isLoadingRevenue ? "..." : `$${monthlyRevenue?.toLocaleString() || '0'}`,
       iconBg: "bg-amber-100",
       iconColor: "text-amber-600",
       darkIconBg: "bg-amber-900/50",
