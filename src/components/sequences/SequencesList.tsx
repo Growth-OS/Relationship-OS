@@ -11,7 +11,7 @@ interface SequencesListProps {
   isLoading: boolean;
 }
 
-export const SequencesList = ({ sequences, isLoading }: SequencesListProps) => {
+export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -64,10 +64,10 @@ export const SequencesList = ({ sequences, isLoading }: SequencesListProps) => {
                 </Badge>
               </TableCell>
               <TableCell>
-                {sequence.sequence_steps.reduce((total, step) => total + step.count, 0)} / {sequence.max_steps}
+                {(sequence.sequence_steps?.reduce((total, step) => total + (step.count || 0), 0) || 0)} / {sequence.max_steps || 5}
               </TableCell>
               <TableCell>
-                {sequence.sequence_assignments.length} prospects
+                {sequence.sequence_assignments?.length || 0} prospects
               </TableCell>
               <TableCell>
                 {formatDistanceToNow(new Date(sequence.created_at), { addSuffix: true })}

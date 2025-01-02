@@ -6,14 +6,14 @@ interface SequenceStatsProps {
   sequences: Sequence[];
 }
 
-export const SequenceStats = ({ sequences }: SequenceStatsProps) => {
-  const activeSequences = sequences.filter((s) => s.status === "active").length;
-  const pausedSequences = sequences.filter((s) => s.status === "paused").length;
-  const completedSequences = sequences.filter((s) => s.status === "completed").length;
-  const totalProspects = sequences.reduce(
-    (sum, s) => sum + s.sequence_assignments.length,
+export const SequenceStats = ({ sequences = [] }: SequenceStatsProps) => {
+  const activeSequences = sequences?.filter((s) => s.status === "active").length || 0;
+  const pausedSequences = sequences?.filter((s) => s.status === "paused").length || 0;
+  const completedSequences = sequences?.filter((s) => s.status === "completed").length || 0;
+  const totalProspects = sequences?.reduce(
+    (sum, s) => sum + (s.sequence_assignments?.length || 0),
     0
-  );
+  ) || 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
