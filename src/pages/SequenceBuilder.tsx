@@ -10,6 +10,16 @@ import { useState } from "react";
 import { addDays, format } from "date-fns";
 import { StepType, SequenceStep } from "@/components/sequences/types";
 
+interface DatabaseSequenceStep {
+  id: string;
+  created_at: string;
+  sequence_id: string;
+  step_number: number;
+  step_type: "email" | "linkedin";
+  message_template: string;
+  delay_days: number;
+}
+
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
   const queryClient = useQueryClient();
@@ -33,7 +43,7 @@ const SequenceBuilder = () => {
 
       // Map database step types to frontend step types
       if (data.sequence_steps) {
-        data.sequence_steps = data.sequence_steps.map((step: any) => ({
+        data.sequence_steps = data.sequence_steps.map((step: DatabaseSequenceStep): SequenceStep => ({
           ...step,
           step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number)
         }));
@@ -112,7 +122,7 @@ const SequenceBuilder = () => {
       return {
         ...stepData,
         step_type: mapDbStepTypeToFrontend(dbStepType, nextStepNumber)
-      };
+      } as SequenceStep;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });
