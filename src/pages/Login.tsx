@@ -29,7 +29,7 @@ const Login = () => {
             <img 
               src="/lovable-uploads/673a2307-b663-4a8c-bd7a-77a6f37cd05c.png"
               alt="Relationship OS Logo"
-              className="h-12 w-auto"
+              className="h-14 w-auto"
             />
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-white">
