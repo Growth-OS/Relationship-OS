@@ -30,7 +30,6 @@ interface StepFormValues {
   step_type: StepType;
   message_template: string;
   delay_days: number;
-  preferred_time?: string;
 }
 
 interface AddStepDialogProps {
@@ -112,30 +111,13 @@ export const AddStepDialog = ({ open, onOpenChange, onSubmit }: AddStepDialogPro
               name="delay_days"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Delay (days)</FormLabel>
+                  <FormLabel>Delay from sequence start (days)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min="0"
                       {...field}
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="preferred_time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Preferred Time (optional)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="time"
-                      {...field}
                     />
                   </FormControl>
                   <FormMessage />

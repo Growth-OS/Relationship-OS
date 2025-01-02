@@ -4,7 +4,6 @@ interface SequenceStep {
   step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
   message_template: string;
   delay_days: number;
-  preferred_time?: string;
 }
 
 interface SequenceStepsListProps {
@@ -37,8 +36,7 @@ export const SequenceStepsList = ({ steps }: SequenceStepsListProps) => {
                   <p className="text-sm text-muted-foreground">{getStepTypeDisplay(step.step_type)}</p>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {step.delay_days} day{step.delay_days !== 1 ? 's' : ''} delay
-                  {step.preferred_time && ` at ${step.preferred_time}`}
+                  {step.delay_days} day{step.delay_days !== 1 ? 's' : ''} from sequence start
                 </div>
               </div>
               <div className="mt-2 text-sm whitespace-pre-wrap">{step.message_template}</div>

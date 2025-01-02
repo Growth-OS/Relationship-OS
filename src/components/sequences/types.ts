@@ -6,7 +6,6 @@ export interface SequenceStep {
   step_type: StepType;
   message_template: string;
   delay_days: number;
-  preferred_time?: string;
 }
 
 export interface Sequence {
