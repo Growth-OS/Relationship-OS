@@ -34,7 +34,7 @@ export const CreateSequenceButton = () => {
         .insert({
           name: data.name,
           description: data.description,
-          status: 'active',
+          status: 'active' as const,
           max_steps: 5,
           user_id: user.id
         });
