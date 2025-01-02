@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, !!session);
       
       if (event === 'SIGNED_OUT') {
@@ -56,6 +56,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         toast.success('Signed out successfully');
       } else if (event === 'SIGNED_IN') {
         setIsAuthenticated(true);
+        await checkSession(); // Recheck session when signed in
         // Only navigate if we're not already on a valid route
         if (location.pathname === '/login' || location.pathname === '/') {
           navigate('/dashboard', { replace: true });

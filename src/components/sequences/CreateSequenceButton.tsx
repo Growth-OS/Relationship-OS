@@ -22,16 +22,22 @@ export const CreateSequenceButton = () => {
 
   const onSubmit = async (data: CreateSequenceForm) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to create a sequence');
+        return;
+      }
+
       const { error } = await supabase
         .from('sequences')
-        .insert([
-          {
-            name: data.name,
-            description: data.description,
-            status: 'active',
-            max_steps: 5
-          }
-        ]);
+        .insert({
+          name: data.name,
+          description: data.description,
+          status: 'active',
+          max_steps: 5,
+          user_id: user.id
+        });
 
       if (error) throw error;
 

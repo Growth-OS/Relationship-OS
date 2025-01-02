@@ -9,52 +9,68 @@ export const DashboardStats = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const { data: activeDeals, isLoading: isLoadingDeals } = useQuery({
-    queryKey: ["active-deals"],
+  const { data: user } = useQuery({
+    queryKey: ['user'],
     queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      return user;
+    },
+  });
+
+  const { data: activeDeals, isLoading: isLoadingDeals } = useQuery({
+    queryKey: ["active-deals", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
       const { data, error } = await supabase
         .from('deals')
         .select('*')
         .neq('stage', 'paid')
         .neq('stage', 'invoiced')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
       
       if (error) throw error;
       return data?.length || 0;
-    }
+    },
+    enabled: !!user?.id,
   });
 
   const { data: activeProjects, isLoading: isLoadingProjects } = useQuery({
-    queryKey: ["active-projects"],
+    queryKey: ["active-projects", user?.id],
     queryFn: async () => {
+      if (!user?.id) return 0;
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .eq('status', 'active')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
       
       if (error) throw error;
       return data?.length || 0;
-    }
+    },
+    enabled: !!user?.id,
   });
 
   const { data: completedTasks, isLoading: isLoadingTasks } = useQuery({
-    queryKey: ["completed-tasks"],
+    queryKey: ["completed-tasks", user?.id],
     queryFn: async () => {
+      if (!user?.id) return 0;
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
         .eq('completed', true)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+        .eq('user_id', user.id);
       
       if (error) throw error;
       return data?.length || 0;
-    }
+    },
+    enabled: !!user?.id,
   });
 
   const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
-    queryKey: ["monthly-revenue"],
+    queryKey: ["monthly-revenue", user?.id],
     queryFn: async () => {
+      if (!user?.id) return 0;
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
@@ -63,12 +79,13 @@ export const DashboardStats = () => {
         .from('financial_transactions')
         .select('amount')
         .eq('type', 'income')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', user.id)
         .gte('date', startOfMonth.toISOString());
       
       if (error) throw error;
       return data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
-    }
+    },
+    enabled: !!user?.id,
   });
 
   const handleCardClick = (route: string) => {
