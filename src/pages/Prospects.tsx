@@ -14,7 +14,7 @@ const Prospects = () => {
     queryKey: ['prospects'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('prospects')
+        .from('prospect_sequence_info')
         .select('*')
         .order('created_at', { ascending: false });
       

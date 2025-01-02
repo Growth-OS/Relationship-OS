@@ -1,5 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ProspectActions } from "./ProspectActions";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface ProspectRowProps {
   prospect: {
@@ -10,6 +12,9 @@ interface ProspectRowProps {
     contact_linkedin?: string;
     source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
     notes?: string;
+    sequence_name?: string;
+    sequence_status?: string;
+    current_step?: number;
   };
   sourceLabels: Record<string, string>;
   onDelete: (id: string) => Promise<void>;
@@ -18,6 +23,19 @@ interface ProspectRowProps {
 }
 
 export const ProspectRow = ({ prospect, sourceLabels, onDelete, onConvertToLead, onEdit }: ProspectRowProps) => {
+  const getSequenceStatusColor = (status?: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
       <TableCell className="font-medium">{prospect.company_name}</TableCell>
@@ -38,6 +56,24 @@ export const ProspectRow = ({ prospect, sourceLabels, onDelete, onConvertToLead,
           >
             View Profile
           </a>
+        ) : '-'}
+      </TableCell>
+      <TableCell>
+        {prospect.sequence_name ? (
+          <div className="space-y-1">
+            <div>{prospect.sequence_name}</div>
+            <Badge className={getSequenceStatusColor(prospect.sequence_status)}>
+              {prospect.sequence_status || 'Not started'}
+            </Badge>
+          </div>
+        ) : '-'}
+      </TableCell>
+      <TableCell>
+        {prospect.current_step ? (
+          <div className="space-y-1">
+            <div className="text-sm text-gray-600">Step {prospect.current_step}</div>
+            <Progress value={prospect.current_step * 20} className="h-2" />
+          </div>
         ) : '-'}
       </TableCell>
       <TableCell className="max-w-[200px] truncate">

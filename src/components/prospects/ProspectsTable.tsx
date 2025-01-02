@@ -15,6 +15,9 @@ interface Prospect {
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
   notes?: string;
   status?: string;
+  sequence_name?: string;
+  sequence_status?: string;
+  current_step?: number;
 }
 
 interface ProspectsTableProps {
@@ -105,6 +108,8 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
               <TableHead className="font-semibold">Job Title</TableHead>
               <TableHead className="font-semibold">Email</TableHead>
               <TableHead className="font-semibold">LinkedIn</TableHead>
+              <TableHead className="font-semibold">Sequence</TableHead>
+              <TableHead className="font-semibold">Progress</TableHead>
               <TableHead className="font-semibold">Notes</TableHead>
               <TableHead className="font-semibold text-right">Actions</TableHead>
             </TableRow>
@@ -112,7 +117,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
           <TableBody>
             {activeProspects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   No prospects found. Add your first prospect to get started.
                 </TableCell>
               </TableRow>
