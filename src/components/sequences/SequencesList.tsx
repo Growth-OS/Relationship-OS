@@ -4,24 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Play, Pause, Settings } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-interface Sequence {
-  id: string;
-  name: string;
-  status: string;
-  created_at: string;
-  sequence_steps: {
-    count: number;
-  }[];
-  sequence_assignments: {
-    id: string;
-    status: string;
-    current_step: number;
-    prospect: {
-      company_name: string;
-    };
-  }[];
-}
+import { type Sequence } from "./types";
 
 interface SequencesListProps {
   sequences: Sequence[];
@@ -81,7 +64,7 @@ export const SequencesList = ({ sequences, isLoading }: SequencesListProps) => {
                 </Badge>
               </TableCell>
               <TableCell>
-                {sequence.sequence_steps.reduce((total, step) => total + step.count, 0)} / 5
+                {sequence.sequence_steps.reduce((total, step) => total + step.count, 0)} / {sequence.max_steps}
               </TableCell>
               <TableCell>
                 {sequence.sequence_assignments.length} prospects
