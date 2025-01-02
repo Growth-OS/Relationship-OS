@@ -781,6 +781,175 @@ export type Database = {
         }
         Relationships: []
       }
+      sequence_assignments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number | null
+          id: string
+          is_interested: boolean | null
+          paused_at: string | null
+          prospect_id: string
+          sequence_id: string
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          is_interested?: boolean | null
+          paused_at?: string | null
+          prospect_id: string
+          sequence_id: string
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number | null
+          id?: string
+          is_interested?: boolean | null
+          paused_at?: string | null
+          prospect_id?: string
+          sequence_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_assignments_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: true
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_assignments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequence_history: {
+        Row: {
+          action: string
+          assignment_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          scheduled_for: string | null
+          snoozed_until: string | null
+          step_number: number
+          step_type: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Insert: {
+          action: string
+          assignment_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_for?: string | null
+          snoozed_until?: string | null
+          step_number: number
+          step_type: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Update: {
+          action?: string
+          assignment_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          scheduled_for?: string | null
+          snoozed_until?: string | null
+          step_number?: number
+          step_type?: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_history_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "sequence_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequence_steps: {
+        Row: {
+          created_at: string
+          delay_days: number | null
+          id: string
+          message_template: string | null
+          preferred_time: string | null
+          sequence_id: string
+          step_number: number
+          step_type: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Insert: {
+          created_at?: string
+          delay_days?: number | null
+          id?: string
+          message_template?: string | null
+          preferred_time?: string | null
+          sequence_id: string
+          step_number: number
+          step_type: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Update: {
+          created_at?: string
+          delay_days?: number | null
+          id?: string
+          message_template?: string | null
+          preferred_time?: string | null
+          sequence_id?: string
+          step_number?: number
+          step_type?: Database["public"]["Enums"]["sequence_step_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          max_steps: number | null
+          name: string
+          status: Database["public"]["Enums"]["sequence_status"] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_steps?: number | null
+          name: string
+          status?: Database["public"]["Enums"]["sequence_status"] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_steps?: number | null
+          name?: string
+          status?: Database["public"]["Enums"]["sequence_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           content: string | null
@@ -1118,6 +1287,8 @@ export type Database = {
         | "conference"
         | "other"
       project_status: "active" | "completed" | "on_hold"
+      sequence_status: "active" | "paused" | "completed"
+      sequence_step_type: "email" | "linkedin"
       social_platform: "linkedin" | "instagram" | "both"
       social_post_status: "draft" | "ready" | "published" | "scheduled"
       task_source:
