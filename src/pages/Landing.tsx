@@ -15,8 +15,13 @@ const Landing = () => {
       <nav className="fixed w-full bg-black/50 backdrop-blur-sm z-50 border-b border-white/10">
         <div className="max-w-[1400px] mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl font-bold">Growth OS</span>
+            <div className="flex items-center space-x-4">
+              <img 
+                src="/lovable-uploads/673a2307-b663-4a8c-bd7a-77a6f37cd05c.png"
+                alt="Relationship OS Logo"
+                className="h-8 w-auto"
+              />
+              <span className="text-xl font-bold">Relationship OS</span>
             </div>
             <div className="flex items-center space-x-4">
               <Button 
