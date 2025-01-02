@@ -36,7 +36,7 @@ export const CreateSequenceButton = () => {
         .insert([{
           name: data.name,
           description: data.description,
-          status: 'active',
+          status: 'paused', // Set initial status to paused
           max_steps: 5,
           user_id: user.id
         }])
@@ -50,7 +50,6 @@ export const CreateSequenceButton = () => {
       reset();
       setOpen(false);
       
-      // Navigate to the sequence builder
       if (sequence) {
         navigate(`/dashboard/sequences/${sequence.id}/edit`);
       }

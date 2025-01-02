@@ -2,10 +2,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Play, Pause, Settings } from "lucide-react";
+import { Play, Pause, Settings, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { type Sequence } from "./types";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface SequencesListProps {
   sequences: Sequence[];
@@ -14,6 +18,41 @@ interface SequencesListProps {
 
 export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleStatusChange = async (sequenceId: string, newStatus: 'active' | 'paused') => {
+    try {
+      const { error } = await supabase
+        .from('sequences')
+        .update({ status: newStatus })
+        .eq('id', sequenceId);
+
+      if (error) throw error;
+
+      toast.success(`Sequence ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
+      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
+    } catch (error) {
+      console.error('Error updating sequence status:', error);
+      toast.error('Failed to update sequence status');
+    }
+  };
+
+  const handleDelete = async (sequenceId: string) => {
+    try {
+      const { error } = await supabase
+        .from('sequences')
+        .delete()
+        .eq('id', sequenceId);
+
+      if (error) throw error;
+
+      toast.success('Sequence deleted successfully');
+      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
+    } catch (error) {
+      console.error('Error deleting sequence:', error);
+      toast.error('Failed to delete sequence');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -77,11 +116,21 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
               </TableCell>
               <TableCell className="text-right space-x-2">
                 {sequence.status === "active" ? (
-                  <Button variant="ghost" size="icon" title="Pause sequence">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    title="Pause sequence"
+                    onClick={() => handleStatusChange(sequence.id, 'paused')}
+                  >
                     <Pause className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <Button variant="ghost" size="icon" title="Resume sequence">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    title="Activate sequence"
+                    onClick={() => handleStatusChange(sequence.id, 'active')}
+                  >
                     <Play className="h-4 w-4" />
                   </Button>
                 )}
@@ -93,6 +142,35 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                 >
                   <Settings className="h-4 w-4" />
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500 hover:text-red-600"
+                      title="Delete sequence"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Sequence</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this sequence? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={() => handleDelete(sequence.id)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))
