@@ -1,24 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { StepType } from "../types";
+import { StepType, DatabaseStepType, SequenceStep, DatabaseSequenceStep, Sequence } from "../types";
 import { toast } from "sonner";
 import { addDays, format } from "date-fns";
-import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb, type DatabaseStepType } from "../utils/stepTypeMapping";
-
-interface DatabaseSequenceStep {
-  id: string;
-  sequence_id: string;
-  step_number: number;
-  step_type: DatabaseStepType;
-  message_template: string;
-  delay_days: number;
-}
-
-interface Sequence {
-  id: string;
-  name: string;
-  sequence_steps?: DatabaseSequenceStep[];
-}
+import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
 
 export const useSequenceSteps = (sequenceId: string) => {
   const queryClient = useQueryClient();
@@ -42,11 +27,10 @@ export const useSequenceSteps = (sequenceId: string) => {
       // Map database step types to frontend step types
       if (data.sequence_steps) {
         data.sequence_steps = data.sequence_steps.map((step: DatabaseSequenceStep) => ({
-          id: step.id,
-          step_number: step.step_number,
+          ...step,
           step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number),
-          message_template: step.message_template,
-          delay_days: step.delay_days,
+          message_template: step.message_template || "",
+          delay_days: step.delay_days || 0,
         }));
       }
 
@@ -105,10 +89,10 @@ export const useSequenceSteps = (sequenceId: string) => {
       return {
         id: stepData.id,
         step_number: stepData.step_number,
-        step_type: mapDbStepTypeToFrontend(dbStepType, nextStepNumber),
-        message_template: stepData.message_template,
-        delay_days: stepData.delay_days,
-      };
+        step_type: mapDbStepTypeToFrontend(stepData.step_type as DatabaseStepType, stepData.step_number),
+        message_template: stepData.message_template || "",
+        delay_days: stepData.delay_days || 0,
+      } as SequenceStep;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });

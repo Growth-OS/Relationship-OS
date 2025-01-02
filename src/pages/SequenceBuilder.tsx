@@ -5,7 +5,7 @@ import { AddStepDialog } from "@/components/sequences/AddStepDialog";
 import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { useSequenceSteps } from "@/components/sequences/hooks/useSequenceSteps";
-import { StepType } from "@/components/sequences/types";
+import { StepType, SequenceStep } from "@/components/sequences/types";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
@@ -35,6 +35,15 @@ const SequenceBuilder = () => {
     setIsAddStepOpen(false);
   };
 
+  // Convert DatabaseSequenceStep[] to SequenceStep[]
+  const steps: SequenceStep[] = sequence.sequence_steps?.map(step => ({
+    id: step.id,
+    step_number: step.step_number,
+    step_type: step.step_type as StepType,
+    message_template: step.message_template || "",
+    delay_days: step.delay_days || 0,
+  })) || [];
+
   return (
     <div className="space-y-6">
       <div>
@@ -54,7 +63,7 @@ const SequenceBuilder = () => {
           </Button>
         </div>
 
-        <SequenceStepsList steps={sequence.sequence_steps || []} />
+        <SequenceStepsList steps={steps} />
 
         <AddStepDialog
           open={isAddStepOpen}
