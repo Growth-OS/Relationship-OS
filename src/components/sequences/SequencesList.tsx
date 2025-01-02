@@ -39,12 +39,29 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
 
   const handleDelete = async (sequenceId: string) => {
     try {
-      const { error } = await supabase
+      // First, delete all sequence steps associated with this sequence
+      const { error: stepsError } = await supabase
+        .from('sequence_steps')
+        .delete()
+        .eq('sequence_id', sequenceId);
+
+      if (stepsError) throw stepsError;
+
+      // Then, delete all sequence assignments associated with this sequence
+      const { error: assignmentsError } = await supabase
+        .from('sequence_assignments')
+        .delete()
+        .eq('sequence_id', sequenceId);
+
+      if (assignmentsError) throw assignmentsError;
+
+      // Finally, delete the sequence itself
+      const { error: sequenceError } = await supabase
         .from('sequences')
         .delete()
         .eq('id', sequenceId);
 
-      if (error) throw error;
+      if (sequenceError) throw sequenceError;
 
       toast.success('Sequence deleted successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
@@ -157,7 +174,7 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete Sequence</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete this sequence? This action cannot be undone.
+                        Are you sure you want to delete this sequence? This action cannot be undone and will remove all associated steps and assignments.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
