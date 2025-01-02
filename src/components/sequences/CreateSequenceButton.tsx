@@ -31,18 +31,18 @@ export const CreateSequenceButton = () => {
 
       const { error } = await supabase
         .from('sequences')
-        .insert({
+        .insert([{
           name: data.name,
           description: data.description,
-          status: 'active' as const,
+          status: 'active',
           max_steps: 5,
           user_id: user.id
-        });
+        }]);
 
       if (error) throw error;
 
       toast.success('Sequence created successfully');
-      queryClient.invalidateQueries({ queryKey: ['sequences'] });
+      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
       reset();
       setOpen(false);
     } catch (error) {
