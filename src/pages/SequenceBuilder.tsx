@@ -8,7 +8,7 @@ import { AddStepDialog } from "@/components/sequences/AddStepDialog";
 import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { addDays, format } from "date-fns";
-import { StepType } from "@/components/sequences/types";
+import { StepType, SequenceStep } from "@/components/sequences/types";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
@@ -30,18 +30,40 @@ const SequenceBuilder = () => {
         .single();
 
       if (error) throw error;
+
+      // Map database step types to frontend step types
+      if (data.sequence_steps) {
+        data.sequence_steps = data.sequence_steps.map((step: any) => ({
+          ...step,
+          step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number)
+        }));
+      }
+
       return data;
     },
   });
+
+  // Helper function to map database step type to frontend step type
+  const mapDbStepTypeToFrontend = (dbType: "email" | "linkedin", stepNumber: number): StepType => {
+    if (dbType === "email") {
+      return stepNumber % 2 === 1 ? "email_1" : "email_2";
+    } else {
+      if (stepNumber === 1) return "linkedin_connection";
+      return stepNumber % 2 === 1 ? "linkedin_message_1" : "linkedin_message_2";
+    }
+  };
+
+  // Helper function to map frontend step type to database step type
+  const mapFrontendStepTypeToDb = (frontendType: StepType): "email" | "linkedin" => {
+    return frontendType.startsWith('email') ? "email" : "linkedin";
+  };
 
   const addStepMutation = useMutation({
     mutationFn: async (values: {
       step_type: StepType;
       message_template: string;
       delay_days: number;
-      preferred_time?: string;
     }) => {
-      // First get the current user
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -50,15 +72,9 @@ const SequenceBuilder = () => {
 
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
 
-      // Map frontend step types to database enum values
-      let dbStepType: "email" | "linkedin";
-      if (values.step_type.startsWith('email')) {
-        dbStepType = "email";
-      } else {
-        dbStepType = "linkedin";
-      }
+      // Map frontend step type to database enum value
+      const dbStepType = mapFrontendStepTypeToDb(values.step_type);
 
-      // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
@@ -67,7 +83,6 @@ const SequenceBuilder = () => {
           step_type: dbStepType,
           message_template: values.message_template,
           delay_days: values.delay_days,
-          preferred_time: values.preferred_time,
         })
         .select()
         .single();
@@ -84,7 +99,7 @@ const SequenceBuilder = () => {
         .from("tasks")
         .insert({
           title: `${actionType} for sequence "${sequence?.name}" - Step ${nextStepNumber}`,
-          description: `Action required: ${values.message_template}\n\nPreferred time: ${values.preferred_time || 'Any time'}`,
+          description: `Action required: ${values.message_template}`,
           due_date: format(dueDate, 'yyyy-MM-dd'),
           source: 'other',
           priority: 'medium',
@@ -93,7 +108,11 @@ const SequenceBuilder = () => {
 
       if (taskError) throw taskError;
 
-      return stepData;
+      // Map the database step type back to frontend type before returning
+      return {
+        ...stepData,
+        step_type: mapDbStepTypeToFrontend(dbStepType, nextStepNumber)
+      };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });
@@ -118,7 +137,6 @@ const SequenceBuilder = () => {
     step_type: StepType;
     message_template: string;
     delay_days: number;
-    preferred_time?: string;
   }) => {
     addStepMutation.mutate(values);
   };
