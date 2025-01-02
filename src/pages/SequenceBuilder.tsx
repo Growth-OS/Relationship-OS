@@ -50,13 +50,21 @@ const SequenceBuilder = () => {
 
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
 
+      // Map frontend step types to database enum values
+      let dbStepType: "email" | "linkedin";
+      if (values.step_type.startsWith('email')) {
+        dbStepType = "email";
+      } else {
+        dbStepType = "linkedin";
+      }
+
       // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
           sequence_id: sequenceId,
           step_number: nextStepNumber,
-          step_type: values.step_type,
+          step_type: dbStepType,
           message_template: values.message_template,
           delay_days: values.delay_days,
           preferred_time: values.preferred_time,
