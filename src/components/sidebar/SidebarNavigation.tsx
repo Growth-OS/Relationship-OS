@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
-  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, Sparkles
+  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, 
+  Sparkles, List
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -19,6 +20,7 @@ export const SidebarNavigation = () => {
 
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: List, label: "Sequences", path: "/dashboard/sequences" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
