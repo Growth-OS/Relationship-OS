@@ -4,6 +4,9 @@ import { Play, Pause, CheckCircle, Users } from "lucide-react";
 interface Sequence {
   id: string;
   status: string;
+  sequence_steps: {
+    count: number;
+  }[];
   sequence_assignments: {
     status: string;
   }[];
