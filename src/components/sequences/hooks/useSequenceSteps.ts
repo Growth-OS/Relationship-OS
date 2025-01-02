@@ -20,9 +20,10 @@ export const useSequenceSteps = (sequenceId: string) => {
           )
         `)
         .eq("id", sequenceId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error("Sequence not found");
 
       // Map database step types to frontend step types
       if (data.sequence_steps) {
@@ -63,9 +64,10 @@ export const useSequenceSteps = (sequenceId: string) => {
           delay_days: values.delay_days,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (stepError) throw stepError;
+      if (!stepData) throw new Error("Failed to create step");
 
       // Create a task for this step
       const dueDate = addDays(new Date(), values.delay_days);

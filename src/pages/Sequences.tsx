@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SequenceStats } from "@/components/sequences/SequenceStats";
 import { SequencesList } from "@/components/sequences/SequencesList";
 import { CreateSequenceButton } from "@/components/sequences/CreateSequenceButton";
+import type { Sequence } from "@/components/sequences/types";
 
 const Sequences = () => {
   const { data: sequences, isLoading } = useQuery({
@@ -12,7 +13,9 @@ const Sequences = () => {
         .from("sequences")
         .select(`
           *,
-          sequence_steps (count),
+          sequence_steps (
+            count
+          ),
           sequence_assignments (
             id,
             status,
@@ -25,7 +28,7 @@ const Sequences = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as unknown as Sequence[];
     },
   });
 

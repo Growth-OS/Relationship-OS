@@ -18,6 +18,16 @@ export interface DatabaseSequenceStep {
   delay_days: number | null;
   preferred_time: string | null;
   created_at: string;
+  count?: number;
+}
+
+export interface SequenceAssignment {
+  id: string;
+  status: string;
+  current_step: number;
+  prospect: {
+    company_name: string;
+  };
 }
 
 export interface Sequence {
@@ -29,4 +39,5 @@ export interface Sequence {
   status: 'active' | 'paused' | 'completed';
   max_steps: number;
   sequence_steps?: DatabaseSequenceStep[];
+  sequence_assignments?: SequenceAssignment[];
 }
