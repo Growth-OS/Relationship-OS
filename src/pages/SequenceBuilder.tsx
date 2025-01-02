@@ -42,7 +42,14 @@ const SequenceBuilder = () => {
     }) => {
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
       
-      // First create the sequence step
+      // First get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User must be authenticated to create steps');
+      }
+
+      // Then create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
@@ -68,6 +75,7 @@ const SequenceBuilder = () => {
           due_date: format(dueDate, 'yyyy-MM-dd'),
           source: 'other',
           priority: 'medium',
+          user_id: user.id
         });
 
       if (taskError) throw taskError;
