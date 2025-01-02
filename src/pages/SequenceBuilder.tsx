@@ -53,14 +53,14 @@ const SequenceBuilder = () => {
       // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
-        .insert([{
+        .insert({
           sequence_id: sequenceId,
           step_number: nextStepNumber,
           step_type: values.step_type,
           message_template: values.message_template,
           delay_days: values.delay_days,
           preferred_time: values.preferred_time,
-        }])
+        })
         .select()
         .single();
 
