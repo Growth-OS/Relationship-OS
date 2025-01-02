@@ -1,11 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, ArrowRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
 import { EditProspectForm } from "./EditProspectForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { ProspectRow } from "./ProspectRow";
+import { useState } from "react";
 
 interface Prospect {
   id: string;
@@ -119,62 +118,14 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
               </TableRow>
             ) : (
               activeProspects.map((prospect) => (
-                <TableRow key={prospect.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                  <TableCell className="font-medium">{prospect.company_name}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {sourceLabels[prospect.source]}
-                    </span>
-                  </TableCell>
-                  <TableCell>{prospect.contact_job_title || '-'}</TableCell>
-                  <TableCell>{prospect.contact_email || '-'}</TableCell>
-                  <TableCell>
-                    {prospect.contact_linkedin ? (
-                      <a 
-                        href={prospect.contact_linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-purple-600 hover:text-purple-700 hover:underline"
-                      >
-                        View Profile
-                      </a>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {prospect.notes ? (
-                      <span title={prospect.notes}>{prospect.notes}</span>
-                    ) : '-'}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingProspect(prospect)}
-                        className="hover:bg-gray-100 dark:hover:bg-gray-800"
-                      >
-                        <Pencil className="h-4 w-4 text-gray-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(prospect.id)}
-                        className="hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleConvertToLead(prospect)}
-                        className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                        title="Convert to Lead"
-                      >
-                        <ArrowRight className="h-4 w-4 text-purple-600" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                <ProspectRow
+                  key={prospect.id}
+                  prospect={prospect}
+                  sourceLabels={sourceLabels}
+                  onDelete={handleDelete}
+                  onConvertToLead={handleConvertToLead}
+                  onEdit={setEditingProspect}
+                />
               ))
             )}
           </TableBody>
