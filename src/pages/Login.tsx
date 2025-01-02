@@ -22,7 +22,7 @@ const Login = () => {
   }, [navigate, returnTo]);
 
   return (
-    <div className="min-h-screen bg-[#1A1F2C] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0D2C3B] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <div className="flex flex-col items-center justify-center mb-8">
