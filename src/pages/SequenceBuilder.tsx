@@ -35,7 +35,7 @@ const SequenceBuilder = () => {
 
   const addStepMutation = useMutation({
     mutationFn: async (values: {
-      step_type: "email" | "linkedin";
+      step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
       message_template: string;
       delay_days: number;
       preferred_time?: string;
@@ -67,10 +67,14 @@ const SequenceBuilder = () => {
 
       // Then create a task for this step
       const dueDate = addDays(new Date(), values.delay_days);
+      const actionType = values.step_type.startsWith('email') ? 'Send email' : 
+                        values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
+                        'Send LinkedIn message';
+      
       const { error: taskError } = await supabase
         .from("tasks")
         .insert({
-          title: `${values.step_type === 'email' ? 'Send email' : 'Send LinkedIn message'} for sequence "${sequence?.name}" - Step ${nextStepNumber}`,
+          title: `${actionType} for sequence "${sequence?.name}" - Step ${nextStepNumber}`,
           description: `Action required: ${values.message_template}\n\nPreferred time: ${values.preferred_time || 'Any time'}`,
           due_date: format(dueDate, 'yyyy-MM-dd'),
           source: 'other',
@@ -102,7 +106,7 @@ const SequenceBuilder = () => {
   }
 
   const handleAddStep = (values: {
-    step_type: "email" | "linkedin";
+    step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
     message_template: string;
     delay_days: number;
     preferred_time?: string;
