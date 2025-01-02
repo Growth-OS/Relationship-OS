@@ -8,8 +8,7 @@ import { AddStepDialog } from "@/components/sequences/AddStepDialog";
 import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { addDays, format } from "date-fns";
-
-type StepType = "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
+import { StepType } from "@/components/sequences/types";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
@@ -54,14 +53,14 @@ const SequenceBuilder = () => {
       // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
-        .insert({
+        .insert([{
           sequence_id: sequenceId,
           step_number: nextStepNumber,
           step_type: values.step_type,
           message_template: values.message_template,
           delay_days: values.delay_days,
           preferred_time: values.preferred_time,
-        })
+        }])
         .select()
         .single();
 
