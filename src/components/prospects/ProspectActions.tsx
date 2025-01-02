@@ -50,19 +50,38 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         return;
       }
 
-      const { error } = await supabase
+      // Check if prospect is already assigned to this sequence
+      const { data: existingAssignment, error: checkError } = await supabase
         .from('sequence_assignments')
-        .insert({
+        .select('id')
+        .eq('sequence_id', selectedSequence)
+        .eq('prospect_id', prospect.id)
+        .eq('status', 'active')
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingAssignment) {
+        toast.error('Prospect is already assigned to this sequence');
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from('sequence_assignments')
+        .insert([{
           sequence_id: selectedSequence,
           prospect_id: prospect.id,
           current_step: 1,
           status: 'active'
-        });
+        }]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
       toast.success('Prospect assigned to sequence successfully');
       setIsAssignDialogOpen(false);
+      setSelectedSequence("");
     } catch (error) {
       console.error('Error assigning prospect to sequence:', error);
       toast.error('Error assigning prospect to sequence');
@@ -106,13 +125,16 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         <Play className="h-4 w-4 text-blue-600" />
       </Button>
 
-      <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+      <Dialog open={isAssignDialogOpen} onOpenChange={(open) => {
+        setIsAssignDialogOpen(open);
+        if (!open) setSelectedSequence("");
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Assign to Sequence</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <Select onValueChange={setSelectedSequence}>
+            <Select value={selectedSequence} onValueChange={setSelectedSequence}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a sequence" />
               </SelectTrigger>
