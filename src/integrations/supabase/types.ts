@@ -536,21 +536,27 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           email: string
           full_name: string | null
+          headline: string | null
           id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           email: string
           full_name?: string | null
+          headline?: string | null
           id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           email?: string
           full_name?: string | null
+          headline?: string | null
           id?: string
         }
         Relationships: []
@@ -771,6 +777,54 @@ export type Database = {
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          content: string | null
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          images: string[] | null
+          is_archived: boolean
+          notes: string | null
+          platform: Database["public"]["Enums"]["social_platform"]
+          published_at: string | null
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["social_post_status"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_archived?: boolean
+          notes?: string | null
+          platform?: Database["public"]["Enums"]["social_platform"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["social_post_status"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          images?: string[] | null
+          is_archived?: boolean
+          notes?: string | null
+          platform?: Database["public"]["Enums"]["social_platform"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["social_post_status"]
+          title?: string
           user_id?: string
         }
         Relationships: []
@@ -1029,6 +1083,16 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_financial_metrics: {
+        Row: {
+          month: string | null
+          total_amount: number | null
+          transaction_count: number | null
+          type: Database["public"]["Enums"]["transaction_type"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
@@ -1054,6 +1118,8 @@ export type Database = {
         | "conference"
         | "other"
       project_status: "active" | "completed" | "on_hold"
+      social_platform: "linkedin" | "instagram" | "both"
+      social_post_status: "draft" | "ready" | "published" | "scheduled"
       task_source:
         | "deals"
         | "content"
