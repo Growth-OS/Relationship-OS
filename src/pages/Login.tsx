@@ -22,7 +22,7 @@ const Login = () => {
   }, [navigate, returnTo]);
 
   return (
-    <div className="min-h-screen bg-[#222632] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <div className="flex flex-col items-center justify-center mb-8">
@@ -47,9 +47,9 @@ const Login = () => {
             variables: {
               default: {
                 colors: {
-                  brand: '#222632',
+                  brand: '#000000',
                   brandAccent: '#22D3EE',
-                  inputBackground: '#222632',
+                  inputBackground: '#000000',
                   inputText: '#FFFFFF',
                   inputPlaceholder: '#666666',
                   messageText: '#FFFFFF',
@@ -62,7 +62,7 @@ const Login = () => {
             className: {
               container: 'relative z-20',
               button: 'w-full px-4 py-2.5 rounded-lg font-medium',
-              input: 'w-full px-3 py-2.5 bg-[#222632] border-gray-700 rounded-lg focus:ring-cyan-400 focus:border-cyan-400 text-white',
+              input: 'w-full px-3 py-2.5 bg-black border-gray-700 rounded-lg focus:ring-cyan-400 focus:border-cyan-400 text-white',
               label: 'text-gray-300',
               message: 'text-gray-300',
               anchor: 'text-cyan-400 hover:text-cyan-300',
