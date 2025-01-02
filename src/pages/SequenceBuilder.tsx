@@ -9,6 +9,8 @@ import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { addDays, format } from "date-fns";
 
+type StepType = "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
+
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
   const queryClient = useQueryClient();
@@ -35,13 +37,11 @@ const SequenceBuilder = () => {
 
   const addStepMutation = useMutation({
     mutationFn: async (values: {
-      step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
+      step_type: StepType;
       message_template: string;
       delay_days: number;
       preferred_time?: string;
     }) => {
-      const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
-      
       // First get the current user
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -49,7 +49,9 @@ const SequenceBuilder = () => {
         throw new Error('User must be authenticated to create steps');
       }
 
-      // Then create the sequence step
+      const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
+
+      // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
@@ -65,7 +67,7 @@ const SequenceBuilder = () => {
 
       if (stepError) throw stepError;
 
-      // Then create a task for this step
+      // Create a task for this step
       const dueDate = addDays(new Date(), values.delay_days);
       const actionType = values.step_type.startsWith('email') ? 'Send email' : 
                         values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
@@ -106,7 +108,7 @@ const SequenceBuilder = () => {
   }
 
   const handleAddStep = (values: {
-    step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
+    step_type: StepType;
     message_template: string;
     delay_days: number;
     preferred_time?: string;

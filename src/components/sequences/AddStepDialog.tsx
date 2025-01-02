@@ -24,9 +24,10 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { StepType } from "./types";
 
 interface StepFormValues {
-  step_type: "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
+  step_type: StepType;
   message_template: string;
   delay_days: number;
   preferred_time?: string;
