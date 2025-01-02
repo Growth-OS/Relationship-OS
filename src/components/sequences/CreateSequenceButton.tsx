@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 interface CreateSequenceForm {
   name: string;
@@ -18,6 +19,7 @@ interface CreateSequenceForm {
 export const CreateSequenceButton = () => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CreateSequenceForm>();
 
   const onSubmit = async (data: CreateSequenceForm) => {
@@ -29,7 +31,7 @@ export const CreateSequenceButton = () => {
         return;
       }
 
-      const { error } = await supabase
+      const { data: sequence, error } = await supabase
         .from('sequences')
         .insert([{
           name: data.name,
@@ -37,7 +39,9 @@ export const CreateSequenceButton = () => {
           status: 'active',
           max_steps: 5,
           user_id: user.id
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -45,6 +49,11 @@ export const CreateSequenceButton = () => {
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
       reset();
       setOpen(false);
+      
+      // Navigate to the sequence builder
+      if (sequence) {
+        navigate(`/dashboard/sequences/${sequence.id}/edit`);
+      }
     } catch (error) {
       console.error('Error creating sequence:', error);
       toast.error('Failed to create sequence');

@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Play, Pause, Settings } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { type Sequence } from "./types";
+import { useNavigate } from "react-router-dom";
 
 interface SequencesListProps {
   sequences: Sequence[];
@@ -12,6 +13,8 @@ interface SequencesListProps {
 }
 
 export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -82,7 +85,12 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                     <Play className="h-4 w-4" />
                   </Button>
                 )}
-                <Button variant="ghost" size="icon" title="Sequence settings">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  title="Sequence settings"
+                  onClick={() => navigate(`/dashboard/sequences/${sequence.id}/edit`)}
+                >
                   <Settings className="h-4 w-4" />
                 </Button>
               </TableCell>

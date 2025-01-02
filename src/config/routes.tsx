@@ -16,6 +16,7 @@ import Invoices from "@/pages/Invoices";
 import Boards from "@/pages/Boards";
 import BoardView from "@/pages/BoardView";
 import Sequences from "@/pages/Sequences";
+import SequenceBuilder from "@/pages/SequenceBuilder";
 import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
@@ -39,6 +40,10 @@ export const routes: RouteObject[] = [
       {
         path: "sequences",
         element: <Sequences />,
+      },
+      {
+        path: "sequences/:sequenceId/edit",
+        element: <SequenceBuilder />,
       },
       {
         path: "prospects",
