@@ -25,13 +25,12 @@ const Login = () => {
     <div className="min-h-screen bg-[#1A1F2C] flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="flex flex-col items-center justify-center space-y-4 mb-8">
+          <div className="flex flex-col items-center justify-center mb-8">
             <img 
               src="/lovable-uploads/673a2307-b663-4a8c-bd7a-77a6f37cd05c.png"
               alt="Relationship OS Logo"
-              className="h-12 w-auto mb-2"
+              className="h-12 w-auto"
             />
-            <span className="text-xl font-bold text-white">Relationship OS</span>
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-white">
             Welcome back
