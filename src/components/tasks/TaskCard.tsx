@@ -22,6 +22,8 @@ export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
       navigate(`/dashboard/deals?id=${task.deals.id}`);
     } else if (task.source === 'substack' && task.substack_posts) {
       navigate(`/dashboard/substack?id=${task.substack_posts.id}`);
+    } else if (task.source === 'sequences' && task.sequence_id) {
+      navigate(`/dashboard/sequences/${task.sequence_id}/edit`);
     } else if (task.source === 'ideas') {
       navigate('/dashboard/development');
     }
@@ -107,6 +109,11 @@ export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
             {task.deals?.company_name && (
               <Badge variant="outline" className="text-green-600">
                 {task.deals.company_name}
+              </Badge>
+            )}
+            {task.source === 'sequences' && (
+              <Badge variant="outline" className="text-purple-600">
+                Sequence Task
               </Badge>
             )}
           </div>

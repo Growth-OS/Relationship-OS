@@ -25,7 +25,8 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
           *,
           projects(id, name),
           deals(id, company_name),
-          substack_posts(id, title)
+          substack_posts(id, title),
+          sequences(id, name)
         `)
         .eq('user_id', user.user.id);
 
