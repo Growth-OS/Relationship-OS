@@ -26,9 +26,10 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedSequence, setSelectedSequence] = useState<string>("");
 
-  const { data: sequences = [], isLoading } = useQuery({
+  const { data: sequences = [], isLoading, error } = useQuery({
     queryKey: ['sequences'],
     queryFn: async () => {
+      console.log('Fetching sequences...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
@@ -43,6 +44,7 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         throw error;
       }
 
+      console.log('Fetched sequences:', data);
       return data || [];
     },
   });
@@ -91,6 +93,10 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
       toast.error('Error assigning prospect to sequence');
     }
   };
+
+  if (error) {
+    console.error('Error in sequences query:', error);
+  }
 
   return (
     <div className="flex gap-2 justify-end">
@@ -141,7 +147,9 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
             {isLoading ? (
               <div>Loading sequences...</div>
             ) : sequences.length === 0 ? (
-              <div>No active sequences found</div>
+              <div className="text-center text-gray-500">
+                No active sequences found. Please create a sequence first.
+              </div>
             ) : (
               <Select value={selectedSequence} onValueChange={setSelectedSequence}>
                 <SelectTrigger>
@@ -156,7 +164,11 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
                 </SelectContent>
               </Select>
             )}
-            <Button onClick={handleAssignToSequence} disabled={!selectedSequence}>
+            <Button 
+              onClick={handleAssignToSequence} 
+              disabled={!selectedSequence || isLoading}
+              className="w-full"
+            >
               Assign
             </Button>
           </div>
