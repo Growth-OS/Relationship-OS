@@ -31,19 +31,45 @@ export const CreateSequenceButton = () => {
         return;
       }
 
+      console.log('Creating sequence with data:', {
+        ...data,
+        user_id: user.id,
+        status: 'active',
+        max_steps: 5
+      });
+
       const { data: sequence, error } = await supabase
         .from('sequences')
         .insert([{
           name: data.name,
           description: data.description,
-          status: 'paused', // Set initial status to paused
+          status: 'active', // Changed from 'paused' to 'active' by default
           max_steps: 5,
           user_id: user.id
         }])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error details:', error);
+        throw error;
+      }
+
+      console.log('Created sequence:', sequence);
+
+      // Verify the sequence was created
+      const { data: verifySequence, error: verifyError } = await supabase
+        .from('sequences')
+        .select('*')
+        .eq('id', sequence.id)
+        .single();
+
+      if (verifyError) {
+        console.error('Verification error:', verifyError);
+        throw verifyError;
+      }
+
+      console.log('Verified sequence exists:', verifySequence);
 
       toast.success('Sequence created successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });

@@ -22,12 +22,38 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
 
   const handleStatusChange = async (sequenceId: string, newStatus: 'active' | 'paused') => {
     try {
+      console.log('Updating sequence status:', { sequenceId, newStatus });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('You must be logged in to update sequences');
+        return;
+      }
+
       const { error } = await supabase
         .from('sequences')
         .update({ status: newStatus })
-        .eq('id', sequenceId);
+        .eq('id', sequenceId)
+        .eq('user_id', user.id); // Added user_id check
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating sequence status:', error);
+        throw error;
+      }
+
+      // Verify the update
+      const { data: verifySequence, error: verifyError } = await supabase
+        .from('sequences')
+        .select('*')
+        .eq('id', sequenceId)
+        .single();
+
+      if (verifyError) {
+        console.error('Verification error:', verifyError);
+        throw verifyError;
+      }
+
+      console.log('Verified sequence update:', verifySequence);
 
       toast.success(`Sequence ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
