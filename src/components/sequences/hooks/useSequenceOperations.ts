@@ -51,21 +51,32 @@ export const useSequenceOperations = () => {
     try {
       console.log('Starting sequence deletion process for ID:', sequenceId);
 
-      // First, delete all sequence history records
-      const { error: historyError } = await supabase
-        .from('sequence_history')
-        .delete()
-        .eq('assignment_id', (
-          supabase
-            .from('sequence_assignments')
-            .select('id')
-            .eq('sequence_id', sequenceId)
-        ));
+      // First, get all assignment IDs for this sequence
+      const { data: assignments, error: assignmentsQueryError } = await supabase
+        .from('sequence_assignments')
+        .select('id')
+        .eq('sequence_id', sequenceId);
 
-      if (historyError) {
-        console.error('Error deleting sequence history:', historyError);
-        toast.error(`Failed to delete sequence history: ${historyError.message}`);
+      if (assignmentsQueryError) {
+        console.error('Error fetching assignments:', assignmentsQueryError);
+        toast.error(`Failed to fetch assignments: ${assignmentsQueryError.message}`);
         return;
+      }
+
+      const assignmentIds = assignments?.map(a => a.id) || [];
+
+      // Delete sequence history records for these assignments
+      if (assignmentIds.length > 0) {
+        const { error: historyError } = await supabase
+          .from('sequence_history')
+          .delete()
+          .in('assignment_id', assignmentIds);
+
+        if (historyError) {
+          console.error('Error deleting sequence history:', historyError);
+          toast.error(`Failed to delete sequence history: ${historyError.message}`);
+          return;
+        }
       }
 
       // Then, delete all sequence assignments
