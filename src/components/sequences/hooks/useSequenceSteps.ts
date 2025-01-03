@@ -78,6 +78,7 @@ export const useSequenceSteps = (sequenceId: string) => {
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
       const dbStepType = mapFrontendStepTypeToDb(values.step_type);
 
+      // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
@@ -88,14 +89,31 @@ export const useSequenceSteps = (sequenceId: string) => {
           delay_days: values.delay_days,
         })
         .select()
-        .maybeSingle();
+        .single();
 
       if (stepError) throw stepError;
       if (!stepData) throw new Error("Failed to create step");
 
+      // Get all active assignments for this sequence
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from("sequence_assignments")
+        .select(`
+          id,
+          prospect:prospects (
+            company_name,
+            contact_email,
+            contact_linkedin,
+            contact_job_title
+          )
+        `)
+        .eq("sequence_id", sequenceId)
+        .eq("status", "active");
+
+      if (assignmentsError) throw assignmentsError;
+      
       // Create tasks for each prospect in the sequence
-      if (sequence?.sequence_assignments) {
-        const tasks = sequence.sequence_assignments.map(assignment => {
+      if (assignments && assignments.length > 0) {
+        const tasks = assignments.map(assignment => {
           const dueDate = addDays(new Date(), values.delay_days);
           const actionType = values.step_type.startsWith('email') ? 'Send email' : 
                           values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
@@ -121,7 +139,10 @@ export const useSequenceSteps = (sequenceId: string) => {
           .from("tasks")
           .insert(tasks);
 
-        if (tasksError) throw tasksError;
+        if (tasksError) {
+          console.error("Error creating tasks:", tasksError);
+          throw tasksError;
+        }
       }
 
       return {
