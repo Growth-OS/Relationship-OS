@@ -10,23 +10,38 @@ import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
 const Prospects = () => {
   const [open, setOpen] = useState(false);
 
-  const { data: prospects = [], isLoading, refetch } = useQuery({
+  const { data: prospects = [], isLoading, error } = useQuery({
     queryKey: ['prospects'],
     queryFn: async () => {
+      console.log('Fetching prospects...');
       const { data, error } = await supabase
         .from('prospect_sequence_info')
         .select('*')
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching prospects:', error);
+        throw error;
+      }
+      
+      console.log('Prospects fetched:', data);
       return data;
     },
   });
 
+  if (error) {
+    console.error('Query error:', error);
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-red-500">Error loading prospects. Please try again.</div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-pulse text-gray-500">Loading prospects...</div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -53,14 +68,18 @@ const Prospects = () => {
             </DialogHeader>
             <CreateProspectForm onSuccess={() => {
               setOpen(false);
-              refetch();
+              // Invalidate and refetch prospects query
+              queryClient.invalidateQueries({ queryKey: ['prospects'] });
             }} />
           </DialogContent>
         </Dialog>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-        <ProspectsTable prospects={prospects} onProspectUpdated={refetch} />
+        <ProspectsTable prospects={prospects} onProspectUpdated={() => {
+          // Invalidate and refetch prospects query
+          queryClient.invalidateQueries({ queryKey: ['prospects'] });
+        }} />
       </div>
     </div>
   );
