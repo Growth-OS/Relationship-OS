@@ -20,8 +20,8 @@ export const SidebarNavigation = () => {
 
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: List, label: "Sequences", path: "/dashboard/sequences" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
+    { icon: List, label: "Sequences", path: "/dashboard/sequences" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
