@@ -28,6 +28,9 @@ export interface SequenceAssignment {
   current_step: number;
   prospect: {
     company_name: string;
+    contact_email: string | null;
+    contact_linkedin: string | null;
+    contact_job_title: string | null;
   };
 }
 
