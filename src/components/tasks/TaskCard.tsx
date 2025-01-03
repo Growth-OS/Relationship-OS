@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon, CheckCircle2, Clock } from "lucide-react";
+import { CalendarIcon, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
