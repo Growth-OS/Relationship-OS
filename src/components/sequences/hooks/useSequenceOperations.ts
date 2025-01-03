@@ -8,8 +8,8 @@ import { mapDbStepTypeToFrontend } from "../utils/stepTypeMapping";
 export const useSequenceOperations = () => {
   const queryClient = useQueryClient();
 
-  const deleteSequence = async (sequenceId: string, sequenceName: string) => {
-    try {
+  const deleteMutation = useMutation({
+    mutationFn: async ({ sequenceId, sequenceName }: { sequenceId: string, sequenceName: string }) => {
       // Delete all tasks associated with this sequence
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
@@ -30,13 +30,17 @@ export const useSequenceOperations = () => {
 
       if (sequenceError) throw sequenceError;
 
+      return { sequenceId, sequenceName };
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequences"] });
       toast.success("Sequence deleted successfully");
-    } catch (error) {
+    },
+    onError: (error) => {
       console.error("Error deleting sequence:", error);
       toast.error("Failed to delete sequence");
     }
-  };
+  });
 
   const assignProspectMutation = useMutation({
     mutationFn: async ({ 
@@ -133,8 +137,10 @@ export const useSequenceOperations = () => {
   });
 
   return {
-    deleteSequence,
+    deleteSequence: (sequenceId: string, sequenceName: string) => 
+      deleteMutation.mutate({ sequenceId, sequenceName }),
     assignProspect: assignProspectMutation.mutate,
     isAssigning: assignProspectMutation.isPending,
+    isDeleting: deleteMutation.isPending
   };
 };
