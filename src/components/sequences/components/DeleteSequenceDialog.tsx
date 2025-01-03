@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 interface DeleteSequenceDialogProps {
-  onDelete: () => Promise<void>;
+  onDelete: () => void;
 }
 
 export const DeleteSequenceDialog = ({ onDelete }: DeleteSequenceDialogProps) => {

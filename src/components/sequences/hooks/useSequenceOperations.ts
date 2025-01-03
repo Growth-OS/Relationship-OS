@@ -22,7 +22,23 @@ export const useSequenceOperations = () => {
 
       if (tasksError) throw tasksError;
 
-      // Delete the sequence
+      // First, delete all sequence assignments
+      const { error: assignmentsError } = await supabase
+        .from("sequence_assignments")
+        .delete()
+        .eq("sequence_id", sequenceId);
+
+      if (assignmentsError) throw assignmentsError;
+
+      // Then, delete all sequence steps
+      const { error: stepsError } = await supabase
+        .from("sequence_steps")
+        .delete()
+        .eq("sequence_id", sequenceId);
+
+      if (stepsError) throw stepsError;
+
+      // Finally, delete the sequence itself
       const { error: sequenceError } = await supabase
         .from("sequences")
         .delete()
