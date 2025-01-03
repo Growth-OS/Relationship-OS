@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { DatabaseStepType, StepType } from "../types";
 import { mapDbStepTypeToFrontend } from "./stepTypeMapping";
 
@@ -42,8 +42,17 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
     
     // Find the next step's delay_days
     const nextStepData = steps.find(s => s.step_number === nextStep);
+    
+    // Calculate the due date based on when the sequence started
+    const { data: assignmentData } = await supabase
+      .from('sequence_assignments')
+      .select('created_at')
+      .eq('id', assignment.id)
+      .single();
+      
+    const sequenceStartDate = assignmentData?.created_at ? new Date(assignmentData.created_at) : new Date();
     const dueDate = nextStepData 
-      ? addDays(new Date(), nextStepData.delay_days).toISOString()
+      ? addDays(sequenceStartDate, nextStepData.delay_days || 0).toISOString()
       : null;
 
     // Update the assignment
@@ -67,7 +76,7 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
 const createNextSequenceTask = async (
   sequenceName: string,
   stepNumber: number,
-  stepData: { step_type: DatabaseStepType; message_template: string | null },
+  stepData: { step_type: DatabaseStepType; message_template: string | null; delay_days: number },
   dueDate: string
 ) => {
   const { data: { user } } = await supabase.auth.getUser();
