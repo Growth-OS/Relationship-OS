@@ -17,7 +17,7 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
     .from('sequences')
     .select('id')
     .eq('name', sequenceName)
-    .single();
+    .maybeSingle();
 
   if (!sequences) return;
 
@@ -48,7 +48,7 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
       .from('sequence_assignments')
       .select('created_at')
       .eq('id', assignment.id)
-      .single();
+      .maybeSingle();
       
     const sequenceStartDate = assignmentData?.created_at ? new Date(assignmentData.created_at) : new Date();
     const dueDate = nextStepData 
