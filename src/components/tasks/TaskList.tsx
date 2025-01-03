@@ -4,9 +4,10 @@ import { toast } from "sonner";
 import { TaskCard } from "./TaskCard";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 
 interface TaskListProps {
-  source?: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
+  source?: TaskSource;
   projectId?: string;
   showArchived?: boolean;
 }
