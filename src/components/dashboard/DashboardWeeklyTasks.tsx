@@ -50,17 +50,34 @@ export const DashboardWeeklyTasks = () => {
       if (task?.source === 'other' && task.title.includes('sequence')) {
         const sequenceName = task.title.match(/sequence "([^"]+)"/)?.[1];
         if (sequenceName) {
-          const { data: sequenceAssignments } = await supabase
-            .from('sequence_assignments')
-            .select('*')
-            .eq('sequence_id', task.source_id);
+          // First, get the sequence assignment
+          const { data: sequences } = await supabase
+            .from('sequences')
+            .select('id')
+            .eq('name', sequenceName)
+            .single();
 
-          if (sequenceAssignments?.[0]) {
-            const currentStep = sequenceAssignments[0].current_step;
-            await supabase
+          if (sequences) {
+            // Get all prospects that are in this sequence
+            const { data: assignments } = await supabase
               .from('sequence_assignments')
-              .update({ current_step: currentStep + 1 })
-              .eq('id', sequenceAssignments[0].id);
+              .select('*')
+              .eq('sequence_id', sequences.id);
+
+            // Update each assignment's current step
+            if (assignments && assignments.length > 0) {
+              const updatePromises = assignments.map(assignment => 
+                supabase
+                  .from('sequence_assignments')
+                  .update({ 
+                    current_step: assignment.current_step + 1,
+                    status: assignment.current_step >= 4 ? 'completed' : 'active'
+                  })
+                  .eq('id', assignment.id)
+              );
+
+              await Promise.all(updatePromises);
+            }
           }
         }
       }
