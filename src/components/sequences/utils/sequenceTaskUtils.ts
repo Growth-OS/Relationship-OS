@@ -73,6 +73,23 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
   await Promise.all(updatePromises);
 };
 
+export const deleteSequenceTasks = async (sequenceName: string) => {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) throw new Error("Not authenticated");
+
+  // Delete all tasks associated with this sequence
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq('user_id', user.user.id)
+    .like('title', `%sequence "${sequenceName}"%`);
+
+  if (error) {
+    console.error("Error deleting sequence tasks:", error);
+    throw error;
+  }
+};
+
 const createNextSequenceTask = async (
   sequenceName: string,
   stepNumber: number,
