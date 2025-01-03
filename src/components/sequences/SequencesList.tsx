@@ -39,7 +39,7 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
     }
   };
 
-  const handleStatusChange = async (sequenceId: string, newStatus: string) => {
+  const handleStatusChange = async (sequenceId: string, newStatus: 'active' | 'paused' | 'completed') => {
     try {
       const { error } = await supabase
         .from('sequences')
