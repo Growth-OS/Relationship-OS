@@ -5,6 +5,8 @@ import { formatDistanceToNow } from "date-fns";
 import { type Sequence } from "./types";
 import { SequenceActions } from "./components/SequenceActions";
 import { useSequenceOperations } from "./hooks/useSequenceOperations";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface SequencesListProps {
   sequences: Sequence[];
