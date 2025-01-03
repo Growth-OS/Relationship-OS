@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
+import { addDays, format } from "date-fns";
 
 interface ProspectActionsProps {
   prospect: {
@@ -29,7 +30,6 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
   const { data: sequences = [], isLoading, error } = useQuery({
     queryKey: ['sequences'],
     queryFn: async () => {
-      console.log('Fetching sequences...');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
@@ -44,7 +44,6 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         throw error;
       }
 
-      console.log('Fetched sequences:', data);
       return data || [];
     },
   });
@@ -74,16 +73,68 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         return;
       }
 
-      const { error: insertError } = await supabase
+      // Get sequence details and steps
+      const { data: sequenceData, error: sequenceError } = await supabase
+        .from('sequences')
+        .select(`
+          *,
+          sequence_steps (*)
+        `)
+        .eq('id', selectedSequence)
+        .single();
+
+      if (sequenceError) throw sequenceError;
+
+      // Create the sequence assignment
+      const { data: assignment, error: insertError } = await supabase
         .from('sequence_assignments')
         .insert([{
           sequence_id: selectedSequence,
           prospect_id: prospect.id,
           current_step: 1,
           status: 'active'
-        }]);
+        }])
+        .select()
+        .single();
 
       if (insertError) throw insertError;
+
+      // Get the authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      // Create tasks for each step
+      const tasks = sequenceData.sequence_steps.map(step => {
+        const dueDate = addDays(new Date(), step.delay_days || 0);
+        const stepType = step.step_type === 'email' ? 'Send email' : 
+                        step.step_type === 'linkedin' && step.step_number === 1 ? 'Send LinkedIn connection request' : 
+                        'Send LinkedIn message';
+        
+        const contactMethod = step.step_type === 'email' ? 
+          `(${prospect.contact_email})` : 
+          `(${prospect.contact_linkedin})`;
+
+        return {
+          title: `${stepType} to ${prospect.company_name} - ${prospect.contact_job_title} ${contactMethod} - Step ${step.step_number}`,
+          description: step.message_template,
+          due_date: format(dueDate, 'yyyy-MM-dd'),
+          source: 'other',
+          priority: 'medium',
+          user_id: user.id
+        };
+      });
+
+      // Insert all tasks
+      if (tasks.length > 0) {
+        const { error: tasksError } = await supabase
+          .from('tasks')
+          .insert(tasks);
+
+        if (tasksError) {
+          console.error('Error creating tasks:', tasksError);
+          throw tasksError;
+        }
+      }
 
       toast.success('Prospect assigned to sequence successfully');
       setIsAssignDialogOpen(false);
