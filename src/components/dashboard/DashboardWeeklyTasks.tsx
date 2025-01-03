@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { startOfWeek, endOfWeek, format } from "date-fns";
+import { startOfWeek, endOfWeek, format, addDays } from "date-fns";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export const DashboardWeeklyTasks = () => {
       if (task?.source === 'other' && task.title.includes('sequence')) {
         const sequenceName = task.title.match(/sequence "([^"]+)"/)?.[1];
         if (sequenceName) {
-          // First, get the sequence assignment
+          // First, get the sequence
           const { data: sequences } = await supabase
             .from('sequences')
             .select('id')
@@ -61,20 +61,57 @@ export const DashboardWeeklyTasks = () => {
             // Get all prospects that are in this sequence
             const { data: assignments } = await supabase
               .from('sequence_assignments')
-              .select('*')
+              .select(`
+                *,
+                sequence:sequences(
+                  id,
+                  sequence_steps(*)
+                )
+              `)
               .eq('sequence_id', sequences.id);
 
             // Update each assignment's current step
             if (assignments && assignments.length > 0) {
-              const updatePromises = assignments.map(assignment => 
-                supabase
+              const updatePromises = assignments.map(async assignment => {
+                const nextStep = assignment.current_step + 1;
+                const steps = assignment.sequence.sequence_steps;
+                
+                // Find the next step's delay_days
+                const nextStepData = steps.find(s => s.step_number === nextStep);
+                const dueDate = nextStepData 
+                  ? addDays(new Date(), nextStepData.delay_days).toISOString()
+                  : null;
+
+                // Update the assignment
+                await supabase
                   .from('sequence_assignments')
                   .update({ 
-                    current_step: assignment.current_step + 1,
-                    status: assignment.current_step >= 4 ? 'completed' : 'active'
+                    current_step: nextStep,
+                    status: nextStep >= steps.length ? 'completed' : 'active'
                   })
-                  .eq('id', assignment.id)
-              );
+                  .eq('id', assignment.id);
+
+                // If there's a next step, create a task for it
+                if (nextStepData) {
+                  const { data: { user } } = await supabase.auth.getUser();
+                  if (!user) throw new Error("Not authenticated");
+
+                  const actionType = nextStepData.step_type === 'email' ? 'Send email' : 
+                                   nextStepData.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
+                                   'Send LinkedIn message';
+
+                  await supabase
+                    .from("tasks")
+                    .insert({
+                      title: `${actionType} for sequence "${sequenceName}" - Step ${nextStep}`,
+                      description: nextStepData.message_template,
+                      due_date: dueDate,
+                      source: 'other',
+                      priority: 'medium',
+                      user_id: user.id
+                    });
+                }
+              });
 
               await Promise.all(updatePromises);
             }
