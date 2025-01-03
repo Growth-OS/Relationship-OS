@@ -15,9 +15,8 @@ const Tasks = () => {
       </div>
 
       <Card className="p-6">
-        <Tabs defaultValue="active" className="w-full">
+        <Tabs defaultValue="projects" className="w-full">
           <TabsList className="mb-4">
-            <TabsTrigger value="active">Active Tasks</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="deals">Deals</TabsTrigger>
             <TabsTrigger value="sequences">Sequences</TabsTrigger>
@@ -28,9 +27,6 @@ const Tasks = () => {
             <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="active">
-            <TaskList showArchived={false} />
-          </TabsContent>
           <TabsContent value="projects">
             <TaskList source="projects" showArchived={false} />
           </TabsContent>
