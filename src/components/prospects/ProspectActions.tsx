@@ -1,139 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2, ArrowRight, Play } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
-import { createSequenceTasks } from "@/components/sequences/utils/taskCreation";
-
-interface ProspectActionsProps {
-  prospect: {
-    id: string;
-    company_name: string;
-    contact_email?: string;
-    contact_job_title?: string;
-    contact_linkedin?: string;
-    source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
-    notes?: string;
-  };
-  onDelete: (id: string) => Promise<void>;
-  onConvertToLead: (prospect: any) => Promise<void>;
-  onEdit: (prospect: any) => void;
-}
+import { AssignSequenceDialog } from "./components/AssignSequenceDialog";
+import type { ProspectActionsProps } from "./types/prospect";
 
 export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }: ProspectActionsProps) => {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
-  const [selectedSequence, setSelectedSequence] = useState<string>("");
-
-  const { data: sequences = [], isLoading, error } = useQuery({
-    queryKey: ['sequences'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      const { data, error } = await supabase
-        .from('sequences')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active');
-      
-      if (error) {
-        console.error('Error fetching sequences:', error);
-        throw error;
-      }
-
-      return data || [];
-    },
-  });
-
-  const handleAssignToSequence = async () => {
-    try {
-      if (!selectedSequence) {
-        toast.error('Please select a sequence');
-        return;
-      }
-
-      // Check if prospect is already assigned to this sequence
-      const { data: existingAssignment, error: checkError } = await supabase
-        .from('sequence_assignments')
-        .select('id')
-        .eq('sequence_id', selectedSequence)
-        .eq('prospect_id', prospect.id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        throw checkError;
-      }
-
-      if (existingAssignment) {
-        toast.error('Prospect is already assigned to this sequence');
-        return;
-      }
-
-      // Get sequence details and steps
-      const { data: sequenceData, error: sequenceError } = await supabase
-        .from('sequences')
-        .select(`
-          *,
-          sequence_steps (*)
-        `)
-        .eq('id', selectedSequence)
-        .single();
-
-      if (sequenceError) throw sequenceError;
-
-      // Create the sequence assignment
-      const { data: assignment, error: insertError } = await supabase
-        .from('sequence_assignments')
-        .insert([{
-          sequence_id: selectedSequence,
-          prospect_id: prospect.id,
-          current_step: 1,
-          status: 'active'
-        }])
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-
-      // Get the authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      // Create tasks using the utility function
-      const tasks = createSequenceTasks(
-        sequenceData.sequence_steps,
-        prospect,
-        user.id
-      );
-
-      // Insert all tasks
-      if (tasks.length > 0) {
-        const { error: tasksError } = await supabase
-          .from('tasks')
-          .insert(tasks);
-
-        if (tasksError) {
-          console.error('Error creating tasks:', tasksError);
-          throw tasksError;
-        }
-      }
-
-      toast.success('Prospect assigned to sequence successfully');
-      setIsAssignDialogOpen(false);
-      setSelectedSequence("");
-    } catch (error) {
-      console.error('Error assigning prospect to sequence:', error);
-      toast.error('Error assigning prospect to sequence');
-    }
-  };
-
-  if (error) {
-    console.error('Error in sequences query:', error);
-  }
 
   return (
     <div className="flex gap-2 justify-end">
@@ -172,45 +44,11 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         <Play className="h-4 w-4 text-blue-600" />
       </Button>
 
-      <Dialog open={isAssignDialogOpen} onOpenChange={(open) => {
-        setIsAssignDialogOpen(open);
-        if (!open) setSelectedSequence("");
-      }}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Assign to Sequence</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {isLoading ? (
-              <div>Loading sequences...</div>
-            ) : sequences.length === 0 ? (
-              <div className="text-center text-gray-500">
-                No active sequences found. Please create a sequence first.
-              </div>
-            ) : (
-              <Select value={selectedSequence} onValueChange={setSelectedSequence}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a sequence" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sequences.map((sequence) => (
-                    <SelectItem key={sequence.id} value={sequence.id}>
-                      {sequence.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            <Button 
-              onClick={handleAssignToSequence} 
-              disabled={!selectedSequence || isLoading}
-              className="w-full"
-            >
-              Assign
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AssignSequenceDialog
+        open={isAssignDialogOpen}
+        onOpenChange={setIsAssignDialogOpen}
+        prospect={prospect}
+      />
     </div>
   );
 };
