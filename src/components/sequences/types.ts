@@ -7,6 +7,7 @@ export interface SequenceStep {
   step_type: StepType;
   message_template: string;
   delay_days: number;
+  count?: number; // Added count as optional property
 }
 
 export interface DatabaseSequenceStep {

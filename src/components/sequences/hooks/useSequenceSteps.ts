@@ -30,6 +30,14 @@ export const useSequenceSteps = (sequenceId: string) => {
           *,
           sequence_steps (
             *
+          ),
+          sequence_assignments (
+            id,
+            status,
+            current_step,
+            prospect:prospects (
+              company_name
+            )
           )
         `)
         .eq("id", sequenceId)
@@ -45,6 +53,7 @@ export const useSequenceSteps = (sequenceId: string) => {
         step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number),
         message_template: step.message_template || "",
         delay_days: step.delay_days || 0,
+        count: step.count // Pass through the count property
       }));
 
       // Create the sequence object with the correct types
