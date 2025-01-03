@@ -14,6 +14,7 @@ export const TaskGroup = ({ source, tasks, onComplete }: TaskGroupProps) => {
       ideas: "Ideas Tasks",
       substack: "Substack Tasks",
       projects: "Project Tasks",
+      sequences: "Sequence Tasks",
       other: "Other Tasks"
     };
     return titles[source] || "Tasks";

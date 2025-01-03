@@ -1325,6 +1325,7 @@ export type Database = {
         | "substack"
         | "other"
         | "projects"
+        | "sequences"
       transaction_type: "income" | "expense"
       user_role: "owner" | "admin" | "member"
     }

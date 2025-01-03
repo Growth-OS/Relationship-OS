@@ -20,6 +20,7 @@ const Tasks = () => {
             <TabsTrigger value="active">Active Tasks</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="deals">Deals</TabsTrigger>
+            <TabsTrigger value="sequences">Sequences</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="substack">Substack</TabsTrigger>
@@ -35,6 +36,9 @@ const Tasks = () => {
           </TabsContent>
           <TabsContent value="deals">
             <TaskList source="deals" showArchived={false} />
+          </TabsContent>
+          <TabsContent value="sequences">
+            <TaskList source="sequences" showArchived={false} />
           </TabsContent>
           <TabsContent value="content">
             <TaskList source="content" showArchived={false} />
