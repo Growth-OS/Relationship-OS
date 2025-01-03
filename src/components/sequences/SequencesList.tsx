@@ -12,7 +12,7 @@ interface SequencesListProps {
 }
 
 export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps) => {
-  const { handleStatusChange, handleDelete } = useSequenceOperations();
+  const { deleteSequence, isDeleting } = useSequenceOperations();
 
   if (isLoading) {
     return (
@@ -34,6 +34,20 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
+    }
+  };
+
+  const handleStatusChange = async (sequenceId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('sequences')
+        .update({ status: newStatus })
+        .eq('id', sequenceId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating sequence status:', error);
+      toast.error('Failed to update sequence status');
     }
   };
 
@@ -79,7 +93,7 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                   sequenceId={sequence.id}
                   status={sequence.status}
                   onStatusChange={(newStatus) => handleStatusChange(sequence.id, newStatus)}
-                  onDelete={() => handleDelete(sequence.id)}
+                  onDelete={() => deleteSequence(sequence.id, sequence.name)}
                 />
               </TableCell>
             </TableRow>
