@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -9,6 +9,7 @@ import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
 
 const Prospects = () => {
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: prospects = [], isLoading, error } = useQuery({
     queryKey: ['prospects'],
