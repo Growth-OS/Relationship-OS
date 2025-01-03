@@ -63,7 +63,7 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         .eq('sequence_id', selectedSequence)
         .eq('prospect_id', prospect.id)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
       if (checkError && checkError.code !== 'PGRST116') {
         throw checkError;
