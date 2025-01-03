@@ -14,32 +14,38 @@ export const useSequenceOperations = () => {
       // First delete all related tasks
       await deleteSequenceTasks(sequenceName);
 
-      // Delete sequence history records
-      const { error: historyError } = await supabase
-        .from('sequence_history')
-        .delete()
-        .eq('assignment_id', supabase
-          .from('sequence_assignments')
-          .select('id')
-          .eq('sequence_id', sequenceId)
-        );
-
-      if (historyError) {
-        console.error('Failed to delete sequence history:', historyError);
-        toast.error('Failed to delete sequence history');
-        return;
-      }
-
-      // Delete sequence assignments
-      const { error: assignmentsError } = await supabase
+      // Get all assignments for this sequence
+      const { data: assignments } = await supabase
         .from('sequence_assignments')
-        .delete()
+        .select('id')
         .eq('sequence_id', sequenceId);
 
-      if (assignmentsError) {
-        console.error('Failed to delete sequence assignments:', assignmentsError);
-        toast.error('Failed to delete sequence assignments');
-        return;
+      if (assignments && assignments.length > 0) {
+        // Delete sequence history records for each assignment
+        for (const assignment of assignments) {
+          const { error: historyError } = await supabase
+            .from('sequence_history')
+            .delete()
+            .eq('assignment_id', assignment.id);
+
+          if (historyError) {
+            console.error('Failed to delete sequence history:', historyError);
+            toast.error('Failed to delete sequence history');
+            return;
+          }
+        }
+
+        // Delete sequence assignments
+        const { error: assignmentsError } = await supabase
+          .from('sequence_assignments')
+          .delete()
+          .eq('sequence_id', sequenceId);
+
+        if (assignmentsError) {
+          console.error('Failed to delete sequence assignments:', assignmentsError);
+          toast.error('Failed to delete sequence assignments');
+          return;
+        }
       }
 
       // Delete sequence steps
