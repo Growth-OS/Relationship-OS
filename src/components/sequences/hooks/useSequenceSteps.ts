@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { StepType, DatabaseStepType, SequenceStep, DatabaseSequenceStep, Sequence } from "../types";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 import { toast } from "sonner";
 import { addDays, format } from "date-fns";
 import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
@@ -109,7 +110,7 @@ export const useSequenceSteps = (sequenceId: string) => {
             title: `${actionType} to ${prospectInfo.company_name} - ${prospectInfo.contact_job_title} ${contactMethod} - Step ${nextStepNumber}`,
             description: `Action required for ${prospectInfo.company_name}:\n\n${values.message_template}`,
             due_date: format(dueDate, 'yyyy-MM-dd'),
-            source: 'other',
+            source: 'other' as TaskSource,
             priority: 'medium',
             user_id: user.id
           };
