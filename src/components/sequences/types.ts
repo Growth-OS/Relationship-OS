@@ -38,6 +38,6 @@ export interface Sequence {
   description: string | null;
   status: 'active' | 'paused' | 'completed';
   max_steps: number;
-  sequence_steps?: DatabaseSequenceStep[];
+  sequence_steps?: SequenceStep[];
   sequence_assignments?: SequenceAssignment[];
 }
