@@ -39,16 +39,17 @@ export const useSequenceSteps = (sequenceId: string) => {
       if (!data) throw new Error("Sequence not found");
 
       // Map database step types to frontend step types
-      if (data.sequence_steps) {
-        data.sequence_steps = data.sequence_steps.map((step: DatabaseSequenceStep) => ({
+      const mappedData = {
+        ...data,
+        sequence_steps: data.sequence_steps?.map((step: DatabaseSequenceStep) => ({
           ...step,
           step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number),
           message_template: step.message_template || "",
           delay_days: step.delay_days || 0,
-        }));
-      }
+        }))
+      };
 
-      return data as Sequence;
+      return mappedData as Sequence;
     },
   });
 
