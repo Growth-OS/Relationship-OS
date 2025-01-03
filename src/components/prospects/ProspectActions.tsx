@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { addDays, format } from "date-fns";
+import { createSequenceTasks } from "@/components/sequences/utils/taskCreation";
 
 interface ProspectActionsProps {
   prospect: {
@@ -103,26 +103,12 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
-      // Create tasks for each step
-      const tasks = sequenceData.sequence_steps.map(step => {
-        const dueDate = addDays(new Date(), step.delay_days || 0);
-        const stepType = step.step_type === 'email' ? 'Send email' : 
-                        step.step_type === 'linkedin' && step.step_number === 1 ? 'Send LinkedIn connection request' : 
-                        'Send LinkedIn message';
-        
-        const contactMethod = step.step_type === 'email' ? 
-          `(${prospect.contact_email})` : 
-          `(${prospect.contact_linkedin})`;
-
-        return {
-          title: `${stepType} to ${prospect.company_name} - ${prospect.contact_job_title} ${contactMethod} - Step ${step.step_number}`,
-          description: step.message_template,
-          due_date: format(dueDate, 'yyyy-MM-dd'),
-          source: 'other',
-          priority: 'medium',
-          user_id: user.id
-        };
-      });
+      // Create tasks using the utility function
+      const tasks = createSequenceTasks(
+        sequenceData.sequence_steps,
+        prospect,
+        user.id
+      );
 
       // Insert all tasks
       if (tasks.length > 0) {
