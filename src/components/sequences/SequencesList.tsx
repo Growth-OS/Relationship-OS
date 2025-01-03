@@ -65,21 +65,45 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
 
   const handleDelete = async (sequenceId: string) => {
     try {
-      // First, delete all sequence steps associated with this sequence
-      const { error: stepsError } = await supabase
-        .from('sequence_steps')
+      console.log('Starting sequence deletion process for ID:', sequenceId);
+
+      // First, delete all sequence history records
+      const { error: historyError } = await supabase
+        .from('sequence_history')
         .delete()
-        .eq('sequence_id', sequenceId);
+        .eq('assignment_id', (
+          supabase
+            .from('sequence_assignments')
+            .select('id')
+            .eq('sequence_id', sequenceId)
+        ));
 
-      if (stepsError) throw stepsError;
+      if (historyError) {
+        console.error('Error deleting sequence history:', historyError);
+        throw historyError;
+      }
 
-      // Then, delete all sequence assignments associated with this sequence
+      // Then, delete all sequence assignments
       const { error: assignmentsError } = await supabase
         .from('sequence_assignments')
         .delete()
         .eq('sequence_id', sequenceId);
 
-      if (assignmentsError) throw assignmentsError;
+      if (assignmentsError) {
+        console.error('Error deleting sequence assignments:', assignmentsError);
+        throw assignmentsError;
+      }
+
+      // Next, delete all sequence steps
+      const { error: stepsError } = await supabase
+        .from('sequence_steps')
+        .delete()
+        .eq('sequence_id', sequenceId);
+
+      if (stepsError) {
+        console.error('Error deleting sequence steps:', stepsError);
+        throw stepsError;
+      }
 
       // Finally, delete the sequence itself
       const { error: sequenceError } = await supabase
@@ -87,13 +111,16 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
         .delete()
         .eq('id', sequenceId);
 
-      if (sequenceError) throw sequenceError;
+      if (sequenceError) {
+        console.error('Error deleting sequence:', sequenceError);
+        throw sequenceError;
+      }
 
       toast.success('Sequence deleted successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
     } catch (error) {
-      console.error('Error deleting sequence:', error);
-      toast.error('Failed to delete sequence');
+      console.error('Error in deletion process:', error);
+      toast.error('Failed to delete sequence. Please try again.');
     }
   };
 
