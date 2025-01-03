@@ -64,7 +64,8 @@ export const useSequenceOperations = () => {
 
       if (historyError) {
         console.error('Error deleting sequence history:', historyError);
-        throw historyError;
+        toast.error(`Failed to delete sequence history: ${historyError.message}`);
+        return;
       }
 
       // Then, delete all sequence assignments
@@ -75,7 +76,8 @@ export const useSequenceOperations = () => {
 
       if (assignmentsError) {
         console.error('Error deleting sequence assignments:', assignmentsError);
-        throw assignmentsError;
+        toast.error(`Failed to delete sequence assignments: ${assignmentsError.message}`);
+        return;
       }
 
       // Next, delete all sequence steps
@@ -86,7 +88,8 @@ export const useSequenceOperations = () => {
 
       if (stepsError) {
         console.error('Error deleting sequence steps:', stepsError);
-        throw stepsError;
+        toast.error(`Failed to delete sequence steps: ${stepsError.message}`);
+        return;
       }
 
       // Finally, delete the sequence itself
@@ -97,14 +100,19 @@ export const useSequenceOperations = () => {
 
       if (sequenceError) {
         console.error('Error deleting sequence:', sequenceError);
-        throw sequenceError;
+        toast.error(`Failed to delete sequence: ${sequenceError.message}`);
+        return;
       }
 
       toast.success('Sequence deleted successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
     } catch (error) {
       console.error('Error in deletion process:', error);
-      toast.error('Failed to delete sequence. Please try again.');
+      if (error instanceof Error) {
+        toast.error(`Failed to delete sequence: ${error.message}`);
+      } else {
+        toast.error('Failed to delete sequence. Please try again.');
+      }
     }
   };
 
