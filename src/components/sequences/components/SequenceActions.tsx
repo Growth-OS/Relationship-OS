@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Settings } from "lucide-react";
+import { Play, Pause, Settings, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DeleteSequenceDialog } from "./DeleteSequenceDialog";
 
 interface SequenceActionsProps {
   sequenceId: string;
   status: string;
+  isUpdating: boolean;
   onStatusChange: (newStatus: 'active' | 'paused') => Promise<void>;
   onDelete: () => Promise<void>;
 }
@@ -13,6 +14,7 @@ interface SequenceActionsProps {
 export const SequenceActions = ({ 
   sequenceId, 
   status, 
+  isUpdating,
   onStatusChange,
   onDelete 
 }: SequenceActionsProps) => {
@@ -20,7 +22,15 @@ export const SequenceActions = ({
 
   return (
     <div className="space-x-2">
-      {status === "active" ? (
+      {isUpdating ? (
+        <Button 
+          variant="ghost" 
+          size="icon"
+          disabled
+        >
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </Button>
+      ) : status === "active" ? (
         <Button 
           variant="ghost" 
           size="icon" 

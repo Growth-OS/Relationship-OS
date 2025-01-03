@@ -7,6 +7,8 @@ import { SequenceActions } from "./components/SequenceActions";
 import { useSequenceOperations } from "./hooks/useSequenceOperations";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface SequencesListProps {
   sequences: Sequence[];
@@ -15,6 +17,8 @@ interface SequencesListProps {
 
 export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps) => {
   const { deleteSequence, isDeleting } = useSequenceOperations();
+  const [updatingStatuses, setUpdatingStatuses] = useState<Record<string, boolean>>({});
+  const queryClient = useQueryClient();
 
   if (isLoading) {
     return (
@@ -40,6 +44,16 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
   };
 
   const handleStatusChange = async (sequenceId: string, newStatus: 'active' | 'paused' | 'completed') => {
+    setUpdatingStatuses(prev => ({ ...prev, [sequenceId]: true }));
+    
+    // Optimistically update the UI
+    queryClient.setQueryData(['sequences'], (oldData: Sequence[] | undefined) => {
+      if (!oldData) return oldData;
+      return oldData.map(sequence => 
+        sequence.id === sequenceId ? { ...sequence, status: newStatus } : sequence
+      );
+    });
+
     try {
       const { error } = await supabase
         .from('sequences')
@@ -47,9 +61,16 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
         .eq('id', sequenceId);
 
       if (error) throw error;
+      
+      toast.success(`Sequence ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
     } catch (error) {
       console.error('Error updating sequence status:', error);
       toast.error('Failed to update sequence status');
+      
+      // Revert optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ['sequences'] });
+    } finally {
+      setUpdatingStatuses(prev => ({ ...prev, [sequenceId]: false }));
     }
   };
 
@@ -94,6 +115,7 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                 <SequenceActions
                   sequenceId={sequence.id}
                   status={sequence.status}
+                  isUpdating={updatingStatuses[sequence.id]}
                   onStatusChange={(newStatus) => handleStatusChange(sequence.id, newStatus)}
                   onDelete={() => deleteSequence(sequence.id, sequence.name)}
                 />
