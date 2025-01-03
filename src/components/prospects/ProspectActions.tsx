@@ -26,7 +26,7 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [selectedSequence, setSelectedSequence] = useState<string>("");
 
-  const { data: sequences = [] } = useQuery({
+  const { data: sequences = [], isLoading } = useQuery({
     queryKey: ['sequences'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -38,8 +38,12 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
         .eq('user_id', user.id)
         .eq('status', 'active');
       
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error('Error fetching sequences:', error);
+        throw error;
+      }
+
+      return data || [];
     },
   });
 
@@ -134,19 +138,25 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
             <DialogTitle>Assign to Sequence</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <Select value={selectedSequence} onValueChange={setSelectedSequence}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a sequence" />
-              </SelectTrigger>
-              <SelectContent>
-                {sequences.map((sequence) => (
-                  <SelectItem key={sequence.id} value={sequence.id}>
-                    {sequence.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleAssignToSequence}>
+            {isLoading ? (
+              <div>Loading sequences...</div>
+            ) : sequences.length === 0 ? (
+              <div>No active sequences found</div>
+            ) : (
+              <Select value={selectedSequence} onValueChange={setSelectedSequence}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a sequence" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sequences.map((sequence) => (
+                    <SelectItem key={sequence.id} value={sequence.id}>
+                      {sequence.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Button onClick={handleAssignToSequence} disabled={!selectedSequence}>
               Assign
             </Button>
           </div>
