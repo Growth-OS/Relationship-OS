@@ -16,11 +16,20 @@ interface SequenceStep {
   delay_days: number;
 }
 
+interface SequenceTask {
+  title: string;
+  description: string | null;
+  due_date: string;
+  source: TaskSource;
+  priority: string;
+  user_id: string;
+}
+
 export const createSequenceTasks = (
   steps: SequenceStep[],
   prospect: ProspectInfo,
   userId: string
-) => {
+): SequenceTask[] => {
   return steps.map(step => {
     const dueDate = addDays(new Date(), step.delay_days || 0);
     const stepType = step.step_type === 'email' ? 'Send email' : 
@@ -35,7 +44,7 @@ export const createSequenceTasks = (
       title: `${stepType} to ${prospect.company_name} - ${prospect.contact_job_title} ${contactMethod} - Step ${step.step_number}`,
       description: step.message_template,
       due_date: format(dueDate, 'yyyy-MM-dd'),
-      source: 'other' as TaskSource,
+      source: 'sequences' as TaskSource,
       priority: 'medium',
       user_id: userId
     };

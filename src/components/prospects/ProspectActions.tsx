@@ -103,15 +103,12 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
-      // Create tasks using the utility function with the correct source
+      // Create tasks using the utility function
       const tasks = createSequenceTasks(
         sequenceData.sequence_steps,
         prospect,
         user.id
-      ).map(task => ({
-        ...task,
-        source: 'sequences' // Changed from 'other' to 'sequences'
-      }));
+      );
 
       // Insert all tasks
       if (tasks.length > 0) {
