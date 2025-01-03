@@ -94,7 +94,7 @@ export const useSequenceSteps = (sequenceId: string) => {
 
       // Create tasks for each prospect in the sequence
       if (sequence?.sequence_assignments) {
-        for (const assignment of sequence.sequence_assignments) {
+        const tasks = sequence.sequence_assignments.map(assignment => {
           const dueDate = addDays(new Date(), values.delay_days);
           const actionType = values.step_type.startsWith('email') ? 'Send email' : 
                           values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
@@ -105,22 +105,22 @@ export const useSequenceSteps = (sequenceId: string) => {
             `(${prospectInfo.contact_email})` : 
             `(${prospectInfo.contact_linkedin})`;
 
-          const taskTitle = `${actionType} to ${prospectInfo.company_name} - ${prospectInfo.contact_job_title} ${contactMethod} - Step ${nextStepNumber}`;
-          const taskDescription = `Action required for ${prospectInfo.company_name}:\n\n${values.message_template}`;
+          return {
+            title: `${actionType} to ${prospectInfo.company_name} - ${prospectInfo.contact_job_title} ${contactMethod} - Step ${nextStepNumber}`,
+            description: `Action required for ${prospectInfo.company_name}:\n\n${values.message_template}`,
+            due_date: format(dueDate, 'yyyy-MM-dd'),
+            source: 'other',
+            priority: 'medium',
+            user_id: user.id
+          };
+        });
 
-          const { error: taskError } = await supabase
-            .from("tasks")
-            .insert({
-              title: taskTitle,
-              description: taskDescription,
-              due_date: format(dueDate, 'yyyy-MM-dd'),
-              source: 'other',
-              priority: 'medium',
-              user_id: user.id
-            });
+        // Insert all tasks at once
+        const { error: tasksError } = await supabase
+          .from("tasks")
+          .insert(tasks);
 
-          if (taskError) throw taskError;
-        }
+        if (tasksError) throw tasksError;
       }
 
       return {
