@@ -24,7 +24,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         .select(`
           *,
           projects(id, name),
-          deals!tasks_deal_id_fkey(id, company_name),
+          deals(id, company_name),
           substack_posts(id, title),
           sequences(id, name)
         `)
@@ -46,7 +46,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
 
       if (error) {
         console.error("Error fetching tasks:", error);
-        throw error;
+        throw new Error("Failed to fetch tasks: " + error.message);
       }
 
       return data || [];
@@ -79,9 +79,10 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
   }
 
   if (error) {
+    console.error("Task list error:", error);
     return (
       <div className="text-sm text-red-500 p-4 bg-red-50 rounded-lg max-w-3xl">
-        Error loading tasks. Please try again.
+        Error loading tasks: {error.message || "Please try again"}
       </div>
     );
   }
