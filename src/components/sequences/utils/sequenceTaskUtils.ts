@@ -1,10 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 import { addDays } from "date-fns";
-import { DatabaseStepType } from "../types";
+import { DatabaseStepType, StepType } from "../types";
+import { mapDbStepTypeToFrontend } from "./stepTypeMapping";
 
 export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
   const task = tasks?.find(t => t.id === taskId);
-  if (!task?.source === 'other' || !task.title.includes('sequence')) {
+  if (!task || task.source !== 'other' || !task.title.includes('sequence')) {
     return;
   }
 
@@ -66,13 +67,14 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
 const createNextSequenceTask = async (
   sequenceName: string,
   stepNumber: number,
-  stepData: { step_type: DatabaseStepType; message_template: string },
+  stepData: { step_type: DatabaseStepType; message_template: string | null },
   dueDate: string
 ) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const actionType = getActionTypeForStep(stepData.step_type);
+  const frontendStepType = mapDbStepTypeToFrontend(stepData.step_type, stepNumber);
+  const actionType = getActionTypeForStep(frontendStepType);
 
   await supabase
     .from("tasks")
@@ -86,13 +88,12 @@ const createNextSequenceTask = async (
     });
 };
 
-const getActionTypeForStep = (stepType: DatabaseStepType): string => {
-  switch (stepType) {
-    case 'email':
-      return 'Send email';
-    case 'linkedin':
-      return 'Send LinkedIn message';
-    default:
-      return 'Send message';
+const getActionTypeForStep = (stepType: StepType): string => {
+  if (stepType.startsWith('email')) {
+    return 'Send email';
+  } else if (stepType === 'linkedin_connection') {
+    return 'Send LinkedIn connection request';
+  } else {
+    return 'Send LinkedIn message';
   }
 };
