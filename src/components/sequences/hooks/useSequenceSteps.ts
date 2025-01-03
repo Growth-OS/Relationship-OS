@@ -3,7 +3,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { StepType, DatabaseStepType, SequenceStep, DatabaseSequenceStep, Sequence } from "../types";
 import { toast } from "sonner";
 import { addDays, format } from "date-fns";
-import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
+
+// Helper functions for mapping step types
+const mapDbStepTypeToFrontend = (dbType: DatabaseStepType, stepNumber: number): StepType => {
+  if (dbType === "email") {
+    return stepNumber === 1 ? "email_1" : "email_2";
+  } else {
+    if (stepNumber === 1) return "linkedin_connection";
+    return stepNumber === 2 ? "linkedin_message_1" : "linkedin_message_2";
+  }
+};
+
+const mapFrontendStepTypeToDb = (frontendType: StepType): DatabaseStepType => {
+  return frontendType.startsWith('email') ? 'email' : 'linkedin';
+};
 
 export const useSequenceSteps = (sequenceId: string) => {
   const queryClient = useQueryClient();
