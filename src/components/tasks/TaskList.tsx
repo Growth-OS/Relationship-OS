@@ -49,6 +49,9 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         throw new Error("Failed to fetch tasks: " + error.message);
       }
 
+      // Log the tasks for debugging
+      console.log("Fetched tasks:", data);
+
       return data || [];
     },
   });
