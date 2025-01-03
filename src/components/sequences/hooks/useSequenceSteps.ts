@@ -3,20 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StepType, DatabaseStepType, SequenceStep, DatabaseSequenceStep, Sequence } from "../types";
 import { toast } from "sonner";
 import { addDays, format } from "date-fns";
-
-// Helper functions for mapping step types
-const mapDbStepTypeToFrontend = (dbType: DatabaseStepType, stepNumber: number): StepType => {
-  if (dbType === "email") {
-    return stepNumber === 1 ? "email_1" : "email_2";
-  } else {
-    if (stepNumber === 1) return "linkedin_connection";
-    return stepNumber === 2 ? "linkedin_message_1" : "linkedin_message_2";
-  }
-};
-
-const mapFrontendStepTypeToDb = (frontendType: StepType): DatabaseStepType => {
-  return frontendType.startsWith('email') ? 'email' : 'linkedin';
-};
+import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
 
 export const useSequenceSteps = (sequenceId: string) => {
   const queryClient = useQueryClient();
@@ -36,7 +23,10 @@ export const useSequenceSteps = (sequenceId: string) => {
             status,
             current_step,
             prospect:prospects (
-              company_name
+              company_name,
+              contact_email,
+              contact_linkedin,
+              contact_job_title
             )
           )
         `)
@@ -53,10 +43,9 @@ export const useSequenceSteps = (sequenceId: string) => {
         step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number),
         message_template: step.message_template || "",
         delay_days: step.delay_days || 0,
-        count: step.count // Pass through the count property
+        count: step.count
       }));
 
-      // Create the sequence object with the correct types
       const sequence: Sequence = {
         id: data.id,
         created_at: data.created_at,
@@ -103,24 +92,36 @@ export const useSequenceSteps = (sequenceId: string) => {
       if (stepError) throw stepError;
       if (!stepData) throw new Error("Failed to create step");
 
-      // Create a task for this step
-      const dueDate = addDays(new Date(), values.delay_days);
-      const actionType = values.step_type.startsWith('email') ? 'Send email' : 
-                        values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
-                        'Send LinkedIn message';
-      
-      const { error: taskError } = await supabase
-        .from("tasks")
-        .insert({
-          title: `${actionType} for sequence "${sequence?.name}" - Step ${nextStepNumber}`,
-          description: `Action required: ${values.message_template}`,
-          due_date: format(dueDate, 'yyyy-MM-dd'),
-          source: 'other',
-          priority: 'medium',
-          user_id: user.id
-        });
+      // Create tasks for each prospect in the sequence
+      if (sequence?.sequence_assignments) {
+        for (const assignment of sequence.sequence_assignments) {
+          const dueDate = addDays(new Date(), values.delay_days);
+          const actionType = values.step_type.startsWith('email') ? 'Send email' : 
+                          values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
+                          'Send LinkedIn message';
+          
+          const prospectInfo = assignment.prospect;
+          const contactMethod = values.step_type.startsWith('email') ? 
+            `(${prospectInfo.contact_email})` : 
+            `(${prospectInfo.contact_linkedin})`;
 
-      if (taskError) throw taskError;
+          const taskTitle = `${actionType} to ${prospectInfo.company_name} - ${prospectInfo.contact_job_title} ${contactMethod} - Step ${nextStepNumber}`;
+          const taskDescription = `Action required for ${prospectInfo.company_name}:\n\n${values.message_template}`;
+
+          const { error: taskError } = await supabase
+            .from("tasks")
+            .insert({
+              title: taskTitle,
+              description: taskDescription,
+              due_date: format(dueDate, 'yyyy-MM-dd'),
+              source: 'other',
+              priority: 'medium',
+              user_id: user.id
+            });
+
+          if (taskError) throw taskError;
+        }
+      }
 
       return {
         id: stepData.id,
@@ -132,7 +133,7 @@ export const useSequenceSteps = (sequenceId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });
-      toast.success("Step added successfully and task created");
+      toast.success("Step added successfully and tasks created");
     },
     onError: (error) => {
       console.error("Error adding step:", error);
