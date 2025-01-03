@@ -154,7 +154,7 @@ export const useSequenceOperations = () => {
 
   return {
     deleteSequence: (sequenceId: string, sequenceName: string) => 
-      deleteMutation.mutate({ sequenceId, sequenceName }),
+      deleteMutation.mutateAsync({ sequenceId, sequenceName }),
     assignProspect: assignProspectMutation.mutate,
     isAssigning: assignProspectMutation.isPending,
     isDeleting: deleteMutation.isPending

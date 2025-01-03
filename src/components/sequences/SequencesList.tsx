@@ -74,6 +74,15 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
     }
   };
 
+  const handleDelete = async (sequenceId: string, sequenceName: string) => {
+    try {
+      await deleteSequence(sequenceId, sequenceName);
+    } catch (error) {
+      console.error('Error deleting sequence:', error);
+      // Error is already handled in the mutation
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -117,7 +126,7 @@ export const SequencesList = ({ sequences = [], isLoading }: SequencesListProps)
                   status={sequence.status}
                   isUpdating={updatingStatuses[sequence.id]}
                   onStatusChange={(newStatus) => handleStatusChange(sequence.id, newStatus)}
-                  onDelete={() => deleteSequence(sequence.id, sequence.name)}
+                  onDelete={() => handleDelete(sequence.id, sequence.name)}
                 />
               </TableCell>
             </TableRow>
