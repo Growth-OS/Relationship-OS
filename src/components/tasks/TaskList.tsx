@@ -5,6 +5,7 @@ import { TaskCard } from "./TaskCard";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { TaskGroup } from "@/components/dashboard/TaskGroup";
 
 interface TaskListProps {
   source?: TaskSource;
@@ -94,12 +95,34 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
     return <EmptyTaskList />;
   }
 
+  // If we're showing tasks by source, group them
+  if (source) {
+    return (
+      <TaskGroup 
+        source={source} 
+        tasks={tasks}
+        onComplete={handleComplete}
+      />
+    );
+  }
+
+  // For the main view, group tasks by source
+  const tasksBySource = tasks.reduce((acc: Record<string, any[]>, task) => {
+    const source = task.source || 'other';
+    if (!acc[source]) {
+      acc[source] = [];
+    }
+    acc[source].push(task);
+    return acc;
+  }, {});
+
   return (
-    <div className="space-y-3">
-      {tasks.map((task) => (
-        <TaskCard 
-          key={task.id} 
-          task={task}
+    <div className="space-y-6">
+      {Object.entries(tasksBySource).map(([source, tasks]) => (
+        <TaskGroup 
+          key={source} 
+          source={source} 
+          tasks={tasks}
           onComplete={handleComplete}
         />
       ))}
