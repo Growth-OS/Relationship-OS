@@ -1334,7 +1334,12 @@ export type Database = {
       sequence_step_type: "email" | "linkedin"
       social_platform: "linkedin" | "instagram" | "both"
       social_post_status: "draft" | "ready" | "published" | "scheduled"
-      substack_post_status: "idea" | "writing" | "review" | "schedule" | "live"
+      substack_post_status:
+        | "idea"
+        | "writing"
+        | "passed_to_fausta"
+        | "schedule"
+        | "live"
       task_source:
         | "deals"
         | "content"
