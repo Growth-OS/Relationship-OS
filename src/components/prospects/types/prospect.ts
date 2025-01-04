@@ -9,6 +9,7 @@ export interface Prospect {
   sequence_name?: string;
   sequence_status?: string;
   current_step?: number;
+  status?: string;
 }
 
 export interface ProspectActionsProps {
