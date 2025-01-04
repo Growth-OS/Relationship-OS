@@ -6,7 +6,6 @@ import { Prospect } from "../types/prospect";
 interface ProspectRowProps {
   prospect: Prospect;
   isSelected: boolean;
-  onSelect: (id: string) => void;
   onSelectChange: (checked: boolean) => void;
   onEdit: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
@@ -17,7 +16,6 @@ interface ProspectRowProps {
 export const ProspectRow = ({
   prospect,
   isSelected,
-  onSelect,
   onSelectChange,
   onEdit,
   onDelete,
