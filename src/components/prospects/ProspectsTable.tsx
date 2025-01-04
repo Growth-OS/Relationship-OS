@@ -14,6 +14,7 @@ import { TableEmptyState } from "./components/TableEmptyState";
 import type { Prospect } from "./types/prospect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -31,6 +32,7 @@ export const ProspectsTable = ({
   onPageChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -50,8 +52,23 @@ export const ProspectsTable = ({
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from("prospects").delete().eq("id", id);
-      if (error) throw error;
+      console.log('Deleting prospect:', id);
+      const { error } = await supabase
+        .from("prospects")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        console.error("Error deleting prospect:", error);
+        throw error;
+      }
+
+      // Remove the deleted prospect from selected IDs if it was selected
+      setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
+      
+      // Invalidate and refetch the prospects query
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      
       toast.success("Prospect deleted successfully");
     } catch (error) {
       console.error("Error deleting prospect:", error);
