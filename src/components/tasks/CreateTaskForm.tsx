@@ -48,29 +48,35 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
       return;
     }
 
-    const { error } = await supabase.from("tasks").insert({
-      title,
-      description,
-      source,
-      source_id: sourceId,
-      project_id: projectId,
-      user_id: user.id,
-      due_date: dueDate?.toISOString().split('T')[0],
-      priority,
-    });
+    try {
+      const { error } = await supabase.from("tasks").insert({
+        title,
+        description,
+        source,
+        source_id: sourceId,
+        project_id: projectId,
+        user_id: user.id,
+        due_date: dueDate?.toISOString().split('T')[0],
+        priority,
+      });
 
-    if (error) {
+      if (error) {
+        console.error("Error creating task:", error);
+        toast.error("Failed to create task");
+        return;
+      }
+
+      toast.success("Task created successfully");
+      setTitle("");
+      setDescription("");
+      setDueDate(undefined);
+      setPriority("medium");
+      setIsExpanded(false);
+      onSuccess?.();
+    } catch (error) {
+      console.error("Error creating task:", error);
       toast.error("Failed to create task");
-      return;
     }
-
-    toast.success("Task created successfully");
-    setTitle("");
-    setDescription("");
-    setDueDate(undefined);
-    setPriority("medium");
-    setIsExpanded(false);
-    onSuccess?.();
   };
 
   if (!isExpanded) {
