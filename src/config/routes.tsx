@@ -18,6 +18,7 @@ import BoardView from "@/pages/BoardView";
 import Sequences from "@/pages/Sequences";
 import SequenceBuilder from "@/pages/SequenceBuilder";
 import SubstackPosts from "@/pages/SubstackPosts";
+import SubstackPostEditor from "@/pages/SubstackPostEditor";
 import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 
@@ -97,6 +98,14 @@ export const routes: RouteObject[] = [
       {
         path: "substack",
         element: <SubstackPosts />,
+      },
+      {
+        path: "substack/new",
+        element: <SubstackPostEditor />,
+      },
+      {
+        path: "substack/edit/:id",
+        element: <SubstackPostEditor />,
       },
     ],
   },

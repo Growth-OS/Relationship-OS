@@ -4,9 +4,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const SubstackPosts = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { data: posts, isLoading } = useQuery({
     queryKey: ["substack-posts"],
     queryFn: async () => {
@@ -37,7 +39,7 @@ const SubstackPosts = () => {
             Manage and create your Substack content
           </p>
         </div>
-        <Button>
+        <Button onClick={() => navigate("new")}>
           <Plus className="w-4 h-4 mr-2" />
           New Post
         </Button>
@@ -72,7 +74,11 @@ const SubstackPosts = () => {
                 <span className="text-sm text-muted-foreground">
                   {new Date(post.created_at).toLocaleDateString()}
                 </span>
-                <Button variant="ghost" size="sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate(`edit/${post.id}`)}
+                >
                   Edit
                 </Button>
               </div>
