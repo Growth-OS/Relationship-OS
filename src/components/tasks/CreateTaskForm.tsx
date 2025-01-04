@@ -104,7 +104,7 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
 
       <Select 
         value={source || selectedSource} 
-        onValueChange={setSelectedSource}
+        onValueChange={(value: TaskSource) => setSelectedSource(value)}
         disabled={!!source}
       >
         <SelectTrigger>
