@@ -819,14 +819,14 @@ export type Database = {
           {
             foreignKeyName: "sequence_assignments_prospect_id_fkey"
             columns: ["prospect_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "prospect_sequence_info"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "sequence_assignments_prospect_id_fkey"
             columns: ["prospect_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "prospects"
             referencedColumns: ["id"]
           },

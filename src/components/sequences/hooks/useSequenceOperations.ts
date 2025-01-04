@@ -66,6 +66,18 @@ export const useSequenceOperations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Check if prospect is already assigned to this sequence
+      const { data: existingAssignment } = await supabase
+        .from("sequence_assignments")
+        .select("*")
+        .eq("sequence_id", sequenceId)
+        .eq("prospect_id", prospectId)
+        .maybeSingle();
+
+      if (existingAssignment) {
+        throw new Error("Prospect is already assigned to this sequence");
+      }
+
       // First, get the sequence details and steps
       const { data: sequence, error: sequenceError } = await supabase
         .from("sequences")
@@ -114,7 +126,11 @@ export const useSequenceOperations = () => {
     },
     onError: (error) => {
       console.error("Error assigning prospect:", error);
-      toast.error("Failed to assign prospect to sequence");
+      if (error instanceof Error && error.message === "Prospect is already assigned to this sequence") {
+        toast.error("This prospect is already assigned to this sequence");
+      } else {
+        toast.error("Failed to assign prospect to sequence");
+      }
     }
   });
 
