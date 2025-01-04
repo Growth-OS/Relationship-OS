@@ -12,9 +12,10 @@ export const useSequenceOperations = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
+      // Update tasks to completed instead of deleting them
       const { error: tasksError } = await supabase
         .from("tasks")
-        .delete()
+        .update({ completed: true })
         .eq('user_id', user.user.id)
         .like('title', `%sequence "${sequenceName}"%`);
 
