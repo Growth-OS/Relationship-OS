@@ -8,6 +8,8 @@ import { TablePagination } from "./components/TablePagination";
 import { TableLoadingState } from "./components/TableLoadingState";
 import { TableEmptyState } from "./components/TableEmptyState";
 import type { Prospect } from "./types/prospect";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
