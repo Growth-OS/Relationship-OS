@@ -66,14 +66,43 @@ export const ProspectsTable = ({
 
   const handleAssignSequence = async (sequenceId: string) => {
     try {
-      const { error } = await supabase.from("sequence_assignments").insert(
-        selectedIds.map((prospectId) => ({
-          sequence_id: sequenceId,
-          prospect_id: prospectId,
-        }))
+      // First check if any of the prospects are already assigned to this sequence
+      const { data: existingAssignments, error: checkError } = await supabase
+        .from("sequence_assignments")
+        .select("prospect_id")
+        .eq("sequence_id", sequenceId)
+        .in("prospect_id", selectedIds);
+
+      if (checkError) throw checkError;
+
+      // Filter out prospects that are already assigned
+      const existingProspectIds = existingAssignments?.map(a => a.prospect_id) || [];
+      const prospectsToAssign = selectedIds.filter(id => !existingProspectIds.includes(id));
+
+      if (prospectsToAssign.length === 0) {
+        toast.error("Selected prospects are already assigned to this sequence");
+        return;
+      }
+
+      // Create assignments for remaining prospects
+      const { error: insertError } = await supabase
+        .from("sequence_assignments")
+        .insert(
+          prospectsToAssign.map((prospectId) => ({
+            sequence_id: sequenceId,
+            prospect_id: prospectId,
+            status: 'active',
+            current_step: 1
+          }))
+        );
+
+      if (insertError) throw insertError;
+
+      toast.success(
+        existingProspectIds.length > 0
+          ? "Prospects assigned to sequence (some were already assigned)"
+          : "Prospects assigned to sequence"
       );
-      if (error) throw error;
-      toast.success("Prospects assigned to sequence");
       setSelectedIds([]);
     } catch (error) {
       console.error("Error assigning sequence:", error);
