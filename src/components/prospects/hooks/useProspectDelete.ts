@@ -6,48 +6,59 @@ export const useProspectDelete = () => {
     try {
       console.log('Deleting prospect:', id);
       
-      // First, delete any sequence assignments and history
-      const { error: historyError } = await supabase
-        .from("sequence_history")
-        .delete()
-        .eq("assignment_id", (
-          await supabase
-            .from("sequence_assignments")
-            .select("id")
-            .eq("prospect_id", id)
-        ).data?.[0]?.id);
+      // First, get all sequence assignments for this prospect
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from("sequence_assignments")
+        .select("id")
+        .eq("prospect_id", id);
 
-      if (historyError) {
-        console.error("Error deleting sequence history:", historyError);
-        throw historyError;
+      if (assignmentsError) {
+        console.error("Error fetching assignments:", assignmentsError);
+        throw assignmentsError;
       }
 
-      // Then delete sequence assignments
-      const { error: assignmentsError } = await supabase
+      // Delete sequence history for all assignments
+      if (assignments && assignments.length > 0) {
+        const assignmentIds = assignments.map(a => a.id);
+        const { error: historyError } = await supabase
+          .from("sequence_history")
+          .delete()
+          .in("assignment_id", assignmentIds);
+
+        if (historyError) {
+          console.error("Error deleting sequence history:", historyError);
+          throw historyError;
+        }
+      }
+
+      // Delete sequence assignments
+      const { error: assignmentDeleteError } = await supabase
         .from("sequence_assignments")
         .delete()
         .eq("prospect_id", id);
 
-      if (assignmentsError) {
-        console.error("Error deleting sequence assignments:", assignmentsError);
-        throw assignmentsError;
+      if (assignmentDeleteError) {
+        console.error("Error deleting assignments:", assignmentDeleteError);
+        throw assignmentDeleteError;
       }
 
       // Finally delete the prospect
-      const { error } = await supabase
+      const { error: prospectError } = await supabase
         .from("prospects")
         .delete()
         .eq("id", id);
 
-      if (error) {
-        console.error("Error deleting prospect:", error);
-        throw error;
+      if (prospectError) {
+        console.error("Error deleting prospect:", prospectError);
+        throw prospectError;
       }
       
       toast.success("Prospect deleted successfully");
+      return true;
     } catch (error) {
-      console.error("Error deleting prospect:", error);
+      console.error("Error in deletion process:", error);
       toast.error("Failed to delete prospect");
+      return false;
     }
   };
 
