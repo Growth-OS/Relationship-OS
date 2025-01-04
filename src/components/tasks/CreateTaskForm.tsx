@@ -15,15 +15,17 @@ import { Calendar } from "@/components/ui/calendar";
 
 interface CreateTaskFormProps {
   onSuccess?: () => void;
+  source?: TaskSource;
+  sourceId?: string;
+  projectId?: string;
 }
 
-export const CreateTaskForm = ({ onSuccess }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectId }: CreateTaskFormProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
-  const [source, setSource] = useState<TaskSource>("other");
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -50,6 +52,8 @@ export const CreateTaskForm = ({ onSuccess }: CreateTaskFormProps) => {
       title,
       description,
       source,
+      source_id: sourceId,
+      project_id: projectId,
       user_id: user.id,
       due_date: dueDate?.toISOString().split('T')[0],
       priority,
@@ -65,7 +69,6 @@ export const CreateTaskForm = ({ onSuccess }: CreateTaskFormProps) => {
     setDescription("");
     setDueDate(undefined);
     setPriority("medium");
-    setSource("other");
     setIsExpanded(false);
     onSuccess?.();
   };
@@ -92,7 +95,7 @@ export const CreateTaskForm = ({ onSuccess }: CreateTaskFormProps) => {
         autoFocus
       />
 
-      <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
+      <Select value={source} disabled>
         <SelectTrigger>
           <SelectValue placeholder="Select category" />
         </SelectTrigger>
