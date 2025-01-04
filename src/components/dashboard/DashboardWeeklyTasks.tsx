@@ -24,7 +24,8 @@ export const DashboardWeeklyTasks = () => {
           *,
           projects(id, name),
           deals(id, company_name),
-          substack_posts(id, title)
+          substack_posts(id, title),
+          sequences(id, name)
         `)
         .eq("user_id", user.user.id)
         .eq("completed", false)
@@ -47,11 +48,17 @@ export const DashboardWeeklyTasks = () => {
       if (updateError) throw updateError;
 
       // Update sequence progress if this is a sequence task
-      await updateSequenceProgress(taskId, tasks || []);
+      if (tasks) {
+        const task = tasks.find(t => t.id === taskId);
+        if (task && task.source === 'sequences') {
+          await updateSequenceProgress(taskId, tasks);
+        }
+      }
 
       // Invalidate relevant queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["prospects"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["sequences"] });
       
       toast.success("Task updated successfully");
     } catch (error) {

@@ -5,21 +5,12 @@ import { mapDbStepTypeToFrontend } from "./stepTypeMapping";
 
 export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
   const task = tasks?.find(t => t.id === taskId);
-  if (!task || task.source !== 'other' || !task.title.includes('sequence')) {
+  if (!task || task.source !== 'sequences') {
     return;
   }
 
-  const sequenceName = task.title.match(/sequence "([^"]+)"/)?.[1];
-  if (!sequenceName) return;
-
-  // Get the sequence
-  const { data: sequences } = await supabase
-    .from('sequences')
-    .select('id')
-    .eq('name', sequenceName)
-    .maybeSingle();
-
-  if (!sequences) return;
+  const sequenceId = task.sequence_id;
+  if (!sequenceId) return;
 
   // Get all assignments for this sequence
   const { data: assignments } = await supabase
@@ -31,7 +22,7 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
         sequence_steps(*)
       )
     `)
-    .eq('sequence_id', sequences.id);
+    .eq('sequence_id', sequenceId);
 
   if (!assignments || assignments.length === 0) return;
 
@@ -66,7 +57,7 @@ export const updateSequenceProgress = async (taskId: string, tasks: any[]) => {
 
     // Create next task if there is one
     if (nextStepData) {
-      await createNextSequenceTask(sequenceName, nextStep, nextStepData, dueDate);
+      await createNextSequenceTask(assignment.sequence.id, nextStep, nextStepData, dueDate);
     }
   });
 
@@ -82,6 +73,7 @@ export const deleteSequenceTasks = async (sequenceName: string) => {
     .from("tasks")
     .delete()
     .eq('user_id', user.user.id)
+    .eq('source', 'sequences')
     .like('title', `%sequence "${sequenceName}"%`);
 
   if (error) {
@@ -91,7 +83,7 @@ export const deleteSequenceTasks = async (sequenceName: string) => {
 };
 
 const createNextSequenceTask = async (
-  sequenceName: string,
+  sequenceId: string,
   stepNumber: number,
   stepData: { step_type: DatabaseStepType; message_template: string | null; delay_days: number },
   dueDate: string
@@ -99,18 +91,28 @@ const createNextSequenceTask = async (
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  const { data: sequence } = await supabase
+    .from("sequences")
+    .select("name")
+    .eq("id", sequenceId)
+    .maybeSingle();
+
+  if (!sequence) return;
+
   const frontendStepType = mapDbStepTypeToFrontend(stepData.step_type, stepNumber);
   const actionType = getActionTypeForStep(frontendStepType);
 
   await supabase
     .from("tasks")
     .insert({
-      title: `${actionType} for sequence "${sequenceName}" - Step ${stepNumber}`,
+      title: `${actionType} for sequence "${sequence.name}" - Step ${stepNumber}`,
       description: stepData.message_template,
       due_date: dueDate,
-      source: 'other',
+      source: 'sequences',
+      sequence_id: sequenceId,
       priority: 'medium',
-      user_id: user.id
+      user_id: user.id,
+      completed: false
     });
 };
 
