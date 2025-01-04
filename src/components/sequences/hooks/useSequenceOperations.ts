@@ -19,6 +19,7 @@ export const useSequenceOperations = () => {
         .from("sequences")
         .select("user_id")
         .eq("id", sequenceId)
+        .eq("user_id", user.id)
         .single();
 
       if (sequenceError) {
@@ -26,8 +27,8 @@ export const useSequenceOperations = () => {
         throw sequenceError;
       }
 
-      if (sequence.user_id !== user.id) {
-        throw new Error("Unauthorized: You don't own this sequence");
+      if (!sequence) {
+        throw new Error("Sequence not found or unauthorized");
       }
 
       // Update tasks to completed instead of deleting them
@@ -51,7 +52,7 @@ export const useSequenceOperations = () => {
           status: 'completed' 
         })
         .eq("id", sequenceId)
-        .eq("user_id", user.id); // Ensure we're only updating user's own sequence
+        .eq("user_id", user.id);
 
       if (sequenceUpdateError) {
         console.error("Error deleting sequence:", sequenceUpdateError);

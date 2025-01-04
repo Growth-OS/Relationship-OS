@@ -9,6 +9,9 @@ const Sequences = () => {
   const { data: sequences, isLoading, error } = useQuery({
     queryKey: ["sequences"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       console.log('Fetching sequences...');
       const { data, error } = await supabase
         .from("sequences")
@@ -26,6 +29,8 @@ const Sequences = () => {
             )
           )
         `)
+        .eq("user_id", user.id)
+        .eq("is_deleted", false)
         .order("created_at", { ascending: false });
 
       if (error) {
