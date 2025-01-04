@@ -7,42 +7,59 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ProspectsTable } from "@/components/prospects/ProspectsTable";
 import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
 
+const ITEMS_PER_PAGE = 10;
+
 const Prospects = () => {
   const [open, setOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
 
-  const { data: prospects = [], isLoading, error } = useQuery({
-    queryKey: ['prospects'],
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['prospects', currentPage],
     queryFn: async () => {
-      console.log('Fetching prospects...');
-      const { data, error } = await supabase
+      console.log('Fetching prospects for page:', currentPage);
+      
+      // First, get the total count
+      const { count, error: countError } = await supabase
+        .from('prospect_sequence_info')
+        .select('*', { count: 'exact', head: true });
+      
+      if (countError) {
+        console.error('Error fetching count:', countError);
+        throw countError;
+      }
+
+      // Then get the paginated data
+      const { data, error: dataError } = await supabase
         .from('prospect_sequence_info')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
       
-      if (error) {
-        console.error('Error fetching prospects:', error);
-        throw error;
+      if (dataError) {
+        console.error('Error fetching prospects:', dataError);
+        throw dataError;
       }
       
       console.log('Prospects fetched:', data);
-      return data;
+      return {
+        prospects: data || [],
+        totalCount: count || 0,
+      };
     },
   });
+
+  const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   if (error) {
     console.error('Query error:', error);
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-red-500">Error loading prospects. Please try again.</div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -69,7 +86,6 @@ const Prospects = () => {
             </DialogHeader>
             <CreateProspectForm onSuccess={() => {
               setOpen(false);
-              // Invalidate and refetch prospects query
               queryClient.invalidateQueries({ queryKey: ['prospects'] });
             }} />
           </DialogContent>
@@ -77,10 +93,16 @@ const Prospects = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-        <ProspectsTable prospects={prospects} onProspectUpdated={() => {
-          // Invalidate and refetch prospects query
-          queryClient.invalidateQueries({ queryKey: ['prospects'] });
-        }} />
+        <ProspectsTable 
+          prospects={data?.prospects || []}
+          onProspectUpdated={() => {
+            queryClient.invalidateQueries({ queryKey: ['prospects'] });
+          }}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );

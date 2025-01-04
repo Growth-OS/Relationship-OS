@@ -7,15 +7,26 @@ import { toast } from "sonner";
 import { ProspectRow } from "./ProspectRow";
 import { useState } from "react";
 import { AssignSequenceDialog } from "./components/AssignSequenceDialog";
-import { Users } from "lucide-react";
+import { Users, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Prospect } from "./types/prospect";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
   onProspectUpdated: () => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
 }
 
-export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableProps) => {
+export const ProspectsTable = ({ 
+  prospects, 
+  onProspectUpdated, 
+  currentPage, 
+  totalPages, 
+  onPageChange,
+  isLoading 
+}: ProspectsTableProps) => {
   const [editingProspect, setEditingProspect] = useState<Prospect | null>(null);
   const [selectedProspects, setSelectedProspects] = useState<Set<string>>(new Set());
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
@@ -104,7 +115,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
 
   return (
     <>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-between items-center">
         {selectedProspects.size > 0 && (
           <Button
             onClick={() => setIsAssignDialogOpen(true)}
@@ -133,7 +144,15 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
             </TableRow>
           </TableHeader>
           <TableBody>
-            {activeProspects.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={10} className="text-center py-8">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : activeProspects.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                   No prospects found. Add your first prospect to get started.
@@ -155,6 +174,58 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
             )}
           </TableBody>
         </Table>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <Button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                variant="outline"
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                variant="outline"
+              >
+                Next
+              </Button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  Page <span className="font-medium">{currentPage}</span> of{' '}
+                  <span className="font-medium">{totalPages}</span>
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                  <Button
+                    onClick={() => onPageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                    size="icon"
+                    className="rounded-l-md"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => onPageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    variant="outline"
+                    size="icon"
+                    className="rounded-r-md"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {editingProspect && (
