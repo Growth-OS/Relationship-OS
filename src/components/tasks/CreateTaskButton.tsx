@@ -3,10 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateTaskForm } from "./CreateTaskForm";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 
 interface CreateTaskButtonProps {
   sourceId?: string;
-  source?: "deals" | "content" | "ideas" | "substack" | "projects" | "other";
+  source?: TaskSource;
   onSuccess?: () => void;
   variant?: "ghost" | "default";
   size?: "icon" | "default";
@@ -14,12 +15,17 @@ interface CreateTaskButtonProps {
 
 export const CreateTaskButton = ({ 
   sourceId, 
-  source = "other", 
+  source, 
   onSuccess,
   variant = "default",
   size = "default"
 }: CreateTaskButtonProps) => {
   const [open, setOpen] = useState(false);
+
+  const handleSuccess = () => {
+    setOpen(false);
+    onSuccess?.();
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -29,7 +35,7 @@ export const CreateTaskButton = ({
             <Plus className="h-4 w-4" />
           </Button>
         ) : (
-          <Button>
+          <Button variant={variant}>
             <Plus className="h-4 w-4 mr-2" />
             Create Task
           </Button>
@@ -42,10 +48,7 @@ export const CreateTaskButton = ({
         <CreateTaskForm 
           source={source}
           sourceId={sourceId}
-          onSuccess={() => {
-            setOpen(false);
-            onSuccess?.();
-          }} 
+          onSuccess={handleSuccess}
         />
       </DialogContent>
     </Dialog>

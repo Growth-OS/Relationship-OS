@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -20,36 +19,28 @@ interface CreateTaskFormProps {
   projectId?: string;
 }
 
-export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectId }: CreateTaskFormProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId }: CreateTaskFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
-  const [selectedSource, setSelectedSource] = useState<TaskSource>(source);
-
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      return user;
-    },
-  });
+  const [selectedSource, setSelectedSource] = useState<TaskSource>(source || "other");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error("You must be logged in to create tasks");
-      return;
-    }
-
-    if (!title) {
-      toast.error("Please enter a task title");
-      return;
-    }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to create tasks");
+        return;
+      }
+
+      if (!title) {
+        toast.error("Please enter a task title");
+        return;
+      }
+
       const { error } = await supabase.from("tasks").insert({
         title,
         description,
@@ -72,7 +63,6 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
       setDescription("");
       setDueDate(undefined);
       setPriority("medium");
-      setIsExpanded(false);
       onSuccess?.();
     } catch (error) {
       console.error("Error creating task:", error);
@@ -80,20 +70,8 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
     }
   };
 
-  if (!isExpanded) {
-    return (
-      <Button 
-        variant="outline" 
-        className="w-full text-left justify-start h-auto py-3 px-4"
-        onClick={() => setIsExpanded(true)}
-      >
-        + Add a task...
-      </Button>
-    );
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 border rounded-lg p-4 bg-background">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <Input
         placeholder="What needs to be done?"
         value={title}
@@ -116,6 +94,7 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
           <SelectItem value="content">Content</SelectItem>
           <SelectItem value="ideas">Ideas</SelectItem>
           <SelectItem value="substack">Substack</SelectItem>
+          <SelectItem value="sequences">Sequences</SelectItem>
           <SelectItem value="other">Other</SelectItem>
         </SelectContent>
       </Select>
@@ -163,11 +142,8 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
         </Select>
       </div>
 
-      <div className="flex gap-2">
-        <Button type="button" variant="outline" onClick={() => setIsExpanded(false)} className="flex-1">
-          Cancel
-        </Button>
-        <Button type="submit" className="flex-1">
+      <div className="flex justify-end">
+        <Button type="submit">
           Create Task
         </Button>
       </div>
