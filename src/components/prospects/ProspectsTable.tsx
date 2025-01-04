@@ -12,9 +12,7 @@ import { TablePagination } from "./components/TablePagination";
 import { TableLoadingState } from "./components/TableLoadingState";
 import { TableEmptyState } from "./components/TableEmptyState";
 import type { Prospect } from "./types/prospect";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useProspectOperations } from "./hooks/useProspectOperations";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -32,7 +30,7 @@ export const ProspectsTable = ({
   onPageChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const queryClient = useQueryClient();
+  const { handleDelete, handleConvertToLead, handleAssignSequence } = useProspectOperations();
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -50,134 +48,15 @@ export const ProspectsTable = ({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      console.log('Deleting prospect:', id);
-      const { error } = await supabase
-        .from("prospects")
-        .delete()
-        .eq("id", id);
-
-      if (error) {
-        console.error("Error deleting prospect:", error);
-        throw error;
-      }
-
-      // Remove the deleted prospect from selected IDs if it was selected
-      setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
-      
-      // Invalidate and refetch the prospects query
-      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
-      
-      toast.success("Prospect deleted successfully");
-    } catch (error) {
-      console.error("Error deleting prospect:", error);
-      toast.error("Failed to delete prospect");
-    }
-  };
-
   const handleEdit = (prospect: Prospect) => {
     // Implement edit functionality
     console.log("Edit prospect:", prospect);
   };
 
-  const handleConvertToLead = async (prospect: Prospect) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('You must be logged in to convert prospects');
-        return;
-      }
-
-      console.log('Converting prospect to lead:', prospect);
-
-      const { error } = await supabase
-        .from('deals')
-        .insert({
-          user_id: user.id,
-          company_name: prospect.company_name,
-          contact_email: prospect.contact_email,
-          contact_linkedin: prospect.contact_linkedin,
-          contact_job_title: prospect.contact_job_title,
-          stage: 'lead',
-          source: prospect.source,
-          notes: prospect.notes
-        });
-
-      if (error) {
-        console.error('Error converting prospect to lead:', error);
-        throw error;
-      }
-
-      // Update prospect status
-      const { error: updateError } = await supabase
-        .from('prospects')
-        .update({ status: 'converted' })
-        .eq('id', prospect.id);
-
-      if (updateError) {
-        console.error('Error updating prospect status:', updateError);
-        throw updateError;
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
-      await queryClient.invalidateQueries({ queryKey: ['deals'] });
-      
-      toast.success('Prospect converted to lead successfully');
-    } catch (error) {
-      console.error('Error in conversion:', error);
-      toast.error('Failed to convert prospect to lead');
-    }
-  };
-
-  const handleAssignSequence = async (sequenceId: string) => {
-    try {
-      // First check if any of the prospects are already assigned to this sequence
-      const { data: existingAssignments, error: checkError } = await supabase
-        .from("sequence_assignments")
-        .select("prospect_id")
-        .eq("sequence_id", sequenceId)
-        .in("prospect_id", selectedIds);
-
-      if (checkError) throw checkError;
-
-      // Filter out prospects that are already assigned
-      const existingProspectIds = existingAssignments?.map(a => a.prospect_id) || [];
-      const prospectsToAssign = selectedIds.filter(id => !existingProspectIds.includes(id));
-
-      if (prospectsToAssign.length === 0) {
-        toast.error("Selected prospects are already assigned to this sequence");
-        return;
-      }
-
-      // Create assignments for remaining prospects
-      const { error: insertError } = await supabase
-        .from("sequence_assignments")
-        .insert(
-          prospectsToAssign.map((prospectId) => ({
-            sequence_id: sequenceId,
-            prospect_id: prospectId,
-            status: 'active',
-            current_step: 1
-          }))
-        );
-
-      if (insertError) throw insertError;
-
-      // Invalidate relevant queries
-      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
-      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
-      await queryClient.invalidateQueries({ queryKey: ['tasks'] });
-
-      toast.success(
-        existingProspectIds.length > 0
-          ? "Prospects assigned to sequence (some were already assigned)"
-          : "Prospects assigned to sequence"
-      );
+  const handleAssignSequenceToProspects = async (sequenceId: string) => {
+    const success = await handleAssignSequence(sequenceId, selectedIds);
+    if (success) {
       setSelectedIds([]);
-    } catch (error) {
-      console.error("Error assigning sequence:", error);
-      toast.error("Failed to assign sequence");
     }
   };
 
@@ -199,7 +78,7 @@ export const ProspectsTable = ({
         selectedIds={selectedIds}
         allSelected={selectedIds.length === prospects.length}
         onSelectAll={handleSelectAll}
-        onAssignSequence={handleAssignSequence}
+        onAssignSequence={handleAssignSequenceToProspects}
       />
       <div className="rounded-md border">
         <Table>
