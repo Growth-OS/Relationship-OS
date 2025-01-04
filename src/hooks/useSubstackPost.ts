@@ -3,13 +3,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { SubstackPostFormData } from "@/components/substack/types";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 
 export const useSubstackPost = (id?: string) => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
 
-  const { data: session } = supabase.auth.getSession();
-  const user = session?.data?.user;
+  // Get the current user session
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+    };
+    getSession();
+  }, []);
 
   const { data: post, isLoading } = useQuery({
     queryKey: ["substack-post", id],
