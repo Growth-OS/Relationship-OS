@@ -1,5 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -39,26 +39,32 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
         return;
       }
 
-      // Ensure company_name is included and not undefined
-      const prospectData = {
-        ...values,
-        user_id: user.id,
-        company_name: values.company_name, // Explicitly include company_name
-        source: values.source || 'other'
-      };
+      console.log('Submitting prospect with data:', { ...values, user_id: user.id });
 
       const { error } = await supabase
         .from('prospects')
-        .insert(prospectData);
+        .insert({
+          company_name: values.company_name,
+          contact_email: values.contact_email || null,
+          contact_job_title: values.contact_job_title || null,
+          contact_linkedin: values.contact_linkedin || null,
+          source: values.source,
+          notes: values.notes || null,
+          user_id: user.id,
+          status: 'active'
+        });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding prospect:', error);
+        throw error;
+      }
 
       toast.success('Prospect added successfully');
-      onSuccess();
       form.reset();
+      onSuccess();
     } catch (error) {
       console.error('Error adding prospect:', error);
-      toast.error('Error adding prospect');
+      toast.error('Failed to add prospect');
     }
   };
 
