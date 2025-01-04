@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Grid2X2, LayoutPipeline } from "lucide-react";
+import { Plus, FileText, Grid2X2, KanbanSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { SubstackPipeline } from "@/components/substack/SubstackPipeline";
@@ -60,7 +60,7 @@ const SubstackPosts = () => {
               onClick={() => setView("pipeline")}
               className="gap-2"
             >
-              <LayoutPipeline className="w-4 h-4" />
+              <KanbanSquare className="w-4 h-4" />
               Pipeline
             </Button>
           </div>
