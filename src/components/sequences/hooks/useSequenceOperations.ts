@@ -9,16 +9,32 @@ export const useSequenceOperations = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async ({ sequenceId, sequenceName }: { sequenceId: string, sequenceName: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       console.log("Deleting sequence:", sequenceId, sequenceName);
+
+      // First verify the sequence belongs to the user
+      const { data: sequence, error: sequenceError } = await supabase
+        .from("sequences")
+        .select("user_id")
+        .eq("id", sequenceId)
+        .single();
+
+      if (sequenceError) {
+        console.error("Error verifying sequence ownership:", sequenceError);
+        throw sequenceError;
+      }
+
+      if (sequence.user_id !== user.id) {
+        throw new Error("Unauthorized: You don't own this sequence");
+      }
 
       // Update tasks to completed instead of deleting them
       const { error: tasksError } = await supabase
         .from("tasks")
         .update({ completed: true })
-        .eq('user_id', user.user.id)
+        .eq('user_id', user.id)
         .eq('source', 'sequences')
         .eq('sequence_id', sequenceId);
 
@@ -28,17 +44,18 @@ export const useSequenceOperations = () => {
       }
 
       // Soft delete the sequence instead of hard deleting
-      const { error: sequenceError } = await supabase
+      const { error: sequenceUpdateError } = await supabase
         .from("sequences")
         .update({ 
           is_deleted: true,
           status: 'completed' 
         })
-        .eq("id", sequenceId);
+        .eq("id", sequenceId)
+        .eq("user_id", user.id); // Ensure we're only updating user's own sequence
 
-      if (sequenceError) {
-        console.error("Error deleting sequence:", sequenceError);
-        throw sequenceError;
+      if (sequenceUpdateError) {
+        console.error("Error deleting sequence:", sequenceUpdateError);
+        throw sequenceUpdateError;
       }
 
       // Update assignments to completed
@@ -64,7 +81,7 @@ export const useSequenceOperations = () => {
     },
     onError: (error) => {
       console.error("Error deleting sequence:", error);
-      toast.error("Failed to delete sequence");
+      toast.error(error instanceof Error ? error.message : "Failed to delete sequence");
     }
   });
 
@@ -99,6 +116,7 @@ export const useSequenceOperations = () => {
           sequence_steps (*)
         `)
         .eq("id", sequenceId)
+        .eq("user_id", user.id) // Ensure we only get user's own sequence
         .single();
 
       if (sequenceError) throw sequenceError;
@@ -108,6 +126,7 @@ export const useSequenceOperations = () => {
         .from("prospects")
         .select("*")
         .eq("id", prospectId)
+        .eq("user_id", user.id) // Ensure we only get user's own prospect
         .single();
 
       if (prospectError) throw prospectError;
