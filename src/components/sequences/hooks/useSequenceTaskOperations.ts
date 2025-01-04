@@ -15,6 +15,14 @@ export const useSequenceTaskOperations = () => {
     prospect: any,
     user: any
   ) => {
+    console.log("Creating sequence tasks with:", {
+      sequenceId,
+      prospectId,
+      steps,
+      prospect,
+      user
+    });
+
     const tasks = steps.map(step => {
       const dueDate = addDays(new Date(), step.delay_days || 0);
       const stepType = mapDbStepTypeToFrontend(step.step_type, step.step_number);
@@ -33,19 +41,25 @@ export const useSequenceTaskOperations = () => {
         source: 'sequences' as TaskSource,
         sequence_id: sequenceId,
         priority: 'medium',
-        user_id: user.id
+        user_id: user.id,
+        completed: false
       };
     });
 
+    console.log("Tasks to be created:", tasks);
+
     if (tasks.length > 0) {
-      const { error: tasksError } = await supabase
+      const { data, error: tasksError } = await supabase
         .from("tasks")
-        .insert(tasks);
+        .insert(tasks)
+        .select();
 
       if (tasksError) {
         console.error("Error creating tasks:", tasksError);
         throw tasksError;
       }
+
+      console.log("Created tasks:", data);
     }
 
     queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });

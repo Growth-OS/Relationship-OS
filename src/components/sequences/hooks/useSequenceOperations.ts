@@ -113,8 +113,12 @@ export const useSequenceOperations = () => {
 
       if (assignmentError) throw assignmentError;
 
+      console.log("Creating tasks for sequence:", sequence.name);
+      console.log("Steps:", sequence.sequence_steps);
+      console.log("Prospect:", prospect);
+
       // Create tasks for each step
-      await createSequenceTasks(sequenceId, prospectId, sequence.sequence_steps, prospect, user);
+      await createSequenceTasks(sequence.id, prospectId, sequence.sequence_steps, prospect, user);
 
       return assignment;
     },

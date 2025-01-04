@@ -17,6 +17,8 @@ export const DashboardWeeklyTasks = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
+      console.log("Fetching weekly tasks...");
+
       const { data, error } = await supabase
         .from("tasks")
         .select(`
@@ -32,7 +34,12 @@ export const DashboardWeeklyTasks = () => {
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching tasks:", error);
+        throw error;
+      }
+
+      console.log("Fetched tasks:", data);
       return data;
     },
   });
