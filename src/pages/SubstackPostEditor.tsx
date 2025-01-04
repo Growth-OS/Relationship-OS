@@ -4,28 +4,21 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Editor } from "@/components/editor/Editor";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SubstackPostStatus, SubstackPostFormData } from "@/components/substack/types";
-import { useAuth } from "@supabase/auth-helpers-react";
+import { useUser } from "@supabase/auth-helpers-react";
+import { SubstackPostForm } from "@/components/substack/form/SubstackPostForm";
 
 const SubstackPostEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const auth = useAuth();
+  const user = useUser();
+  
   const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
+  const [url, setUrl] = React.useState("");
   const [status, setStatus] = React.useState<SubstackPostStatus>("idea");
   const [publishDate, setPublishDate] = React.useState(
     new Date().toISOString().split("T")[0]
@@ -58,7 +51,7 @@ const SubstackPostEditor = () => {
   React.useEffect(() => {
     if (post) {
       setTitle(post.title);
-      setContent(post.content || "");
+      setUrl(post.url || "");
       setStatus(post.status);
       setPublishDate(post.publish_date);
     }
@@ -66,11 +59,11 @@ const SubstackPostEditor = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: SubstackPostFormData) => {
-      if (!auth.user?.id) throw new Error("User not authenticated");
+      if (!user?.id) throw new Error("User not authenticated");
 
       const postData = {
         ...data,
-        user_id: auth.user.id,
+        user_id: user.id,
       };
 
       const { error } = id
@@ -103,7 +96,7 @@ const SubstackPostEditor = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth.user?.id) {
+    if (!user?.id) {
       toast({
         title: "Error",
         description: "You must be logged in to create or edit posts",
@@ -114,10 +107,10 @@ const SubstackPostEditor = () => {
 
     mutation.mutate({
       title,
-      content,
+      content: url, // Store the URL in the content field
       status,
       publish_date: publishDate,
-      user_id: auth.user.id,
+      user_id: user.id,
     });
   };
 
@@ -152,75 +145,17 @@ const SubstackPostEditor = () => {
       </div>
 
       <Card className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label
-              htmlFor="title"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Title
-            </label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter post title"
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="status"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Status
-              </label>
-              <Select value={status} onValueChange={(value: SubstackPostStatus) => setStatus(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="idea">Idea</SelectItem>
-                  <SelectItem value="writing">Writing</SelectItem>
-                  <SelectItem value="passed_to_fausta">Passed to Fausta</SelectItem>
-                  <SelectItem value="schedule">Schedule</SelectItem>
-                  <SelectItem value="live">Live</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="publishDate"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Publish Date
-              </label>
-              <Input
-                id="publishDate"
-                type="date"
-                value={publishDate}
-                onChange={(e) => setPublishDate(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="content"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Content
-            </label>
-            <Editor
-              value={content}
-              onChange={setContent}
-              placeholder="Write your post content here..."
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          <SubstackPostForm
+            title={title}
+            setTitle={setTitle}
+            url={url}
+            setUrl={setUrl}
+            status={status}
+            setStatus={setStatus}
+            publishDate={publishDate}
+            setPublishDate={setPublishDate}
+          />
         </form>
       </Card>
     </div>
