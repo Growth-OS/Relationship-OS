@@ -17,9 +17,10 @@ export const useSequenceOperations = () => {
       // First verify the sequence belongs to the user
       const { data: sequence, error: sequenceError } = await supabase
         .from("sequences")
-        .select("user_id")
+        .select("*")
         .eq("id", sequenceId)
         .eq("user_id", user.id)
+        .eq("is_deleted", false)
         .single();
 
       if (sequenceError) {
@@ -31,12 +32,10 @@ export const useSequenceOperations = () => {
         throw new Error("Sequence not found or unauthorized");
       }
 
-      // Update tasks to completed instead of deleting them
+      // Update tasks to completed
       const { error: tasksError } = await supabase
         .from("tasks")
         .update({ completed: true })
-        .eq('user_id', user.id)
-        .eq('source', 'sequences')
         .eq('sequence_id', sequenceId);
 
       if (tasksError) {
@@ -44,7 +43,7 @@ export const useSequenceOperations = () => {
         throw tasksError;
       }
 
-      // Soft delete the sequence instead of hard deleting
+      // Soft delete the sequence
       const { error: sequenceUpdateError } = await supabase
         .from("sequences")
         .update({ 
