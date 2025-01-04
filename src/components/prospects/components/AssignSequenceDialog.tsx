@@ -11,10 +11,11 @@ import type { Prospect } from "../types/prospect";
 interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  prospect: Prospect;
+  prospects: Prospect[];
+  onSuccess: () => void;
 }
 
-export const AssignSequenceDialog = ({ open, onOpenChange, prospect }: AssignSequenceDialogProps) => {
+export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess }: AssignSequenceDialogProps) => {
   const [selectedSequence, setSelectedSequence] = useState<string>("");
 
   const { data: sequences = [], isLoading } = useQuery({
@@ -45,23 +46,8 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospect }: AssignSeq
         return;
       }
 
-      // Check if prospect is already assigned to this sequence
-      const { data: existingAssignment, error: checkError } = await supabase
-        .from('sequence_assignments')
-        .select('id')
-        .eq('sequence_id', selectedSequence)
-        .eq('prospect_id', prospect.id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (checkError && checkError.code !== 'PGRST116') {
-        throw checkError;
-      }
-
-      if (existingAssignment) {
-        toast.error('Prospect is already assigned to this sequence');
-        return;
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
 
       // Get sequence details and steps
       const { data: sequenceData, error: sequenceError } = await supabase
@@ -75,49 +61,60 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospect }: AssignSeq
 
       if (sequenceError) throw sequenceError;
 
-      // Create the sequence assignment
-      const { data: assignment, error: insertError } = await supabase
-        .from('sequence_assignments')
-        .insert([{
-          sequence_id: selectedSequence,
-          prospect_id: prospect.id,
-          current_step: 1,
-          status: 'active'
-        }])
-        .select()
-        .single();
+      // Create assignments and tasks for each prospect
+      for (const prospect of prospects) {
+        // Check if prospect is already assigned to this sequence
+        const { data: existingAssignment, error: checkError } = await supabase
+          .from('sequence_assignments')
+          .select('id')
+          .eq('sequence_id', selectedSequence)
+          .eq('prospect_id', prospect.id)
+          .eq('status', 'active')
+          .maybeSingle();
 
-      if (insertError) throw insertError;
+        if (checkError && checkError.code !== 'PGRST116') {
+          throw checkError;
+        }
 
-      // Get the authenticated user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
+        if (existingAssignment) {
+          toast.error(`${prospect.company_name} is already assigned to this sequence`);
+          continue;
+        }
 
-      // Create tasks using the utility function
-      const tasks = createSequenceTasks(
-        sequenceData.sequence_steps,
-        prospect,
-        user.id
-      );
+        // Create the sequence assignment
+        const { error: insertError } = await supabase
+          .from('sequence_assignments')
+          .insert([{
+            sequence_id: selectedSequence,
+            prospect_id: prospect.id,
+            current_step: 1,
+            status: 'active'
+          }]);
 
-      // Insert all tasks
-      if (tasks.length > 0) {
-        const { error: tasksError } = await supabase
-          .from('tasks')
-          .insert(tasks);
+        if (insertError) throw insertError;
 
-        if (tasksError) {
-          console.error('Error creating tasks:', tasksError);
-          throw tasksError;
+        // Create tasks for this prospect
+        const tasks = createSequenceTasks(
+          sequenceData.sequence_steps,
+          prospect,
+          user.id
+        );
+
+        // Insert tasks
+        if (tasks.length > 0) {
+          const { error: tasksError } = await supabase
+            .from('tasks')
+            .insert(tasks);
+
+          if (tasksError) throw tasksError;
         }
       }
 
-      toast.success('Prospect assigned to sequence successfully');
-      onOpenChange(false);
-      setSelectedSequence("");
+      toast.success('Prospects assigned to sequence successfully');
+      onSuccess();
     } catch (error) {
-      console.error('Error assigning prospect to sequence:', error);
-      toast.error('Error assigning prospect to sequence');
+      console.error('Error assigning prospects to sequence:', error);
+      toast.error('Error assigning prospects to sequence');
     }
   };
 
@@ -128,7 +125,7 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospect }: AssignSeq
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Assign to Sequence</DialogTitle>
+          <DialogTitle>Assign {prospects.length} Prospects to Sequence</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {isLoading ? (
@@ -156,7 +153,7 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospect }: AssignSeq
             disabled={!selectedSequence || isLoading}
             className="w-full"
           >
-            Assign
+            Assign {prospects.length} Prospects
           </Button>
         </div>
       </DialogContent>

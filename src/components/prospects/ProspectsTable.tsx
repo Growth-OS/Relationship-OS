@@ -1,10 +1,13 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { EditProspectForm } from "./EditProspectForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ProspectRow } from "./ProspectRow";
 import { useState } from "react";
+import { AssignSequenceDialog } from "./components/AssignSequenceDialog";
+import { Users } from "lucide-react";
 
 interface Prospect {
   id: string;
@@ -27,6 +30,8 @@ interface ProspectsTableProps {
 
 export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableProps) => {
   const [editingProspect, setEditingProspect] = useState<Prospect | null>(null);
+  const [selectedProspects, setSelectedProspects] = useState<Set<string>>(new Set());
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
     try {
@@ -86,6 +91,16 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
     }
   };
 
+  const handleSelectProspect = (id: string, checked: boolean) => {
+    const newSelected = new Set(selectedProspects);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedProspects(newSelected);
+  };
+
   const sourceLabels = {
     website: 'Website',
     referral: 'Referral',
@@ -99,10 +114,23 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
 
   return (
     <>
+      <div className="mb-4 flex justify-end">
+        {selectedProspects.size > 0 && (
+          <Button
+            onClick={() => setIsAssignDialogOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Assign {selectedProspects.size} Prospects to Sequence
+          </Button>
+        )}
+      </div>
+
       <div className="overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50 dark:bg-gray-800/50">
+              <TableHead className="w-[50px]"></TableHead>
               <TableHead className="font-semibold">Company</TableHead>
               <TableHead className="font-semibold">Source</TableHead>
               <TableHead className="font-semibold">Job Title</TableHead>
@@ -117,7 +145,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
           <TableBody>
             {activeProspects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={10} className="text-center py-8 text-gray-500">
                   No prospects found. Add your first prospect to get started.
                 </TableCell>
               </TableRow>
@@ -130,6 +158,8 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
                   onDelete={handleDelete}
                   onConvertToLead={handleConvertToLead}
                   onEdit={setEditingProspect}
+                  isSelected={selectedProspects.has(prospect.id)}
+                  onSelectChange={(checked) => handleSelectProspect(prospect.id, checked)}
                 />
               ))
             )}
@@ -153,6 +183,19 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
           </DialogContent>
         </Dialog>
       )}
+
+      <AssignSequenceDialog
+        open={isAssignDialogOpen}
+        onOpenChange={setIsAssignDialogOpen}
+        prospects={Array.from(selectedProspects).map(id => 
+          prospects.find(p => p.id === id)!
+        )}
+        onSuccess={() => {
+          setIsAssignDialogOpen(false);
+          setSelectedProspects(new Set());
+          onProspectUpdated();
+        }}
+      />
     </>
   );
 };

@@ -2,6 +2,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProspectRowProps {
   prospect: {
@@ -20,9 +21,19 @@ interface ProspectRowProps {
   onDelete: (id: string) => Promise<void>;
   onConvertToLead: (prospect: any) => Promise<void>;
   onEdit: (prospect: any) => void;
+  isSelected: boolean;
+  onSelectChange: (checked: boolean) => void;
 }
 
-export const ProspectRow = ({ prospect, sourceLabels, onDelete, onConvertToLead, onEdit }: ProspectRowProps) => {
+export const ProspectRow = ({ 
+  prospect, 
+  sourceLabels, 
+  onDelete, 
+  onConvertToLead, 
+  onEdit,
+  isSelected,
+  onSelectChange
+}: ProspectRowProps) => {
   const getSequenceStatusColor = (status?: string) => {
     switch (status) {
       case 'active':
@@ -38,6 +49,13 @@ export const ProspectRow = ({ prospect, sourceLabels, onDelete, onConvertToLead,
 
   return (
     <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+      <TableCell>
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={onSelectChange}
+          className="mr-2"
+        />
+      </TableCell>
       <TableCell className="font-medium">{prospect.company_name}</TableCell>
       <TableCell>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
