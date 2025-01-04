@@ -10,6 +10,7 @@ interface ProspectRowProps {
   onSelectChange: (checked: boolean) => void;
   onEdit: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
+  onConvertToLead: (prospect: Prospect) => Promise<void>;
   sourceLabels: Record<string, string>;
 }
 
@@ -20,6 +21,7 @@ export const ProspectRow = ({
   onSelectChange,
   onEdit,
   onDelete,
+  onConvertToLead,
   sourceLabels,
 }: ProspectRowProps) => {
   return (
