@@ -37,6 +37,16 @@ export const TaskGroup = memo(({ source, tasks, onComplete }: TaskGroupProps) =>
       </div>
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Custom comparison function for memo
+  return (
+    prevProps.source === nextProps.source &&
+    prevProps.tasks.length === nextProps.tasks.length &&
+    prevProps.tasks.every((task, index) => 
+      task.id === nextProps.tasks[index].id &&
+      task.completed === nextProps.tasks[index].completed
+    )
+  );
 });
 
 TaskGroup.displayName = 'TaskGroup';
