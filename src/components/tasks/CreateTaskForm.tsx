@@ -7,23 +7,25 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, ArrowDown } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 
 interface CreateTaskFormProps {
-  source: "other" | "deals" | "content" | "ideas" | "substack" | "projects";
+  source?: TaskSource;
   sourceId?: string;
   projectId?: string;
   onSuccess?: () => void;
 }
 
-export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onSuccess }: CreateTaskFormProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
+  const [source, setSource] = useState<TaskSource>(initialSource || "other");
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -117,6 +119,23 @@ export const CreateTaskForm = ({ source, sourceId, projectId, onSuccess }: Creat
             <SelectItem value="low">Low Priority</SelectItem>
           </SelectContent>
         </Select>
+
+        {!initialSource && (
+          <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="deals">Sales Tasks</SelectItem>
+              <SelectItem value="content">Content Tasks</SelectItem>
+              <SelectItem value="ideas">Ideas Tasks</SelectItem>
+              <SelectItem value="substack">Substack Tasks</SelectItem>
+              <SelectItem value="projects">Project Tasks</SelectItem>
+              <SelectItem value="sequences">Sequence Tasks</SelectItem>
+              <SelectItem value="other">Other Tasks</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
         <Button type="submit" className="ml-auto">
           Create Task
