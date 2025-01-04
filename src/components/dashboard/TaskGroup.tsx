@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { TaskCard } from "@/components/tasks/TaskCard";
 
 interface TaskGroupProps {
@@ -6,7 +7,7 @@ interface TaskGroupProps {
   onComplete: (taskId: string, completed: boolean) => Promise<void>;
 }
 
-export const TaskGroup = ({ source, tasks, onComplete }: TaskGroupProps) => {
+export const TaskGroup = memo(({ source, tasks, onComplete }: TaskGroupProps) => {
   const getSourceTitle = (source: string) => {
     const titles: Record<string, string> = {
       deals: "Sales Tasks",
@@ -36,4 +37,6 @@ export const TaskGroup = ({ source, tasks, onComplete }: TaskGroupProps) => {
       </div>
     </div>
   );
-};
+});
+
+TaskGroup.displayName = 'TaskGroup';

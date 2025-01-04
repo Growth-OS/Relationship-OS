@@ -1,16 +1,15 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { TaskGroup } from "./TaskGroup";
-import { updateSequenceProgress } from "@/components/sequences/utils/sequenceTaskUtils";
+import { useTaskOperations } from "@/components/sequences/hooks/useTaskOperations";
 
 export const DashboardWeeklyTasks = () => {
-  const queryClient = useQueryClient();
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const { handleTaskComplete } = useTaskOperations();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["weekly-tasks"],
@@ -37,35 +36,6 @@ export const DashboardWeeklyTasks = () => {
       return data;
     },
   });
-
-  const handleTaskComplete = async (taskId: string, completed: boolean) => {
-    try {
-      const { error: updateError } = await supabase
-        .from("tasks")
-        .update({ completed })
-        .eq("id", taskId);
-
-      if (updateError) throw updateError;
-
-      // Update sequence progress if this is a sequence task
-      if (tasks) {
-        const task = tasks.find(t => t.id === taskId);
-        if (task && task.source === 'sequences') {
-          await updateSequenceProgress(taskId, tasks);
-        }
-      }
-
-      // Invalidate relevant queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      queryClient.invalidateQueries({ queryKey: ["sequences"] });
-      
-      toast.success("Task updated successfully");
-    } catch (error) {
-      console.error("Error updating task:", error);
-      toast.error("Failed to update task");
-    }
-  };
 
   // Group tasks by source
   const groupedTasks = tasks?.reduce((acc, task) => {
@@ -101,7 +71,7 @@ export const DashboardWeeklyTasks = () => {
             key={source}
             source={source}
             tasks={sourceTasks}
-            onComplete={handleTaskComplete}
+            onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks || [])}
           />
         ))}
         
