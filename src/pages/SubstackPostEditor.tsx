@@ -24,10 +24,21 @@ const SubstackPostEditor = () => {
     new Date().toISOString().split("T")[0]
   );
 
+  React.useEffect(() => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to access this page",
+        variant: "destructive",
+      });
+      navigate("/login");
+    }
+  }, [user, navigate, toast]);
+
   const { data: post, isLoading } = useQuery({
     queryKey: ["substack-post", id],
     queryFn: async () => {
-      if (!id) return null;
+      if (!id || !user) return null;
       const { data, error } = await supabase
         .from("substack_posts")
         .select("*")
@@ -45,7 +56,7 @@ const SubstackPostEditor = () => {
 
       return data;
     },
-    enabled: !!id,
+    enabled: !!id && !!user,
   });
 
   React.useEffect(() => {
@@ -59,7 +70,14 @@ const SubstackPostEditor = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: SubstackPostFormData) => {
-      if (!user?.id) throw new Error("User not authenticated");
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create or edit posts",
+          variant: "destructive",
+        });
+        throw new Error("User not authenticated");
+      }
 
       const postData = {
         ...data,
@@ -85,10 +103,10 @@ const SubstackPostEditor = () => {
       });
       navigate("/dashboard/substack");
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error",
-        description: `Failed to ${id ? "update" : "create"} post`,
+        description: `Failed to ${id ? "update" : "create"} post: ${error.message}`,
         variant: "destructive",
       });
     },
@@ -113,6 +131,10 @@ const SubstackPostEditor = () => {
       user_id: user.id,
     });
   };
+
+  if (!user) {
+    return null; // Don't render anything while redirecting
+  }
 
   if (isLoading) {
     return (
