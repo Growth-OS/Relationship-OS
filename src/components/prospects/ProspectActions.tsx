@@ -47,7 +47,8 @@ export const ProspectActions = ({ prospect, onDelete, onConvertToLead, onEdit }:
       <AssignSequenceDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
-        prospect={prospect}
+        prospects={[prospect]}
+        onSuccess={() => setIsAssignDialogOpen(false)}
       />
     </div>
   );
