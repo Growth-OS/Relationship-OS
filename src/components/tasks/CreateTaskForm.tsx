@@ -26,6 +26,7 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
+  const [selectedSource, setSelectedSource] = useState<TaskSource>(source);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -52,7 +53,7 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
       const { error } = await supabase.from("tasks").insert({
         title,
         description,
-        source,
+        source: source || selectedSource,
         source_id: sourceId,
         project_id: projectId,
         user_id: user.id,
@@ -101,7 +102,11 @@ export const CreateTaskForm = ({ onSuccess, source = "other", sourceId, projectI
         autoFocus
       />
 
-      <Select value={source} disabled>
+      <Select 
+        value={source || selectedSource} 
+        onValueChange={setSelectedSource}
+        disabled={!!source}
+      >
         <SelectTrigger>
           <SelectValue placeholder="Select category" />
         </SelectTrigger>
