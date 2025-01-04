@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import type { AuthError } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -33,15 +32,6 @@ const Login = () => {
     };
   }, [navigate, returnTo, searchParams]);
 
-  const handleAuthError = (error: AuthError) => {
-    console.error('Auth error:', error);
-    if (error.message.includes('Invalid login credentials')) {
-      toast.error('Invalid email or password. Please try again.');
-    } else {
-      toast.error(error.message);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
@@ -63,7 +53,6 @@ const Login = () => {
 
         <Auth
           supabaseClient={supabase}
-          onError={handleAuthError}
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -110,6 +99,16 @@ const Login = () => {
                 social_provider_text: 'Sign up with {{provider}}',
                 link_text: "Don't have an account? Sign up",
               },
+            },
+          }}
+          authOptions={{
+            onError: (error) => {
+              console.error('Auth error:', error);
+              if (error.message.includes('Invalid login credentials')) {
+                toast.error('Invalid email or password. Please try again.');
+              } else {
+                toast.error(error.message);
+              }
             },
           }}
         />
