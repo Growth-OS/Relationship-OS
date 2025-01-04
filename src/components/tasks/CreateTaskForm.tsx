@@ -5,28 +5,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface CreateTaskFormProps {
-  source?: TaskSource;
-  sourceId?: string;
-  projectId?: string;
   onSuccess?: () => void;
 }
 
-export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onSuccess }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ onSuccess }: CreateTaskFormProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
-  const [source, setSource] = useState<TaskSource>(initialSource || "other");
+  const [source, setSource] = useState<TaskSource>("other");
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -44,12 +41,15 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
       return;
     }
 
+    if (!title) {
+      toast.error("Please enter a task title");
+      return;
+    }
+
     const { error } = await supabase.from("tasks").insert({
       title,
       description,
       source,
-      source_id: sourceId,
-      project_id: projectId,
       user_id: user.id,
       due_date: dueDate?.toISOString().split('T')[0],
       priority,
@@ -65,6 +65,7 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
     setDescription("");
     setDueDate(undefined);
     setPriority("medium");
+    setSource("other");
     setIsExpanded(false);
     onSuccess?.();
   };
@@ -83,22 +84,34 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 border rounded-lg p-4 bg-background">
-      <div className="space-y-2">
-        <Input
-          placeholder="What needs to be done?"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="text-lg font-medium placeholder:text-gray-400"
-          autoFocus
-        />
-        <Textarea
-          placeholder="Add a description... (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="min-h-[100px] placeholder:text-gray-400"
-        />
-      </div>
+      <Input
+        placeholder="What needs to be done?"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        required
+        autoFocus
+      />
+
+      <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
+        <SelectTrigger>
+          <SelectValue placeholder="Select category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="projects">Projects</SelectItem>
+          <SelectItem value="deals">Deals</SelectItem>
+          <SelectItem value="content">Content</SelectItem>
+          <SelectItem value="ideas">Ideas</SelectItem>
+          <SelectItem value="substack">Substack</SelectItem>
+          <SelectItem value="other">Other</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Textarea
+        placeholder="Add a description..."
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="min-h-[100px]"
+      />
 
       <div className="flex flex-wrap gap-4">
         <Popover>
@@ -134,32 +147,15 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
             <SelectItem value="low">Low Priority</SelectItem>
           </SelectContent>
         </Select>
+      </div>
 
-        {!initialSource && (
-          <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="deals">Sales Tasks</SelectItem>
-              <SelectItem value="content">Content Tasks</SelectItem>
-              <SelectItem value="ideas">Ideas Tasks</SelectItem>
-              <SelectItem value="substack">Substack Tasks</SelectItem>
-              <SelectItem value="projects">Project Tasks</SelectItem>
-              <SelectItem value="sequences">Sequence Tasks</SelectItem>
-              <SelectItem value="other">Other Tasks</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-
-        <div className="flex gap-2 ml-auto">
-          <Button type="button" variant="outline" onClick={() => setIsExpanded(false)}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            Create Task
-          </Button>
-        </div>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" onClick={() => setIsExpanded(false)} className="flex-1">
+          Cancel
+        </Button>
+        <Button type="submit" className="flex-1">
+          Create Task
+        </Button>
       </div>
     </form>
   );

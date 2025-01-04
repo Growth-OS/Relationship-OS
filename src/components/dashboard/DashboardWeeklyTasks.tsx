@@ -32,7 +32,7 @@ export const DashboardWeeklyTasks = () => {
         .gte("due_date", startDate.toISOString())
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
-
+      
       if (error) throw error;
       return data;
     },
@@ -67,7 +67,6 @@ export const DashboardWeeklyTasks = () => {
       </h2>
       
       <div className="space-y-6">
-        {/* Add CreateTaskForm at the top */}
         <CreateTaskForm onSuccess={() => {}} />
         
         {groupedTasks && Object.entries(groupedTasks).map(([source, sourceTasks]) => (
