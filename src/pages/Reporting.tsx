@@ -6,6 +6,7 @@ import { LeadsChartSection } from "@/components/reporting/LeadsChartSection";
 import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSection";
 import { ModuleFilter } from "@/components/reporting/ModuleFilter";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
+import { SequenceMetrics } from "@/components/reporting/SequenceMetrics";
 import { useState } from "react";
 import { ChartBarIcon } from "lucide-react";
 
@@ -63,6 +64,7 @@ const Reporting = () => {
   const shouldShowProspects = selectedModule === 'all' || selectedModule === 'prospects';
   const shouldShowAffiliates = selectedModule === 'all' || selectedModule === 'affiliate';
   const shouldShowFinances = selectedModule === 'all' || selectedModule === 'finances';
+  const shouldShowSequences = selectedModule === 'all' || selectedModule === 'sequences';
 
   return (
     <div className="space-y-6 animate-fade-in p-6 bg-[#FAFAFA] dark:bg-gray-900 min-h-screen">
@@ -110,6 +112,12 @@ const Reporting = () => {
         {shouldShowFinances && (
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
             <FinancialReporting />
+          </div>
+        )}
+
+        {shouldShowSequences && (
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+            <SequenceMetrics />
           </div>
         )}
       </div>
