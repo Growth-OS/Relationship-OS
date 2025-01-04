@@ -9,6 +9,7 @@ interface ProspectRowProps {
   onSelect: (id: string) => void;
   onEdit: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
+  sourceLabels: Record<string, string>;
 }
 
 export const ProspectRow = ({
@@ -17,6 +18,7 @@ export const ProspectRow = ({
   onSelect,
   onEdit,
   onDelete,
+  sourceLabels,
 }: ProspectRowProps) => {
   return (
     <tr key={prospect.id} className="hover:bg-muted/50">
@@ -27,9 +29,25 @@ export const ProspectRow = ({
         />
       </td>
       <td className="p-4 font-medium">{prospect.company_name}</td>
-      <td className="p-4 text-muted-foreground">{prospect.contact_email}</td>
+      <td className="p-4 text-muted-foreground">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+          {sourceLabels[prospect.source]}
+        </span>
+      </td>
       <td className="p-4 text-muted-foreground">{prospect.contact_job_title}</td>
-      <td className="p-4 text-muted-foreground">{prospect.source}</td>
+      <td className="p-4 text-muted-foreground">{prospect.contact_email}</td>
+      <td className="p-4 text-muted-foreground">
+        {prospect.contact_linkedin ? (
+          <a 
+            href={prospect.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            View Profile
+          </a>
+        ) : '-'}
+      </td>
       <td className="p-4">
         <div className="flex items-center gap-2">
           <Button
