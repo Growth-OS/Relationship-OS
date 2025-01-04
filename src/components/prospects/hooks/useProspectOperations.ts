@@ -10,6 +10,19 @@ export const useProspectOperations = () => {
   const handleDelete = async (id: string) => {
     try {
       console.log('Deleting prospect:', id);
+      
+      // First, delete any sequence assignments for this prospect
+      const { error: assignmentsError } = await supabase
+        .from("sequence_assignments")
+        .delete()
+        .eq("prospect_id", id);
+
+      if (assignmentsError) {
+        console.error("Error deleting sequence assignments:", assignmentsError);
+        throw assignmentsError;
+      }
+
+      // Then delete the prospect
       const { error } = await supabase
         .from("prospects")
         .delete()
@@ -82,7 +95,7 @@ export const useProspectOperations = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('You must be logged in to assign sequences');
-        return;
+        return false;
       }
 
       // First check if any of the prospects are already assigned to this sequence
@@ -100,7 +113,7 @@ export const useProspectOperations = () => {
 
       if (prospectsToAssign.length === 0) {
         toast.error("Selected prospects are already assigned to this sequence");
-        return;
+        return false;
       }
 
       // Get sequence details and steps
