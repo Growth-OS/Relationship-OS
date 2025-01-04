@@ -36,7 +36,7 @@ export const SidebarNavigation = () => {
     { 
       icon: MessageSquare, 
       label: "LinkedIn", 
-      path: "https://www.linkedin.com/messaging/",
+      path: "https://app.trykondo.com/inboxes/focused",
       external: true 
     },
     { 

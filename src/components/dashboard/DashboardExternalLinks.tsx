@@ -17,7 +17,7 @@ export const DashboardExternalLinks = () => {
     {
       icon: Linkedin,
       label: "LinkedIn",
-      href: "https://www.linkedin.com/messaging/",
+      href: "https://app.trykondo.com/inboxes/focused",
     },
     {
       icon: Sparkles,
