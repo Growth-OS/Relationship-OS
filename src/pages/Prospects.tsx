@@ -95,9 +95,6 @@ const Prospects = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
         <ProspectsTable 
           prospects={data?.prospects || []}
-          onProspectUpdated={() => {
-            queryClient.invalidateQueries({ queryKey: ['prospects'] });
-          }}
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}

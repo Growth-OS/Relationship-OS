@@ -5,17 +5,15 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { createSequenceTasks } from "@/components/sequences/utils/taskCreation";
 import type { Prospect } from "../types/prospect";
 
 interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  prospects: Prospect[];
-  onSuccess: () => void;
+  onAssign: (sequenceId: string) => Promise<void>;
 }
 
-export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess }: AssignSequenceDialogProps) => {
+export const AssignSequenceDialog = ({ open, onOpenChange, onAssign }: AssignSequenceDialogProps) => {
   const [selectedSequence, setSelectedSequence] = useState<string>("");
 
   const { data: sequences = [], isLoading } = useQuery({
@@ -39,85 +37,6 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess 
     },
   });
 
-  const handleAssignToSequence = async () => {
-    try {
-      if (!selectedSequence) {
-        toast.error('Please select a sequence');
-        return;
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      // Get sequence details and steps
-      const { data: sequenceData, error: sequenceError } = await supabase
-        .from('sequences')
-        .select(`
-          *,
-          sequence_steps (*)
-        `)
-        .eq('id', selectedSequence)
-        .single();
-
-      if (sequenceError) throw sequenceError;
-
-      // Create assignments and tasks for each prospect
-      for (const prospect of prospects) {
-        // Check if prospect is already assigned to this sequence
-        const { data: existingAssignment, error: checkError } = await supabase
-          .from('sequence_assignments')
-          .select('id')
-          .eq('sequence_id', selectedSequence)
-          .eq('prospect_id', prospect.id)
-          .eq('status', 'active')
-          .maybeSingle();
-
-        if (checkError && checkError.code !== 'PGRST116') {
-          throw checkError;
-        }
-
-        if (existingAssignment) {
-          toast.error(`${prospect.company_name} is already assigned to this sequence`);
-          continue;
-        }
-
-        // Create the sequence assignment
-        const { error: insertError } = await supabase
-          .from('sequence_assignments')
-          .insert([{
-            sequence_id: selectedSequence,
-            prospect_id: prospect.id,
-            current_step: 1,
-            status: 'active'
-          }]);
-
-        if (insertError) throw insertError;
-
-        // Create tasks for this prospect
-        const tasks = createSequenceTasks(
-          sequenceData.sequence_steps,
-          prospect,
-          user.id
-        );
-
-        // Insert tasks
-        if (tasks.length > 0) {
-          const { error: tasksError } = await supabase
-            .from('tasks')
-            .insert(tasks);
-
-          if (tasksError) throw tasksError;
-        }
-      }
-
-      toast.success(`${prospects.length} prospects assigned to sequence successfully`);
-      onSuccess();
-    } catch (error) {
-      console.error('Error assigning prospects to sequence:', error);
-      toast.error('Error assigning prospects to sequence');
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={(open) => {
       onOpenChange(open);
@@ -125,7 +44,7 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess 
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Assign {prospects.length} Prospects to Sequence</DialogTitle>
+          <DialogTitle>Assign to Sequence</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {isLoading ? (
@@ -149,11 +68,11 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess 
             </Select>
           )}
           <Button 
-            onClick={handleAssignToSequence} 
+            onClick={() => onAssign(selectedSequence)} 
             disabled={!selectedSequence || isLoading}
             className="w-full"
           >
-            Assign {prospects.length} Prospects
+            Assign to Sequence
           </Button>
         </div>
       </DialogContent>

@@ -18,19 +18,19 @@ import { toast } from "sonner";
 interface ProspectsTableProps {
   prospects: Prospect[];
   isLoading: boolean;
-  onEdit: (prospect: Prospect) => void;
-  refetch: () => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 export const ProspectsTable = ({
   prospects,
   isLoading,
-  onEdit,
-  refetch,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -53,7 +53,6 @@ export const ProspectsTable = ({
       const { error } = await supabase.from("prospects").delete().eq("id", id);
       if (error) throw error;
       toast.success("Prospect deleted successfully");
-      refetch();
     } catch (error) {
       console.error("Error deleting prospect:", error);
       toast.error("Failed to delete prospect");
@@ -76,11 +75,6 @@ export const ProspectsTable = ({
       toast.error("Failed to assign sequence");
     }
   };
-
-  const totalPages = Math.ceil(prospects.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentProspects = prospects.slice(startIndex, endIndex);
 
   if (isLoading) return <TableLoadingState />;
   if (!prospects.length) return <TableEmptyState />;
@@ -106,13 +100,12 @@ export const ProspectsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentProspects.map((prospect) => (
+            {prospects.map((prospect) => (
               <ProspectRow
                 key={prospect.id}
                 prospect={prospect}
                 isSelected={selectedIds.includes(prospect.id)}
                 onSelect={handleSelect}
-                onEdit={onEdit}
                 onDelete={handleDelete}
               />
             ))}
@@ -122,7 +115,7 @@ export const ProspectsTable = ({
       <TablePagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={onPageChange}
       />
     </>
   );
