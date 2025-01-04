@@ -9,6 +9,7 @@ import { EarningsTable } from "@/components/affiliates/EarningsTable";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const Affiliates = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -16,12 +17,24 @@ const Affiliates = () => {
   const { data: affiliates, isLoading: isLoadingPartners } = useQuery({
     queryKey: ['affiliatePartners'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to view partners");
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('affiliate_partners')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching partners:', error);
+        toast.error("Failed to load partners");
+        throw error;
+      }
       return data;
     }
   });
@@ -29,6 +42,13 @@ const Affiliates = () => {
   const { data: earnings, isLoading: isLoadingEarnings } = useQuery({
     queryKey: ['affiliateEarnings'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to view earnings");
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('affiliate_earnings')
         .select(`
@@ -37,9 +57,14 @@ const Affiliates = () => {
             name
           )
         `)
+        .eq('user_id', user.id)
         .order('date', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching earnings:', error);
+        toast.error("Failed to load earnings");
+        throw error;
+      }
       return data;
     }
   });
