@@ -101,12 +101,22 @@ const Login = () => {
               },
             },
           }}
-          onError={(error) => {
-            console.error('Auth error:', error);
-            if (error.message.includes('Invalid login credentials')) {
-              toast.error('Invalid email or password. Please try again.');
-            } else {
-              toast.error(error.message);
+          view={{
+            sign_in: {
+              handleViewError: (error) => {
+                console.error('Auth error:', error);
+                if (error.message.includes('Invalid login credentials')) {
+                  toast.error('Invalid email or password. Please try again.');
+                } else {
+                  toast.error(error.message);
+                }
+              }
+            },
+            sign_up: {
+              handleViewError: (error) => {
+                console.error('Auth error:', error);
+                toast.error(error.message);
+              }
             }
           }}
         />
