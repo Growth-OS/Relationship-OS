@@ -932,6 +932,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_deleted: boolean | null
           max_steps: number | null
           name: string
           status: Database["public"]["Enums"]["sequence_status"] | null
@@ -941,6 +942,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_deleted?: boolean | null
           max_steps?: number | null
           name: string
           status?: Database["public"]["Enums"]["sequence_status"] | null
@@ -950,6 +952,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_deleted?: boolean | null
           max_steps?: number | null
           name?: string
           status?: Database["public"]["Enums"]["sequence_status"] | null

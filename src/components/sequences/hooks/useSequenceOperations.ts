@@ -20,29 +20,27 @@ export const useSequenceOperations = () => {
 
       if (tasksError) throw tasksError;
 
-      // First, delete all sequence assignments
-      const { error: assignmentsError } = await supabase
-        .from("sequence_assignments")
-        .delete()
-        .eq("sequence_id", sequenceId);
-
-      if (assignmentsError) throw assignmentsError;
-
-      // Then, delete all sequence steps
-      const { error: stepsError } = await supabase
-        .from("sequence_steps")
-        .delete()
-        .eq("sequence_id", sequenceId);
-
-      if (stepsError) throw stepsError;
-
-      // Finally, delete the sequence itself
+      // Soft delete the sequence instead of hard deleting
       const { error: sequenceError } = await supabase
         .from("sequences")
-        .delete()
+        .update({ 
+          is_deleted: true,
+          status: 'completed' 
+        })
         .eq("id", sequenceId);
 
       if (sequenceError) throw sequenceError;
+
+      // Update assignments to completed
+      const { error: assignmentsError } = await supabase
+        .from("sequence_assignments")
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq("sequence_id", sequenceId);
+
+      if (assignmentsError) throw assignmentsError;
 
       return { sequenceId, sequenceName };
     },
