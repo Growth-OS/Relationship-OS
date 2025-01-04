@@ -36,6 +36,9 @@ export const useSequenceOperations = () => {
       const { error: updateError } = await supabase.rpc('delete_sequence', {
         p_sequence_id: sequenceId,
         p_user_id: user.id
+      } as {
+        p_sequence_id: string;
+        p_user_id: string;
       });
 
       if (updateError) {

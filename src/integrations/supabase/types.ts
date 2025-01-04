@@ -1307,7 +1307,13 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      delete_sequence: {
+        Args: {
+          p_sequence_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       auth_provider: "google"
