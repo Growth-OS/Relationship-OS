@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import { CreateTaskForm } from "./CreateTaskForm";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { ReactNode } from "react";
 
 interface CreateTaskButtonProps {
   sourceId?: string;
@@ -11,6 +12,8 @@ interface CreateTaskButtonProps {
   onSuccess?: () => void;
   variant?: "ghost" | "default";
   size?: "icon" | "default";
+  className?: string;
+  children?: ReactNode;
 }
 
 export const CreateTaskButton = ({ 
@@ -18,7 +21,9 @@ export const CreateTaskButton = ({
   source, 
   onSuccess,
   variant = "default",
-  size = "default"
+  size = "default",
+  className,
+  children
 }: CreateTaskButtonProps) => {
   const [open, setOpen] = useState(false);
 
@@ -30,12 +35,16 @@ export const CreateTaskButton = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {size === "icon" ? (
+        {children ? (
+          <Button variant={variant} className={className}>
+            {children}
+          </Button>
+        ) : size === "icon" ? (
           <Button variant={variant} size="icon" className="h-8 w-8">
             <Plus className="h-4 w-4" />
           </Button>
         ) : (
-          <Button variant={variant}>
+          <Button variant={variant} className={className}>
             <Plus className="h-4 w-4 mr-2" />
             Create Task
           </Button>
