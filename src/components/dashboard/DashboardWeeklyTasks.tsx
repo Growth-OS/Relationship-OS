@@ -5,6 +5,7 @@ import { startOfWeek, endOfWeek, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGroup } from "./TaskGroup";
 import { useTaskOperations } from "@/components/sequences/hooks/useTaskOperations";
+import { CreateTaskForm } from "@/components/tasks/CreateTaskForm";
 
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -66,6 +67,9 @@ export const DashboardWeeklyTasks = () => {
       </h2>
       
       <div className="space-y-6">
+        {/* Add CreateTaskForm at the top */}
+        <CreateTaskForm onSuccess={() => {}} />
+        
         {groupedTasks && Object.entries(groupedTasks).map(([source, sourceTasks]) => (
           <TaskGroup
             key={source}
