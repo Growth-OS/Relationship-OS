@@ -1017,9 +1017,10 @@ export type Database = {
           id: string
           last_auto_save_at: string | null
           publish_date: string
-          status: string
+          status: Database["public"]["Enums"]["substack_post_status"]
           tags: string[] | null
           title: string
+          url: string | null
           user_id: string
           version_history: Json[] | null
         }
@@ -1031,9 +1032,10 @@ export type Database = {
           id?: string
           last_auto_save_at?: string | null
           publish_date: string
-          status?: string
+          status?: Database["public"]["Enums"]["substack_post_status"]
           tags?: string[] | null
           title: string
+          url?: string | null
           user_id: string
           version_history?: Json[] | null
         }
@@ -1045,9 +1047,10 @@ export type Database = {
           id?: string
           last_auto_save_at?: string | null
           publish_date?: string
-          status?: string
+          status?: Database["public"]["Enums"]["substack_post_status"]
           tags?: string[] | null
           title?: string
+          url?: string | null
           user_id?: string
           version_history?: Json[] | null
         }
@@ -1331,6 +1334,7 @@ export type Database = {
       sequence_step_type: "email" | "linkedin"
       social_platform: "linkedin" | "instagram" | "both"
       social_post_status: "draft" | "ready" | "published" | "scheduled"
+      substack_post_status: "idea" | "writing" | "review" | "schedule" | "live"
       task_source:
         | "deals"
         | "content"
