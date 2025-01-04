@@ -15,15 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SubstackPostStatus, SubstackPostFormData } from "@/components/substack/types";
+import { useAuth } from "@supabase/auth-helpers-react";
 
 const SubstackPostEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const auth = useAuth();
   const [title, setTitle] = React.useState("");
   const [content, setContent] = React.useState("");
-  const [status, setStatus] = React.useState<string>("idea");
+  const [status, setStatus] = React.useState<SubstackPostStatus>("idea");
   const [publishDate, setPublishDate] = React.useState(
     new Date().toISOString().split("T")[0]
   );
@@ -62,18 +65,22 @@ const SubstackPostEditor = () => {
   }, [post]);
 
   const mutation = useMutation({
-    mutationFn: async (data: {
-      title: string;
-      content: string;
-      status: string;
-      publish_date: string;
-    }) => {
+    mutationFn: async (data: SubstackPostFormData) => {
+      if (!auth.user?.id) throw new Error("User not authenticated");
+
+      const postData = {
+        ...data,
+        user_id: auth.user.id,
+      };
+
       const { error } = id
         ? await supabase
             .from("substack_posts")
-            .update(data)
+            .update(postData)
             .eq("id", id)
-        : await supabase.from("substack_posts").insert([data]);
+        : await supabase
+            .from("substack_posts")
+            .insert([postData]);
 
       if (error) throw error;
     },
@@ -96,11 +103,21 @@ const SubstackPostEditor = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create or edit posts",
+        variant: "destructive",
+      });
+      return;
+    }
+
     mutation.mutate({
       title,
       content,
       status,
       publish_date: publishDate,
+      user_id: auth.user.id,
     });
   };
 
@@ -160,7 +177,7 @@ const SubstackPostEditor = () => {
               >
                 Status
               </label>
-              <Select value={status} onValueChange={setStatus}>
+              <Select value={status} onValueChange={(value: SubstackPostStatus) => setStatus(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
