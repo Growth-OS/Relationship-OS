@@ -1,12 +1,18 @@
 import { useState } from "react";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSequenceOperations } from "./hooks/useSequenceOperations";
 import { useSequenceList } from "./hooks/useSequenceList";
 import { SequenceListItem } from "./components/SequenceListItem";
+import { type Sequence } from "./types";
 
-export const SequencesList = () => {
-  const { sequences, isLoading, handleStatusChange } = useSequenceList();
+interface SequencesListProps {
+  sequences?: Sequence[];
+  isLoading: boolean;
+}
+
+export const SequencesList = ({ sequences, isLoading }: SequencesListProps) => {
+  const { handleStatusChange } = useSequenceList();
   const { deleteSequence, isDeleting } = useSequenceOperations();
   const [updatingStatuses, setUpdatingStatuses] = useState<Record<string, boolean>>({});
 

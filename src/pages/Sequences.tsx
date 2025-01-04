@@ -47,14 +47,6 @@ const Sequences = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -68,7 +60,7 @@ const Sequences = () => {
       </div>
 
       <SequenceStats sequences={sequences || []} />
-      <SequencesList sequences={sequences || []} isLoading={isLoading} />
+      <SequencesList sequences={sequences} isLoading={isLoading} />
     </div>
   );
 };
