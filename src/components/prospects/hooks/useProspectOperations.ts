@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Prospect } from "../types/prospect";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 
 export const useProspectOperations = () => {
   const queryClient = useQueryClient();
@@ -156,7 +157,7 @@ export const useProspectOperations = () => {
             title: `${stepType} to ${prospect.company_name} - ${prospect.contact_job_title} ${contactMethod} - Step ${step.step_number}`,
             description: step.message_template,
             due_date: dueDate.toISOString().split('T')[0],
-            source: 'sequences',
+            source: 'sequences' as TaskSource,
             sequence_id: sequenceId,
             priority: 'medium',
             user_id: user.id,
