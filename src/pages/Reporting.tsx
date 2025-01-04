@@ -64,7 +64,7 @@ const Reporting = () => {
   const shouldShowProspects = selectedModule === 'all' || selectedModule === 'prospects';
   const shouldShowAffiliates = selectedModule === 'all' || selectedModule === 'affiliate';
   const shouldShowFinances = selectedModule === 'all' || selectedModule === 'finances';
-  const shouldShowSequences = selectedModule === 'all' || selectedModule === 'prospects';
+  const shouldShowSequences = selectedModule === 'all' || selectedModule === 'sequences';
 
   return (
     <div className="space-y-6 animate-fade-in p-6 bg-[#FAFAFA] dark:bg-gray-900 min-h-screen">
