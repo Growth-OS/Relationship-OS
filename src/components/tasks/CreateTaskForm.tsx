@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface CreateTaskFormProps {
   source?: TaskSource;
@@ -26,6 +27,7 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState<string>("medium");
   const [source, setSource] = useState<TaskSource>(initialSource || "other");
+  const [open, setOpen] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["user"],
@@ -64,83 +66,102 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
     setDescription("");
     setDueDate(undefined);
     setPriority("medium");
+    setOpen(false);
     onSuccess?.();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-4 rounded-lg border">
-      <div className="space-y-2">
-        <Input
-          placeholder="What needs to be done?"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="text-lg font-medium placeholder:text-gray-400"
-        />
-        <Textarea
-          placeholder="Add a description... (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="min-h-[100px] placeholder:text-gray-400"
-        />
-      </div>
+    <>
+      <Button 
+        variant="outline" 
+        className="w-full text-left justify-start h-auto py-3 px-4"
+        onClick={() => setOpen(true)}
+      >
+        + Add a task...
+      </Button>
 
-      <div className="flex flex-wrap gap-4">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "justify-start text-left font-normal",
-                !dueDate && "text-muted-foreground"
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Create Task</DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                placeholder="What needs to be done?"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="text-lg font-medium placeholder:text-gray-400"
+              />
+              <Textarea
+                placeholder="Add a description... (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="min-h-[100px] placeholder:text-gray-400"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "justify-start text-left font-normal",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : "Set due date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Select value={priority} onValueChange={setPriority}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Set priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High Priority</SelectItem>
+                  <SelectItem value="medium">Medium Priority</SelectItem>
+                  <SelectItem value="low">Low Priority</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {!initialSource && (
+                <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="deals">Sales Tasks</SelectItem>
+                    <SelectItem value="content">Content Tasks</SelectItem>
+                    <SelectItem value="ideas">Ideas Tasks</SelectItem>
+                    <SelectItem value="substack">Substack Tasks</SelectItem>
+                    <SelectItem value="projects">Project Tasks</SelectItem>
+                    <SelectItem value="sequences">Sequence Tasks</SelectItem>
+                    <SelectItem value="other">Other Tasks</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {dueDate ? format(dueDate, "PPP") : "Set due date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={dueDate}
-              onSelect={setDueDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
 
-        <Select value={priority} onValueChange={setPriority}>
-          <SelectTrigger className="w-[140px]">
-            <SelectValue placeholder="Set priority" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="high">High Priority</SelectItem>
-            <SelectItem value="medium">Medium Priority</SelectItem>
-            <SelectItem value="low">Low Priority</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {!initialSource && (
-          <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="deals">Sales Tasks</SelectItem>
-              <SelectItem value="content">Content Tasks</SelectItem>
-              <SelectItem value="ideas">Ideas Tasks</SelectItem>
-              <SelectItem value="substack">Substack Tasks</SelectItem>
-              <SelectItem value="projects">Project Tasks</SelectItem>
-              <SelectItem value="sequences">Sequence Tasks</SelectItem>
-              <SelectItem value="other">Other Tasks</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-
-        <Button type="submit" className="ml-auto">
-          Create Task
-        </Button>
-      </div>
-    </form>
+              <Button type="submit" className="ml-auto">
+                Create Task
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
