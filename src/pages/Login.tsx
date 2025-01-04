@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import type { AuthError } from "@supabase/supabase-js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,12 +12,10 @@ const Login = () => {
   const returnTo = searchParams.get('returnTo') || '/dashboard';
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         toast.success('Signed in successfully');
         navigate(returnTo);
-      } else if (event === 'USER_DELETED') {
-        toast.error('Account has been deleted');
       } else if (event === 'PASSWORD_RECOVERY') {
         toast.info('Password recovery email sent');
       }
@@ -33,6 +32,15 @@ const Login = () => {
       subscription.unsubscribe();
     };
   }, [navigate, returnTo, searchParams]);
+
+  const handleAuthError = (error: AuthError) => {
+    console.error('Auth error:', error);
+    if (error.message.includes('Invalid login credentials')) {
+      toast.error('Invalid email or password. Please try again.');
+    } else {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -55,6 +63,7 @@ const Login = () => {
 
         <Auth
           supabaseClient={supabase}
+          onError={handleAuthError}
           appearance={{
             theme: ThemeSupa,
             variables: {
