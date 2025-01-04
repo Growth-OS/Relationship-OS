@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { Calendar, Mail, Linkedin, Sparkles } from "lucide-react";
+import { Calendar, Mail, Linkedin, Sparkles, Plus } from "lucide-react";
+import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 export const DashboardExternalLinks = () => {
   const links = [
@@ -44,6 +45,13 @@ export const DashboardExternalLinks = () => {
             </a>
           );
         })}
+        <CreateTaskButton 
+          variant="ghost" 
+          className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full justify-start"
+        >
+          <Plus className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-900 dark:text-white">Create Task</span>
+        </CreateTaskButton>
       </div>
     </Card>
   );
