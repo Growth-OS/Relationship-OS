@@ -13,7 +13,10 @@ export const DashboardStats = () => {
     queryKey: ['user'],
     queryFn: async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user:', error);
+        throw error;
+      }
       return user;
     },
   });
@@ -29,7 +32,10 @@ export const DashboardStats = () => {
         .neq('stage', 'invoiced')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching deals:', error);
+        throw error;
+      }
       return data?.length || 0;
     },
     enabled: !!user?.id,
@@ -45,7 +51,10 @@ export const DashboardStats = () => {
         .eq('status', 'active')
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching projects:', error);
+        throw error;
+      }
       return data?.length || 0;
     },
     enabled: !!user?.id,
@@ -61,7 +70,10 @@ export const DashboardStats = () => {
         .eq('completed', true)
         .eq('user_id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        throw error;
+      }
       return data?.length || 0;
     },
     enabled: !!user?.id,
@@ -82,7 +94,10 @@ export const DashboardStats = () => {
         .eq('user_id', user.id)
         .gte('date', startOfMonth.toISOString());
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching revenue:', error);
+        throw error;
+      }
       return data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
     },
     enabled: !!user?.id,
