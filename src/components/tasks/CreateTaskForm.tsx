@@ -138,22 +138,20 @@ export const CreateTaskForm = ({ source: initialSource, sourceId, projectId, onS
                 </SelectContent>
               </Select>
 
-              {!initialSource && (
-                <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="deals">Sales Tasks</SelectItem>
-                    <SelectItem value="content">Content Tasks</SelectItem>
-                    <SelectItem value="ideas">Ideas Tasks</SelectItem>
-                    <SelectItem value="substack">Substack Tasks</SelectItem>
-                    <SelectItem value="projects">Project Tasks</SelectItem>
-                    <SelectItem value="sequences">Sequence Tasks</SelectItem>
-                    <SelectItem value="other">Other Tasks</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
+              <Select value={source} onValueChange={(value) => setSource(value as TaskSource)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="deals">Sales Tasks</SelectItem>
+                  <SelectItem value="content">Content Tasks</SelectItem>
+                  <SelectItem value="ideas">Ideas Tasks</SelectItem>
+                  <SelectItem value="substack">Substack Tasks</SelectItem>
+                  <SelectItem value="projects">Project Tasks</SelectItem>
+                  <SelectItem value="sequences">Sequence Tasks</SelectItem>
+                  <SelectItem value="other">Other Tasks</SelectItem>
+                </SelectContent>
+              </Select>
 
               <Button type="submit" className="ml-auto">
                 Create Task
