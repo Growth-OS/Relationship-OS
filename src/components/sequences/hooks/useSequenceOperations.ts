@@ -32,44 +32,15 @@ export const useSequenceOperations = () => {
         throw new Error("Sequence not found or unauthorized");
       }
 
-      // Update tasks to completed
-      const { error: tasksError } = await supabase
-        .from("tasks")
-        .update({ completed: true })
-        .eq('sequence_id', sequenceId);
+      // Use a single transaction for all updates
+      const { error: updateError } = await supabase.rpc('delete_sequence', {
+        p_sequence_id: sequenceId,
+        p_user_id: user.id
+      });
 
-      if (tasksError) {
-        console.error("Error updating tasks:", tasksError);
-        throw tasksError;
-      }
-
-      // Soft delete the sequence
-      const { error: sequenceUpdateError } = await supabase
-        .from("sequences")
-        .update({ 
-          is_deleted: true,
-          status: 'completed' 
-        })
-        .eq("id", sequenceId)
-        .eq("user_id", user.id);
-
-      if (sequenceUpdateError) {
-        console.error("Error deleting sequence:", sequenceUpdateError);
-        throw sequenceUpdateError;
-      }
-
-      // Update assignments to completed
-      const { error: assignmentsError } = await supabase
-        .from("sequence_assignments")
-        .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString()
-        })
-        .eq("sequence_id", sequenceId);
-
-      if (assignmentsError) {
-        console.error("Error updating assignments:", assignmentsError);
-        throw assignmentsError;
+      if (updateError) {
+        console.error("Error in sequence deletion transaction:", updateError);
+        throw updateError;
       }
 
       return { sequenceId, sequenceName };
