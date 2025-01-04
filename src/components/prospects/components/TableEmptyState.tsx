@@ -1,9 +1,10 @@
-import { TableCell, TableRow } from "@/components/ui/table";
-
-export const TableEmptyState = () => (
-  <TableRow>
-    <TableCell colSpan={10} className="text-center py-8 text-gray-500">
-      No prospects found. Add your first prospect to get started.
-    </TableCell>
-  </TableRow>
-);
+export const TableEmptyState = () => {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center">
+      <p className="text-muted-foreground">No prospects found</p>
+      <p className="text-sm text-muted-foreground">
+        Add prospects to get started
+      </p>
+    </div>
+  );
+};

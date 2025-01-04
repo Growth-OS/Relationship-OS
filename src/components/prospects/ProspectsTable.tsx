@@ -1,8 +1,12 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { EditProspectForm } from "./EditProspectForm";
-import { ProspectRow } from "./ProspectRow";
 import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ProspectRow } from "./components/ProspectRow";
 import { BulkActions } from "./components/BulkActions";
 import { TablePagination } from "./components/TablePagination";
 import { TableLoadingState } from "./components/TableLoadingState";
@@ -13,173 +17,113 @@ import { toast } from "sonner";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
-  onProspectUpdated: () => void;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
   isLoading: boolean;
+  onEdit: (prospect: Prospect) => void;
+  refetch: () => void;
 }
 
-export const ProspectsTable = ({ 
-  prospects, 
-  onProspectUpdated, 
-  currentPage, 
-  totalPages, 
-  onPageChange,
-  isLoading 
+export const ProspectsTable = ({
+  prospects,
+  isLoading,
+  onEdit,
+  refetch,
 }: ProspectsTableProps) => {
-  const [editingProspect, setEditingProspect] = useState<Prospect | null>(null);
-  const [selectedProspects, setSelectedProspects] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const handleSelectProspect = (id: string, checked: boolean) => {
-    const newSelected = new Set(selectedProspects);
-    if (checked) {
-      newSelected.add(id);
+  const handleSelectAll = () => {
+    if (selectedIds.length === prospects.length) {
+      setSelectedIds([]);
     } else {
-      newSelected.delete(id);
+      setSelectedIds(prospects.map((p) => p.id));
     }
-    setSelectedProspects(newSelected);
   };
 
-  const sourceLabels = {
-    website: 'Website',
-    referral: 'Referral',
-    linkedin: 'LinkedIn',
-    cold_outreach: 'Cold Outreach',
-    conference: 'Conference',
-    other: 'Other'
+  const handleSelect = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((selectedId) => selectedId !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
   };
 
-  const activeProspects = prospects.filter(prospect => prospect.status !== 'converted');
-  const selectedProspectsData = Array.from(selectedProspects).map(id => 
-    prospects.find(p => p.id === id)!
-  );
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from("prospects").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Prospect deleted successfully");
+      refetch();
+    } catch (error) {
+      console.error("Error deleting prospect:", error);
+      toast.error("Failed to delete prospect");
+    }
+  };
+
+  const handleAssignSequence = async (sequenceId: string) => {
+    try {
+      const { error } = await supabase.from("sequence_assignments").insert(
+        selectedIds.map((prospectId) => ({
+          sequence_id: sequenceId,
+          prospect_id: prospectId,
+        }))
+      );
+      if (error) throw error;
+      toast.success("Prospects assigned to sequence");
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("Error assigning sequence:", error);
+      toast.error("Failed to assign sequence");
+    }
+  };
+
+  const totalPages = Math.ceil(prospects.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProspects = prospects.slice(startIndex, endIndex);
+
+  if (isLoading) return <TableLoadingState />;
+  if (!prospects.length) return <TableEmptyState />;
 
   return (
     <>
-      <BulkActions 
-        selectedProspects={selectedProspectsData}
-        onSuccess={() => {
-          setSelectedProspects(new Set());
-          onProspectUpdated();
-        }}
+      <BulkActions
+        selectedIds={selectedIds}
+        allSelected={selectedIds.length === prospects.length}
+        onSelectAll={handleSelectAll}
+        onAssignSequence={handleAssignSequence}
       />
-
-      <div className="overflow-hidden">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50 dark:bg-gray-800/50">
+            <TableRow>
               <TableHead className="w-[50px]"></TableHead>
-              <TableHead className="font-semibold">Company</TableHead>
-              <TableHead className="font-semibold">Source</TableHead>
-              <TableHead className="font-semibold">Job Title</TableHead>
-              <TableHead className="font-semibold">Email</TableHead>
-              <TableHead className="font-semibold">LinkedIn</TableHead>
-              <TableHead className="font-semibold">Sequence</TableHead>
-              <TableHead className="font-semibold">Progress</TableHead>
-              <TableHead className="font-semibold">Notes</TableHead>
-              <TableHead className="font-semibold text-right">Actions</TableHead>
+              <TableHead>Company</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Job Title</TableHead>
+              <TableHead>Source</TableHead>
+              <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              <TableLoadingState />
-            ) : activeProspects.length === 0 ? (
-              <TableEmptyState />
-            ) : (
-              activeProspects.map((prospect) => (
-                <ProspectRow
-                  key={prospect.id}
-                  prospect={prospect}
-                  sourceLabels={sourceLabels}
-                  onDelete={async (id) => {
-                    try {
-                      const { error } = await supabase
-                        .from('prospects')
-                        .delete()
-                        .eq('id', id);
-
-                      if (error) throw error;
-
-                      toast.success('Prospect deleted successfully');
-                      onProspectUpdated();
-                    } catch (error) {
-                      console.error('Error deleting prospect:', error);
-                      toast.error('Error deleting prospect');
-                    }
-                  }}
-                  onConvertToLead={async (prospect) => {
-                    try {
-                      const { data: { user } } = await supabase.auth.getUser();
-                      
-                      if (!user) {
-                        toast.error('You must be logged in to convert prospects');
-                        return;
-                      }
-
-                      const { error: dealError } = await supabase
-                        .from('deals')
-                        .insert({
-                          company_name: prospect.company_name,
-                          contact_email: prospect.contact_email || null,
-                          contact_job_title: prospect.contact_job_title || null,
-                          contact_linkedin: prospect.contact_linkedin || null,
-                          notes: prospect.notes || null,
-                          source: prospect.source,
-                          user_id: user.id,
-                          stage: 'lead',
-                          deal_value: 0,
-                          last_activity_date: new Date().toISOString()
-                        });
-
-                      if (dealError) throw dealError;
-
-                      const { error: updateError } = await supabase
-                        .from('prospects')
-                        .update({ status: 'converted' })
-                        .eq('id', prospect.id);
-
-                      if (updateError) throw updateError;
-
-                      toast.success('Prospect converted to lead successfully');
-                      onProspectUpdated();
-                    } catch (error) {
-                      console.error('Error converting prospect to lead:', error);
-                      toast.error('Error converting prospect to lead');
-                    }
-                  }}
-                  onEdit={setEditingProspect}
-                  isSelected={selectedProspects.has(prospect.id)}
-                  onSelectChange={(checked) => handleSelectProspect(prospect.id, checked)}
-                />
-              ))
-            )}
+            {currentProspects.map((prospect) => (
+              <ProspectRow
+                key={prospect.id}
+                prospect={prospect}
+                isSelected={selectedIds.includes(prospect.id)}
+                onSelect={handleSelect}
+                onEdit={onEdit}
+                onDelete={handleDelete}
+              />
+            ))}
           </TableBody>
         </Table>
-
-        <TablePagination 
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-        />
       </div>
-
-      {editingProspect && (
-        <Dialog open={!!editingProspect} onOpenChange={() => setEditingProspect(null)}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Edit Prospect</DialogTitle>
-            </DialogHeader>
-            <EditProspectForm
-              prospect={editingProspect}
-              onSuccess={() => {
-                setEditingProspect(null);
-                onProspectUpdated();
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </>
   );
 };

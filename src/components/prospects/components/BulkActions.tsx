@@ -1,37 +1,38 @@
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AssignSequenceDialog } from "./AssignSequenceDialog";
 import { useState } from "react";
-import type { Prospect } from "../types/prospect";
 
 interface BulkActionsProps {
-  selectedProspects: Prospect[];
-  onSuccess: () => void;
+  selectedIds: string[];
+  allSelected: boolean;
+  onSelectAll: () => void;
+  onAssignSequence: (sequenceId: string) => Promise<void>;
 }
 
-export const BulkActions = ({ selectedProspects, onSuccess }: BulkActionsProps) => {
+export const BulkActions = ({
+  selectedIds,
+  allSelected,
+  onSelectAll,
+  onAssignSequence,
+}: BulkActionsProps) => {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
-  if (selectedProspects.length === 0) return null;
-
   return (
-    <div className="mb-4 flex justify-between items-center">
+    <div className="flex items-center gap-4 py-4">
+      <Checkbox checked={allSelected} onCheckedChange={onSelectAll} />
       <Button
+        variant="outline"
+        size="sm"
+        disabled={selectedIds.length === 0}
         onClick={() => setIsAssignDialogOpen(true)}
-        className="bg-blue-600 hover:bg-blue-700"
       >
-        <Users className="w-4 h-4 mr-2" />
-        Assign {selectedProspects.length} Prospects to Sequence
+        Assign to Sequence
       </Button>
-
       <AssignSequenceDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
-        prospects={selectedProspects}
-        onSuccess={() => {
-          setIsAssignDialogOpen(false);
-          onSuccess();
-        }}
+        onAssign={onAssignSequence}
       />
     </div>
   );
