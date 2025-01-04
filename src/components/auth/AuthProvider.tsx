@@ -61,6 +61,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (location.pathname === '/login' || location.pathname === '/') {
           navigate('/dashboard', { replace: true });
         }
+      } else if (event === 'PASSWORD_RECOVERY') {
+        toast.info('Check your email for password reset instructions');
+      } else if (event === 'USER_UPDATED') {
+        toast.success('Your profile has been updated');
       }
     });
 
