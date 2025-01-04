@@ -84,6 +84,15 @@ export const ProspectsTable = ({
   if (isLoading) return <TableLoadingState />;
   if (!prospects.length) return <TableEmptyState />;
 
+  const sourceLabels: Record<string, string> = {
+    website: 'Website',
+    referral: 'Referral',
+    linkedin: 'LinkedIn',
+    cold_outreach: 'Cold Outreach',
+    conference: 'Conference',
+    other: 'Other'
+  };
+
   return (
     <>
       <BulkActions
@@ -98,9 +107,13 @@ export const ProspectsTable = ({
             <TableRow>
               <TableHead className="w-[50px]"></TableHead>
               <TableHead>Company</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Job Title</TableHead>
               <TableHead>Source</TableHead>
+              <TableHead>Job Title</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>LinkedIn</TableHead>
+              <TableHead>Sequence</TableHead>
+              <TableHead>Progress</TableHead>
+              <TableHead>Notes</TableHead>
               <TableHead className="w-[100px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -109,10 +122,18 @@ export const ProspectsTable = ({
               <ProspectRow
                 key={prospect.id}
                 prospect={prospect}
+                sourceLabels={sourceLabels}
                 isSelected={selectedIds.includes(prospect.id)}
-                onSelect={handleSelect}
+                onSelectChange={(checked) => {
+                  if (checked) {
+                    handleSelect(prospect.id);
+                  } else {
+                    setSelectedIds(selectedIds.filter(id => id !== prospect.id));
+                  }
+                }}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
+                onConvertToLead={async () => {}}
               />
             ))}
           </TableBody>
