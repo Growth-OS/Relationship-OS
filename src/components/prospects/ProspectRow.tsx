@@ -3,24 +3,14 @@ import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { Prospect } from "./types/prospect";
 
 interface ProspectRowProps {
-  prospect: {
-    id: string;
-    company_name: string;
-    contact_email?: string;
-    contact_job_title?: string;
-    contact_linkedin?: string;
-    source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
-    notes?: string;
-    sequence_name?: string;
-    sequence_status?: string;
-    current_step?: number;
-    status?: string;
-  };
+  prospect: Prospect;
   sourceLabels: Record<string, string>;
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: any) => void;
+  onConvertToLead: (prospect: Prospect) => Promise<void>;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }
@@ -30,6 +20,7 @@ export const ProspectRow = ({
   sourceLabels, 
   onDelete, 
   onEdit,
+  onConvertToLead,
   isSelected,
   onSelectChange
 }: ProspectRowProps) => {
@@ -107,6 +98,7 @@ export const ProspectRow = ({
           prospect={prospect}
           onDelete={onDelete}
           onEdit={onEdit}
+          onConvertToLead={onConvertToLead}
         />
       </TableCell>
     </TableRow>
