@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ProspectRow } from "./components/ProspectRow";
+import { ProspectRow } from "./ProspectRow";
 import { BulkActions } from "./components/BulkActions";
 import { TablePagination } from "./components/TablePagination";
 import { TableLoadingState } from "./components/TableLoadingState";
