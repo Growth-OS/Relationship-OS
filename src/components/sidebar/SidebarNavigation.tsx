@@ -40,6 +40,12 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
+      icon: FileText, 
+      label: "Content", 
+      path: "https://publish.buffer.com/create?view=board",
+      external: true 
+    },
+    { 
       icon: Sparkles, 
       label: "AI", 
       path: "https://chat.openai.com",

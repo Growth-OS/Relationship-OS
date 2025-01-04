@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Calendar, Mail, Linkedin, Sparkles, Plus } from "lucide-react";
+import { Calendar, Mail, Linkedin, Sparkles, Plus, FileText } from "lucide-react";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 export const DashboardExternalLinks = () => {
@@ -18,6 +18,11 @@ export const DashboardExternalLinks = () => {
       icon: Linkedin,
       label: "LinkedIn",
       href: "https://app.trykondo.com/inboxes/focused",
+    },
+    {
+      icon: FileText,
+      label: "Content",
+      href: "https://publish.buffer.com/create?view=board",
     },
     {
       icon: Sparkles,
