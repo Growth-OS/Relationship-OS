@@ -4,7 +4,7 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, 
-  Sparkles, List
+  Sparkles, List, BookOpen
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -44,6 +44,11 @@ export const SidebarNavigation = () => {
       label: "Content", 
       path: "https://publish.buffer.com/create?view=board",
       external: true 
+    },
+    { 
+      icon: BookOpen,
+      label: "Substack",
+      path: "/dashboard/substack"
     },
     { 
       icon: Sparkles, 
