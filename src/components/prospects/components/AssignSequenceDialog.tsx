@@ -110,7 +110,7 @@ export const AssignSequenceDialog = ({ open, onOpenChange, prospects, onSuccess 
         }
       }
 
-      toast.success('Prospects assigned to sequence successfully');
+      toast.success(`${prospects.length} prospects assigned to sequence successfully`);
       onSuccess();
     } catch (error) {
       console.error('Error assigning prospects to sequence:', error);

@@ -8,20 +8,7 @@ import { ProspectRow } from "./ProspectRow";
 import { useState } from "react";
 import { AssignSequenceDialog } from "./components/AssignSequenceDialog";
 import { Users } from "lucide-react";
-
-interface Prospect {
-  id: string;
-  company_name: string;
-  contact_email?: string;
-  contact_job_title?: string;
-  contact_linkedin?: string;
-  source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
-  notes?: string;
-  status?: string;
-  sequence_name?: string;
-  sequence_status?: string;
-  current_step?: number;
-}
+import type { Prospect } from "./types/prospect";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -111,6 +98,9 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
   };
 
   const activeProspects = prospects.filter(prospect => prospect.status !== 'converted');
+  const selectedProspectsData = Array.from(selectedProspects).map(id => 
+    prospects.find(p => p.id === id)!
+  );
 
   return (
     <>
@@ -187,9 +177,7 @@ export const ProspectsTable = ({ prospects, onProspectUpdated }: ProspectsTableP
       <AssignSequenceDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
-        prospects={Array.from(selectedProspects).map(id => 
-          prospects.find(p => p.id === id)!
-        )}
+        prospects={selectedProspectsData}
         onSuccess={() => {
           setIsAssignDialogOpen(false);
           setSelectedProspects(new Set());

@@ -6,6 +6,9 @@ export interface Prospect {
   contact_linkedin?: string;
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
   notes?: string;
+  sequence_name?: string;
+  sequence_status?: string;
+  current_step?: number;
 }
 
 export interface ProspectActionsProps {
