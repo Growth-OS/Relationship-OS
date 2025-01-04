@@ -10,10 +10,18 @@ import type { Prospect } from "../types/prospect";
 interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAssign: (sequenceId: string) => Promise<void>;
+  onAssign?: (sequenceId: string) => Promise<void>;
+  prospects?: Prospect[];
+  onSuccess?: () => void;
 }
 
-export const AssignSequenceDialog = ({ open, onOpenChange, onAssign }: AssignSequenceDialogProps) => {
+export const AssignSequenceDialog = ({ 
+  open, 
+  onOpenChange, 
+  onAssign,
+  prospects,
+  onSuccess 
+}: AssignSequenceDialogProps) => {
   const [selectedSequence, setSelectedSequence] = useState<string>("");
 
   const { data: sequences = [], isLoading } = useQuery({
@@ -36,6 +44,15 @@ export const AssignSequenceDialog = ({ open, onOpenChange, onAssign }: AssignSeq
       return data || [];
     },
   });
+
+  const handleAssign = async () => {
+    if (onAssign) {
+      await onAssign(selectedSequence);
+      if (onSuccess) {
+        onSuccess();
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={(open) => {
@@ -68,7 +85,7 @@ export const AssignSequenceDialog = ({ open, onOpenChange, onAssign }: AssignSeq
             </Select>
           )}
           <Button 
-            onClick={() => onAssign(selectedSequence)} 
+            onClick={handleAssign} 
             disabled={!selectedSequence || isLoading}
             className="w-full"
           >

@@ -59,6 +59,11 @@ export const ProspectsTable = ({
     }
   };
 
+  const handleEdit = (prospect: Prospect) => {
+    // Implement edit functionality
+    console.log("Edit prospect:", prospect);
+  };
+
   const handleAssignSequence = async (sequenceId: string) => {
     try {
       const { error } = await supabase.from("sequence_assignments").insert(
@@ -107,6 +112,7 @@ export const ProspectsTable = ({
                 isSelected={selectedIds.includes(prospect.id)}
                 onSelect={handleSelect}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             ))}
           </TableBody>
