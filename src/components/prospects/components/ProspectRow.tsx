@@ -7,6 +7,7 @@ interface ProspectRowProps {
   prospect: Prospect;
   isSelected: boolean;
   onSelect: (id: string) => void;
+  onSelectChange: (checked: boolean) => void;
   onEdit: (prospect: Prospect) => void;
   onDelete: (id: string) => void;
   sourceLabels: Record<string, string>;
@@ -16,6 +17,7 @@ export const ProspectRow = ({
   prospect,
   isSelected,
   onSelect,
+  onSelectChange,
   onEdit,
   onDelete,
   sourceLabels,
@@ -25,7 +27,7 @@ export const ProspectRow = ({
       <td className="p-4">
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onSelect(prospect.id)}
+          onCheckedChange={onSelectChange}
         />
       </td>
       <td className="p-4 font-medium">{prospect.company_name}</td>
