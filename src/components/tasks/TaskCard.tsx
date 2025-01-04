@@ -6,13 +6,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { useNavigate } from "react-router-dom";
+import { memo } from "react";
 
 interface TaskCardProps {
   task: any;
   onComplete: (taskId: string, completed: boolean) => Promise<void>;
 }
 
-export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
+export const TaskCard = memo(({ task, onComplete }: TaskCardProps) => {
   const navigate = useNavigate();
 
   const handleTaskClick = (task: any) => {
@@ -125,4 +126,6 @@ export const TaskCard = ({ task, onComplete }: TaskCardProps) => {
       </div>
     </Card>
   );
-};
+});
+
+TaskCard.displayName = 'TaskCard';

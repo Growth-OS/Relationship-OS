@@ -1,16 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { addDays, format } from "date-fns";
-import { TaskSource } from "@/integrations/supabase/types/tasks";
-import { mapDbStepTypeToFrontend } from "../utils/stepTypeMapping";
+import { useSequenceTaskOperations } from "./useSequenceTaskOperations";
 
 export const useSequenceOperations = () => {
   const queryClient = useQueryClient();
+  const { createSequenceTasks } = useSequenceTaskOperations();
 
   const deleteMutation = useMutation({
     mutationFn: async ({ sequenceId, sequenceName }: { sequenceId: string, sequenceName: string }) => {
-      // Delete all tasks associated with this sequence
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
@@ -105,38 +103,7 @@ export const useSequenceOperations = () => {
       if (assignmentError) throw assignmentError;
 
       // Create tasks for each step
-      const tasks = sequence.sequence_steps.map(step => {
-        const dueDate = addDays(new Date(), step.delay_days || 0);
-        const stepType = mapDbStepTypeToFrontend(step.step_type, step.step_number);
-        const actionType = stepType.startsWith('email') ? 'Send email' : 
-                          stepType === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
-                          'Send LinkedIn message';
-        
-        const contactMethod = stepType.startsWith('email') ? 
-          `(${prospect.contact_email})` : 
-          `(${prospect.contact_linkedin})`;
-
-        return {
-          title: `${actionType} to ${prospect.company_name} - ${prospect.contact_job_title} ${contactMethod} - Step ${step.step_number}`,
-          description: step.message_template,
-          due_date: format(dueDate, 'yyyy-MM-dd'),
-          source: 'other' as TaskSource,
-          priority: 'medium',
-          user_id: user.id
-        };
-      });
-
-      // Insert all tasks
-      if (tasks.length > 0) {
-        const { error: tasksError } = await supabase
-          .from("tasks")
-          .insert(tasks);
-
-        if (tasksError) {
-          console.error("Error creating tasks:", tasksError);
-          throw tasksError;
-        }
-      }
+      await createSequenceTasks(sequenceId, prospectId, sequence.sequence_steps, prospect, user);
 
       return assignment;
     },
