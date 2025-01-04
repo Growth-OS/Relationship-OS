@@ -115,6 +115,11 @@ export const ProspectsTable = ({
 
       if (insertError) throw insertError;
 
+      // Invalidate relevant queries
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+
       toast.success(
         existingProspectIds.length > 0
           ? "Prospects assigned to sequence (some were already assigned)"
@@ -179,7 +184,6 @@ export const ProspectsTable = ({
                 }}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
-                onConvertToLead={async () => {}}
               />
             ))}
           </TableBody>

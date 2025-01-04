@@ -16,10 +16,10 @@ interface ProspectRowProps {
     sequence_name?: string;
     sequence_status?: string;
     current_step?: number;
+    status?: string;
   };
   sourceLabels: Record<string, string>;
   onDelete: (id: string) => Promise<void>;
-  onConvertToLead: (prospect: any) => Promise<void>;
   onEdit: (prospect: any) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
@@ -29,7 +29,6 @@ export const ProspectRow = ({
   prospect, 
   sourceLabels, 
   onDelete, 
-  onConvertToLead, 
   onEdit,
   isSelected,
   onSelectChange
@@ -37,18 +36,22 @@ export const ProspectRow = ({
   const getSequenceStatusColor = (status?: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
       case 'paused':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
       case 'completed':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
     }
   };
 
+  const isConverted = prospect.status === 'converted';
+
   return (
-    <TableRow className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+    <TableRow className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
+      isConverted ? 'opacity-60' : ''
+    }`}>
       <TableCell>
         <Checkbox
           checked={isSelected}
@@ -58,7 +61,7 @@ export const ProspectRow = ({
       </TableCell>
       <TableCell className="font-medium">{prospect.company_name}</TableCell>
       <TableCell>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
           {sourceLabels[prospect.source]}
         </span>
       </TableCell>
@@ -103,7 +106,6 @@ export const ProspectRow = ({
         <ProspectActions
           prospect={prospect}
           onDelete={onDelete}
-          onConvertToLead={onConvertToLead}
           onEdit={onEdit}
         />
       </TableCell>
