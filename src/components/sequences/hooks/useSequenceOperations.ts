@@ -12,14 +12,20 @@ export const useSequenceOperations = () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
+      console.log("Deleting sequence:", sequenceId, sequenceName);
+
       // Update tasks to completed instead of deleting them
       const { error: tasksError } = await supabase
         .from("tasks")
         .update({ completed: true })
         .eq('user_id', user.user.id)
-        .like('title', `%sequence "${sequenceName}"%`);
+        .eq('source', 'sequences')
+        .eq('sequence_id', sequenceId);
 
-      if (tasksError) throw tasksError;
+      if (tasksError) {
+        console.error("Error updating tasks:", tasksError);
+        throw tasksError;
+      }
 
       // Soft delete the sequence instead of hard deleting
       const { error: sequenceError } = await supabase
@@ -30,7 +36,10 @@ export const useSequenceOperations = () => {
         })
         .eq("id", sequenceId);
 
-      if (sequenceError) throw sequenceError;
+      if (sequenceError) {
+        console.error("Error deleting sequence:", sequenceError);
+        throw sequenceError;
+      }
 
       // Update assignments to completed
       const { error: assignmentsError } = await supabase
@@ -41,12 +50,16 @@ export const useSequenceOperations = () => {
         })
         .eq("sequence_id", sequenceId);
 
-      if (assignmentsError) throw assignmentsError;
+      if (assignmentsError) {
+        console.error("Error updating assignments:", assignmentsError);
+        throw assignmentsError;
+      }
 
       return { sequenceId, sequenceName };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequences"] });
+      queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
       toast.success("Sequence deleted successfully");
     },
     onError: (error) => {
