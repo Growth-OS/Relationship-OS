@@ -6,13 +6,17 @@ import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 const Tasks = () => {
   return (
     <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className="text-left">
-          <h1 className="text-2xl font-bold text-primary mb-1">Tasks</h1>
-          <p className="text-sm text-gray-600">Manage your tasks across different areas</p>
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-2xl font-semibold text-primary mb-1">Tasks</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your tasks across different areas
+            </p>
+          </div>
+          <CreateTaskButton />
         </div>
-        <CreateTaskButton />
-      </div>
+      </Card>
 
       <Card className="p-6">
         <Tabs defaultValue="projects" className="w-full">
