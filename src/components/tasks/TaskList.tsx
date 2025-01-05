@@ -6,6 +6,17 @@ import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
 import { TaskGroup } from "@/components/dashboard/TaskGroup";
+import { DateRange } from "react-day-picker";
+import { addDays, subMonths } from "date-fns";
+import { DateRangePicker } from "../ui/date-range-picker";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "../ui/pagination";
 
 interface TaskListProps {
   source?: TaskSource;
@@ -13,9 +24,17 @@ interface TaskListProps {
   showArchived?: boolean;
 }
 
+const TASKS_PER_PAGE = 10;
+
 export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
+  const [page, setPage] = React.useState(1);
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+    from: subMonths(new Date(), 1),
+    to: new Date(),
+  });
+
   const { data: tasks = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["tasks", source, projectId, showArchived],
+    queryKey: ["tasks", source, projectId, showArchived, page, dateRange],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("User not authenticated");
@@ -39,21 +58,37 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         query = query.eq("project_id", projectId);
       }
 
-      if (!showArchived) {
+      if (showArchived) {
+        query = query.eq("completed", true);
+        
+        // Apply date range filter for archived tasks
+        if (dateRange?.from) {
+          query = query.gte('created_at', dateRange.from.toISOString());
+        }
+        if (dateRange?.to) {
+          query = query.lte('created_at', addDays(dateRange.to, 1).toISOString());
+        }
+      } else {
         query = query.eq("completed", false);
       }
 
-      const { data, error } = await query.order('due_date', { ascending: true });
+      // Add pagination
+      const start = (page - 1) * TASKS_PER_PAGE;
+      query = query
+        .order('created_at', { ascending: false })
+        .range(start, start + TASKS_PER_PAGE - 1);
+
+      const { data, error, count } = await query;
 
       if (error) {
         console.error("Error fetching tasks:", error);
         throw new Error("Failed to fetch tasks: " + error.message);
       }
 
-      // Log the tasks for debugging
-      console.log("Fetched tasks:", data);
-
-      return data || [];
+      return {
+        tasks: data || [],
+        totalCount: count || 0,
+      };
     },
   });
 
@@ -91,41 +126,77 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
     );
   }
 
-  if (tasks.length === 0) {
+  if (tasks.tasks.length === 0) {
     return <EmptyTaskList />;
   }
 
-  // If we're showing tasks by source, group them
-  if (source) {
-    return (
-      <TaskGroup 
-        source={source} 
-        tasks={tasks}
-        onComplete={handleComplete}
-      />
-    );
-  }
-
-  // For the main view, group tasks by source
-  const tasksBySource = tasks.reduce((acc: Record<string, any[]>, task) => {
-    const source = task.source || 'other';
-    if (!acc[source]) {
-      acc[source] = [];
-    }
-    acc[source].push(task);
-    return acc;
-  }, {});
+  const totalPages = Math.ceil(tasks.totalCount / TASKS_PER_PAGE);
 
   return (
     <div className="space-y-6">
-      {Object.entries(tasksBySource).map(([source, tasks]) => (
+      {showArchived && (
+        <div className="mb-6">
+          <DateRangePicker
+            date={dateRange}
+            onSelect={setDateRange}
+          />
+        </div>
+      )}
+
+      {source ? (
         <TaskGroup 
-          key={source} 
           source={source} 
-          tasks={tasks}
+          tasks={tasks.tasks}
           onComplete={handleComplete}
         />
-      ))}
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(tasks.tasks.reduce((acc: Record<string, any[]>, task) => {
+            const source = task.source || 'other';
+            if (!acc[source]) {
+              acc[source] = [];
+            }
+            acc[source].push(task);
+            return acc;
+          }, {})).map(([source, tasks]) => (
+            <TaskGroup 
+              key={source} 
+              source={source} 
+              tasks={tasks}
+              onComplete={handleComplete}
+            />
+          ))}
+        </div>
+      )}
+
+      {showArchived && totalPages > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+              />
+            </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <PaginationItem key={pageNum}>
+                <PaginationLink
+                  onClick={() => setPage(pageNum)}
+                  isActive={page === pageNum}
+                >
+                  {pageNum}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 };
