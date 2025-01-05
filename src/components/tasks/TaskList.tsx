@@ -1,39 +1,27 @@
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TaskCard } from "./TaskCard";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
-import { TaskSource } from "@/integrations/supabase/types/tasks";
 import { TaskGroup } from "@/components/dashboard/TaskGroup";
 import { DateRange } from "react-day-picker";
 import { addDays, subMonths } from "date-fns";
 import { DateRangePicker } from "../ui/date-range-picker";
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from "../ui/pagination";
-
-interface TaskListProps {
-  source?: TaskSource;
-  projectId?: string;
-  showArchived?: boolean;
-}
+import { TaskPagination } from "./TaskPagination";
+import { TaskListProps, TasksResponse } from "./types";
 
 const TASKS_PER_PAGE = 10;
 
 export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
-  const [page, setPage] = React.useState(1);
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+  const [page, setPage] = useState(1);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subMonths(new Date(), 1),
     to: new Date(),
   });
 
-  const { data: tasks = [], isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery<TasksResponse>({
     queryKey: ["tasks", source, projectId, showArchived, page, dateRange],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
@@ -126,11 +114,11 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
     );
   }
 
-  if (tasks.tasks.length === 0) {
+  if (!data || data.tasks.length === 0) {
     return <EmptyTaskList />;
   }
 
-  const totalPages = Math.ceil(tasks.totalCount / TASKS_PER_PAGE);
+  const totalPages = Math.ceil(data.totalCount / TASKS_PER_PAGE);
 
   return (
     <div className="space-y-6">
@@ -146,22 +134,22 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
       {source ? (
         <TaskGroup 
           source={source} 
-          tasks={tasks.tasks}
+          tasks={data.tasks}
           onComplete={handleComplete}
         />
       ) : (
         <div className="space-y-6">
-          {Object.entries(tasks.tasks.reduce((acc: Record<string, any[]>, task) => {
-            const source = task.source || 'other';
-            if (!acc[source]) {
-              acc[source] = [];
+          {Object.entries(data.tasks.reduce((acc: Record<string, any[]>, task) => {
+            const taskSource = task.source || 'other';
+            if (!acc[taskSource]) {
+              acc[taskSource] = [];
             }
-            acc[source].push(task);
+            acc[taskSource].push(task);
             return acc;
-          }, {})).map(([source, tasks]) => (
+          }, {})).map(([taskSource, tasks]) => (
             <TaskGroup 
-              key={source} 
-              source={source} 
+              key={taskSource} 
+              source={taskSource as any} 
               tasks={tasks}
               onComplete={handleComplete}
             />
@@ -169,33 +157,12 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         </div>
       )}
 
-      {showArchived && totalPages > 1 && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <PaginationItem key={pageNum}>
-                <PaginationLink
-                  onClick={() => setPage(pageNum)}
-                  isActive={page === pageNum}
-                >
-                  {pageNum}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+      {showArchived && (
+        <TaskPagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       )}
     </div>
   );
