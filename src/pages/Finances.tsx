@@ -22,31 +22,29 @@ const Finances = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <FinancialOverview />
+      <FinancialOverview />
 
-        <Card className="mt-6">
-          <TooltipProvider>
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="all">All Transactions</TabsTrigger>
-                <TabsTrigger value="income">Income</TabsTrigger>
-                <TabsTrigger value="expenses">Expenses</TabsTrigger>
-              </TabsList>
+      <Card className="p-6">
+        <TooltipProvider>
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">All Transactions</TabsTrigger>
+              <TabsTrigger value="income">Income</TabsTrigger>
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="all" className="mt-0">
-                <TransactionsList />
-              </TabsContent>
-              <TabsContent value="income" className="mt-0">
-                <TransactionsList type="income" />
-              </TabsContent>
-              <TabsContent value="expenses" className="mt-0">
-                <TransactionsList type="expense" />
-              </TabsContent>
-            </Tabs>
-          </TooltipProvider>
-        </Card>
-      </div>
+            <TabsContent value="all" className="mt-0">
+              <TransactionsList />
+            </TabsContent>
+            <TabsContent value="income" className="mt-0">
+              <TransactionsList type="income" />
+            </TabsContent>
+            <TabsContent value="expenses" className="mt-0">
+              <TransactionsList type="expense" />
+            </TabsContent>
+          </Tabs>
+        </TooltipProvider>
+      </Card>
     </div>
   );
 };
