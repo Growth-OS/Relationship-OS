@@ -55,7 +55,7 @@ const Sequences = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="text-left">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sequences</h1>
           <p className="text-muted-foreground">
             Create and manage your outreach sequences
