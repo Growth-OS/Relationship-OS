@@ -68,8 +68,8 @@ const Reporting = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-        <div className="flex justify-between items-center">
-          <div>
+        <div className="flex flex-col sm:flex-row justify-between gap-4">
+          <div className="text-left">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Reporting Dashboard
             </h1>
