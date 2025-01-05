@@ -51,7 +51,7 @@ export const useCanvas = (canvasRef: React.RefObject<HTMLCanvasElement>, boardId
             .from('boards')
             .select('canvas_data')
             .eq('id', boardId)
-            .single();
+            .maybeSingle();
 
           if (error) throw error;
 
