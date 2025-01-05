@@ -48,9 +48,19 @@ export const ProspectRow = ({
           checked={isSelected}
           onCheckedChange={onSelectChange}
           className="mr-2"
+          disabled={isConverted}
         />
       </TableCell>
-      <TableCell className="font-medium">{prospect.company_name}</TableCell>
+      <TableCell className="font-medium">
+        <div className="flex items-center gap-2">
+          {prospect.company_name}
+          {isConverted && (
+            <Badge variant="secondary" className="text-xs">
+              Converted to Deal
+            </Badge>
+          )}
+        </div>
+      </TableCell>
       <TableCell>
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
           {sourceLabels[prospect.source]}
@@ -94,12 +104,14 @@ export const ProspectRow = ({
         ) : '-'}
       </TableCell>
       <TableCell>
-        <ProspectActions
-          prospect={prospect}
-          onDelete={onDelete}
-          onEdit={onEdit}
-          onConvertToLead={onConvertToLead}
-        />
+        {!isConverted && (
+          <ProspectActions
+            prospect={prospect}
+            onDelete={onDelete}
+            onEdit={onEdit}
+            onConvertToLead={onConvertToLead}
+          />
+        )}
       </TableCell>
     </TableRow>
   );

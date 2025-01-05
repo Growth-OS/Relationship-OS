@@ -13,6 +13,8 @@ import { TableLoadingState } from "./components/TableLoadingState";
 import { TableEmptyState } from "./components/TableEmptyState";
 import type { Prospect } from "./types/prospect";
 import { useProspectOperations } from "./hooks/useProspectOperations";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -30,13 +32,14 @@ export const ProspectsTable = ({
   onPageChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showConverted, setShowConverted] = useState(false);
   const { handleDelete, handleConvertToLead, handleAssignSequence } = useProspectOperations();
 
   const handleSelectAll = () => {
-    if (selectedIds.length === prospects.length) {
+    if (selectedIds.length === filteredProspects.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(prospects.map((p) => p.id));
+      setSelectedIds(filteredProspects.map((p) => p.id));
     }
   };
 
@@ -60,6 +63,8 @@ export const ProspectsTable = ({
     }
   };
 
+  const filteredProspects = prospects.filter(p => showConverted || p.status !== 'converted');
+
   if (isLoading) return <TableLoadingState />;
   if (!prospects.length) return <TableEmptyState />;
 
@@ -74,12 +79,22 @@ export const ProspectsTable = ({
 
   return (
     <>
-      <BulkActions
-        selectedIds={selectedIds}
-        allSelected={selectedIds.length === prospects.length}
-        onSelectAll={handleSelectAll}
-        onAssignSequence={handleAssignSequenceToProspects}
-      />
+      <div className="flex justify-between items-center mb-4">
+        <BulkActions
+          selectedIds={selectedIds}
+          allSelected={selectedIds.length === filteredProspects.length}
+          onSelectAll={handleSelectAll}
+          onAssignSequence={handleAssignSequenceToProspects}
+        />
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-converted"
+            checked={showConverted}
+            onCheckedChange={setShowConverted}
+          />
+          <Label htmlFor="show-converted">Show converted prospects</Label>
+        </div>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -97,7 +112,7 @@ export const ProspectsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {prospects.map((prospect) => (
+            {filteredProspects.map((prospect) => (
               <ProspectRow
                 key={prospect.id}
                 prospect={prospect}
