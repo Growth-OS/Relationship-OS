@@ -17,46 +17,59 @@ import { AddEarningForm } from "@/components/affiliates/AddEarningForm";
 import { EarningsTable } from "@/components/affiliates/EarningsTable";
 import { useState } from "react";
 
-type Affiliate = {
+type Partner = {
   id: string;
   name: string;
-  email: string;
-  commission_rate: number;
-  status: string;
+  program: string;
+  commission_rate: string | null;
+  login_email: string | null;
+  login_password: string | null;
+  dashboard_url: string | null;
+  user_id: string;
   created_at: string;
 };
 
 type Earning = {
   id: string;
-  affiliate_id: string;
-  amount: number;
   date: string;
-  description: string;
+  amount: number;
+  notes: string | null;
+  partner_id: string;
+  user_id: string;
+  created_at: string;
+  affiliate_partners: {
+    name: string;
+  };
 };
 
 const Affiliates = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isAddEarningOpen, setIsAddEarningOpen] = useState(false);
 
-  const { data: affiliates, isLoading } = useQuery({
-    queryKey: ['affiliates'],
+  const { data: partners, isLoading: isLoadingPartners } = useQuery({
+    queryKey: ['affiliatePartners'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('affiliates')
+        .from('affiliate_partners')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Affiliate[];
+      return data as Partner[];
     },
   });
 
-  const { data: earnings } = useQuery({
-    queryKey: ['earnings'],
+  const { data: earnings, isLoading: isLoadingEarnings } = useQuery({
+    queryKey: ['affiliateEarnings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('earnings')
-        .select('*')
+        .from('affiliate_earnings')
+        .select(`
+          *,
+          affiliate_partners (
+            name
+          )
+        `)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -64,15 +77,20 @@ const Affiliates = () => {
     },
   });
 
-  const totalEarnings = earnings?.reduce((sum, earning) => sum + earning.amount, 0) ?? 0;
-  const averageEarnings = earnings && earnings.length > 0
-    ? totalEarnings / earnings.length
-    : 0;
+  const monthlyEarnings = earnings?.reduce((sum, earning) => sum + earning.amount, 0) ?? 0;
+  const avgCommission = partners?.reduce((acc, partner) => {
+    if (partner.commission_rate) {
+      const rate = parseFloat(partner.commission_rate);
+      return isNaN(rate) ? acc : acc + rate;
+    }
+    return acc;
+  }, 0) ?? 0;
+  const avgCommissionRate = partners?.length ? `${(avgCommission / partners.length).toFixed(1)}%` : "0%";
 
-  if (isLoading) {
+  if (isLoadingPartners || isLoadingEarnings) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-pulse text-gray-500">Loading affiliates...</div>
+        <div className="animate-pulse text-gray-500">Loading...</div>
       </div>
     );
   }
@@ -108,9 +126,9 @@ const Affiliates = () => {
 
       <Card className="p-6">
         <StatsCards 
-          totalPartners={affiliates?.length ?? 0}
-          totalEarnings={totalEarnings}
-          averageEarnings={averageEarnings}
+          totalPartners={partners?.length ?? 0}
+          monthlyEarnings={monthlyEarnings}
+          avgCommission={avgCommissionRate}
         />
       </Card>
 
@@ -126,7 +144,7 @@ const Affiliates = () => {
               </p>
             </div>
           </div>
-          <PartnersTable data={affiliates ?? []} />
+          <PartnersTable partners={partners ?? []} isLoading={isLoadingPartners} />
         </div>
       </Card>
 
@@ -152,14 +170,11 @@ const Affiliates = () => {
                 <DialogHeader>
                   <DialogTitle>Add New Earning</DialogTitle>
                 </DialogHeader>
-                <AddEarningForm 
-                  partners={affiliates ?? []}
-                  onSuccess={() => setIsAddEarningOpen(false)}
-                />
+                <AddEarningForm onSuccess={() => setIsAddEarningOpen(false)} />
               </DialogContent>
             </Dialog>
           </div>
-          <EarningsTable data={earnings ?? []} partners={affiliates ?? []} />
+          <EarningsTable earnings={earnings ?? []} isLoading={isLoadingEarnings} />
         </div>
       </Card>
     </div>
