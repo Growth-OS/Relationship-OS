@@ -136,4 +136,8 @@ export const routes: RouteObject[] = [
       },
     ],
   },
+  {
+    path: "*",
+    element: <Landing />,  // Catch-all route to handle unknown paths
+  }
 ];
