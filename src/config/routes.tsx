@@ -36,24 +36,6 @@ export const routes: RouteObject[] = [
     element: <Login />,
   },
   {
-    path: "/settings",
-    element: <AuthProvider><SettingsLayout /></AuthProvider>,
-    children: [
-      {
-        path: "profile",
-        element: <ProfileSettings />,
-      },
-      {
-        path: "team",
-        element: <TeamSettings />,
-      },
-      {
-        path: "branding",
-        element: <BrandingSettings />,
-      },
-    ],
-  },
-  {
     path: "/dashboard",
     element: <AuthProvider><Layout><Outlet /></Layout></AuthProvider>,
     children: [
@@ -128,6 +110,24 @@ export const routes: RouteObject[] = [
       {
         path: "substack/edit/:id",
         element: <SubstackPostEditor />,
+      },
+      {
+        path: "settings",
+        element: <SettingsLayout />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          },
+          {
+            path: "team",
+            element: <TeamSettings />,
+          },
+          {
+            path: "branding",
+            element: <BrandingSettings />,
+          },
+        ],
       },
     ],
   },

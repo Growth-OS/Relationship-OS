@@ -1,49 +1,16 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Settings2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const SidebarFooter = () => {
-  const navigate = useNavigate();
-  
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("Sign out error:", error);
-        toast.error("Failed to sign out. Please try again.");
-        return;
-      }
-
-      // Clear local storage and redirect
-      localStorage.clear();
-      navigate("/login", { replace: true });
-      toast.success("Signed out successfully");
-    } catch (error) {
-      console.error("Sign out error:", error);
-      toast.error("An unexpected error occurred");
-    }
-  };
-
   return (
-    <>
-      <button
-        onClick={() => navigate('/settings')}
-        className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+    <div className="mt-auto pt-4">
+      <Link
+        to="/dashboard/settings/profile"
+        className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white rounded-lg transition-colors"
       >
-        <Settings2 className="w-5 h-5" />
+        <Settings className="w-5 h-5 mr-3" />
         <span>Settings</span>
-      </button>
-      <Button
-        variant="outline"
-        className="w-full"
-        onClick={handleSignOut}
-      >
-        Sign Out
-      </Button>
-    </>
+      </Link>
+    </div>
   );
 };
