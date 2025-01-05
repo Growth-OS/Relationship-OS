@@ -39,7 +39,18 @@ export const CreateTravelForm = ({ onSuccess }: CreateTravelFormProps) => {
   const onSubmit = async (values: any) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("travels").insert([values]);
+      // Get the current user's session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) throw new Error("No authenticated user");
+
+      // Add the user_id to the values
+      const travelData = {
+        ...values,
+        user_id: session.user.id,
+      };
+
+      const { error } = await supabase.from("travels").insert([travelData]);
       
       if (error) throw error;
       
