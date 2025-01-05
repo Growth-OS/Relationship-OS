@@ -15,9 +15,9 @@ interface LeadsChartSectionProps {
 
 export const LeadsChartSection = ({ prospects }: LeadsChartSectionProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <Card className="bg-white dark:bg-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-base font-medium">New Leads (12 Months)</CardTitle>
           <ChartBarIcon className="w-4 h-4 text-gray-500" />
         </CardHeader>
@@ -26,8 +26,8 @@ export const LeadsChartSection = ({ prospects }: LeadsChartSectionProps) => {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card className="bg-white dark:bg-gray-800">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-base font-medium">Lead Sources</CardTitle>
           <PieChart className="w-4 h-4 text-gray-500" />
         </CardHeader>

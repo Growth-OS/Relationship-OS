@@ -37,11 +37,11 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export const MonthlyOverviewChart = ({ data }: MonthlyOverviewChartProps) => {
   return (
-    <Card className="col-span-full">
-      <CardHeader>
+    <Card className="bg-white dark:bg-gray-800">
+      <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium">Monthly Overview</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <div className="h-[500px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 

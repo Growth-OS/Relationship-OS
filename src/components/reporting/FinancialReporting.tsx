@@ -73,7 +73,7 @@ export const FinancialReporting = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
           Financial Analytics
         </h2>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
