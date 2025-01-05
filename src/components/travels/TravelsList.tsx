@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { Plane, Flag } from "lucide-react";
+import { Plane, Flag, Building2, MapPin } from "lucide-react";
 
 interface TravelsListProps {
   travels: any[];
@@ -28,46 +28,64 @@ export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsList
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {travels.map((travel) => (
-        <Card key={travel.id} className="p-6">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="flex items-start gap-4">
+        <Card 
+          key={travel.id} 
+          className="p-6 hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-white to-gray-50"
+        >
+          <div className="flex flex-col gap-4">
+            {/* Journey Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-gray-500" />
+                <h3 className="font-semibold">Journey Details</h3>
+              </div>
+              {travel.company_name && (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Building2 className="w-4 h-4" />
+                  <span>{travel.company_name}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Journey Path Visualization */}
+            <div className="flex items-center justify-between gap-4 py-4">
               <div className="flex flex-col items-center">
-                <div className="text-2xl">{travel.origin_country_flag}</div>
-                <Flag className="w-4 h-4 text-gray-400 my-2" />
-                <div className="text-2xl">{travel.destination_country_flag}</div>
+                <div className="text-3xl mb-2">{travel.origin_country_flag}</div>
+                <span className="text-sm font-medium text-center">{travel.origin_country}</span>
               </div>
               
-              <div>
-                <h3 className="font-semibold">
-                  {travel.origin_country} to {travel.destination_country}
-                </h3>
-                {travel.company_name && (
-                  <p className="text-sm text-gray-600">
-                    Working with: {travel.company_name}
-                  </p>
-                )}
-                {travel.notes && (
-                  <p className="text-sm text-gray-500 mt-2">{travel.notes}</p>
-                )}
+              <div className="flex-1 flex items-center justify-center gap-2">
+                <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
+                <Plane className="w-5 h-5 text-primary rotate-0 animate-pulse" />
+                <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="text-3xl mb-2">{travel.destination_country_flag}</div>
+                <span className="text-sm font-medium text-center">{travel.destination_country}</span>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1">
+            {/* Dates */}
+            <div className="flex justify-between text-sm text-gray-600 pt-2 border-t">
               <div className="flex items-center gap-2">
-                <Plane className="w-4 h-4" />
-                <span className="text-sm">
-                  {format(new Date(travel.departure_date), "MMM d, yyyy")}
-                </span>
+                <Plane className="w-4 h-4 rotate-45" />
+                <span>{format(new Date(travel.departure_date), "MMM d, yyyy")}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Plane className="w-4 h-4 rotate-180" />
-                <span className="text-sm">
-                  {format(new Date(travel.return_date), "MMM d, yyyy")}
-                </span>
+                <Plane className="w-4 h-4 -rotate-45" />
+                <span>{format(new Date(travel.return_date), "MMM d, yyyy")}</span>
               </div>
             </div>
+
+            {/* Notes */}
+            {travel.notes && (
+              <div className="mt-2 pt-2 border-t">
+                <p className="text-sm text-gray-500">{travel.notes}</p>
+              </div>
+            )}
           </div>
         </Card>
       ))}
