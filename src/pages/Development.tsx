@@ -41,7 +41,7 @@ const Development = () => {
 
       if (error) throw error;
 
-      toast.success(completed ? "Item marked as complete" : "Item marked as pending");
+      toast.success(completed ? "Item moved to archived" : "Item marked as pending");
       refetch();
     } catch (error) {
       console.error("Error updating item:", error);
