@@ -21,7 +21,7 @@ export const TotalDealValueCard = ({
   const averageDealValue = totalDealValue / 2; // Assuming 2 active deals as per original
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-900">
+    <Card className="p-6 bg-white dark:bg-gray-800">
       <div className="space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
