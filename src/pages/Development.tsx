@@ -8,7 +8,7 @@ import { Plus, Bug, Lightbulb, ArrowUpCircle, CheckCircle2 } from "lucide-react"
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -49,7 +49,11 @@ const Development = () => {
   };
 
   const filteredItems = items?.filter(
-    (item) => selectedCategory === "all" || item.category === selectedCategory
+    (item) => {
+      const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+      const matchesStatus = selectedCategory === "archived" ? item.status === "completed" : item.status === "pending";
+      return matchesCategory && matchesStatus;
+    }
   );
 
   const renderPriorityIcon = (priority: string) => {
@@ -75,8 +79,8 @@ const Development = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Development</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-2xl font-semibold tracking-tight text-left">Development</h1>
+            <p className="text-sm text-muted-foreground text-left">
               Track ideas and areas for Growth OS development
             </p>
           </div>
@@ -111,6 +115,7 @@ const Development = () => {
             </TabsTrigger>
             <TabsTrigger value="feature">Features</TabsTrigger>
             <TabsTrigger value="improvement">Improvements</TabsTrigger>
+            <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
 
           <div className="mt-4">
@@ -124,32 +129,50 @@ const Development = () => {
               <div className="space-y-4">
                 {filteredItems?.map((item) => (
                   <Card key={item.id} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className={`font-medium ${item.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
-                            {item.title}
-                          </h3>
-                          {renderPriorityIcon(item.priority)}
-                        </div>
-                        {item.description && (
-                          <p className={`text-sm mt-1 ${item.status === 'completed' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                            {item.description}
-                          </p>
-                        )}
+                    <div className="flex items-start gap-4">
+                      <div 
+                        onClick={(e) => e.stopPropagation()} 
+                        className="pt-1"
+                      >
+                        <Checkbox
+                          checked={item.status === 'completed'}
+                          onCheckedChange={(checked) => {
+                            handleComplete(item.id, checked as boolean);
+                          }}
+                        />
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">Complete</span>
-                          <Switch
-                            checked={item.status === 'completed'}
-                            onCheckedChange={(checked) => handleComplete(item.id, checked)}
-                          />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <h3 className={cn(
+                              "font-medium",
+                              item.status === 'completed' && "text-muted-foreground line-through"
+                            )}>
+                              {item.title}
+                            </h3>
+                            {item.description && (
+                              <p className={cn(
+                                "text-sm text-muted-foreground",
+                                item.status === 'completed' && "line-through"
+                              )}>
+                                {item.description}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {renderPriorityIcon(item.priority)}
+                            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
+                              {item.category}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
-                          {item.status}
-                        </span>
                       </div>
+
+                      {item.status === 'completed' && (
+                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      )}
                     </div>
                   </Card>
                 ))}
