@@ -51,9 +51,11 @@ const Development = () => {
 
   const filteredItems = items?.filter(
     (item) => {
+      if (selectedCategory === "archived") {
+        return item.status === "completed";
+      }
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-      const matchesStatus = selectedCategory === "archived" ? item.status === "completed" : item.status === "pending";
-      return matchesCategory && matchesStatus;
+      return matchesCategory && item.status === "pending";
     }
   );
 
