@@ -1275,16 +1275,6 @@ export type Database = {
         }
         Relationships: []
       }
-      monthly_financial_metrics: {
-        Row: {
-          month: string | null
-          total_amount: number | null
-          transaction_count: number | null
-          type: Database["public"]["Enums"]["transaction_type"] | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
       prospect_sequence_info: {
         Row: {
           company_name: string | null
