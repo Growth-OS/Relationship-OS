@@ -27,7 +27,14 @@ const countries = [
   { id: 'ie', name: 'Ireland', flag: '🇮🇪' },
   { id: 'at', name: 'Austria', flag: '🇦🇹' },
   { id: 'lt', name: 'Lithuania', flag: '🇱🇹' },
-];
+  // Adding the requested countries
+  { id: 'ba', name: 'Bosnia and Herzegovina', flag: '🇧🇦' },
+  { id: 'rs', name: 'Serbia', flag: '🇷🇸' },
+  { id: 'mk', name: 'North Macedonia', flag: '🇲🇰' },
+  { id: 'gb-nir', name: 'Northern Ireland', flag: '🇬🇧' },
+  { id: 'ee', name: 'Estonia', flag: '🇪🇪' },
+  { id: 'lv', name: 'Latvia', flag: '🇱🇻' },
+].sort((a, b) => a.name.localeCompare(b.name)); // Sort countries alphabetically
 
 export const CountrySelect = ({ label, countryFieldName, flagFieldName, form }: CountrySelectProps) => {
   return (
