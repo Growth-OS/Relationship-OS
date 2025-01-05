@@ -64,6 +64,21 @@ const Reporting = () => {
     },
   });
 
+  const { data: earnings = [] } = useQuery({
+    queryKey: ['affiliate_earnings', selectedModule],
+    queryFn: async () => {
+      if (selectedModule !== 'all' && selectedModule !== 'affiliate') return [];
+
+      const { data, error } = await supabase
+        .from('affiliate_earnings')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
   const totalDealValue = currentDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);
   const previousPeriodValue = previousDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);
 
@@ -113,7 +128,7 @@ const Reporting = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
             <MonthlyChartsSection 
               prospects={prospects}
-              earnings={earnings || []}
+              earnings={earnings}
             />
           </div>
         )}
