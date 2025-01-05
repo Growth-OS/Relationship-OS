@@ -15,9 +15,13 @@ export default function Travels() {
 
   const fetchTravels = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("No authenticated user");
+
       const { data, error } = await supabase
         .from("travels")
         .select("*")
+        .eq('user_id', session.user.id)
         .order("departure_date", { ascending: true });
 
       if (error) throw error;
