@@ -54,28 +54,30 @@ const Development = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-left">Development</h1>
-          <p className="text-sm text-muted-foreground">
-            Track ideas and areas for Growth OS development
-          </p>
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">Development</h1>
+            <p className="text-sm text-muted-foreground">
+              Track ideas and areas for Growth OS development
+            </p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Item
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Development Item</DialogTitle>
+              </DialogHeader>
+              <CreateDevelopmentItemForm onSuccess={handleSuccess} />
+            </DialogContent>
+          </Dialog>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Item
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Development Item</DialogTitle>
-            </DialogHeader>
-            <CreateDevelopmentItemForm onSuccess={handleSuccess} />
-          </DialogContent>
-        </Dialog>
-      </div>
+      </Card>
 
       <Card className="p-6">
         <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
