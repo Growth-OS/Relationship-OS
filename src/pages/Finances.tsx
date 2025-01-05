@@ -11,9 +11,9 @@ const Finances = () => {
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="text-left">
           <h1 className="text-2xl font-bold text-primary mb-1">Finances</h1>
-          <p className="text-sm text-gray-600">Manage your income and expenses</p>
+          <p className="text-sm text-muted-foreground">Manage your income and expenses</p>
         </div>
         <div className="flex gap-2">
           <MonthlyReport />
@@ -26,24 +26,22 @@ const Finances = () => {
 
       <Card className="p-6">
         <TooltipProvider>
-          <Tabs defaultValue="all">
-            <TabsList>
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="mb-4">
               <TabsTrigger value="all">All Transactions</TabsTrigger>
               <TabsTrigger value="income">Income</TabsTrigger>
               <TabsTrigger value="expenses">Expenses</TabsTrigger>
             </TabsList>
 
-            <div className="mt-4">
-              <TabsContent value="all">
-                <TransactionsList />
-              </TabsContent>
-              <TabsContent value="income">
-                <TransactionsList type="income" />
-              </TabsContent>
-              <TabsContent value="expenses">
-                <TransactionsList type="expense" />
-              </TabsContent>
-            </div>
+            <TabsContent value="all" className="mt-0">
+              <TransactionsList />
+            </TabsContent>
+            <TabsContent value="income" className="mt-0">
+              <TransactionsList type="income" />
+            </TabsContent>
+            <TabsContent value="expenses" className="mt-0">
+              <TransactionsList type="expense" />
+            </TabsContent>
           </Tabs>
         </TooltipProvider>
       </Card>
