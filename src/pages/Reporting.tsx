@@ -67,23 +67,25 @@ const Reporting = () => {
   const shouldShowSequences = selectedModule === 'all' || selectedModule === 'sequences';
 
   return (
-    <div className="space-y-6 animate-fade-in p-6 bg-[#FAFAFA] dark:bg-gray-900 min-h-screen">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-        <div>
-          <div className="flex items-center gap-2">
-            <ChartBarIcon className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-              Reporting Dashboard
-            </h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+        <div className="flex justify-between items-center">
+          <div>
+            <div className="flex items-center gap-2">
+              <ChartBarIcon className="w-6 h-6 text-gray-900 dark:text-white" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Reporting Dashboard
+              </h1>
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              Track and analyse your business metrics
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            Track and analyse your business metrics
-          </p>
+          <ModuleFilter 
+            value={selectedModule} 
+            onChange={setSelectedModule} 
+          />
         </div>
-        <ModuleFilter 
-          value={selectedModule} 
-          onChange={setSelectedModule} 
-        />
       </div>
 
       <div className="grid gap-6">
