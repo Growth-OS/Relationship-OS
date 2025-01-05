@@ -42,13 +42,20 @@ const Invoices = () => {
     .reduce((sum, invoice) => sum + invoice.total, 0);
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Invoices</h1>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Invoice
-        </Button>
+    <div className="space-y-8 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invoices</h1>
+            <p className="text-muted-foreground">
+              Create and manage your invoices
+            </p>
+          </div>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Invoice
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
