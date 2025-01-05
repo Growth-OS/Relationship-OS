@@ -58,19 +58,21 @@ const Projects = () => {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Projects</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage and track your client projects</p>
+    <div className="space-y-8 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
+            <p className="text-muted-foreground">Manage and track your client projects</p>
+          </div>
+          <CreateProjectButton />
         </div>
-        <CreateProjectButton />
       </div>
 
       <ProjectStats projects={projects} />
 
-      <Card className="p-6">
-        <div className="flex flex-col gap-6">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="space-y-6">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-4 flex-wrap flex-1">
               <ProjectsSearch value={searchQuery} onChange={setSearchQuery} />
@@ -114,7 +116,7 @@ const Projects = () => {
             </div>
           </Tabs>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
