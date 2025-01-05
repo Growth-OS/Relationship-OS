@@ -44,8 +44,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     };
 
+    // Initial session check
     checkSession();
 
+    // Set up auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, !!session);
       
@@ -61,6 +63,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (location.pathname === '/login' || location.pathname === '/') {
           navigate('/dashboard', { replace: true });
         }
+      } else if (event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(true);
+        console.log('Session token refreshed');
       } else if (event === 'PASSWORD_RECOVERY') {
         toast.info('Check your email for password reset instructions');
       } else if (event === 'USER_UPDATED') {
@@ -81,10 +86,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
   }
 
+  // Save the current path before redirecting to login
   if (!isAuthenticated && location.pathname !== '/login') {
-    // Save the current location to redirect back after login
     const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
-    return <Navigate to={`/login?returnTo=${returnPath}`} replace />;
+    localStorage.setItem('return_path', returnPath);
+    return <Navigate to="/login" replace />;
   }
 
   return <>{children}</>;
