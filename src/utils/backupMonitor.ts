@@ -1,10 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Function to verify database connection and recent data modifications
 export const verifyDatabaseHealth = async () => {
   try {
-    // Test database connection with a simple query
     const { data, error } = await supabase
       .from('user_preferences')
       .select('created_at')
@@ -24,52 +22,49 @@ export const verifyDatabaseHealth = async () => {
   }
 };
 
-// Function to create a manual backup point by logging a backup record
 export const createBackupPoint = async (description: string) => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error('User must be logged in to create backup points');
-      return;
-    }
-
-    // Log the backup point
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('backup_points')
       .insert([{
-        user_id: user.id,
         description,
         backup_type: 'manual',
         status: 'pending'
-      }] as any); // Using 'any' temporarily until we update types
+      }])
+      .select()
+      .single();
 
-    if (error) throw error;
-    
-    toast.success('Backup point created successfully');
+    if (error) {
+      console.error('Error creating backup point:', error);
+      toast.error('Failed to create backup point');
+      throw error;
+    }
+
+    // Verify the backup point
+    const isHealthy = await verifyDatabaseHealth();
+    if (isHealthy) {
+      const { error: updateError } = await supabase
+        .from('backup_points')
+        .update({ status: 'verified', verified_at: new Date().toISOString() })
+        .eq('id', data.id);
+
+      if (updateError) {
+        console.error('Error updating backup status:', updateError);
+      }
+    }
+
+    return data;
   } catch (error) {
     console.error('Error creating backup point:', error);
     toast.error('Failed to create backup point');
+    throw error;
   }
 };
 
-// Function to verify data integrity
 export const verifyDataIntegrity = async () => {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error('User must be logged in to verify data integrity');
-      return;
-    }
-
-    // Perform a series of checks on critical tables
-    const criticalTables = [
-      'financial_transactions',
-      'projects',
-      'deals',
-      'tasks'
-    ] as const;
+    const criticalTables = ['financial_transactions', 'projects', 'deals', 'tasks'];
+    let isIntact = true;
 
     for (const table of criticalTables) {
       const { error } = await supabase
@@ -80,12 +75,15 @@ export const verifyDataIntegrity = async () => {
       if (error) {
         console.error(`Data integrity check failed for ${table}:`, error);
         toast.error(`Data integrity issue detected in ${table}`);
-        return false;
+        isIntact = false;
+        break;
       }
     }
 
-    toast.success('Data integrity check completed successfully');
-    return true;
+    if (isIntact) {
+      toast.success('Data integrity check passed');
+    }
+    return isIntact;
   } catch (error) {
     console.error('Data integrity check failed:', error);
     toast.error('Data integrity check failed');

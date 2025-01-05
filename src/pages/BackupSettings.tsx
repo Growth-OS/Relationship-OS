@@ -1,12 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { verifyDatabaseHealth, createBackupPoint, verifyDataIntegrity } from "@/utils/backupMonitor";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, Database, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 const BackupSettings = () => {
+  const queryClient = useQueryClient();
+  
   const { data: backupPoints, isLoading } = useQuery({
     queryKey: ["backup-points"],
     queryFn: async () => {
@@ -15,7 +17,10 @@ const BackupSettings = () => {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching backup points:", error);
+        throw error;
+      }
       return data;
     },
   });
@@ -23,6 +28,8 @@ const BackupSettings = () => {
   const handleCreateBackupPoint = async () => {
     try {
       await createBackupPoint("Manual backup point created from settings");
+      // Refresh the backup points list
+      await queryClient.invalidateQueries({ queryKey: ["backup-points"] });
       toast.success("Backup point created successfully");
     } catch (error) {
       console.error("Error creating backup point:", error);
