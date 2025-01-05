@@ -53,11 +53,11 @@ const Development = () => {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white hover:no-underline">Development</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-left">Development</h1>
+          <p className="text-sm text-muted-foreground">
             Track ideas and areas for Growth OS development
           </p>
         </div>
@@ -77,59 +77,57 @@ const Development = () => {
         </Dialog>
       </div>
 
-      <Card className="bg-white dark:bg-gray-800">
-        <div className="p-6">
-          <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
-            <TabsList>
-              <TabsTrigger value="all">All Items</TabsTrigger>
-              <TabsTrigger value="idea">
-                <Lightbulb className="w-4 h-4 mr-2" />
-                Ideas
-              </TabsTrigger>
-              <TabsTrigger value="bug">
-                <Bug className="w-4 h-4 mr-2" />
-                Bugs
-              </TabsTrigger>
-              <TabsTrigger value="feature">Features</TabsTrigger>
-              <TabsTrigger value="improvement">Improvements</TabsTrigger>
-            </TabsList>
+      <Card className="p-6">
+        <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
+          <TabsList>
+            <TabsTrigger value="all">All Items</TabsTrigger>
+            <TabsTrigger value="idea">
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Ideas
+            </TabsTrigger>
+            <TabsTrigger value="bug">
+              <Bug className="w-4 h-4 mr-2" />
+              Bugs
+            </TabsTrigger>
+            <TabsTrigger value="feature">Features</TabsTrigger>
+            <TabsTrigger value="improvement">Improvements</TabsTrigger>
+          </TabsList>
 
-            <div className="mt-4">
-              {isLoading ? (
-                <div className="text-center py-8 text-gray-500">Loading...</div>
-              ) : filteredItems?.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No items found. Add your first development item!
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredItems?.map((item) => (
-                    <Card key={item.id} className="p-4 bg-white dark:bg-gray-800/50">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-gray-900 dark:text-white">
-                              {item.title}
-                            </h3>
-                            {renderPriorityIcon(item.priority)}
-                          </div>
-                          {item.description && (
-                            <p className="text-sm text-gray-500 mt-1">{item.description}</p>
-                          )}
-                        </div>
+          <div className="mt-4">
+            {isLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            ) : filteredItems?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No items found. Add your first development item!
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredItems?.map((item) => (
+                  <Card key={item.id} className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded">
-                            {item.status}
-                          </span>
+                          <h3 className="font-medium">
+                            {item.title}
+                          </h3>
+                          {renderPriorityIcon(item.priority)}
                         </div>
+                        {item.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                        )}
                       </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Tabs>
-        </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
+                          {item.status}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </Tabs>
       </Card>
     </div>
   );
