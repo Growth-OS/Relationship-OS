@@ -24,13 +24,23 @@ export const verifyDatabaseHealth = async () => {
 
 export const createBackupPoint = async (description: string) => {
   try {
+    // First get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.error('Error getting user:', userError);
+      toast.error('Authentication required');
+      throw userError;
+    }
+
     const { data, error } = await supabase
       .from('backup_points')
-      .insert([{
+      .insert({
         description,
-        backup_type: 'manual',
-        status: 'pending'
-      }])
+        backup_type: 'manual' as const,
+        status: 'pending',
+        user_id: user.id
+      })
       .select()
       .single();
 
@@ -63,7 +73,13 @@ export const createBackupPoint = async (description: string) => {
 
 export const verifyDataIntegrity = async () => {
   try {
-    const criticalTables = ['financial_transactions', 'projects', 'deals', 'tasks'];
+    const criticalTables = [
+      'financial_transactions',
+      'projects',
+      'deals',
+      'tasks'
+    ] as const;
+    
     let isIntact = true;
 
     for (const table of criticalTables) {
