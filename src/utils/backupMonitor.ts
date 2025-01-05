@@ -37,7 +37,7 @@ export const createBackupPoint = async (description: string) => {
       .from('backup_points')
       .insert({
         description,
-        backup_type: 'manual' as const,
+        backup_type: 'manual',
         status: 'pending',
         user_id: user.id
       })
@@ -50,19 +50,6 @@ export const createBackupPoint = async (description: string) => {
       throw error;
     }
 
-    // Verify the backup point
-    const isHealthy = await verifyDatabaseHealth();
-    if (isHealthy) {
-      const { error: updateError } = await supabase
-        .from('backup_points')
-        .update({ status: 'verified', verified_at: new Date().toISOString() })
-        .eq('id', data.id);
-
-      if (updateError) {
-        console.error('Error updating backup status:', updateError);
-      }
-    }
-
     return data;
   } catch (error) {
     console.error('Error creating backup point:', error);
@@ -73,7 +60,6 @@ export const createBackupPoint = async (description: string) => {
 
 export const verifyDataIntegrity = async () => {
   try {
-    // Define tables as a const array to ensure type safety
     const criticalTables = [
       'financial_transactions',
       'projects',

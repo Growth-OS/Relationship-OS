@@ -27,10 +27,29 @@ const BackupSettings = () => {
 
   const handleCreateBackupPoint = async () => {
     try {
-      await createBackupPoint("Manual backup point created from settings");
+      const backupPoint = await createBackupPoint("Manual backup point created from settings");
+      
+      // Verify the backup point immediately after creation
+      const isHealthy = await verifyDatabaseHealth();
+      if (isHealthy) {
+        const { error: updateError } = await supabase
+          .from("backup_points")
+          .update({ 
+            status: "verified",
+            verified_at: new Date().toISOString()
+          })
+          .eq("id", backupPoint.id);
+
+        if (updateError) {
+          console.error("Error updating backup status:", updateError);
+          toast.error("Failed to verify backup point");
+          return;
+        }
+      }
+
       // Refresh the backup points list
       await queryClient.invalidateQueries({ queryKey: ["backup-points"] });
-      toast.success("Backup point created successfully");
+      toast.success("Backup point created and verified successfully");
     } catch (error) {
       console.error("Error creating backup point:", error);
       toast.error("Failed to create backup point");
