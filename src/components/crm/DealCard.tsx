@@ -12,17 +12,24 @@ interface DealCardProps {
 export const DealCard = ({ deal, onEdit }: DealCardProps) => {
   return (
     <Card 
-      className="p-3 hover:shadow-md transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1"
+      className="p-4 hover:shadow-lg transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1 bg-white dark:bg-gray-800"
       onClick={() => onEdit(deal)}
     >
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="font-medium text-sm line-clamp-2">{deal.company_name}</h4>
+      <div className="flex justify-between items-start mb-3">
+        <h4 className="font-medium text-sm line-clamp-2 text-gray-900 dark:text-gray-100">
+          {deal.company_name}
+        </h4>
         <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <CreateTaskButton sourceId={deal.id} source="deals" variant="ghost" size="icon" />
+          <CreateTaskButton 
+            sourceId={deal.id} 
+            source="deals" 
+            variant="ghost" 
+            size="icon" 
+          />
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-8 w-8 hover:bg-[#E3F2FD] hover:text-[#1EAEDB]"
+            className="h-8 w-8 hover:bg-[#E3F2FD] hover:text-[#1EAEDB] dark:hover:bg-gray-700"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(deal);

@@ -10,7 +10,7 @@ interface DealHeaderProps {
 
 export const DealHeader = ({ open, setOpen }: DealHeaderProps) => {
   return (
-    <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm sticky top-0 z-10">
+    <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6 sticky top-0 z-10 backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90 border border-gray-100 dark:border-gray-800">
       <div>
         <h1 className="text-2xl font-bold bg-gradient-to-r from-[#33C3F0] to-[#1EAEDB] bg-clip-text text-transparent">
           CRM Pipeline
@@ -21,7 +21,9 @@ export const DealHeader = ({ open, setOpen }: DealHeaderProps) => {
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button className="bg-[#1EAEDB] hover:bg-[#0FA0CE] transition-colors">
+          <Button 
+            className="bg-[#1EAEDB] hover:bg-[#0FA0CE] transition-colors shadow-sm hover:shadow-md"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Deal
           </Button>
