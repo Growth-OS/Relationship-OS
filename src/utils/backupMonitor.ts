@@ -35,11 +35,14 @@ export const createBackupPoint = async (description: string) => {
     }
 
     // Log the backup point
-    const { error } = await supabase.from('backup_points').insert({
-      user_id: user.id,
-      description,
-      created_at: new Date().toISOString()
-    });
+    const { error } = await supabase
+      .from('backup_points')
+      .insert([{
+        user_id: user.id,
+        description,
+        backup_type: 'manual',
+        status: 'pending'
+      }] as any); // Using 'any' temporarily until we update types
 
     if (error) throw error;
     
@@ -61,14 +64,14 @@ export const verifyDataIntegrity = async () => {
     }
 
     // Perform a series of checks on critical tables
-    const tables = [
+    const criticalTables = [
       'financial_transactions',
       'projects',
       'deals',
       'tasks'
-    ];
+    ] as const;
 
-    for (const table of tables) {
+    for (const table of criticalTables) {
       const { error } = await supabase
         .from(table)
         .select('id')

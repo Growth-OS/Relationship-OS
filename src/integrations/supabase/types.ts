@@ -113,6 +113,36 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_points: {
+        Row: {
+          backup_type: Database["public"]["Enums"]["backup_type"] | null
+          created_at: string
+          description: string | null
+          id: string
+          status: string | null
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          backup_type?: Database["public"]["Enums"]["backup_type"] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string | null
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          backup_type?: Database["public"]["Enums"]["backup_type"] | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       boards: {
         Row: {
           canvas_data: Json | null
@@ -1307,6 +1337,7 @@ export type Database = {
     }
     Enums: {
       auth_provider: "google"
+      backup_type: "manual" | "automated" | "pre_migration"
       board_element_type: "sticky_note" | "shape" | "arrow" | "text"
       deal_stage:
         | "lead"
