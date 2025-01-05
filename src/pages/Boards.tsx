@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import type { Database } from "@/integrations/supabase/types";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 type Board = Database["public"]["Tables"]["boards"]["Row"];
 
@@ -67,8 +68,28 @@ const Boards = () => {
     }
   };
 
-  const handleBoardClick = (boardId: string) => {
-    navigate(`/dashboard/boards/${boardId}`);
+  const handleDeleteBoard = async (boardId: string) => {
+    try {
+      const { error } = await supabase
+        .from('boards')
+        .delete()
+        .eq('id', boardId);
+
+      if (error) throw error;
+
+      toast.success("Board deleted successfully");
+      refetch();
+    } catch (error) {
+      console.error('Error deleting board:', error);
+      toast.error("Failed to delete board");
+    }
+  };
+
+  const handleBoardClick = (e: React.MouseEvent, boardId: string) => {
+    // Only navigate if the click wasn't on the delete button
+    if (!(e.target as HTMLElement).closest('.delete-button')) {
+      navigate(`/dashboard/boards/${boardId}`);
+    }
   };
 
   if (isLoading) {
@@ -130,10 +151,41 @@ const Boards = () => {
         {boards.map((board) => (
           <div
             key={board.id}
-            onClick={() => handleBoardClick(board.id)}
+            onClick={(e) => handleBoardClick(e, board.id)}
             className="group relative bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 dark:border-gray-700 hover:border-primary/20 dark:hover:border-primary/20"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary">
+            <div className="absolute top-4 right-4">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="delete-button opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete the board
+                      "{board.name}" and all of its contents.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => handleDeleteBoard(board.id)}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary pr-8">
               {board.name}
             </h3>
             {board.description && (
