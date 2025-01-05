@@ -30,7 +30,7 @@ const Prospects = () => {
       }
 
       // Then get the paginated data
-      const { data, error: dataError } = await supabase
+      const { data: prospectsData, error: dataError } = await supabase
         .from('prospect_sequence_info')
         .select('*')
         .order('created_at', { ascending: false })
@@ -41,12 +41,14 @@ const Prospects = () => {
         throw dataError;
       }
       
-      console.log('Prospects fetched:', data);
       return {
-        prospects: data || [],
+        prospects: prospectsData || [],
         totalCount: count || 0,
       };
     },
+    staleTime: 5000, // Keep data fresh for 5 seconds
+    retry: 2, // Retry failed requests twice
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
@@ -54,6 +56,15 @@ const Prospects = () => {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
+
+  // Show loading state immediately
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (error) {
     console.error('Query error:', error);
