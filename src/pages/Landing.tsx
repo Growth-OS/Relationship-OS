@@ -26,7 +26,7 @@ const Landing = () => {
               <Button 
                 variant="ghost"
                 onClick={() => navigate('/login')}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:bg-white hover:text-black transition-colors"
               >
                 Log in
               </Button>
@@ -72,7 +72,7 @@ const Landing = () => {
               <h3 className="font-semibold mb-4 text-white">Resources</h3>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li className="hover:text-white cursor-pointer">Documentation</li>
-                <li className="hover:text-white cursor-pointer">Help Center</li>
+                <li className="hover:text-white cursor-pointer">Help Centre</li>
                 <li className="hover:text-white cursor-pointer">Contact</li>
               </ul>
             </div>
