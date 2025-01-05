@@ -22,7 +22,7 @@ export const DashboardExternalLinks = () => {
     {
       icon: FileText,
       label: "Content",
-      href: "https://publish.buffer.com/create?view=board",
+      href: "https://publish.buffer.com/create",
     },
     {
       icon: Sparkles,
