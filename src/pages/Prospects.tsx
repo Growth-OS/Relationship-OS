@@ -75,7 +75,7 @@ const Prospects = () => {
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white">
+            <Button className="bg-black hover:bg-black/90 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Add Prospect
             </Button>
