@@ -1,19 +1,36 @@
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { Plane, Building2, MapPin, CheckCircle } from "lucide-react";
+import { Plane, Building2, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Define the travel status type
+type TravelStatus = 'upcoming' | 'in_progress' | 'completed' | 'archived';
+
+// Define the Travel type
+interface Travel {
+  id: string;
+  departure_date: string;
+  return_date: string;
+  origin_country: string;
+  origin_country_flag: string;
+  destination_country: string;
+  destination_country_flag: string;
+  company_name?: string;
+  notes?: string;
+  status: TravelStatus;
+}
+
 interface TravelsListProps {
-  travels: any[];
+  travels: Travel[];
   isLoading: boolean;
   onTravelUpdated: () => void;
 }
 
 export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsListProps) => {
-  const handleStatusChange = async (travelId: string, newStatus: string) => {
+  const handleStatusChange = async (travelId: string, newStatus: TravelStatus) => {
     try {
       const { error } = await supabase
         .from('travels')
@@ -30,7 +47,7 @@ export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsList
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: TravelStatus) => {
     switch (status) {
       case 'upcoming':
         return 'bg-blue-100 text-blue-800 border-blue-200';
@@ -69,7 +86,7 @@ export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsList
     if (!acc[status]) acc[status] = [];
     acc[status].push(travel);
     return acc;
-  }, {} as Record<string, any[]>);
+  }, {} as Record<TravelStatus, Travel[]>);
 
   return (
     <div className="space-y-8">
@@ -90,8 +107,8 @@ export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsList
                       <h3 className="font-semibold">Journey Details</h3>
                     </div>
                     <Select
-                      value={travel.status || 'upcoming'}
-                      onValueChange={(value) => handleStatusChange(travel.id, value)}
+                      value={travel.status}
+                      onValueChange={(value: TravelStatus) => handleStatusChange(travel.id, value)}
                     >
                       <SelectTrigger className="w-[140px]">
                         <SelectValue />
