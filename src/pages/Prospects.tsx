@@ -67,7 +67,7 @@ const Prospects = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div>
+        <div className="text-left">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Prospects</h1>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Track and manage your potential leads
