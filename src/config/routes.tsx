@@ -19,6 +19,7 @@ import Sequences from "@/pages/Sequences";
 import SequenceBuilder from "@/pages/SequenceBuilder";
 import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
+import Travels from "@/pages/Travels";
 import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
@@ -111,6 +112,10 @@ export const routes: RouteObject[] = [
       {
         path: "substack/edit/:id",
         element: <SubstackPostEditor />,
+      },
+      {
+        path: "travels",
+        element: <Travels />,
       },
       {
         path: "settings",

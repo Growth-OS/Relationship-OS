@@ -4,7 +4,7 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, 
-  Sparkles, List, BookOpen
+  Sparkles, List, BookOpen, Plane
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -27,6 +27,7 @@ export const SidebarNavigation = () => {
     { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
+    { icon: Plane, label: "Travels", path: "/dashboard/travels" },
     { 
       icon: Mail, 
       label: "Superhuman", 
