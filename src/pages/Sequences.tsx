@@ -53,19 +53,23 @@ const Sequences = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className="text-left">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sequences</h1>
-          <p className="text-muted-foreground">
-            Create and manage your outreach sequences
-          </p>
+    <div className="space-y-8 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sequences</h1>
+            <p className="text-muted-foreground">
+              Create and manage your outreach sequences
+            </p>
+          </div>
+          <CreateSequenceButton />
         </div>
-        <CreateSequenceButton />
       </div>
 
       <SequenceStats sequences={sequences || []} />
-      <SequencesList sequences={sequences} isLoading={isLoading} />
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <SequencesList sequences={sequences} isLoading={isLoading} />
+      </div>
     </div>
   );
 };
