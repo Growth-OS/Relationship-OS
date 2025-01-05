@@ -26,6 +26,7 @@ const countries = [
   { id: 'pt', name: 'Portugal', flag: '🇵🇹' },
   { id: 'ie', name: 'Ireland', flag: '🇮🇪' },
   { id: 'at', name: 'Austria', flag: '🇦🇹' },
+  { id: 'lt', name: 'Lithuania', flag: '🇱🇹' },
 ];
 
 export const CountrySelect = ({ register, setValue }: CountrySelectProps) => {
