@@ -73,6 +73,7 @@ export const createBackupPoint = async (description: string) => {
 
 export const verifyDataIntegrity = async () => {
   try {
+    // Define tables as a const array to ensure type safety
     const criticalTables = [
       'financial_transactions',
       'projects',
