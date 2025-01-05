@@ -18,7 +18,7 @@ export const LeadsChartSection = ({ prospects }: LeadsChartSectionProps) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="bg-white dark:bg-gray-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-base font-medium">New Leads (12 Months)</CardTitle>
+          <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100 hover:no-underline">New Leads (12 Months)</CardTitle>
           <ChartBarIcon className="w-4 h-4 text-gray-500" />
         </CardHeader>
         <CardContent>
@@ -28,7 +28,7 @@ export const LeadsChartSection = ({ prospects }: LeadsChartSectionProps) => {
 
       <Card className="bg-white dark:bg-gray-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-base font-medium">Lead Sources</CardTitle>
+          <CardTitle className="text-base font-medium text-gray-900 dark:text-gray-100 hover:no-underline">Lead Sources</CardTitle>
           <PieChart className="w-4 h-4 text-gray-500" />
         </CardHeader>
         <CardContent>

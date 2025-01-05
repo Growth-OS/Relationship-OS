@@ -39,7 +39,7 @@ export const MonthlyOverviewChart = ({ data }: MonthlyOverviewChartProps) => {
   return (
     <Card className="bg-white dark:bg-gray-800">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Monthly Overview</CardTitle>
+        <CardTitle className="text-lg font-medium text-gray-900 dark:text-gray-100 hover:no-underline">Monthly Overview</CardTitle>
       </CardHeader>
       <CardContent className="pt-4">
         <div className="h-[500px] w-full">
