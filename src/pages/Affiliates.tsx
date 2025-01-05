@@ -14,14 +14,13 @@ import { toast } from "sonner";
 const Affiliates = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-  const { data: affiliates, isLoading: isLoadingPartners } = useQuery({
+  const { data: affiliates, isLoading: isLoadingPartners, error: partnersError } = useQuery({
     queryKey: ['affiliatePartners'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error("You must be logged in to view partners");
-        return [];
+        throw new Error("You must be logged in to view partners");
       }
 
       const { data, error } = await supabase
@@ -32,21 +31,20 @@ const Affiliates = () => {
       
       if (error) {
         console.error('Error fetching partners:', error);
-        toast.error("Failed to load partners");
         throw error;
       }
+
       return data;
     }
   });
 
-  const { data: earnings, isLoading: isLoadingEarnings } = useQuery({
+  const { data: earnings, isLoading: isLoadingEarnings, error: earningsError } = useQuery({
     queryKey: ['affiliateEarnings'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error("You must be logged in to view earnings");
-        return [];
+        throw new Error("You must be logged in to view earnings");
       }
 
       const { data, error } = await supabase
@@ -62,12 +60,21 @@ const Affiliates = () => {
       
       if (error) {
         console.error('Error fetching earnings:', error);
-        toast.error("Failed to load earnings");
         throw error;
       }
+
       return data;
     }
   });
+
+  // Show errors if any
+  if (partnersError) {
+    toast.error("Failed to load partners data");
+  }
+
+  if (earningsError) {
+    toast.error("Failed to load earnings data");
+  }
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
