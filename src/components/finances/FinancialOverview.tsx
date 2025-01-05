@@ -1,10 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import { useEffect } from "react";
 
 export const FinancialOverview = () => {
-  const { data: transactions } = useQuery({
+  const queryClient = useQueryClient();
+
+  const { data: transactions, isLoading } = useQuery({
     queryKey: ['transactions-overview'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -18,6 +21,29 @@ export const FinancialOverview = () => {
     },
   });
 
+  // Set up real-time subscription for transactions
+  useEffect(() => {
+    const channel = supabase
+      .channel('financial-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'financial_transactions'
+        },
+        () => {
+          // Invalidate and refetch when transactions change
+          queryClient.invalidateQueries({ queryKey: ['transactions-overview'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   const totalIncome = transactions
     ?.filter(t => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
@@ -27,6 +53,10 @@ export const FinancialOverview = () => {
     .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
   const netIncome = totalIncome - totalExpenses;
+
+  if (isLoading) {
+    return <div>Loading financial overview...</div>;
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
