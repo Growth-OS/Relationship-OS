@@ -22,6 +22,7 @@ export default function Travels() {
         .from("travels")
         .select("*")
         .eq('user_id', session.user.id)
+        .order('status', { ascending: true })
         .order("departure_date", { ascending: true });
 
       if (error) throw error;
@@ -46,7 +47,11 @@ export default function Travels() {
       
       <CreateTravelForm onSuccess={fetchTravels} />
       
-      <TravelsList travels={travels} isLoading={isLoading} onTravelUpdated={fetchTravels} />
+      <TravelsList 
+        travels={travels} 
+        isLoading={isLoading} 
+        onTravelUpdated={fetchTravels} 
+      />
     </div>
   );
 }
