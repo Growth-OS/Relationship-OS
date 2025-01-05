@@ -1257,6 +1257,51 @@ export type Database = {
           },
         ]
       }
+      travels: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          departure_date: string
+          destination_country: string
+          destination_country_flag: string | null
+          id: string
+          notes: string | null
+          origin_country: string
+          origin_country_flag: string | null
+          return_date: string
+          status: Database["public"]["Enums"]["travel_status"] | null
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          departure_date: string
+          destination_country: string
+          destination_country_flag?: string | null
+          id?: string
+          notes?: string | null
+          origin_country: string
+          origin_country_flag?: string | null
+          return_date: string
+          status?: Database["public"]["Enums"]["travel_status"] | null
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          departure_date?: string
+          destination_country?: string
+          destination_country_flag?: string | null
+          id?: string
+          notes?: string | null
+          origin_country?: string
+          origin_country_flag?: string | null
+          return_date?: string
+          status?: Database["public"]["Enums"]["travel_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -1376,6 +1421,7 @@ export type Database = {
         | "projects"
         | "sequences"
       transaction_type: "income" | "expense"
+      travel_status: "upcoming" | "completed" | "cancelled"
       user_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
