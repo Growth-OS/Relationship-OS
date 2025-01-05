@@ -57,7 +57,7 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
       category: initialData?.category || '',
       date: initialData?.date || new Date().toISOString().split('T')[0],
       notes: initialData?.notes || '',
-      files: undefined, // Reset files field when editing
+      files: undefined,
     },
   });
 
@@ -85,32 +85,6 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
           .eq('id', initialData.id);
 
         if (transactionError) throw transactionError;
-
-        // Handle file upload for edited transactions
-        const files = (form.getValues('files') as FileList)?.[0];
-        if (files) {
-          const fileExt = files.name.split('.').pop();
-          // Generate a simple sequential filename
-          const timestamp = Date.now();
-          const filePath = `${user.id}/${initialData.id}/${timestamp}.${fileExt}`;
-
-          const { error: uploadError } = await supabase.storage
-            .from('financial_docs')
-            .upload(filePath, files);
-
-          if (uploadError) throw uploadError;
-
-          const { error: attachmentError } = await supabase
-            .from('transaction_attachments')
-            .insert({
-              transaction_id: initialData.id,
-              file_path: filePath,
-              file_name: files.name,
-              file_type: files.type,
-            });
-
-          if (attachmentError) throw attachmentError;
-        }
       } else {
         // Insert new transaction
         const { data: transaction, error: transactionError } = await supabase
@@ -130,16 +104,16 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         if (transactionError) throw transactionError;
 
         // Handle file uploads for new transactions
-        const files = (form.getValues('files') as FileList)?.[0];
-        if (files && transaction) {
-          const fileExt = files.name.split('.').pop();
-          // Generate a simple sequential filename
+        const files = form.getValues('files') as FileList;
+        if (files?.[0] && transaction) {
+          const file = files[0];
+          const fileExt = file.name.split('.').pop();
           const timestamp = Date.now();
           const filePath = `${user.id}/${transaction.id}/${timestamp}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('financial_docs')
-            .upload(filePath, files);
+            .upload(filePath, file);
 
           if (uploadError) throw uploadError;
 
@@ -148,8 +122,8 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
             .insert({
               transaction_id: transaction.id,
               file_path: filePath,
-              file_name: files.name,
-              file_type: files.type,
+              file_name: file.name,
+              file_type: file.type,
             });
 
           if (attachmentError) throw attachmentError;
@@ -159,9 +133,9 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
       toast.success(initialData ? 'Transaction updated successfully' : 'Transaction added successfully');
       onSuccess();
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error with transaction:', error);
-      toast.error(initialData ? 'Error updating transaction' : 'Error adding transaction');
+      toast.error(error.message || (initialData ? 'Error updating transaction' : 'Error adding transaction'));
     }
   };
 
