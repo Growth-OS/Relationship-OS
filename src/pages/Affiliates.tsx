@@ -103,26 +103,30 @@ const Affiliates = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">Affiliate Partners</h1>
-          <p className="text-gray-600 mt-2">Manage your affiliate relationships and track performance</p>
+      <Card className="p-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-semibold text-primary">Affiliate Partners</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage your affiliate relationships and track performance
+            </p>
+          </div>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Partner
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Add New Partner</DialogTitle>
+              </DialogHeader>
+              <AffiliateForm onSuccess={() => setIsAddDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Partner
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>Add New Partner</DialogTitle>
-            </DialogHeader>
-            <AffiliateForm onSuccess={() => setIsAddDialogOpen(false)} />
-          </DialogContent>
-        </Dialog>
-      </div>
+      </Card>
 
       <StatsCards 
         totalPartners={affiliates?.length ?? 0}
