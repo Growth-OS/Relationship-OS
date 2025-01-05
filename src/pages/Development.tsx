@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
