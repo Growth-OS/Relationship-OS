@@ -33,31 +33,35 @@ const Boards = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Boards</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Create and manage your visual brainstorming sessions
-          </p>
-        </div>
-        <CreateBoardDialog onBoardCreated={refetch} />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {boards.map((board) => (
-          <BoardCard 
-            key={board.id} 
-            board={board} 
-            onBoardDeleted={refetch}
-          />
-        ))}
-        {boards.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
-            <p className="text-gray-500 dark:text-gray-400 text-center">
-              No boards yet. Create your first board to get started!
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">Boards</h1>
+            <p className="text-muted-foreground">
+              Create and manage your visual brainstorming sessions
             </p>
           </div>
-        )}
+          <CreateBoardDialog onBoardCreated={refetch} />
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {boards.map((board) => (
+            <BoardCard 
+              key={board.id} 
+              board={board} 
+              onBoardDeleted={refetch}
+            />
+          ))}
+          {boards.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+              <p className="text-gray-500 dark:text-gray-400 text-center">
+                No boards yet. Create your first board to get started!
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
