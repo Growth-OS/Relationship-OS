@@ -14,62 +14,54 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const location = useLocation();
 
   useEffect(() => {
+    // Initial session check
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Session check error:", error);
-          setIsAuthenticated(false);
-          setIsLoading(false);
-          return;
-        }
-
+        const { data: { session } } = await supabase.auth.getSession();
         setIsAuthenticated(!!session);
-        setIsLoading(false);
-
-        // Handle OAuth redirects with code parameter
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        if (code && session) {
-          // Get the stored return path or default to dashboard
-          const storedPath = localStorage.getItem('oauth_return_path') || '/dashboard';
-          localStorage.removeItem('oauth_return_path'); // Clean up
-          navigate(storedPath, { replace: true });
-        }
       } catch (error) {
         console.error("Session check error:", error);
         setIsAuthenticated(false);
+      } finally {
         setIsLoading(false);
       }
     };
 
-    // Initial session check
     checkSession();
 
     // Set up auth state change subscription
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state change:", event, !!session);
       
-      if (event === 'SIGNED_OUT') {
-        setIsAuthenticated(false);
-        localStorage.clear();
-        navigate('/login', { replace: true });
-        toast.success('Signed out successfully');
-      } else if (event === 'SIGNED_IN') {
-        setIsAuthenticated(true);
-        await checkSession(); // Recheck session when signed in
-        // Only navigate if we're not already on a valid route
-        if (location.pathname === '/login' || location.pathname === '/') {
-          navigate('/dashboard', { replace: true });
-        }
-      } else if (event === 'TOKEN_REFRESHED') {
-        setIsAuthenticated(true);
-        console.log('Session token refreshed');
-      } else if (event === 'PASSWORD_RECOVERY') {
-        toast.info('Check your email for password reset instructions');
-      } else if (event === 'USER_UPDATED') {
-        toast.success('Your profile has been updated');
+      switch (event) {
+        case 'SIGNED_OUT':
+          setIsAuthenticated(false);
+          localStorage.clear();
+          navigate('/login', { replace: true });
+          toast.success('Signed out successfully');
+          break;
+
+        case 'SIGNED_IN':
+          setIsAuthenticated(true);
+          const returnPath = localStorage.getItem('return_path') || '/dashboard';
+          localStorage.removeItem('return_path');
+          if (location.pathname === '/login') {
+            navigate(returnPath, { replace: true });
+          }
+          break;
+
+        case 'TOKEN_REFRESHED':
+          setIsAuthenticated(true);
+          console.log('Session token refreshed');
+          break;
+
+        case 'PASSWORD_RECOVERY':
+          toast.info('Check your email for password reset instructions');
+          break;
+
+        case 'USER_UPDATED':
+          toast.success('Your profile has been updated');
+          break;
       }
     });
 
