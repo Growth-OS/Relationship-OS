@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Bug, Lightbulb, ArrowUpCircle } from "lucide-react";
+import { Plus, Bug, Lightbulb, ArrowUpCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
+import { Switch } from "@/components/ui/switch";
 
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -29,6 +30,23 @@ const Development = () => {
       return data;
     },
   });
+
+  const handleComplete = async (id: string, completed: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("development_items")
+        .update({ status: completed ? "completed" : "pending" })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast.success(completed ? "Item marked as complete" : "Item marked as pending");
+      refetch();
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast.error("Failed to update item status");
+    }
+  };
 
   const filteredItems = items?.filter(
     (item) => selectedCategory === "all" || item.category === selectedCategory
@@ -107,18 +125,27 @@ const Development = () => {
                 {filteredItems?.map((item) => (
                   <Card key={item.id} className="p-4">
                     <div className="flex items-start justify-between">
-                      <div>
+                      <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-medium">
+                          <h3 className={`font-medium ${item.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
                             {item.title}
                           </h3>
                           {renderPriorityIcon(item.priority)}
                         </div>
                         {item.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                          <p className={`text-sm mt-1 ${item.status === 'completed' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                            {item.description}
+                          </p>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Complete</span>
+                          <Switch
+                            checked={item.status === 'completed'}
+                            onCheckedChange={(checked) => handleComplete(item.id, checked)}
+                          />
+                        </div>
                         <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
                           {item.status}
                         </span>
