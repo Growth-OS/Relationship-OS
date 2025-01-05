@@ -50,7 +50,10 @@ export const CreateTravelForm = ({ onSuccess }: CreateTravelFormProps) => {
         user_id: session.user.id,
       };
 
-      const { error } = await supabase.from("travels").insert([travelData]);
+      const { error } = await supabase
+        .from("travels")
+        .insert([travelData])
+        .select(); // Add select() to return the inserted row
       
       if (error) throw error;
       
