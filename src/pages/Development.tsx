@@ -56,7 +56,7 @@ const Development = () => {
     <div className="space-y-6">
       <Card className="p-6">
         <div className="flex items-center justify-between">
-          <div className="space-y-1">
+          <div>
             <h1 className="text-2xl font-semibold tracking-tight">Development</h1>
             <p className="text-sm text-muted-foreground">
               Track ideas and areas for Growth OS development
