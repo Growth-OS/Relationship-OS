@@ -21,6 +21,10 @@ import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
 import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SettingsLayout } from "@/components/settings/SettingsLayout";
+import ProfileSettings from "@/pages/ProfileSettings";
+import TeamSettings from "@/pages/TeamSettings";
+import BrandingSettings from "@/pages/BrandingSettings";
 
 export const routes: RouteObject[] = [
   {
@@ -30,6 +34,24 @@ export const routes: RouteObject[] = [
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/settings",
+    element: <AuthProvider><SettingsLayout /></AuthProvider>,
+    children: [
+      {
+        path: "profile",
+        element: <ProfileSettings />,
+      },
+      {
+        path: "team",
+        element: <TeamSettings />,
+      },
+      {
+        path: "branding",
+        element: <BrandingSettings />,
+      },
+    ],
   },
   {
     path: "/dashboard",
