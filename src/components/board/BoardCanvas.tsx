@@ -1,9 +1,12 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { BoardToolbar } from './BoardToolbar';
 import { toast } from 'sonner';
 import { fabric } from 'fabric';
 import { useParams } from 'react-router-dom';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoomIn, ZoomOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export const BoardCanvas = () => {
   const { boardId } = useParams();
@@ -94,6 +97,57 @@ export const BoardCanvas = () => {
     }
   };
 
+  const handleZoomIn = () => {
+    if (!fabricCanvas) return;
+    const zoom = fabricCanvas.getZoom();
+    fabricCanvas.setZoom(zoom * 1.1);
+    fabricCanvas.renderAll();
+  };
+
+  const handleZoomOut = () => {
+    if (!fabricCanvas) return;
+    const zoom = fabricCanvas.getZoom();
+    fabricCanvas.setZoom(zoom / 1.1);
+    fabricCanvas.renderAll();
+  };
+
+  // Set up canvas panning
+  useEffect(() => {
+    if (!fabricCanvas) return;
+
+    let isPanning = false;
+    let lastPosX: number;
+    let lastPosY: number;
+
+    fabricCanvas.on('mouse:down', (opt) => {
+      const evt = opt.e;
+      if (evt.altKey) {
+        isPanning = true;
+        fabricCanvas.selection = false;
+        lastPosX = evt.clientX;
+        lastPosY = evt.clientY;
+      }
+    });
+
+    fabricCanvas.on('mouse:move', (opt) => {
+      if (isPanning && opt.e) {
+        const deltaX = opt.e.clientX - lastPosX;
+        const deltaY = opt.e.clientY - lastPosY;
+        
+        fabricCanvas.relativePan({ x: deltaX, y: deltaY });
+        
+        lastPosX = opt.e.clientX;
+        lastPosY = opt.e.clientY;
+      }
+    });
+
+    fabricCanvas.on('mouse:up', () => {
+      isPanning = false;
+      fabricCanvas.selection = true;
+    });
+
+  }, [fabricCanvas]);
+
   return (
     <div className="space-y-4">
       <BoardToolbar
@@ -107,8 +161,31 @@ export const BoardCanvas = () => {
         handleSave={handleSave}
         isSaving={isSaving}
       />
-      <div className="border border-gray-200 rounded-lg">
-        <canvas ref={canvasRef} className="max-w-full" />
+      <div className="flex items-center gap-2 mb-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleZoomIn}
+          className="h-8 w-8"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleZoomOut}
+          className="h-8 w-8"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Hold Alt + Click and drag to pan
+        </span>
+      </div>
+      <ScrollArea className="h-[calc(100vh-300px)] border border-gray-200 rounded-lg">
+        <div className="min-w-[2000px] min-h-[2000px] relative">
+          <canvas ref={canvasRef} className="absolute" />
+        </div>
         <input
           ref={fileInputRef}
           type="file"
@@ -116,7 +193,7 @@ export const BoardCanvas = () => {
           accept="image/*"
           onChange={handleFileChange}
         />
-      </div>
+      </ScrollArea>
     </div>
   );
 };
