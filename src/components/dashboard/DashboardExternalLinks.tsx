@@ -12,17 +12,17 @@ export const DashboardExternalLinks = () => {
     {
       icon: Mail,
       label: "Superhuman",
-      href: "https://mail.superhuman.com/patrick@relationshipofsales.com",
+      href: "https://mail.superhuman.com",
     },
     {
       icon: Linkedin,
       label: "LinkedIn",
-      href: "https://app.trykondo.com/inboxes/focused",
+      href: "https://www.linkedin.com",
     },
     {
       icon: FileText,
       label: "Content",
-      href: "https://publish.buffer.com/create",
+      href: "https://buffer.com",
     },
     {
       icon: Sparkles,
