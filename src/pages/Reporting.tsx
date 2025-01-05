@@ -8,34 +8,40 @@ import { ModuleFilter } from "@/components/reporting/ModuleFilter";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
 import { SequenceMetrics } from "@/components/reporting/SequenceMetrics";
 import { useState } from "react";
+import { subDays } from "date-fns";
 
 const Reporting = () => {
   const [selectedModule, setSelectedModule] = useState("all");
-  const goalAmount = 100000; // You can move this to state or fetch from settings if needed
 
-  const { data: earnings } = useQuery({
-    queryKey: ['affiliateEarnings'],
-    queryFn: async () => {
-      if (selectedModule !== 'all' && selectedModule !== 'affiliate') return [];
-      
-      const { data, error } = await supabase
-        .from('affiliate_earnings')
-        .select('amount, date')
-        .order('date');
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: deals } = useQuery({
-    queryKey: ['deals', selectedModule],
+  const { data: currentDeals = [] } = useQuery({
+    queryKey: ['deals', 'current', selectedModule],
     queryFn: async () => {
       if (selectedModule !== 'all' && selectedModule !== 'deals') return [];
 
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
       const { data, error } = await supabase
         .from('deals')
         .select('*')
+        .gte('created_at', thirtyDaysAgo)
+        .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const { data: previousDeals = [] } = useQuery({
+    queryKey: ['deals', 'previous', selectedModule],
+    queryFn: async () => {
+      if (selectedModule !== 'all' && selectedModule !== 'deals') return [];
+
+      const sixtyDaysAgo = subDays(new Date(), 60).toISOString();
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+      const { data, error } = await supabase
+        .from('deals')
+        .select('*')
+        .gte('created_at', sixtyDaysAgo)
+        .lt('created_at', thirtyDaysAgo)
         .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
       
       if (error) throw error;
@@ -58,7 +64,8 @@ const Reporting = () => {
     },
   });
 
-  const totalDealValue = deals?.reduce((sum, deal) => sum + Number(deal.deal_value), 0) || 0;
+  const totalDealValue = currentDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);
+  const previousPeriodValue = previousDeals.reduce((sum, deal) => sum + Number(deal.deal_value), 0);
 
   const shouldShowDeals = selectedModule === 'all' || selectedModule === 'deals';
   const shouldShowProspects = selectedModule === 'all' || selectedModule === 'prospects';
@@ -89,8 +96,8 @@ const Reporting = () => {
         {shouldShowDeals && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TotalDealValueCard 
-              totalDealValue={totalDealValue} 
-              goalAmount={goalAmount}
+              totalDealValue={totalDealValue}
+              previousPeriodValue={previousPeriodValue}
             />
             <DealStageConversions />
           </div>

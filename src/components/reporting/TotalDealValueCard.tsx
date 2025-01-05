@@ -1,43 +1,60 @@
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { ArrowUpIcon, ArrowDownIcon, MinusIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface TotalDealValueCardProps {
   totalDealValue: number;
-  goalAmount?: number; // Made optional with a default value
+  previousPeriodValue: number;
 }
 
 export const TotalDealValueCard = ({ 
   totalDealValue, 
-  goalAmount = 100000 // Default goal if not specified
+  previousPeriodValue
 }: TotalDealValueCardProps) => {
-  // Calculate percentage towards goal
-  const percentage = Math.min((totalDealValue / goalAmount) * 100, 100);
+  const percentageChange = previousPeriodValue > 0 
+    ? ((totalDealValue - previousPeriodValue) / previousPeriodValue) * 100
+    : 0;
+  
+  const isIncrease = percentageChange > 0;
+  const isDecrease = percentageChange < 0;
+  
+  const averageDealValue = totalDealValue / 2; // Assuming 2 active deals as per original
 
   return (
     <Card className="p-6 bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-900">
       <div className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground font-medium">Total Deal Value (30d)</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground font-medium">Total Deal Value (30d)</p>
+            <div className={cn(
+              "flex items-center gap-1 text-sm font-medium",
+              isIncrease ? "text-green-600 dark:text-green-500" : 
+              isDecrease ? "text-red-600 dark:text-red-500" : 
+              "text-gray-600 dark:text-gray-400"
+            )}>
+              {isIncrease ? (
+                <ArrowUpIcon className="w-4 h-4" />
+              ) : isDecrease ? (
+                <ArrowDownIcon className="w-4 h-4" />
+              ) : (
+                <MinusIcon className="w-4 h-4" />
+              )}
+              <span>{Math.abs(percentageChange).toFixed(1)}%</span>
+            </div>
+          </div>
           <div className="text-3xl font-bold text-primary">
             €{totalDealValue.toLocaleString()}
           </div>
           <p className="text-sm text-muted-foreground">
-            {percentage.toFixed(1)}% of €{goalAmount.toLocaleString()} goal
+            Previous period: €{previousPeriodValue.toLocaleString()}
           </p>
         </div>
-        
-        <div className="relative pt-2">
-          <Progress 
-            value={percentage} 
-            className="h-2 bg-primary/20"
-          />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-4">
+        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Average Deal</p>
             <p className="text-lg font-semibold">
-              €{(totalDealValue / 2).toLocaleString()}
+              €{averageDealValue.toLocaleString()}
             </p>
           </div>
           <div className="space-y-1">
