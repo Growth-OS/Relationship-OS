@@ -35,11 +35,11 @@ const SubstackPosts = () => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white p-8 rounded-lg border shadow-sm">
+    <div className="space-y-8 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Substack Posts</h1>
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Substack Posts</h1>
             <p className="text-muted-foreground">
               Manage and create your Substack content
             </p>
@@ -71,55 +71,55 @@ const SubstackPosts = () => {
             </Button>
           </div>
         </div>
+      </div>
 
-        {isLoading ? (
-          view === "pipeline" ? (
-            <SubstackPipeline posts={[]} isLoading={true} />
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="p-4 space-y-3 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 dark:bg-gray-700" />
-                  <div className="h-4 bg-gray-200 rounded w-1/2 dark:bg-gray-700" />
-                </Card>
-              ))}
-            </div>
-          )
-        ) : posts?.length === 0 ? (
-          <Card className="p-8 text-center">
-            <FileText className="w-12 h-12 mx-auto text-gray-400" />
-            <h3 className="mt-2 text-lg font-medium">No posts yet</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Get started by creating your first Substack post
-            </p>
-          </Card>
-        ) : view === "pipeline" ? (
-          <SubstackPipeline posts={posts} isLoading={false} />
+      {isLoading ? (
+        view === "pipeline" ? (
+          <SubstackPipeline posts={[]} isLoading={true} />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {posts?.map((post) => (
-              <Card key={post.id} className="p-4 space-y-3 transition-shadow hover:shadow-md">
-                <h3 className="font-medium">{post.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Status: {post.status}
-                </p>
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </span>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => navigate(`edit/${post.id}`)}
-                  >
-                    Edit
-                  </Button>
-                </div>
+            {[...Array(6)].map((_, i) => (
+              <Card key={i} className="p-4 space-y-3 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 dark:bg-gray-700" />
+                <div className="h-4 bg-gray-200 rounded w-1/2 dark:bg-gray-700" />
               </Card>
             ))}
           </div>
-        )}
-      </div>
+        )
+      ) : posts?.length === 0 ? (
+        <Card className="p-8 text-center">
+          <FileText className="w-12 h-12 mx-auto text-gray-400" />
+          <h3 className="mt-2 text-lg font-medium">No posts yet</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Get started by creating your first Substack post
+          </p>
+        </Card>
+      ) : view === "pipeline" ? (
+        <SubstackPipeline posts={posts} isLoading={false} />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {posts?.map((post) => (
+            <Card key={post.id} className="p-4 space-y-3 transition-shadow hover:shadow-md">
+              <h3 className="font-medium">{post.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                Status: {post.status}
+              </p>
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-sm text-muted-foreground">
+                  {new Date(post.created_at).toLocaleDateString()}
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => navigate(`edit/${post.id}`)}
+                >
+                  Edit
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
