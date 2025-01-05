@@ -3,11 +3,14 @@ import { Progress } from "@/components/ui/progress";
 
 interface TotalDealValueCardProps {
   totalDealValue: number;
+  goalAmount?: number; // Made optional with a default value
 }
 
-export const TotalDealValueCard = ({ totalDealValue }: TotalDealValueCardProps) => {
-  // Calculate percentage towards goal (example: 100,000)
-  const goalAmount = 100000;
+export const TotalDealValueCard = ({ 
+  totalDealValue, 
+  goalAmount = 100000 // Default goal if not specified
+}: TotalDealValueCardProps) => {
+  // Calculate percentage towards goal
   const percentage = Math.min((totalDealValue / goalAmount) * 100, 100);
 
   return (

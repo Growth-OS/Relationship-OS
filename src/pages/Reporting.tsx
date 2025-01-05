@@ -11,6 +11,7 @@ import { useState } from "react";
 
 const Reporting = () => {
   const [selectedModule, setSelectedModule] = useState("all");
+  const goalAmount = 100000; // You can move this to state or fetch from settings if needed
 
   const { data: earnings } = useQuery({
     queryKey: ['affiliateEarnings'],
@@ -87,7 +88,10 @@ const Reporting = () => {
       <div className="grid gap-6">
         {shouldShowDeals && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TotalDealValueCard totalDealValue={totalDealValue} />
+            <TotalDealValueCard 
+              totalDealValue={totalDealValue} 
+              goalAmount={goalAmount}
+            />
             <DealStageConversions />
           </div>
         )}
