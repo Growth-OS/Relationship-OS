@@ -1,28 +1,46 @@
 import { Card } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface TotalDealValueCardProps {
   totalDealValue: number;
 }
 
 export const TotalDealValueCard = ({ totalDealValue }: TotalDealValueCardProps) => {
+  // Calculate percentage towards goal (example: 100,000)
+  const goalAmount = 100000;
+  const percentage = Math.min((totalDealValue / goalAmount) * 100, 100);
+
   return (
     <Card className="p-6 bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-900">
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground font-medium">Total Deal Value (30d)</p>
-          <div className="p-2 bg-primary/10 rounded-full">
-            <DollarSign className="w-4 h-4 text-primary" />
+          <div className="text-3xl font-bold text-primary">
+            €{totalDealValue.toLocaleString()}
           </div>
+          <p className="text-sm text-muted-foreground">
+            {percentage.toFixed(1)}% of €{goalAmount.toLocaleString()} goal
+          </p>
         </div>
-        <div className="text-3xl font-bold text-primary">
-          €{totalDealValue.toLocaleString()}
-        </div>
-        <div className="h-1 w-full bg-primary/10 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-primary rounded-full transition-all duration-500"
-            style={{ width: `${Math.min((totalDealValue / 100000) * 100, 100)}%` }}
+        
+        <div className="relative pt-2">
+          <Progress 
+            value={percentage} 
+            className="h-2 bg-primary/20"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 pt-4">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">Average Deal</p>
+            <p className="text-lg font-semibold">
+              €{(totalDealValue / 2).toLocaleString()}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">Active Deals</p>
+            <p className="text-lg font-semibold">2</p>
+          </div>
         </div>
       </div>
     </Card>
