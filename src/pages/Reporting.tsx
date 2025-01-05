@@ -8,7 +8,6 @@ import { ModuleFilter } from "@/components/reporting/ModuleFilter";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
 import { SequenceMetrics } from "@/components/reporting/SequenceMetrics";
 import { useState } from "react";
-import { ChartBarIcon } from "lucide-react";
 
 const Reporting = () => {
   const [selectedModule, setSelectedModule] = useState("all");
@@ -71,12 +70,9 @@ const Reporting = () => {
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
         <div className="flex justify-between items-center">
           <div>
-            <div className="flex items-center gap-2">
-              <ChartBarIcon className="w-6 h-6 text-gray-900 dark:text-white" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Reporting Dashboard
-              </h1>
-            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Reporting Dashboard
+            </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Track and analyse your business metrics
             </p>
