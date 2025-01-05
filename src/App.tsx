@@ -13,7 +13,10 @@ const queryClient = new QueryClient({
   },
 });
 
-const router = createBrowserRouter([...routes]);
+// Create router with proper basename and handling of refresh
+const router = createBrowserRouter(routes, {
+  basename: "/",
+});
 
 function App() {
   return (
