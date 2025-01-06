@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Bug, Lightbulb, ArrowUpCircle, CheckCircle2 } from "lucide-react";
+import { Plus, Bug, Lightbulb, ArrowUpCircle, CheckCircle2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const { data: items, isLoading, refetch } = useQuery({
     queryKey: ["development-items"],
@@ -74,7 +75,13 @@ const Development = () => {
 
   const handleSuccess = () => {
     setIsDialogOpen(false);
+    setSelectedItem(null);
     refetch();
+  };
+
+  const handleEdit = (item: any) => {
+    setSelectedItem(item);
+    setIsDialogOpen(true);
   };
 
   return (
@@ -87,7 +94,10 @@ const Development = () => {
               Track ideas and areas for Growth OS development
             </p>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) setSelectedItem(null);
+          }}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -96,9 +106,9 @@ const Development = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Development Item</DialogTitle>
+                <DialogTitle>{selectedItem ? "Edit Development Item" : "Add Development Item"}</DialogTitle>
               </DialogHeader>
-              <CreateDevelopmentItemForm onSuccess={handleSuccess} />
+              <CreateDevelopmentItemForm onSuccess={handleSuccess} itemToEdit={selectedItem} />
             </DialogContent>
           </Dialog>
         </div>
@@ -169,6 +179,16 @@ const Development = () => {
                             <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
                               {item.category}
                             </span>
+                            {item.status !== 'completed' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleEdit(item)}
+                                className="ml-2"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>

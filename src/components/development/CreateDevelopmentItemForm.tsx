@@ -19,14 +19,25 @@ const formSchema = z.object({
 
 interface CreateDevelopmentItemFormProps {
   onSuccess: () => void;
+  itemToEdit?: {
+    id: string;
+    title: string;
+    description: string;
+    category: "idea" | "bug" | "feature" | "improvement";
+    priority: "low" | "medium" | "high";
+    due_date?: string;
+  } | null;
 }
 
-export const CreateDevelopmentItemForm = ({ onSuccess }: CreateDevelopmentItemFormProps) => {
+export const CreateDevelopmentItemForm = ({ onSuccess, itemToEdit }: CreateDevelopmentItemFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      category: "idea",
-      priority: "medium",
+      title: itemToEdit?.title || "",
+      description: itemToEdit?.description || "",
+      category: itemToEdit?.category || "idea",
+      priority: itemToEdit?.priority || "medium",
+      due_date: itemToEdit?.due_date || "",
     },
   });
 
@@ -39,25 +50,36 @@ export const CreateDevelopmentItemForm = ({ onSuccess }: CreateDevelopmentItemFo
         return;
       }
 
-      const { error } = await supabase
-        .from("development_items")
-        .insert({
-          title: values.title,
-          description: values.description,
-          category: values.category,
-          priority: values.priority,
-          due_date: values.due_date || null,
-          user_id: user.id,
-        });
+      const itemData = {
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        priority: values.priority,
+        due_date: values.due_date || null,
+        user_id: user.id,
+      };
+
+      let error;
+
+      if (itemToEdit) {
+        ({ error } = await supabase
+          .from("development_items")
+          .update(itemData)
+          .eq("id", itemToEdit.id));
+      } else {
+        ({ error } = await supabase
+          .from("development_items")
+          .insert([itemData]));
+      }
 
       if (error) throw error;
 
-      toast.success("Item added successfully");
+      toast.success(itemToEdit ? "Item updated successfully" : "Item added successfully");
       form.reset();
       onSuccess();
     } catch (error) {
-      console.error("Error adding item:", error);
-      toast.error("Failed to add item");
+      console.error("Error saving item:", error);
+      toast.error("Failed to save item");
     }
   };
 
@@ -154,7 +176,9 @@ export const CreateDevelopmentItemForm = ({ onSuccess }: CreateDevelopmentItemFo
           )}
         />
 
-        <Button type="submit" className="w-full">Add Item</Button>
+        <Button type="submit" className="w-full">
+          {itemToEdit ? "Update Item" : "Add Item"}
+        </Button>
       </form>
     </Form>
   );
