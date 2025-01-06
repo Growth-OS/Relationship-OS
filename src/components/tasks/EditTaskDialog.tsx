@@ -105,12 +105,17 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
                   {dueDate ? format(dueDate, "PPP") : "Pick a due date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
+                  disabled={(date) =>
+                    date < new Date("1900-01-01") ||
+                    date > new Date("2100-01-01")
+                  }
+                  className="rounded-md border"
                 />
               </PopoverContent>
             </Popover>
