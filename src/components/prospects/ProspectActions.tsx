@@ -6,9 +6,12 @@ import type { ProspectActionsProps } from "./types/prospect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EditProspectForm } from "./EditProspectForm";
 
 export const ProspectActions = ({ prospect, onDelete, onEdit }: ProspectActionsProps) => {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const handleConvertToLead = async () => {
@@ -65,7 +68,7 @@ export const ProspectActions = ({ prospect, onDelete, onEdit }: ProspectActionsP
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onEdit(prospect)}
+        onClick={() => setIsEditDialogOpen(true)}
         className="hover:bg-gray-100 dark:hover:bg-gray-800"
       >
         <Pencil className="h-4 w-4 text-gray-600" />
@@ -106,6 +109,21 @@ export const ProspectActions = ({ prospect, onDelete, onEdit }: ProspectActionsP
           queryClient.invalidateQueries({ queryKey: ['prospects'] });
         }}
       />
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Prospect</DialogTitle>
+          </DialogHeader>
+          <EditProspectForm 
+            prospect={prospect} 
+            onSuccess={() => {
+              setIsEditDialogOpen(false);
+              queryClient.invalidateQueries({ queryKey: ['prospects'] });
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
