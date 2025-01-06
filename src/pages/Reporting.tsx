@@ -109,13 +109,13 @@ const Reporting = () => {
 
       <div className="grid gap-6">
         {shouldShowDeals && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <>
             <TotalDealValueCard 
               totalDealValue={totalDealValue}
               previousPeriodValue={previousPeriodValue}
             />
             <DealStageConversions />
-          </div>
+          </>
         )}
 
         {shouldShowProspects && (
