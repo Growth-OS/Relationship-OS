@@ -22,15 +22,15 @@ export const DealStageConversions = () => {
   const { data: prospects = [] } = useQuery({
     queryKey: ['prospects', 'conversions'],
     queryFn: async () => {
-      // Format dates in ISO format without timezone
-      const yearStart = startOfYear(new Date()).toISOString();
-      const yearEnd = endOfYear(new Date()).toISOString();
-
+      // Format dates for Supabase query without timezone
+      const start = startOfYear(new Date());
+      const end = endOfYear(new Date());
+      
       const { data, error } = await supabase
         .from('prospects')
         .select('*')
-        .gte('created_at', yearStart)
-        .lte('created_at', yearEnd);
+        .gte('created_at', start.toISOString().split('T')[0])
+        .lte('created_at', end.toISOString().split('T')[0]);
       
       if (error) throw error;
       
