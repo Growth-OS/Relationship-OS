@@ -41,13 +41,30 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       setUploading(true);
 
-      // Generate unique filename with timestamp and project ID
+      // First create the database record
+      const { data: document, error: dbError } = await supabase
+        .from("project_documents")
+        .insert({
+          project_id: projectId,
+          user_id: user.id,
+          title: file.name,
+          file_path: '', // We'll update this after upload
+          file_type: file.type,
+        })
+        .select()
+        .single();
+
+      if (dbError) {
+        throw new Error(`Database record creation failed: ${dbError.message}`);
+      }
+
+      // Generate unique filename
       const timestamp = new Date().getTime();
-      const fileExt = file.name.split(".").pop();
       const randomString = Math.random().toString(36).substring(2);
+      const fileExt = file.name.split(".").pop();
       const filePath = `${projectId}/${timestamp}-${randomString}.${fileExt}`;
 
-      // First, upload to storage
+      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("project_files")
         .upload(filePath, file, {
@@ -56,26 +73,30 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
         });
 
       if (uploadError) {
+        // Clean up the database record if upload fails
+        await supabase
+          .from("project_documents")
+          .delete()
+          .eq("id", document.id);
         throw new Error(`Storage upload failed: ${uploadError.message}`);
       }
 
-      // Then create database record with user_id
-      const { error: dbError } = await supabase
+      // Update the database record with the file path
+      const { error: updateError } = await supabase
         .from("project_documents")
-        .insert([{
-          project_id: projectId,
-          user_id: user.id,
-          title: file.name,
-          file_path: filePath,
-          file_type: file.type,
-        }]);
+        .update({ file_path: filePath })
+        .eq("id", document.id);
 
-      if (dbError) {
-        // If database insert fails, clean up the uploaded file
+      if (updateError) {
+        // Clean up both the file and database record
         await supabase.storage
           .from("project_files")
           .remove([filePath]);
-        throw new Error(`Database record creation failed: ${dbError.message}`);
+        await supabase
+          .from("project_documents")
+          .delete()
+          .eq("id", document.id);
+        throw new Error(`Database update failed: ${updateError.message}`);
       }
 
       toast.success("File uploaded successfully");
@@ -115,20 +136,20 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
   const handleDelete = async (fileId: string, filePath: string) => {
     try {
-      // Delete from storage first
-      const { error: storageError } = await supabase.storage
-        .from("project_files")
-        .remove([filePath]);
-
-      if (storageError) throw storageError;
-
-      // Then delete database record
+      // Delete database record first
       const { error: dbError } = await supabase
         .from("project_documents")
         .delete()
         .eq("id", fileId);
 
       if (dbError) throw dbError;
+
+      // Then delete from storage
+      const { error: storageError } = await supabase.storage
+        .from("project_files")
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
 
       toast.success("File deleted successfully");
       refetch();
