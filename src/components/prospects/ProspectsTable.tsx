@@ -35,6 +35,11 @@ export const ProspectsTable = ({
   const [showConverted, setShowConverted] = useState(false);
   const { handleDelete, handleConvertToLead, handleAssignSequence } = useProspectOperations();
 
+  // Filter prospects based on showConverted state
+  const filteredProspects = prospects.filter(p => 
+    showConverted ? p.status === 'converted' : p.status !== 'converted'
+  );
+
   const handleSelectAll = () => {
     if (selectedIds.length === filteredProspects.length) {
       setSelectedIds([]);
@@ -62,8 +67,6 @@ export const ProspectsTable = ({
       setSelectedIds([]);
     }
   };
-
-  const filteredProspects = prospects.filter(p => showConverted || p.status !== 'converted');
 
   if (isLoading) return <TableLoadingState />;
   if (!prospects.length) return <TableEmptyState />;
