@@ -70,6 +70,10 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId }: Creat
     }
   };
 
+  const handleCalendarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
@@ -120,7 +124,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId }: Creat
               {dueDate ? format(dueDate, "PPP") : "Set due date"}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0" onClick={handleCalendarClick}>
             <Calendar
               mode="single"
               selected={dueDate}
