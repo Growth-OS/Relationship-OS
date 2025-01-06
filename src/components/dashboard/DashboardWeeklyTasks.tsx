@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { startOfWeek, endOfWeek, format } from "date-fns";
@@ -10,9 +10,10 @@ export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
   const { handleTaskComplete } = useTaskOperations();
+  const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
-    queryKey: ["weekly-tasks"],
+    queryKey: ["weekly-tasks", startDate, endDate],
     queryFn: async () => {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
@@ -54,6 +55,11 @@ export const DashboardWeeklyTasks = () => {
     return acc;
   }, {} as Record<string, typeof tasks>);
 
+  const handleTaskUpdate = () => {
+    // Refetch the weekly tasks when a task is updated
+    queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+  };
+
   if (isLoading) {
     return (
       <Card className="p-4 space-y-4 bg-background border">
@@ -79,6 +85,7 @@ export const DashboardWeeklyTasks = () => {
             source={source}
             tasks={sourceTasks}
             onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks || [])}
+            onUpdate={handleTaskUpdate}
           />
         ))}
         

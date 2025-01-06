@@ -11,9 +11,10 @@ import { memo } from "react";
 interface TaskCardProps {
   task: any;
   onComplete: (taskId: string, completed: boolean) => Promise<void>;
+  onUpdate: () => void;
 }
 
-export const TaskCard = memo(({ task, onComplete }: TaskCardProps) => {
+export const TaskCard = memo(({ task, onComplete, onUpdate }: TaskCardProps) => {
   const navigate = useNavigate();
 
   const handleTaskClick = (task: any) => {
@@ -90,7 +91,7 @@ export const TaskCard = memo(({ task, onComplete }: TaskCardProps) => {
                 onClick={(e) => e.stopPropagation()}
                 className="opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <EditTaskDialog task={task} onUpdate={() => {}} />
+                <EditTaskDialog task={task} onUpdate={onUpdate} />
               </div>
             </div>
           </div>

@@ -5,9 +5,10 @@ interface TaskGroupProps {
   source: string;
   tasks: any[];
   onComplete: (taskId: string, completed: boolean) => Promise<void>;
+  onUpdate: () => void;
 }
 
-export const TaskGroup = memo(({ source, tasks, onComplete }: TaskGroupProps) => {
+export const TaskGroup = memo(({ source, tasks, onComplete, onUpdate }: TaskGroupProps) => {
   const getSourceTitle = (source: string) => {
     const titles: Record<string, string> = {
       deals: "Sales Tasks",
@@ -32,6 +33,7 @@ export const TaskGroup = memo(({ source, tasks, onComplete }: TaskGroupProps) =>
             key={task.id} 
             task={task}
             onComplete={onComplete}
+            onUpdate={onUpdate}
           />
         ))}
       </div>
