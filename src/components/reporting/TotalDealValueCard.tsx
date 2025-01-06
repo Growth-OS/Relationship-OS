@@ -17,8 +17,6 @@ export const TotalDealValueCard = ({
   
   const isIncrease = percentageChange > 0;
   const isDecrease = percentageChange < 0;
-  
-  const averageDealValue = totalDealValue / 2; // Assuming 2 active deals as per original
 
   return (
     <Card className="p-6 bg-white dark:bg-gray-800">
@@ -54,12 +52,14 @@ export const TotalDealValueCard = ({
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Average Deal</p>
             <p className="text-lg font-semibold">
-              €{averageDealValue.toLocaleString()}
+              €{(totalDealValue / (totalDealValue > 0 ? 1 : 1)).toLocaleString()}
             </p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Active Deals</p>
-            <p className="text-lg font-semibold">2</p>
+            <p className="text-lg font-semibold">
+              {totalDealValue > 0 ? 1 : 0}
+            </p>
           </div>
         </div>
       </div>
