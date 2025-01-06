@@ -45,9 +45,9 @@ const Prospects = () => {
         .order('created_at', { ascending: false });
 
       if (showConverted) {
-        dataQuery.eq('status', 'converted');
+        query.eq('status', 'converted');
       } else {
-        dataQuery.neq('status', 'converted');
+        query.neq('status', 'converted');
       }
 
       const { data: prospectsData, error: dataError } = await dataQuery
@@ -126,6 +126,8 @@ const Prospects = () => {
           totalPages={totalPages}
           onPageChange={handlePageChange}
           isLoading={isLoading}
+          showConverted={showConverted}
+          onShowConvertedChange={setShowConverted}
         />
       </div>
     </div>

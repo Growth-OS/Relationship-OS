@@ -22,6 +22,8 @@ interface ProspectsTableProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  showConverted: boolean;
+  onShowConvertedChange: (show: boolean) => void;
 }
 
 export const ProspectsTable = ({
@@ -30,21 +32,17 @@ export const ProspectsTable = ({
   currentPage,
   totalPages,
   onPageChange,
+  showConverted,
+  onShowConvertedChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [showConverted, setShowConverted] = useState(false);
   const { handleDelete, handleConvertToLead, handleAssignSequence } = useProspectOperations();
 
-  // Filter prospects based on showConverted state
-  const filteredProspects = prospects.filter(p => 
-    showConverted ? p.status === 'converted' : p.status !== 'converted'
-  );
-
   const handleSelectAll = () => {
-    if (selectedIds.length === filteredProspects.length) {
+    if (selectedIds.length === prospects.length) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(filteredProspects.map((p) => p.id));
+      setSelectedIds(prospects.map((p) => p.id));
     }
   };
 
@@ -84,7 +82,7 @@ export const ProspectsTable = ({
       <div className="flex justify-between items-center mb-4">
         <BulkActions
           selectedIds={selectedIds}
-          allSelected={selectedIds.length === filteredProspects.length}
+          allSelected={selectedIds.length === prospects.length}
           onSelectAll={handleSelectAll}
           onAssignSequence={handleAssignSequenceToProspects}
         />
@@ -92,7 +90,7 @@ export const ProspectsTable = ({
           <Switch
             id="show-converted"
             checked={showConverted}
-            onCheckedChange={setShowConverted}
+            onCheckedChange={onShowConvertedChange}
           />
           <Label htmlFor="show-converted">Show converted prospects</Label>
         </div>
@@ -114,7 +112,7 @@ export const ProspectsTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProspects.map((prospect) => (
+            {prospects.map((prospect) => (
               <ProspectRow
                 key={prospect.id}
                 prospect={prospect}
