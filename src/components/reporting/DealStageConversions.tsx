@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { startOfYear, endOfYear, format } from 'date-fns';
 import { Progress } from "@/components/ui/progress";
 
@@ -80,87 +79,32 @@ export const DealStageConversions = () => {
     return Math.round((convertedProspects / totalProspects) * 100);
   };
 
+  const conversionStages = [
+    { from: 'Prospect', to: 'Lead', rate: getProspectToLeadRate() },
+    { from: 'Lead', to: 'Meeting', rate: getConversionRate('lead', 'meeting') },
+    { from: 'Meeting', to: 'Negotiation', rate: getConversionRate('meeting', 'negotiation') },
+    { from: 'Negotiation', to: 'Project Prep', rate: getConversionRate('negotiation', 'project_preparation') },
+    { from: 'Project Prep', to: 'In Progress', rate: getConversionRate('project_preparation', 'in_progress') },
+    { from: 'In Progress', to: 'To Invoice', rate: getConversionRate('in_progress', 'to_invoice') },
+    { from: 'To Invoice', to: 'Invoiced', rate: getConversionRate('to_invoice', 'invoiced') },
+    { from: 'Invoiced', to: 'Paid', rate: getConversionRate('invoiced', 'paid') }
+  ];
+
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Prospect → Lead</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getProspectToLeadRate()}%</div>
-          <Progress value={getProspectToLeadRate()} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Lead → Meeting</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('lead', 'meeting')}%</div>
-          <Progress value={getConversionRate('lead', 'meeting')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Meeting → Negotiation</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('meeting', 'negotiation')}%</div>
-          <Progress value={getConversionRate('meeting', 'negotiation')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Negotiation → Project Prep</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('negotiation', 'project_preparation')}%</div>
-          <Progress value={getConversionRate('negotiation', 'project_preparation')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Project Prep → In Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('project_preparation', 'in_progress')}%</div>
-          <Progress value={getConversionRate('project_preparation', 'in_progress')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">In Progress → To Invoice</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('in_progress', 'to_invoice')}%</div>
-          <Progress value={getConversionRate('in_progress', 'to_invoice')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">To Invoice → Invoiced</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('to_invoice', 'invoiced')}%</div>
-          <Progress value={getConversionRate('to_invoice', 'invoiced')} className="mt-2" />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Invoiced → Paid</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('invoiced', 'paid')}%</div>
-          <Progress value={getConversionRate('invoiced', 'paid')} className="mt-2" />
-        </CardContent>
-      </Card>
+    <div className="space-y-4 p-4 bg-white rounded-lg shadow-sm">
+      <div className="grid grid-cols-8 gap-2">
+        {conversionStages.map((stage, index) => (
+          <div key={index} className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg transition-all hover:bg-gray-100">
+            <div className="text-sm font-medium text-gray-600 text-center mb-2">
+              {stage.from} → {stage.to}
+            </div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              {stage.rate}%
+            </div>
+            <Progress value={stage.rate} className="w-full bg-gray-200" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
