@@ -35,12 +35,15 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Format the date to ISO string but only keep the date part
+    const formattedDate = dueDate ? dueDate.toISOString().split('T')[0] : null;
+    
     const { error } = await supabase
       .from("tasks")
       .update({
         title,
         description: description || null,
-        due_date: dueDate?.toISOString() || null,
+        due_date: formattedDate,
       })
       .eq("id", task.id);
 
