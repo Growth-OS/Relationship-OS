@@ -1,82 +1,83 @@
-import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { TaskCard } from "./TaskCard";
+import { TaskGroup } from "@/components/dashboard/TaskGroup";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
-import { TaskGroup } from "@/components/dashboard/TaskGroup";
-import { DateRange } from "react-day-picker";
-import { addDays, subMonths } from "date-fns";
-import { DateRangePicker } from "../ui/date-range-picker";
 import { TaskPagination } from "./TaskPagination";
-import { TaskListProps, TasksResponse } from "./types";
+import { toast } from "sonner";
 
-const TASKS_PER_PAGE = 10;
+type TaskSource = 'project' | 'deal' | 'sequence' | 'substack' | 'other';
 
-export const TaskList = ({ source, projectId, showArchived = false }: TaskListProps) => {
-  const [page, setPage] = useState(1);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: subMonths(new Date(), 1),
-    to: new Date(),
-  });
+interface TaskData {
+  id: string;
+  title: string;
+  description?: string;
+  due_date?: string;
+  completed?: boolean;
+  source?: TaskSource;
+  source_id?: string;
+  priority?: string;
+  projects?: { id: string; name: string };
+  deals?: { id: string; company_name: string };
+  sequences?: { id: string; name: string };
+  substack_posts?: { id: string; title: string };
+}
 
-  const { data, isLoading, error, refetch } = useQuery<TasksResponse>({
-    queryKey: ["tasks", source, projectId, showArchived, page, dateRange],
+interface TaskListProps {
+  sourceType?: TaskSource;
+  sourceId?: string;
+  showPagination?: boolean;
+  groupBySource?: boolean;
+}
+
+export const TaskList = ({ 
+  sourceType, 
+  sourceId, 
+  showPagination = true,
+  groupBySource = true 
+}: TaskListProps) => {
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["tasks", sourceType, sourceId],
     queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("User not authenticated");
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
 
-      let query = supabase
-        .from("tasks")
-        .select(`
-          *,
-          projects(id, name),
-          deals(id, company_name),
-          substack_posts(id, title),
-          sequences(id, name)
-        `)
-        .eq('user_id', user.user.id);
+        let query = supabase
+          .from("tasks")
+          .select(`
+            *,
+            projects(id, name),
+            deals(id, company_name),
+            substack_posts(id, title),
+            sequences(id, name)
+          `)
+          .eq("user_id", user.id)
+          .order("due_date", { ascending: true });
 
-      if (source) {
-        query = query.eq("source", source);
-      }
-
-      if (projectId) {
-        query = query.eq("project_id", projectId);
-      }
-
-      if (showArchived) {
-        query = query.eq("completed", true);
-        
-        // Apply date range filter for archived tasks
-        if (dateRange?.from) {
-          query = query.gte('created_at', dateRange.from.toISOString());
+        if (sourceType && sourceId) {
+          query = query
+            .eq("source", sourceType)
+            .eq("source_id", sourceId);
         }
-        if (dateRange?.to) {
-          query = query.lte('created_at', addDays(dateRange.to, 1).toISOString());
+
+        const { data, error } = await query;
+
+        if (error) {
+          console.error("Error fetching tasks:", error);
+          throw error;
         }
-      } else {
-        query = query.eq("completed", false);
+
+        return {
+          tasks: data || [],
+          total: data?.length || 0
+        };
+      } catch (error) {
+        console.error("Error in task query:", error);
+        throw error;
       }
-
-      // Add pagination
-      const start = (page - 1) * TASKS_PER_PAGE;
-      query = query
-        .order('created_at', { ascending: false })
-        .range(start, start + TASKS_PER_PAGE - 1);
-
-      const { data, error, count } = await query;
-
-      if (error) {
-        console.error("Error fetching tasks:", error);
-        throw new Error("Failed to fetch tasks: " + error.message);
-      }
-
-      return {
-        tasks: data || [],
-        totalCount: count || 0,
-      };
     },
   });
 
@@ -87,85 +88,57 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
         .update({ completed })
         .eq("id", taskId);
 
-      if (error) {
-        console.error("Error updating task:", error);
-        toast.error("Failed to update task status");
-        return;
-      }
+      if (error) throw error;
 
-      toast.success(completed ? "Task marked as complete" : "Task marked as incomplete");
-      refetch();
-    } catch (err) {
-      console.error("Failed to update task:", err);
-      toast.error("Failed to update task status");
+      // Invalidate and refetch
+      await queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+      
+      toast.success(`Task ${completed ? "completed" : "uncompleted"}`);
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
     }
   };
 
-  if (isLoading) {
-    return <TaskListSkeleton />;
-  }
+  if (isLoading) return <TaskListSkeleton />;
+  if (!data?.tasks.length) return <EmptyTaskList />;
 
-  if (error) {
-    console.error("Task list error:", error);
+  // Group tasks by source if needed
+  if (!groupBySource) {
+    const source = sourceType || "other";
     return (
-      <div className="text-sm text-red-500 p-4 bg-red-50 rounded-lg max-w-3xl">
-        Error loading tasks: {error.message || "Please try again"}
-      </div>
+      <TaskGroup 
+        source={source} 
+        tasks={data.tasks}
+        onComplete={handleComplete}
+        onUpdate={refetch}
+      />
     );
   }
 
-  if (!data || data.tasks.length === 0) {
-    return <EmptyTaskList />;
-  }
-
-  const totalPages = Math.ceil(data.totalCount / TASKS_PER_PAGE);
+  // Group tasks by their source
+  const groupedTasks = data.tasks.reduce((acc, task) => {
+    const taskSource = task.source || "other";
+    if (!acc[taskSource]) {
+      acc[taskSource] = [];
+    }
+    acc[taskSource].push(task);
+    return acc;
+  }, {} as Record<string, TaskData[]>);
 
   return (
     <div className="space-y-6">
-      {showArchived && (
-        <div className="mb-6">
-          <DateRangePicker
-            date={dateRange}
-            onSelect={setDateRange}
-          />
-        </div>
-      )}
-
-      {source ? (
-        <TaskGroup 
-          source={source} 
-          tasks={data.tasks}
+      {Object.entries(groupedTasks).map(([taskSource, tasks]) => (
+        <TaskGroup
+          key={taskSource}
+          source={taskSource as any}
+          tasks={tasks}
           onComplete={handleComplete}
           onUpdate={refetch}
         />
-      ) : (
-        <div className="space-y-6">
-          {Object.entries(data.tasks.reduce((acc: Record<string, any[]>, task) => {
-            const taskSource = task.source || 'other';
-            if (!acc[taskSource]) {
-              acc[taskSource] = [];
-            }
-            acc[taskSource].push(task);
-            return acc;
-          }, {})).map(([taskSource, tasks]) => (
-            <TaskGroup 
-              key={taskSource} 
-              source={taskSource as any} 
-              tasks={tasks}
-              onComplete={handleComplete}
-              onUpdate={refetch}
-            />
-          ))}
-        </div>
-      )}
-
-      {showArchived && (
-        <TaskPagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setPage}
-        />
-      )}
+      ))}
+      {showPagination && <TaskPagination total={data.total} />}
     </div>
   );
 };
