@@ -18,20 +18,20 @@ const Prospects = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['prospects', currentPage, showConverted],
     queryFn: async () => {
-      console.log('Fetching prospects for page:', currentPage);
+      console.log('Fetching prospects for page:', currentPage, 'showConverted:', showConverted);
       
       // First, get the total count based on conversion status
-      const query = supabase
+      const countQuery = supabase
         .from('prospect_sequence_info')
         .select('*', { count: 'exact', head: true });
 
       if (showConverted) {
-        query.eq('status', 'converted');
+        countQuery.eq('status', 'converted');
       } else {
-        query.neq('status', 'converted');
+        countQuery.neq('status', 'converted');
       }
 
-      const { count, error: countError } = await query;
+      const { count, error: countError } = await countQuery;
       
       if (countError) {
         console.error('Error fetching count:', countError);
@@ -45,9 +45,9 @@ const Prospects = () => {
         .order('created_at', { ascending: false });
 
       if (showConverted) {
-        query.eq('status', 'converted');
+        dataQuery.eq('status', 'converted');
       } else {
-        query.neq('status', 'converted');
+        dataQuery.neq('status', 'converted');
       }
 
       const { data: prospectsData, error: dataError } = await dataQuery
