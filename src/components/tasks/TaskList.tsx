@@ -136,6 +136,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
           source={source} 
           tasks={data.tasks}
           onComplete={handleComplete}
+          onUpdate={refetch}
         />
       ) : (
         <div className="space-y-6">
@@ -152,6 +153,7 @@ export const TaskList = ({ source, projectId, showArchived = false }: TaskListPr
               source={taskSource as any} 
               tasks={tasks}
               onComplete={handleComplete}
+              onUpdate={refetch}
             />
           ))}
         </div>
