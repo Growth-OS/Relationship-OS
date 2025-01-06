@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { startOfYear, endOfYear } from 'date-fns';
+import { startOfYear, endOfYear, format } from 'date-fns';
 import { Progress } from "@/components/ui/progress";
 
 export const DealStageConversions = () => {
@@ -22,15 +22,15 @@ export const DealStageConversions = () => {
   const { data: prospects = [] } = useQuery({
     queryKey: ['prospects', 'conversions'],
     queryFn: async () => {
-      // Format dates for Supabase query without timezone
-      const start = startOfYear(new Date());
-      const end = endOfYear(new Date());
+      // Format dates for Supabase query in YYYY-MM-DD format
+      const start = format(startOfYear(new Date()), 'yyyy-MM-dd');
+      const end = format(endOfYear(new Date()), 'yyyy-MM-dd');
       
       const { data, error } = await supabase
         .from('prospects')
         .select('*')
-        .gte('created_at', start.toISOString().split('T')[0])
-        .lte('created_at', end.toISOString().split('T')[0]);
+        .gte('created_at', start)
+        .lte('created_at', end);
       
       if (error) throw error;
       
