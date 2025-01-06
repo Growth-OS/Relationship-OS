@@ -20,6 +20,7 @@ export const DealStageConversions = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
+      console.log('Fetched deals:', data); // Debug log
       return data;
     },
   });
@@ -40,8 +41,21 @@ export const DealStageConversions = () => {
 
   // Calculate conversion rates between stages
   const getConversionRate = (fromStage: string, toStage: string) => {
-    const fromCount = deals.filter(deal => deal.stage === fromStage).length;
-    const toCount = deals.filter(deal => deal.stage === toStage).length;
+    // Count all deals that have reached or passed the 'fromStage'
+    const fromCount = deals.filter(deal => {
+      const stageIndex = stages.findIndex(s => s.id === deal.stage);
+      const fromStageIndex = stages.findIndex(s => s.id === fromStage);
+      return stageIndex >= fromStageIndex;
+    }).length;
+
+    // Count all deals that have reached or passed the 'toStage'
+    const toCount = deals.filter(deal => {
+      const stageIndex = stages.findIndex(s => s.id === deal.stage);
+      const toStageIndex = stages.findIndex(s => s.id === toStage);
+      return stageIndex >= toStageIndex;
+    }).length;
+    
+    console.log(`Conversion ${fromStage} -> ${toStage}:`, { fromCount, toCount }); // Debug log
     
     if (fromCount === 0) return 0;
     return Math.round((toCount / fromCount) * 100);
