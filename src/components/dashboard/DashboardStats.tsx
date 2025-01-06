@@ -35,6 +35,8 @@ export const DashboardStats = () => {
         console.error('Error fetching deals:', error);
         throw error;
       }
+      console.log('Active deals data:', data);
+      console.log('Number of active deals:', data?.length || 0);
       return data?.length || 0;
     },
     enabled: !!user?.id,
