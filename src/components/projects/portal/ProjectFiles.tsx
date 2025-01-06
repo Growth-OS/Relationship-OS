@@ -40,15 +40,19 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
       if (!user) throw new Error("No user");
 
       setUploading(true);
+      
+      // Generate a unique filename
       const fileExt = file.name.split(".").pop();
       const filePath = `${Math.random()}.${fileExt}`;
 
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from("project_files")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
+      // Create database record
       const { error: dbError } = await supabase.from("project_documents").insert({
         project_id: projectId,
         user_id: user.id,
