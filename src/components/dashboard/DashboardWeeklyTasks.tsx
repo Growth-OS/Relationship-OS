@@ -55,9 +55,9 @@ export const DashboardWeeklyTasks = () => {
     return acc;
   }, {} as Record<string, typeof tasks>);
 
-  const handleTaskUpdate = () => {
+  const handleTaskUpdate = async () => {
     // Refetch the weekly tasks when a task is updated
-    queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+    await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
   };
 
   if (isLoading) {
