@@ -1,28 +1,25 @@
-import { TaskSource } from "@/integrations/supabase/types/tasks";
+export type TaskSource = 'projects' | 'deals' | 'sequences' | 'substack' | 'ideas' | 'content' | 'other';
 
 export interface TaskListProps {
-  source?: TaskSource;
-  projectId?: string;
-  showArchived?: boolean;
+  sourceId?: string;
+  sourceType?: TaskSource;
+  showPagination?: boolean;
+  groupBySource?: boolean;
 }
 
 export interface TaskData {
-  completed: boolean;
-  created_at: string;
-  deal_id: string;
-  description: string;
-  due_date: string;
   id: string;
-  priority: string;
-  project_id: string;
-  sequence_id: string;
-  source: TaskSource;
   title: string;
-  user_id: string;
+  description?: string;
+  due_date?: string;
+  completed?: boolean;
+  source?: TaskSource;
+  source_id?: string;
+  priority?: string;
   projects?: { id: string; name: string };
   deals?: { id: string; company_name: string };
-  substack_posts?: { id: string; title: string };
   sequences?: { id: string; name: string };
+  substack_posts?: { id: string; title: string };
 }
 
 export interface TasksResponse {

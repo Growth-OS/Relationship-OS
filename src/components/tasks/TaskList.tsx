@@ -5,30 +5,7 @@ import { TaskListSkeleton } from "./TaskListSkeleton";
 import { EmptyTaskList } from "./EmptyTaskList";
 import { TaskPagination } from "./TaskPagination";
 import { toast } from "sonner";
-
-type TaskSource = 'project' | 'deal' | 'sequence' | 'substack' | 'other';
-
-interface TaskData {
-  id: string;
-  title: string;
-  description?: string;
-  due_date?: string;
-  completed?: boolean;
-  source?: TaskSource;
-  source_id?: string;
-  priority?: string;
-  projects?: { id: string; name: string };
-  deals?: { id: string; company_name: string };
-  sequences?: { id: string; name: string };
-  substack_posts?: { id: string; title: string };
-}
-
-interface TaskListProps {
-  sourceType?: TaskSource;
-  sourceId?: string;
-  showPagination?: boolean;
-  groupBySource?: boolean;
-}
+import { TaskData, TaskListProps, TaskSource } from "./types";
 
 export const TaskList = ({ 
   sourceType, 
@@ -90,7 +67,6 @@ export const TaskList = ({
 
       if (error) throw error;
 
-      // Invalidate and refetch
       await queryClient.invalidateQueries({ queryKey: ["tasks"] });
       await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
       
@@ -101,10 +77,13 @@ export const TaskList = ({
     }
   };
 
+  const handleUpdate = async () => {
+    await refetch();
+  };
+
   if (isLoading) return <TaskListSkeleton />;
   if (!data?.tasks.length) return <EmptyTaskList />;
 
-  // Group tasks by source if needed
   if (!groupBySource) {
     const source = sourceType || "other";
     return (
@@ -112,12 +91,11 @@ export const TaskList = ({
         source={source} 
         tasks={data.tasks}
         onComplete={handleComplete}
-        onUpdate={refetch}
+        onUpdate={handleUpdate}
       />
     );
   }
 
-  // Group tasks by their source
   const groupedTasks = data.tasks.reduce((acc, task) => {
     const taskSource = task.source || "other";
     if (!acc[taskSource]) {
@@ -132,13 +110,19 @@ export const TaskList = ({
       {Object.entries(groupedTasks).map(([taskSource, tasks]) => (
         <TaskGroup
           key={taskSource}
-          source={taskSource as any}
+          source={taskSource}
           tasks={tasks}
           onComplete={handleComplete}
-          onUpdate={refetch}
+          onUpdate={handleUpdate}
         />
       ))}
-      {showPagination && <TaskPagination total={data.total} />}
+      {showPagination && data.total > 0 && (
+        <TaskPagination 
+          currentPage={1} 
+          totalPages={Math.ceil(data.total / 10)}
+          onPageChange={() => {}}
+        />
+      )}
     </div>
   );
 };
