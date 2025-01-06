@@ -10,6 +10,7 @@ import { CalendarIcon, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface EditTaskDialogProps {
   task: {
@@ -18,7 +19,7 @@ interface EditTaskDialogProps {
     description: string | null;
     due_date: string | null;
   };
-  onUpdate: () => void;
+  onUpdate?: () => void;
 }
 
 export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
@@ -28,6 +29,8 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(
     task.due_date ? new Date(task.due_date) : undefined
   );
+
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,13 +45,22 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
       .eq("id", task.id);
 
     if (error) {
+      console.error("Failed to update task:", error);
       toast.error("Failed to update task");
       return;
     }
 
     toast.success("Task updated successfully");
     setOpen(false);
-    onUpdate();
+    
+    // Invalidate all task-related queries to trigger a refresh
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+    
+    // Call the onUpdate callback if provided
+    if (onUpdate) {
+      onUpdate();
+    }
   };
 
   return (
