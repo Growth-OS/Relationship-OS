@@ -31,22 +31,22 @@ const Tasks = () => {
           </TabsList>
 
           <TabsContent value="projects">
-            <TaskList source="projects" showArchived={false} />
+            <TaskList sourceType="projects" />
           </TabsContent>
           <TabsContent value="deals">
-            <TaskList source="deals" showArchived={false} />
+            <TaskList sourceType="deals" />
           </TabsContent>
           <TabsContent value="sequences">
-            <TaskList source="sequences" showArchived={false} />
+            <TaskList sourceType="sequences" />
           </TabsContent>
           <TabsContent value="content">
-            <TaskList source="content" showArchived={false} />
+            <TaskList sourceType="content" />
           </TabsContent>
           <TabsContent value="ideas">
-            <TaskList source="ideas" showArchived={false} />
+            <TaskList sourceType="ideas" />
           </TabsContent>
           <TabsContent value="substack">
-            <TaskList source="substack" showArchived={false} />
+            <TaskList sourceType="substack" />
           </TabsContent>
           <TabsContent value="archived">
             <TaskList showArchived={true} />

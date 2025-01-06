@@ -3,6 +3,8 @@ export type TaskSource = 'projects' | 'deals' | 'sequences' | 'substack' | 'idea
 export interface TaskListProps {
   sourceId?: string;
   sourceType?: TaskSource;
+  source?: string; // For backwards compatibility
+  showArchived?: boolean;
   showPagination?: boolean;
   groupBySource?: boolean;
 }
@@ -24,5 +26,5 @@ export interface TaskData {
 
 export interface TasksResponse {
   tasks: TaskData[];
-  totalCount: number;
+  total: number;
 }

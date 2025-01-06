@@ -9,7 +9,7 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
   return (
     <div className="space-y-6">
       <CreateTaskForm projectId={projectId} source="projects" />
-      <TaskList projectId={projectId} source="projects" />
+      <TaskList sourceId={projectId} sourceType="projects" />
     </div>
   );
 };
