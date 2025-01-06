@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfYear, endOfYear, format } from 'date-fns';
 import { Progress } from "@/components/ui/progress";
+import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const DealStageConversions = () => {
   const { data: deals = [] } = useQuery({
@@ -79,6 +81,12 @@ export const DealStageConversions = () => {
     return Math.round((convertedProspects / totalProspects) * 100);
   };
 
+  const getConversionTrend = (rate: number) => {
+    if (rate >= 70) return { icon: TrendingUp, color: 'text-green-500' };
+    if (rate >= 40) return { icon: TrendingUp, color: 'text-yellow-500' };
+    return { icon: TrendingDown, color: 'text-red-500' };
+  };
+
   const conversionStages = [
     { from: 'Prospect', to: 'Lead', rate: getProspectToLeadRate() },
     { from: 'Lead', to: 'Meeting', rate: getConversionRate('lead', 'meeting') },
@@ -91,19 +99,61 @@ export const DealStageConversions = () => {
   ];
 
   return (
-    <div className="space-y-4 p-4 bg-white rounded-lg shadow-sm">
-      <div className="grid grid-cols-8 gap-2">
-        {conversionStages.map((stage, index) => (
-          <div key={index} className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg transition-all hover:bg-gray-100">
-            <div className="text-sm font-medium text-gray-600 text-center mb-2">
-              {stage.from} → {stage.to}
-            </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              {stage.rate}%
-            </div>
-            <Progress value={stage.rate} className="w-full bg-gray-200" />
+    <div className="space-y-6 p-6 bg-white rounded-lg shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Pipeline Conversion Rates</h3>
+        <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span>High (≥70%)</span>
           </div>
-        ))}
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+            <span>Medium (≥40%)</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span>Low (&lt;40%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
+        <div className="relative z-10 flex justify-between items-center gap-4 overflow-x-auto pb-4">
+          {conversionStages.map((stage, index) => {
+            const trend = getConversionTrend(stage.rate);
+            const TrendIcon = trend.icon;
+            
+            return (
+              <div key={index} className="flex items-center min-w-fit">
+                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div className="flex flex-col items-center gap-2 min-w-[140px]">
+                    <div className="text-sm font-medium text-gray-600">{stage.from}</div>
+                    <div className="flex items-center gap-2">
+                      <div className={cn("text-2xl font-bold", trend.color)}>
+                        {stage.rate}%
+                      </div>
+                      <TrendIcon className={cn("w-5 h-5", trend.color)} />
+                    </div>
+                    <Progress 
+                      value={stage.rate} 
+                      className="w-full h-1.5" 
+                      indicatorClassName={cn(
+                        stage.rate >= 70 ? "bg-green-500" :
+                        stage.rate >= 40 ? "bg-yellow-500" :
+                        "bg-red-500"
+                      )}
+                    />
+                  </div>
+                </div>
+                {index < conversionStages.length - 1 && (
+                  <ArrowRight className="w-6 h-6 text-gray-400 mx-2 flex-shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
