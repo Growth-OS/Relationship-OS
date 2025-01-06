@@ -28,8 +28,8 @@ export const DashboardStats = () => {
       const { data, error } = await supabase
         .from('deals')
         .select('*')
-        .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress'])
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
       
       if (error) {
         console.error('Error fetching deals:', error);
