@@ -41,12 +41,12 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       setUploading(true);
 
-      // Generate a unique filename with timestamp to avoid collisions
+      // Generate unique filename with timestamp
       const timestamp = new Date().getTime();
       const fileExt = file.name.split(".").pop();
       const filePath = `${timestamp}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-      // Upload file to storage bucket
+      // First, upload to storage
       const { error: uploadError } = await supabase.storage
         .from("project_files")
         .upload(filePath, file, {
@@ -55,24 +55,26 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
         });
 
       if (uploadError) {
-        console.error("Storage upload error:", uploadError);
-        throw new Error("Failed to upload file to storage");
+        throw new Error(`Storage upload failed: ${uploadError.message}`);
       }
 
-      // Create database record
+      // Then create database record
       const { error: dbError } = await supabase
         .from("project_documents")
-        .insert({
+        .insert([{
           project_id: projectId,
           user_id: user.id,
           title: file.name,
           file_path: filePath,
           file_type: file.type,
-        });
+        }]);
 
       if (dbError) {
-        console.error("Database insert error:", dbError);
-        throw new Error("Failed to create file record");
+        // If database insert fails, clean up the uploaded file
+        await supabase.storage
+          .from("project_files")
+          .remove([filePath]);
+        throw new Error(`Database record creation failed: ${dbError.message}`);
       }
 
       toast.success("File uploaded successfully");
@@ -82,7 +84,6 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
       toast.error(error instanceof Error ? error.message : "Failed to upload file");
     } finally {
       setUploading(false);
-      // Reset the file input
       if (event.target) {
         event.target.value = '';
       }
@@ -97,7 +98,6 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       if (error) throw error;
 
-      // Create and trigger download
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
