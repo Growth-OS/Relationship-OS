@@ -41,10 +41,11 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       setUploading(true);
 
-      // Generate unique filename with timestamp
+      // Generate unique filename with timestamp and project ID
       const timestamp = new Date().getTime();
       const fileExt = file.name.split(".").pop();
-      const filePath = `${timestamp}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const randomString = Math.random().toString(36).substring(2);
+      const filePath = `${projectId}/${timestamp}-${randomString}.${fileExt}`;
 
       // First, upload to storage
       const { error: uploadError } = await supabase.storage
