@@ -66,7 +66,7 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
         {projects.map((project) => (
           <Card
             key={project.id}
-            className="group relative p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border border-gray-200/60 dark:border-gray-800/60 bg-white/50 dark:bg-gray-900/50 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700"
+            className="group relative p-6 hover:shadow-lg transition-all duration-200 cursor-pointer border-[1.5px] border-gray-200/80 dark:border-gray-800/80 bg-white/50 dark:bg-gray-900/50 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-gray-900/80 hover:bg-white dark:hover:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-700 shadow-sm dark:shadow-gray-950/50"
             onClick={() => setSelectedProject(project)}
           >
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
