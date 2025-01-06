@@ -5,12 +5,18 @@ import { stages } from "@/components/crm/form-fields/StageSelect";
 import { ArrowRight } from "lucide-react";
 
 export const DealStageConversions = () => {
+  const currentYear = new Date().getFullYear();
+  const startOfYear = `${currentYear}-01-01`;
+  const endOfYear = `${currentYear}-12-31`;
+
   const { data: deals = [] } = useQuery({
-    queryKey: ['dealConversions'],
+    queryKey: ['dealConversions', currentYear],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')
         .select('stage')
+        .gte('created_at', startOfYear)
+        .lte('created_at', endOfYear)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -36,7 +42,9 @@ export const DealStageConversions = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base font-medium">Deal Stage Conversions</CardTitle>
+        <CardTitle className="text-base font-medium">
+          Deal Stage Conversions ({currentYear})
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
