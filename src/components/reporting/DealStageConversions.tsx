@@ -22,7 +22,6 @@ export const DealStageConversions = () => {
   const { data: prospects = [] } = useQuery({
     queryKey: ['prospects', 'conversions'],
     queryFn: async () => {
-      // Format dates for Supabase query in YYYY-MM-DD format
       const start = format(startOfYear(new Date()), 'yyyy-MM-dd');
       const end = format(endOfYear(new Date()), 'yyyy-MM-dd');
       
@@ -34,7 +33,6 @@ export const DealStageConversions = () => {
       
       if (error) throw error;
       
-      // Detailed logging for prospect data
       console.log('Raw prospects data:', data);
       console.log('Total prospects count:', data?.length);
       console.log('Prospects by status:', data?.reduce((acc, p) => {
@@ -47,7 +45,7 @@ export const DealStageConversions = () => {
   });
 
   const getConversionRate = (fromStage: string, toStage: string) => {
-    const stages = ['lead', 'meeting', 'proposal', 'negotiation', 'won'];
+    const stages = ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress', 'to_invoice', 'invoiced', 'paid'];
     const fromStageIndex = stages.indexOf(fromStage);
     const toStageIndex = stages.indexOf(toStage);
     
@@ -71,7 +69,6 @@ export const DealStageConversions = () => {
     const totalProspects = prospects.length;
     const convertedProspects = prospects.filter(prospect => prospect.status === 'converted').length;
     
-    // Detailed logging for conversion calculation
     console.log('Prospect to Lead conversion details:', {
       totalProspects,
       convertedProspects,
@@ -84,7 +81,7 @@ export const DealStageConversions = () => {
   };
 
   return (
-    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-8">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Prospect → Lead</CardTitle>
@@ -107,21 +104,61 @@ export const DealStageConversions = () => {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Meeting → Proposal</CardTitle>
+          <CardTitle className="text-sm font-medium">Meeting → Negotiation</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('meeting', 'proposal')}%</div>
-          <Progress value={getConversionRate('meeting', 'proposal')} className="mt-2" />
+          <div className="text-2xl font-bold">{getConversionRate('meeting', 'negotiation')}%</div>
+          <Progress value={getConversionRate('meeting', 'negotiation')} className="mt-2" />
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">Proposal → Won</CardTitle>
+          <CardTitle className="text-sm font-medium">Negotiation → Project Prep</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{getConversionRate('proposal', 'won')}%</div>
-          <Progress value={getConversionRate('proposal', 'won')} className="mt-2" />
+          <div className="text-2xl font-bold">{getConversionRate('negotiation', 'project_preparation')}%</div>
+          <Progress value={getConversionRate('negotiation', 'project_preparation')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Project Prep → In Progress</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('project_preparation', 'in_progress')}%</div>
+          <Progress value={getConversionRate('project_preparation', 'in_progress')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">In Progress → To Invoice</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('in_progress', 'to_invoice')}%</div>
+          <Progress value={getConversionRate('in_progress', 'to_invoice')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">To Invoice → Invoiced</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('to_invoice', 'invoiced')}%</div>
+          <Progress value={getConversionRate('to_invoice', 'invoiced')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Invoiced → Paid</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('invoiced', 'paid')}%</div>
+          <Progress value={getConversionRate('invoiced', 'paid')} className="mt-2" />
         </CardContent>
       </Card>
     </div>
