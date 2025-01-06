@@ -43,7 +43,7 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader className="space-y-4">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
@@ -80,24 +80,24 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
           )}
         </DialogHeader>
 
-        <Tabs defaultValue="details" className="h-full">
+        <Tabs defaultValue="details" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="w-full justify-start">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="files">Files</TabsTrigger>
           </TabsList>
-          <div className="mt-4 h-[calc(100%-4rem)] overflow-y-auto">
-            <TabsContent value="details">
+          <div className="flex-1 overflow-y-auto mt-4 pr-2">
+            <TabsContent value="details" className="mt-0 h-full">
               <ProjectDetails project={project} onClose={onClose} />
             </TabsContent>
-            <TabsContent value="credentials">
+            <TabsContent value="credentials" className="mt-0 h-full">
               <ProjectCredentials projectId={project.id} />
             </TabsContent>
-            <TabsContent value="tasks">
+            <TabsContent value="tasks" className="mt-0 h-full">
               <ProjectTasks projectId={project.id} />
             </TabsContent>
-            <TabsContent value="files">
+            <TabsContent value="files" className="mt-0 h-full">
               <ProjectFiles projectId={project.id} />
             </TabsContent>
           </div>

@@ -45,14 +45,11 @@ export const ProjectDateFields = ({ form }: ProjectDateFieldsProps) => {
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
+                  initialFocus
                   disabled={(date) =>
                     date < new Date("1900-01-01") ||
                     date > new Date("2100-01-01")
                   }
-                  initialFocus
-                  captionLayout="dropdown-buttons"
-                  fromYear={1960}
-                  toYear={2030}
                 />
               </PopoverContent>
             </Popover>
@@ -90,14 +87,11 @@ export const ProjectDateFields = ({ form }: ProjectDateFieldsProps) => {
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
+                  initialFocus
                   disabled={(date) =>
                     date < new Date("1900-01-01") ||
                     date > new Date("2100-01-01")
                   }
-                  initialFocus
-                  captionLayout="dropdown-buttons"
-                  fromYear={1960}
-                  toYear={2030}
                 />
               </PopoverContent>
             </Popover>
