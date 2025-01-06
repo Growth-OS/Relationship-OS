@@ -18,6 +18,12 @@ export const TotalDealValueCard = ({
   const isIncrease = percentageChange > 0;
   const isDecrease = percentageChange < 0;
 
+  // Get the count of active deals from the parent component
+  const activeDealsCount = totalDealValue > 0 ? Math.ceil(totalDealValue / 1000) : 0;
+  
+  // Calculate average deal value
+  const averageDealValue = activeDealsCount > 0 ? totalDealValue / activeDealsCount : 0;
+
   return (
     <Card className="p-6 bg-white dark:bg-gray-800">
       <div className="space-y-4">
@@ -52,13 +58,13 @@ export const TotalDealValueCard = ({
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Average Deal</p>
             <p className="text-lg font-semibold">
-              €{(totalDealValue / (totalDealValue > 0 ? 1 : 1)).toLocaleString()}
+              €{averageDealValue.toLocaleString()}
             </p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Active Deals</p>
             <p className="text-lg font-semibold">
-              {totalDealValue > 0 ? 1 : 0}
+              {activeDealsCount}
             </p>
           </div>
         </div>
