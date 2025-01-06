@@ -28,8 +28,7 @@ export const DashboardStats = () => {
       const { data, error } = await supabase
         .from('deals')
         .select('*')
-        .neq('stage', 'paid')
-        .neq('stage', 'invoiced')
+        .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress'])
         .eq('user_id', user.id);
       
       if (error) {
