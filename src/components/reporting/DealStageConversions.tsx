@@ -22,8 +22,9 @@ export const DealStageConversions = () => {
   const { data: prospects = [] } = useQuery({
     queryKey: ['prospects', 'conversions'],
     queryFn: async () => {
-      const yearStart = startOfYear(new Date());
-      const yearEnd = endOfYear(new Date());
+      // Format dates in ISO format without timezone
+      const yearStart = startOfYear(new Date()).toISOString();
+      const yearEnd = endOfYear(new Date()).toISOString();
 
       const { data, error } = await supabase
         .from('prospects')
@@ -69,13 +70,11 @@ export const DealStageConversions = () => {
   const getProspectToLeadRate = () => {
     const totalProspects = prospects.length;
     const convertedProspects = prospects.filter(prospect => prospect.status === 'converted').length;
-    const activeProspects = prospects.filter(prospect => prospect.status === 'active').length;
     
     // Detailed logging for conversion calculation
     console.log('Prospect to Lead conversion details:', {
       totalProspects,
       convertedProspects,
-      activeProspects,
       allStatuses: prospects.map(p => p.status),
       rate: totalProspects === 0 ? 0 : Math.round((convertedProspects / totalProspects) * 100)
     });
