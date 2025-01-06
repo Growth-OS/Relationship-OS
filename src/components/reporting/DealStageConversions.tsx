@@ -1,22 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { stages } from "@/components/crm/form-fields/StageSelect";
-import { ArrowRight } from "lucide-react";
+import { startOfYear, endOfYear } from 'date-fns';
+import { Progress } from "@/components/ui/progress";
 
 export const DealStageConversions = () => {
-  const currentYear = new Date().getFullYear();
-  const startOfYear = `${currentYear}-01-01`;
-  const endOfYear = `${currentYear}-12-31`;
-
   const { data: deals = [] } = useQuery({
-    queryKey: ['dealConversions', currentYear],
+    queryKey: ['deals', 'conversions'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')
-        .select('stage, created_at')
-        .gte('created_at', startOfYear)
-        .lte('created_at', endOfYear)
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -26,50 +20,63 @@ export const DealStageConversions = () => {
   });
 
   const { data: prospects = [] } = useQuery({
-    queryKey: ['prospects', currentYear],
+    queryKey: ['prospects', 'conversions'],
     queryFn: async () => {
+      const yearStart = startOfYear(new Date());
+      const yearEnd = endOfYear(new Date());
+
       const { data, error } = await supabase
         .from('prospects')
-        .select('status, created_at')
-        .gte('created_at', startOfYear)
-        .lte('created_at', endOfYear);
+        .select('*')
+        .gte('created_at', yearStart)
+        .lte('created_at', yearEnd);
       
       if (error) throw error;
-      console.log('Fetched prospects:', data); // Debug log
+      
+      // Detailed logging for prospect data
+      console.log('Raw prospects data:', data);
+      console.log('Total prospects count:', data?.length);
+      console.log('Prospects by status:', data?.reduce((acc, p) => {
+        acc[p.status || 'no_status'] = (acc[p.status || 'no_status'] || 0) + 1;
+        return acc;
+      }, {}));
+      
       return data;
     },
   });
 
-  // Calculate conversion rates between stages
   const getConversionRate = (fromStage: string, toStage: string) => {
-    // Count all deals that have reached or passed the 'fromStage'
+    const stages = ['lead', 'meeting', 'proposal', 'negotiation', 'won'];
+    const fromStageIndex = stages.indexOf(fromStage);
+    const toStageIndex = stages.indexOf(toStage);
+    
     const fromCount = deals.filter(deal => {
-      const stageIndex = stages.findIndex(s => s.id === deal.stage);
-      const fromStageIndex = stages.findIndex(s => s.id === fromStage);
+      const stageIndex = stages.indexOf(deal.stage);
       return stageIndex >= fromStageIndex;
     }).length;
-
-    // Count all deals that have reached or passed the 'toStage'
+    
     const toCount = deals.filter(deal => {
-      const stageIndex = stages.findIndex(s => s.id === deal.stage);
-      const toStageIndex = stages.findIndex(s => s.id === toStage);
+      const stageIndex = stages.indexOf(deal.stage);
       return stageIndex >= toStageIndex;
     }).length;
     
-    console.log(`Conversion ${fromStage} -> ${toStage}:`, { fromCount, toCount });
+    console.log(`Conversion ${fromStage} -> ${toStage}:`, { fromStageIndex, toStageIndex, fromCount, toCount });
     
     if (fromCount === 0) return 0;
     return Math.round((toCount / fromCount) * 100);
   };
 
-  // Calculate prospect to lead conversion rate
   const getProspectToLeadRate = () => {
     const totalProspects = prospects.length;
     const convertedProspects = prospects.filter(prospect => prospect.status === 'converted').length;
+    const activeProspects = prospects.filter(prospect => prospect.status === 'active').length;
     
-    console.log('Prospect to Lead conversion:', {
+    // Detailed logging for conversion calculation
+    console.log('Prospect to Lead conversion details:', {
       totalProspects,
       convertedProspects,
+      activeProspects,
+      allStatuses: prospects.map(p => p.status),
       rate: totalProspects === 0 ? 0 : Math.round((convertedProspects / totalProspects) * 100)
     });
     
@@ -77,50 +84,47 @@ export const DealStageConversions = () => {
     return Math.round((convertedProspects / totalProspects) * 100);
   };
 
-  // Get consecutive stage pairs including prospect to lead
-  const allConversions = [
-    { from: { id: 'prospect', label: 'Prospect' }, to: { id: 'lead', label: 'Lead' } },
-    ...stages.slice(0, -1).map((stage, index) => ({
-      from: stage,
-      to: stages[index + 1],
-    }))
-  ];
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base font-medium">
-          Conversion Rates ({currentYear})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {allConversions.map(({ from, to }) => {
-            const conversionRate = from.id === 'prospect' 
-              ? getProspectToLeadRate()
-              : getConversionRate(from.id, to.id);
-            
-            return (
-              <div key={`${from.id}-${to.id}`} className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="font-medium">{from.label}</span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{to.label}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-24 bg-gray-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary transition-all" 
-                      style={{ width: `${conversionRate}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium">{conversionRate}%</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Prospect → Lead</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getProspectToLeadRate()}%</div>
+          <Progress value={getProspectToLeadRate()} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Lead → Meeting</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('lead', 'meeting')}%</div>
+          <Progress value={getConversionRate('lead', 'meeting')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Meeting → Proposal</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('meeting', 'proposal')}%</div>
+          <Progress value={getConversionRate('meeting', 'proposal')} className="mt-2" />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium">Proposal → Won</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{getConversionRate('proposal', 'won')}%</div>
+          <Progress value={getConversionRate('proposal', 'won')} className="mt-2" />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
