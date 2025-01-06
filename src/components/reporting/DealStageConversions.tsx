@@ -14,10 +14,24 @@ export const DealStageConversions = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('deals')
-        .select('stage')
+        .select('stage, created_at')
         .gte('created_at', startOfYear)
         .lte('created_at', endOfYear)
         .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: prospects = [] } = useQuery({
+    queryKey: ['prospects', currentYear],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('prospects')
+        .select('status, created_at')
+        .gte('created_at', startOfYear)
+        .lte('created_at', endOfYear);
       
       if (error) throw error;
       return data;
@@ -33,23 +47,37 @@ export const DealStageConversions = () => {
     return Math.round((toCount / fromCount) * 100);
   };
 
-  // Get consecutive stage pairs
-  const stagePairs = stages.slice(0, -1).map((stage, index) => ({
-    from: stage,
-    to: stages[index + 1],
-  }));
+  // Calculate prospect to lead conversion rate
+  const getProspectToLeadRate = () => {
+    const totalProspects = prospects.length;
+    const convertedProspects = prospects.filter(prospect => prospect.status === 'converted').length;
+    
+    if (totalProspects === 0) return 0;
+    return Math.round((convertedProspects / totalProspects) * 100);
+  };
+
+  // Get consecutive stage pairs including prospect to lead
+  const allConversions = [
+    { from: { id: 'prospect', label: 'Prospect' }, to: { id: 'lead', label: 'Lead' } },
+    ...stages.slice(0, -1).map((stage, index) => ({
+      from: stage,
+      to: stages[index + 1],
+    }))
+  ];
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-base font-medium">
-          Deal Stage Conversions ({currentYear})
+          Conversion Rates ({currentYear})
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {stagePairs.map(({ from, to }) => {
-            const conversionRate = getConversionRate(from.id, to.id);
+          {allConversions.map(({ from, to }) => {
+            const conversionRate = from.id === 'prospect' 
+              ? getProspectToLeadRate()
+              : getConversionRate(from.id, to.id);
             
             return (
               <div key={`${from.id}-${to.id}`} className="flex items-center justify-between">
