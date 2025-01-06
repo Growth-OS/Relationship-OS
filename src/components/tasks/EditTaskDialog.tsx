@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, startOfDay } from "date-fns";
 import { CalendarIcon, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
   const [dueDate, setDueDate] = useState<Date | undefined>(
-    task.due_date ? parseISO(task.due_date) : undefined
+    task.due_date ? startOfDay(parseISO(task.due_date)) : undefined
   );
 
   const queryClient = useQueryClient();
@@ -35,10 +35,11 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Format the date to YYYY-MM-DD format in the local timezone
-    const formattedDate = dueDate ? format(dueDate, 'yyyy-MM-dd') : null;
+    // Ensure we're working with the start of day to avoid timezone issues
+    const formattedDate = dueDate ? format(startOfDay(dueDate), 'yyyy-MM-dd') : null;
     
-    console.log('Updating task with date:', formattedDate); // Debug log
+    console.log('Original due date:', dueDate);
+    console.log('Formatted date being sent:', formattedDate);
     
     const { error } = await supabase
       .from("tasks")
