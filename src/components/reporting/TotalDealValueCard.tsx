@@ -18,18 +18,12 @@ export const TotalDealValueCard = ({
   const isIncrease = percentageChange > 0;
   const isDecrease = percentageChange < 0;
 
-  // Get the count of active deals from the parent component
-  const activeDealsCount = totalDealValue > 0 ? Math.ceil(totalDealValue / 1000) : 0;
-  
-  // Calculate average deal value
-  const averageDealValue = activeDealsCount > 0 ? totalDealValue / activeDealsCount : 0;
-
   return (
     <Card className="p-6 bg-white dark:bg-gray-800">
       <div className="space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground font-medium">Total Deal Value (30d)</p>
+            <p className="text-sm text-muted-foreground font-medium">Total Deal Value (Last 30 Days)</p>
             <div className={cn(
               "flex items-center gap-1 text-sm font-medium",
               isIncrease ? "text-green-600 dark:text-green-500" : 
@@ -50,23 +44,8 @@ export const TotalDealValueCard = ({
             €{totalDealValue.toLocaleString()}
           </div>
           <p className="text-sm text-muted-foreground">
-            Previous period: €{previousPeriodValue.toLocaleString()}
+            Previous 30 days: €{previousPeriodValue.toLocaleString()}
           </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Average Deal</p>
-            <p className="text-lg font-semibold">
-              €{averageDealValue.toLocaleString()}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Active Deals</p>
-            <p className="text-lg font-semibold">
-              {activeDealsCount}
-            </p>
-          </div>
         </div>
       </div>
     </Card>
