@@ -23,7 +23,7 @@ export const useDealDragAndDrop = () => {
         const { error } = await supabase
           .from('deals')
           .update({ 
-            stage: destination.droppableId,
+            stage: destination.droppableId as DealStage,
             last_activity_date: new Date().toISOString()
           })
           .eq('id', draggableId);

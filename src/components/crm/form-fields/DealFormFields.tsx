@@ -16,6 +16,9 @@ interface DealFormFieldsProps {
 }
 
 export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps) => {
+  const { watch } = form;
+  const currentStage = watch('stage');
+
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="col-span-2">
@@ -28,7 +31,11 @@ export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps
       </div>
 
       <div className="col-span-1 space-y-2">
-        <StageSelect register={register} setValue={setValue} />
+        <Label htmlFor="stage">Stage</Label>
+        <StageSelect 
+          value={currentStage} 
+          onValueChange={(value) => setValue('stage', value)} 
+        />
       </div>
 
       <div className="col-span-1 space-y-2">
