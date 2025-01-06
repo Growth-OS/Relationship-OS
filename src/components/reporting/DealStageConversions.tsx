@@ -20,7 +20,7 @@ export const DealStageConversions = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      console.log('Fetched deals:', data); // Debug log
+      console.log('Fetched deals:', data);
       return data;
     },
   });
@@ -35,6 +35,7 @@ export const DealStageConversions = () => {
         .lte('created_at', endOfYear);
       
       if (error) throw error;
+      console.log('Fetched prospects:', data); // Debug log
       return data;
     },
   });
@@ -55,7 +56,7 @@ export const DealStageConversions = () => {
       return stageIndex >= toStageIndex;
     }).length;
     
-    console.log(`Conversion ${fromStage} -> ${toStage}:`, { fromCount, toCount }); // Debug log
+    console.log(`Conversion ${fromStage} -> ${toStage}:`, { fromCount, toCount });
     
     if (fromCount === 0) return 0;
     return Math.round((toCount / fromCount) * 100);
@@ -65,6 +66,12 @@ export const DealStageConversions = () => {
   const getProspectToLeadRate = () => {
     const totalProspects = prospects.length;
     const convertedProspects = prospects.filter(prospect => prospect.status === 'converted').length;
+    
+    console.log('Prospect to Lead conversion:', {
+      totalProspects,
+      convertedProspects,
+      rate: totalProspects === 0 ? 0 : Math.round((convertedProspects / totalProspects) * 100)
+    });
     
     if (totalProspects === 0) return 0;
     return Math.round((convertedProspects / totalProspects) * 100);
