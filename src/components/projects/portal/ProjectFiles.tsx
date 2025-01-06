@@ -40,36 +40,52 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
       if (!user) throw new Error("No user");
 
       setUploading(true);
-      
-      // Generate a unique filename
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${Math.random()}.${fileExt}`;
 
-      // Upload file to storage
+      // Generate a unique filename with timestamp to avoid collisions
+      const timestamp = new Date().getTime();
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${timestamp}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+      // Upload file to storage bucket
       const { error: uploadError } = await supabase.storage
         .from("project_files")
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Storage upload error:", uploadError);
+        throw new Error("Failed to upload file to storage");
+      }
 
       // Create database record
-      const { error: dbError } = await supabase.from("project_documents").insert({
-        project_id: projectId,
-        user_id: user.id,
-        title: file.name,
-        file_path: filePath,
-        file_type: file.type,
-      });
+      const { error: dbError } = await supabase
+        .from("project_documents")
+        .insert({
+          project_id: projectId,
+          user_id: user.id,
+          title: file.name,
+          file_path: filePath,
+          file_type: file.type,
+        });
 
-      if (dbError) throw dbError;
+      if (dbError) {
+        console.error("Database insert error:", dbError);
+        throw new Error("Failed to create file record");
+      }
 
       toast.success("File uploaded successfully");
       refetch();
     } catch (error) {
       console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      toast.error(error instanceof Error ? error.message : "Failed to upload file");
     } finally {
       setUploading(false);
+      // Reset the file input
+      if (event.target) {
+        event.target.value = '';
+      }
     }
   };
 
@@ -81,11 +97,14 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
       if (error) throw error;
 
+      // Create and trigger download
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
       a.download = file.title;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error downloading file:", error);
@@ -95,12 +114,14 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
 
   const handleDelete = async (fileId: string, filePath: string) => {
     try {
+      // Delete from storage first
       const { error: storageError } = await supabase.storage
         .from("project_files")
         .remove([filePath]);
 
       if (storageError) throw storageError;
 
+      // Then delete database record
       const { error: dbError } = await supabase
         .from("project_documents")
         .delete()
@@ -122,7 +143,7 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
         <Button disabled={uploading}>
           <FileUp className="h-4 w-4 mr-2" />
           <label className="cursor-pointer">
-            Upload File
+            {uploading ? "Uploading..." : "Upload File"}
             <input
               type="file"
               className="hidden"
