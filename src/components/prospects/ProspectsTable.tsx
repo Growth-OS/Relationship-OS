@@ -57,7 +57,6 @@ export const ProspectsTable = ({
   };
 
   const handleEdit = (prospect: Prospect) => {
-    // Implement edit functionality
     console.log("Edit prospect:", prospect);
   };
 

@@ -12,17 +12,26 @@ const ITEMS_PER_PAGE = 10;
 const Prospects = () => {
   const [open, setOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showConverted, setShowConverted] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['prospects', currentPage],
+    queryKey: ['prospects', currentPage, showConverted],
     queryFn: async () => {
       console.log('Fetching prospects for page:', currentPage);
       
-      // First, get the total count
-      const { count, error: countError } = await supabase
+      // First, get the total count based on conversion status
+      const query = supabase
         .from('prospect_sequence_info')
         .select('*', { count: 'exact', head: true });
+
+      if (showConverted) {
+        query.eq('status', 'converted');
+      } else {
+        query.neq('status', 'converted');
+      }
+
+      const { count, error: countError } = await query;
       
       if (countError) {
         console.error('Error fetching count:', countError);
@@ -30,10 +39,18 @@ const Prospects = () => {
       }
 
       // Then get the paginated data
-      const { data: prospectsData, error: dataError } = await supabase
+      const dataQuery = supabase
         .from('prospect_sequence_info')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (showConverted) {
+        dataQuery.eq('status', 'converted');
+      } else {
+        dataQuery.neq('status', 'converted');
+      }
+
+      const { data: prospectsData, error: dataError } = await dataQuery
         .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
       
       if (dataError) {
@@ -46,9 +63,9 @@ const Prospects = () => {
         totalCount: count || 0,
       };
     },
-    staleTime: 5000, // Keep data fresh for 5 seconds
-    retry: 2, // Retry failed requests twice
-    refetchOnWindowFocus: true, // Refetch when window regains focus
+    staleTime: 5000,
+    retry: 2,
+    refetchOnWindowFocus: true,
   });
 
   const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
@@ -57,7 +74,6 @@ const Prospects = () => {
     setCurrentPage(newPage);
   };
 
-  // Show loading state immediately
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
