@@ -59,7 +59,7 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
         throw new Error(`Storage upload failed: ${uploadError.message}`);
       }
 
-      // Then create database record
+      // Then create database record with user_id
       const { error: dbError } = await supabase
         .from("project_documents")
         .insert([{
