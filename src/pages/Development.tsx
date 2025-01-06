@@ -1,15 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Bug, Lightbulb, ArrowUpCircle, CheckCircle2, Pencil } from "lucide-react";
+import { ArrowUpCircle } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { CreateDevelopmentItemForm } from "@/components/development/CreateDevelopmentItemForm";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
+import { DevelopmentHeader } from "@/components/development/DevelopmentHeader";
+import { DevelopmentTabs } from "@/components/development/DevelopmentTabs";
 
 const Development = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -50,15 +45,10 @@ const Development = () => {
     }
   };
 
-  const filteredItems = items?.filter(
-    (item) => {
-      if (selectedCategory === "archived") {
-        return item.status === "completed";
-      }
-      const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-      return matchesCategory && item.status === "pending";
-    }
-  );
+  const handleEdit = (item: any) => {
+    setSelectedItem(item);
+    setIsDialogOpen(true);
+  };
 
   const renderPriorityIcon = (priority: string) => {
     switch (priority) {
@@ -73,137 +63,35 @@ const Development = () => {
     }
   };
 
-  const handleSuccess = () => {
-    setIsDialogOpen(false);
-    setSelectedItem(null);
-    refetch();
-  };
-
-  const handleEdit = (item: any) => {
-    setSelectedItem(item);
-    setIsDialogOpen(true);
-  };
+  const filteredItems = items?.filter(
+    (item) => {
+      if (selectedCategory === "archived") {
+        return item.status === "completed";
+      }
+      const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
+      return matchesCategory && item.status === "pending";
+    }
+  );
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-left">Development</h1>
-            <p className="text-sm text-muted-foreground text-left">
-              Track ideas and areas for Growth OS development
-            </p>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) setSelectedItem(null);
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Item
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{selectedItem ? "Edit Development Item" : "Add Development Item"}</DialogTitle>
-              </DialogHeader>
-              <CreateDevelopmentItemForm onSuccess={handleSuccess} itemToEdit={selectedItem} />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </Card>
+      <DevelopmentHeader
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem}
+        refetch={refetch}
+      />
 
-      <Card className="p-6">
-        <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
-          <TabsList>
-            <TabsTrigger value="all">All Items</TabsTrigger>
-            <TabsTrigger value="idea">
-              <Lightbulb className="w-4 h-4 mr-2" />
-              Ideas
-            </TabsTrigger>
-            <TabsTrigger value="bug">
-              <Bug className="w-4 h-4 mr-2" />
-              Bugs
-            </TabsTrigger>
-            <TabsTrigger value="feature">Features</TabsTrigger>
-            <TabsTrigger value="improvement">Improvements</TabsTrigger>
-            <TabsTrigger value="archived">Archived</TabsTrigger>
-          </TabsList>
-
-          <div className="mt-4">
-            {isLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : filteredItems?.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No items found. Add your first development item!
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredItems?.map((item) => (
-                  <Card key={item.id} className="p-4">
-                    <div className="flex items-start gap-4">
-                      <div 
-                        onClick={(e) => e.stopPropagation()} 
-                        className="pt-1"
-                      >
-                        <Checkbox
-                          checked={item.status === 'completed'}
-                          onCheckedChange={(checked) => {
-                            handleComplete(item.id, checked as boolean);
-                          }}
-                        />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="space-y-1 flex-1 min-w-0">
-                            <h3 className={cn(
-                              "font-medium",
-                              item.status === 'completed' && "text-muted-foreground line-through"
-                            )}>
-                              {item.title}
-                            </h3>
-                            {item.description && (
-                              <p className={cn(
-                                "text-sm text-muted-foreground",
-                                item.status === 'completed' && "line-through"
-                              )}>
-                                {item.description}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {renderPriorityIcon(item.priority)}
-                            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
-                              {item.category}
-                            </span>
-                            {item.status !== 'completed' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(item)}
-                                className="ml-2"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {item.status === 'completed' && (
-                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      )}
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        </Tabs>
-      </Card>
+      <DevelopmentTabs
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+        isLoading={isLoading}
+        filteredItems={filteredItems}
+        handleComplete={handleComplete}
+        handleEdit={handleEdit}
+        renderPriorityIcon={renderPriorityIcon}
+      />
     </div>
   );
 };
