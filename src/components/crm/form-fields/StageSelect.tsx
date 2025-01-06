@@ -1,12 +1,5 @@
-import { Label } from "@/components/ui/label";
+import { DealStage } from "@/integrations/supabase/types/deals";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UseFormRegister, UseFormSetValue } from "react-hook-form";
-import { DealFormData } from "../types";
-
-interface StageSelectProps {
-  register: UseFormRegister<DealFormData>;
-  setValue: UseFormSetValue<DealFormData>;
-}
 
 export const stages = [
   { id: 'lead', label: 'Lead' },
@@ -16,26 +9,27 @@ export const stages = [
   { id: 'in_progress', label: 'In Progress' },
   { id: 'to_invoice', label: 'To Invoice' },
   { id: 'invoiced', label: 'Invoiced' },
-  { id: 'paid', label: 'Paid' },
-];
+  { id: 'paid', label: 'Paid' }
+] as const;
 
-export const StageSelect = ({ register, setValue }: StageSelectProps) => {
+interface StageSelectProps {
+  value: DealStage;
+  onValueChange: (value: DealStage) => void;
+}
+
+export const StageSelect = ({ value, onValueChange }: StageSelectProps) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="stage">Stage</Label>
-      <Select defaultValue="lead" onValueChange={(value) => setValue('stage', value as DealFormData['stage'])}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select stage" />
-        </SelectTrigger>
-        <SelectContent>
-          {stages.map((stage) => (
-            <SelectItem key={stage.id} value={stage.id}>
-              {stage.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <input type="hidden" {...register('stage')} />
-    </div>
+    <Select value={value} onValueChange={onValueChange}>
+      <SelectTrigger>
+        <SelectValue placeholder="Select stage" />
+      </SelectTrigger>
+      <SelectContent>
+        {stages.map((stage) => (
+          <SelectItem key={stage.id} value={stage.id}>
+            {stage.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
