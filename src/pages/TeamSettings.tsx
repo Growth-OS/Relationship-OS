@@ -6,6 +6,7 @@ import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { UserPlus } from "lucide-react";
 
 const TeamSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -22,7 +23,7 @@ const TeamSettings = () => {
         .select("team_id, teams(*)")
         .eq("user_id", user.id)
         .eq("role", "owner")
-        .maybeSingle(); // Changed from single() to maybeSingle()
+        .maybeSingle();
 
       if (teamMemberError) {
         console.error("Error fetching team:", teamMemberError);
@@ -44,9 +45,19 @@ const TeamSettings = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-left mb-2">Team Settings</h1>
-        <p className="text-gray-600 text-left">Manage your team members and permissions</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-left mb-2">Team Settings</h1>
+          <p className="text-gray-600 text-left">Manage your team members and permissions</p>
+        </div>
+        <Button 
+          onClick={() => setIsInviteDialogOpen(true)}
+          size="lg"
+          className="gap-2"
+        >
+          <UserPlus className="h-5 w-5" />
+          Invite Team Member
+        </Button>
       </div>
       
       {!team ? (
@@ -58,16 +69,11 @@ const TeamSettings = () => {
       ) : (
         <div className="grid gap-8">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Team Members</CardTitle>
-                <CardDescription>
-                  Manage your team members and their roles
-                </CardDescription>
-              </div>
-              <Button onClick={() => setIsInviteDialogOpen(true)}>
-                Invite Member
-              </Button>
+            <CardHeader>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>
+                Manage your team members and their roles
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <TeamMembersList teamId={team?.id} />
