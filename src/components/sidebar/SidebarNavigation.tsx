@@ -31,7 +31,7 @@ export const SidebarNavigation = () => {
     { 
       icon: Mail, 
       label: "Superhuman", 
-      path: "https://mail.superhuman.com",
+      path: "https://mail.superhuman.com/patrick@relationshipofsales.com",
       external: true 
     },
     { 
@@ -43,7 +43,8 @@ export const SidebarNavigation = () => {
     { 
       icon: FileText, 
       label: "Content", 
-      path: "/dashboard/content" 
+      path: "https://publish.buffer.com/create?view=board",
+      external: true 
     },
     { 
       icon: BookOpen,
@@ -53,7 +54,8 @@ export const SidebarNavigation = () => {
     { 
       icon: Sparkles, 
       label: "AI", 
-      path: "/dashboard/ai"
+      path: "https://chat.openai.com",
+      external: true 
     },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
@@ -63,19 +65,21 @@ export const SidebarNavigation = () => {
   ];
 
   return (
-    <nav className="space-y-1 flex-1">
-      <div className="mb-6">
-        {mainMenuItems.map((item) => (
-          <SidebarMenuItem
-            key={item.path}
-            icon={item.icon}
-            label={item.label}
-            path={item.path}
-            isActive={!item.external && isPathActive(item.path)}
-            external={item.external}
-          />
-        ))}
-      </div>
-    </nav>
+    <>
+      <nav className="space-y-1 flex-1">
+        <div className="mb-6">
+          {mainMenuItems.map((item) => (
+            <SidebarMenuItem
+              key={item.path}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
+              isActive={!item.external && isPathActive(item.path)}
+              external={item.external}
+            />
+          ))}
+        </div>
+      </nav>
+    </>
   );
 };

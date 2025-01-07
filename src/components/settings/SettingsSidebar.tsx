@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { Settings2, LogOut, Palette, Users, Shield } from "lucide-react";
+import { Settings2, LogOut, Palette, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -8,22 +8,31 @@ export const SettingsSidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // First clear local storage to ensure clean state
+      localStorage.clear();
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Logout error:", error);
-        toast.error("There was an issue logging out. Please try again.");
+        // Even if there's an error, we want to ensure the user is logged out locally
+        navigate("/login", { replace: true });
+        if (error.message.includes('session_not_found')) {
+          toast.success("You've been signed out successfully");
+        } else {
+          toast.error("There was an issue with logout, but you've been signed out locally");
+        }
         return;
       }
 
-      // Clear local storage and redirect
-      localStorage.clear();
       navigate("/login", { replace: true });
       toast.success("Successfully logged out");
       
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("An unexpected error occurred");
+      // Ensure user is logged out locally even if there's an error
+      navigate("/login", { replace: true });
+      toast.error("An unexpected error occurred, but you've been signed out locally");
     }
   };
 
@@ -43,19 +52,6 @@ export const SettingsSidebar = () => {
         >
           <Settings2 className="w-5 h-5" />
           <span>Profile Settings</span>
-        </NavLink>
-        <NavLink
-          to="/dashboard/settings/team"
-          className={({ isActive }) =>
-            `flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-              isActive
-                ? "bg-gray-100 text-gray-900"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-            }`
-          }
-        >
-          <Users className="w-5 h-5" />
-          <span>Team</span>
         </NavLink>
         <NavLink
           to="/dashboard/settings/branding"
