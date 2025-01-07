@@ -26,6 +26,7 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
+import Chat from "@/pages/Chat";
 
 export const routes: RouteObject[] = [
   {
@@ -43,6 +44,10 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: "chat",
+        element: <Chat />,
       },
       {
         path: "sequences",

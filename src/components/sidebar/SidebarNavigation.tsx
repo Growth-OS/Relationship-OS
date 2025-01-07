@@ -1,85 +1,83 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import { 
-  Home, Calendar, ListTodo, Users, ChartBar, Mail, 
-  Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
-  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, 
-  Sparkles, List, BookOpen, Plane
+  LayoutDashboard, Users, CalendarDays, Target, 
+  Building2, Wallet, PieChart, Code2, FileText,
+  MessageSquare, Plane, Settings
 } from "lucide-react";
-import { SidebarMenuItem } from "./SidebarMenuItem";
 
 export const SidebarNavigation = () => {
   const location = useLocation();
-
-  const isPathActive = (path: string) => {
-    if (path === "/dashboard") {
-      return location.pathname === "/dashboard";
-    }
-    return location.pathname.startsWith(path);
-  };
-
-  const mainMenuItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
-    { icon: List, label: "Sequences", path: "/dashboard/sequences" },
-    { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
-    { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
-    { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
-    { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
-    { icon: Plane, label: "Travels", path: "/dashboard/travels" },
-    { 
-      icon: Mail, 
-      label: "Superhuman", 
-      path: "https://mail.superhuman.com/patrick@relationshipofsales.com",
-      external: true 
+  
+  const navigation = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard
     },
-    { 
-      icon: MessageSquare, 
-      label: "LinkedIn", 
-      path: "https://app.trykondo.com/inboxes/focused",
-      external: true 
+    {
+      name: "Prospects",
+      href: "/dashboard/prospects",
+      icon: Users
     },
-    { 
-      icon: FileText, 
-      label: "Content", 
-      path: "https://publish.buffer.com/create?view=board",
-      external: true 
+    {
+      name: "Chat Rooms",
+      href: "/dashboard/chat",
+      icon: MessageSquare
     },
-    { 
-      icon: BookOpen,
-      label: "Substack",
-      path: "/dashboard/substack"
+    {
+      name: "Calendar",
+      href: "/dashboard/calendar",
+      icon: CalendarDays
     },
-    { 
-      icon: Sparkles, 
-      label: "AI", 
-      path: "https://chat.openai.com",
-      external: true 
+    {
+      name: "Tasks",
+      href: "/dashboard/tasks",
+      icon: Target
     },
-    { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
-    { icon: Euro, label: "Finances", path: "/dashboard/finances" },
-    { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
-    { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
-    { icon: Bug, label: "Development", path: "/dashboard/development" },
+    {
+      name: "Deals",
+      href: "/dashboard/deals",
+      icon: Building2
+    },
+    {
+      name: "Projects",
+      href: "/dashboard/projects",
+      icon: Wallet
+    },
+    {
+      name: "Reports",
+      href: "/dashboard/reports",
+      icon: PieChart
+    },
+    {
+      name: "Settings",
+      href: "/dashboard/settings",
+      icon: Settings
+    },
+    // Add other navigation items as needed
   ];
 
   return (
-    <>
-      <nav className="space-y-1 flex-1">
-        <div className="mb-6">
-          {mainMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.path}
-              icon={item.icon}
-              label={item.label}
-              path={item.path}
-              isActive={!item.external && isPathActive(item.path)}
-              external={item.external}
-            />
-          ))}
-        </div>
-      </nav>
-    </>
+    <nav className="space-y-1">
+      {navigation.map((item) => {
+        const isActive = location.pathname === item.href;
+        return (
+          <Link
+            key={item.name}
+            to={item.href}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
+              isActive 
+                ? "bg-accent text-accent-foreground" 
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            )}
+          >
+            <item.icon className="h-4 w-4" />
+            {item.name}
+          </Link>
+        );
+      })}
+    </nav>
   );
 };
