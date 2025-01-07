@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { nanoid } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface CreateChatDialogProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export const CreateChatDialog = ({ children }: CreateChatDialogProps) => {
   const [title, setTitle] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleCreateChat = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,14 +26,14 @@ export const CreateChatDialog = ({ children }: CreateChatDialogProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create a new chat room - convert Date to ISO string for Supabase
+      // Create a new chat room
       const { data: room, error: roomError } = await supabase
         .from("chat_rooms")
         .insert({
           title,
           created_by: user.id,
           access_code: nanoid(12),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Convert to ISO string
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
         })
         .select()
         .single();
@@ -53,6 +55,9 @@ export const CreateChatDialog = ({ children }: CreateChatDialogProps) => {
       toast.success("Chat room created successfully");
       setIsOpen(false);
       setTitle("");
+      
+      // Navigate to the new chat room
+      navigate(`/dashboard/chat/${room.id}`);
     } catch (error) {
       console.error("Error creating chat:", error);
       toast.error("Failed to create chat room");
