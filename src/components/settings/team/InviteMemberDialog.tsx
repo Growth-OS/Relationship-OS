@@ -30,7 +30,10 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!teamId) return;
+    if (!teamId) {
+      toast.error("No team found");
+      return;
+    }
 
     setIsLoading(true);
     try {

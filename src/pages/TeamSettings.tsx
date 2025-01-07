@@ -72,7 +72,7 @@ const TeamSettings = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-8">
+        <>
           <Card>
             <CardHeader>
               <CardTitle>Team Members</CardTitle>
@@ -90,7 +90,7 @@ const TeamSettings = () => {
             onOpenChange={setIsInviteDialogOpen}
             teamId={team?.id}
           />
-        </div>
+        </>
       )}
     </div>
   );
