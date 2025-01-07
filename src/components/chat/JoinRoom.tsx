@@ -3,7 +3,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft } from 'lucide-react';
 
 interface JoinRoomProps {
   onJoinSuccess: (roomId: string) => void;
@@ -26,7 +27,6 @@ export const JoinRoom = ({ onJoinSuccess, onJoin }: JoinRoomProps) => {
       return;
     }
 
-    // Find the room
     const { data: room, error: roomError } = await supabase
       .from('chat_rooms')
       .select('*')
@@ -43,7 +43,6 @@ export const JoinRoom = ({ onJoinSuccess, onJoin }: JoinRoomProps) => {
       return;
     }
 
-    // Add participant
     const { error: participantError } = await supabase
       .from('chat_participants')
       .insert({
@@ -68,42 +67,65 @@ export const JoinRoom = ({ onJoinSuccess, onJoin }: JoinRoomProps) => {
     });
 
     onJoinSuccess(room.id);
-    onJoin();
   };
 
   return (
-    <Card className="p-6 max-w-md mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Join Chat Room</h2>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          onClick={onJoin}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <h3 className="text-sm font-medium">Join Chat Room</h3>
+      </div>
+      
       <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Access Code</label>
+        <div className="space-y-2">
+          <Label htmlFor="accessCode">Access Code</Label>
           <Input
+            id="accessCode"
             value={accessCode}
             onChange={(e) => setAccessCode(e.target.value)}
-            placeholder="Enter access code"
+            placeholder="Enter code"
+            className="h-8"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Display Name</label>
+        
+        <div className="space-y-2">
+          <Label htmlFor="displayName">Display Name</Label>
           <Input
+            id="displayName"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your name"
+            className="h-8"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+        
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
           <Input
+            id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
+            className="h-8"
           />
         </div>
-        <Button onClick={handleJoin} className="w-full">
+        
+        <Button 
+          onClick={handleJoin}
+          className="w-full"
+          size="sm"
+        >
           Join Room
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };
