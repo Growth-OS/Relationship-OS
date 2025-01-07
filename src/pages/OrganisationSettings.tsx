@@ -31,6 +31,10 @@ const OrganisationSettings = () => {
           throw teamMemberError;
         }
 
+        if (!teamMember) {
+          throw new Error("No team found for user");
+        }
+
         console.log("Team data fetched:", teamMember);
         return teamMember;
       } catch (error) {
@@ -49,11 +53,18 @@ const OrganisationSettings = () => {
   }
 
   if (isError || !teamData?.team_id) {
-    toast.error("Failed to load organisation settings");
     return (
       <Card>
         <CardContent className="py-8">
-          <p className="text-center text-red-600">Error loading organisation settings. Please try again later.</p>
+          <div className="text-center space-y-4">
+            <p className="text-red-600">Unable to load your organisation settings. You might not be part of any organisation yet.</p>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
