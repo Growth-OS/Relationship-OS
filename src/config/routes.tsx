@@ -27,11 +27,11 @@ export const routes: RouteObject[] = [
         element: <JoinChatRoom />,
       },
       {
-        path: "projects",
+        path: "dashboard/projects",
         element: <Projects />,
       },
       {
-        path: "deals",
+        path: "dashboard/deals",
         element: <Deals />,
       },
       {
