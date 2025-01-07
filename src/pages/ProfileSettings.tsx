@@ -15,12 +15,33 @@ const ProfileSettings = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
         
       if (error) {
         toast.error("Error fetching profile");
         throw error;
       }
+
+      if (!profile) {
+        // Create profile if it doesn't exist
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([{ 
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata?.full_name || null
+          }])
+          .select()
+          .single();
+
+        if (createError) {
+          toast.error("Error creating profile");
+          throw createError;
+        }
+
+        return newProfile;
+      }
+
       return profile;
     },
   });
