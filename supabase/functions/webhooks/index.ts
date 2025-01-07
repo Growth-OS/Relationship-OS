@@ -7,7 +7,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -16,8 +15,6 @@ serve(async (req) => {
     // Verify webhook secret
     const webhookSecret = req.headers.get('x-webhook-secret');
     const expectedSecret = Deno.env.get('Zapier');
-    
-    console.log('Request Headers:', Object.fromEntries(req.headers.entries()));
     
     if (webhookSecret !== expectedSecret) {
       console.log('Secret validation failed:', {
@@ -44,7 +41,15 @@ serve(async (req) => {
     
     let body;
     try {
-      body = JSON.parse(rawBody);
+      // First parse the outer JSON
+      const parsedOuter = JSON.parse(rawBody);
+      
+      // If the data is a string, try to parse it as JSON
+      if (typeof parsedOuter.data === 'string') {
+        body = JSON.parse(parsedOuter.data);
+      } else {
+        body = parsedOuter;
+      }
     } catch (e) {
       console.log('JSON parse error:', e);
       return new Response(
