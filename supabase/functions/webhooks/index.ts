@@ -47,11 +47,6 @@ serve(async (req) => {
       );
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
-
     const body = await req.json();
     console.log('Received webhook payload:', body);
 
@@ -60,12 +55,25 @@ serve(async (req) => {
       throw new Error('Webhook type is required');
     }
 
+    // Validate required fields based on type
     const { type, data, userId } = body;
+
+    if (!data || !userId) {
+      throw new Error('Data and userId are required fields');
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
 
     console.log('Processing webhook:', { type, data });
 
     switch (type) {
       case 'prospect':
+        if (!data.company_name) {
+          throw new Error('company_name is required for prospect type');
+        }
         const { error: prospectError } = await supabase
           .from('prospects')
           .insert({
@@ -78,6 +86,9 @@ serve(async (req) => {
         break;
 
       case 'deal':
+        if (!data.company_name) {
+          throw new Error('company_name is required for deal type');
+        }
         const { error: dealError } = await supabase
           .from('deals')
           .insert({
@@ -92,6 +103,9 @@ serve(async (req) => {
         break;
 
       case 'task':
+        if (!data.title) {
+          throw new Error('title is required for task type');
+        }
         const { error: taskError } = await supabase
           .from('tasks')
           .insert({
