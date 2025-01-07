@@ -23,7 +23,10 @@ export const TeamMembersList = () => {
               id,
               role,
               user_id,
-              profiles:profiles!inner(full_name, email)
+              profiles:user_id (
+                full_name,
+                email
+              )
             `)
             .eq("team_id", teamData.team_id);
 
