@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserPlus } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -29,26 +29,30 @@ export const AddTeamMemberDialog = () => {
 
     try {
       // First get the current user's team
-      const { data: currentUser } = await supabase.auth.getUser();
-      if (!currentUser.user) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       // Get the team where the current user is an owner or admin
-      const { data: teamMemberData, error: teamError } = await supabase
+      const { data: teamData, error: teamError } = await supabase
         .from("team_members")
         .select("team_id, role")
-        .eq("user_id", currentUser.user.id)
+        .eq("user_id", user.id)
         .single();
 
-      if (teamError || !teamMemberData?.team_id) {
+      console.log("Team data:", teamData);
+
+      if (teamError || !teamData?.team_id) {
+        console.error("Team error:", teamError);
         throw new Error("No team found or unauthorized");
       }
 
-      if (!["owner", "admin"].includes(teamMemberData.role)) {
+      if (!["owner", "admin"].includes(teamData.role)) {
         throw new Error("Insufficient permissions");
       }
 
       const generatedCredentials = generateCredentials();
 
+      // Create the new user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: generatedCredentials.email,
         password: generatedCredentials.password,
@@ -59,17 +63,24 @@ export const AddTeamMemberDialog = () => {
         },
       });
 
-      if (authError || !authData.user) throw authError;
+      if (authError || !authData.user) {
+        console.error("Auth error:", authError);
+        throw authError;
+      }
 
+      // Add the user to the team
       const { error: teamError2 } = await supabase.from("team_members").insert({
-        team_id: teamMemberData.team_id,
+        team_id: teamData.team_id,
         user_id: authData.user.id,
         role: role,
         temp_password: generatedCredentials.password,
-        invited_by: currentUser.user.id,
+        invited_by: user.id,
       });
 
-      if (teamError2) throw teamError2;
+      if (teamError2) {
+        console.error("Team member insert error:", teamError2);
+        throw teamError2;
+      }
 
       setCredentials(generatedCredentials);
       toast.success("Team member added successfully");
@@ -99,6 +110,9 @@ export const AddTeamMemberDialog = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Team Member</DialogTitle>
+          <DialogDescription>
+            Add a new member to your team. They will receive login credentials via email.
+          </DialogDescription>
         </DialogHeader>
 
         {credentials ? (
