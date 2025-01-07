@@ -48,7 +48,7 @@ export const ProspectRow = ({
             rel="noopener noreferrer"
             className="text-purple-600 hover:text-purple-700 hover:underline"
           >
-            Visit
+            Visit Website
           </a>
         ) : '-'}
       </TableCell>
