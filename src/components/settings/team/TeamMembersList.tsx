@@ -17,20 +17,19 @@ export const TeamMembersList = () => {
           .single();
 
         if (teamData?.team_id) {
-          const { data: members, error } = await supabase
+          const { data: members } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              profiles:user_id (
+              profiles:profiles(
                 full_name,
                 email
               )
             `)
             .eq("team_id", teamData.team_id);
 
-          if (error) throw error;
           if (members) {
             setMembers(members as TeamMember[]);
           }
