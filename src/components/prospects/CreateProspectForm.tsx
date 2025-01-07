@@ -29,7 +29,13 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      company_name: "",
+      company_website: "",
+      contact_email: "",
+      contact_job_title: "",
+      contact_linkedin: "",
       source: 'other',
+      notes: "",
     },
   });
 

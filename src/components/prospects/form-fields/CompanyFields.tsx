@@ -30,7 +30,12 @@ export const CompanyFields = ({ form }: CompanyFieldsProps) => {
           <FormItem>
             <FormLabel>Company Website</FormLabel>
             <FormControl>
-              <Input type="url" placeholder="https://example.com" {...field} />
+              <Input 
+                type="url" 
+                placeholder="https://example.com" 
+                {...field} 
+                value={field.value || ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
