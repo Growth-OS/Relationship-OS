@@ -29,13 +29,7 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      company_name: "",
-      company_website: "",
-      contact_email: "",
-      contact_job_title: "",
-      contact_linkedin: "",
       source: 'other',
-      notes: "",
     },
   });
 
@@ -48,35 +42,26 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
         return;
       }
 
-      // Add detailed logging
-      console.log('Form values before submission:', values);
-      console.log('Company website value:', values.company_website);
+      console.log('Submitting prospect with data:', { ...values, user_id: user.id });
 
-      const prospectData = {
-        company_name: values.company_name,
-        company_website: values.company_website || null,
-        contact_email: values.contact_email || null,
-        contact_job_title: values.contact_job_title || null,
-        contact_linkedin: values.contact_linkedin || null,
-        source: values.source,
-        notes: values.notes || null,
-        user_id: user.id,
-        status: 'active'
-      };
-
-      console.log('Data being sent to Supabase:', prospectData);
-
-      const { error, data } = await supabase
+      const { error } = await supabase
         .from('prospects')
-        .insert(prospectData)
-        .select();
+        .insert({
+          company_name: values.company_name,
+          company_website: values.company_website || null,
+          contact_email: values.contact_email || null,
+          contact_job_title: values.contact_job_title || null,
+          contact_linkedin: values.contact_linkedin || null,
+          source: values.source,
+          notes: values.notes || null,
+          user_id: user.id,
+          status: 'active'
+        });
 
       if (error) {
         console.error('Error adding prospect:', error);
         throw error;
       }
-
-      console.log('Supabase response:', data);
 
       toast.success('Prospect added successfully');
       form.reset();
