@@ -21,7 +21,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log("Invite submission started"); // Debug log
+
     if (!teamId) {
       toast.error("No team selected");
       return;
@@ -33,9 +34,13 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
     }
 
     setIsLoading(true);
+    console.log("Loading state set to true"); // Debug log
 
     try {
+      // Get current user
       const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log("Auth check result:", { user, authError }); // Debug log
+      
       if (authError || !user) {
         throw new Error(authError?.message || "Not authenticated");
       }
@@ -47,6 +52,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .eq("id", user.id)
         .single();
 
+      console.log("Profile fetch result:", { profile, profileError }); // Debug log
+
       if (profileError) {
         throw new Error("Error fetching user profile");
       }
@@ -57,6 +64,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .select("id")
         .eq("email", email)
         .single();
+
+      console.log("Existing profile check:", { existingProfile, existingProfileError }); // Debug log
 
       if (existingProfileError && existingProfileError.code !== 'PGRST116') {
         throw new Error("Error checking existing user");
@@ -80,6 +89,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
           expires_at: expiresAt.toISOString()
         });
 
+      console.log("Invitation creation result:", { inviteError }); // Debug log
+
       if (inviteError) {
         throw new Error("Failed to create invitation");
       }
@@ -95,6 +106,8 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         },
       });
 
+      console.log("Email sending result:", { emailError }); // Debug log
+
       if (emailError) {
         throw new Error("Failed to send invitation email");
       }
@@ -108,6 +121,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       toast.error(error instanceof Error ? error.message : "Failed to invite team member");
     } finally {
       setIsLoading(false);
+      console.log("Loading state set to false"); // Debug log
     }
   };
 
