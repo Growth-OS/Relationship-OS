@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TeamMember } from "./types";
+import { useToast } from "@/hooks/use-toast";
 
 export const TeamMembersList = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -14,35 +16,44 @@ export const TeamMembersList = () => {
           .from("team_members")
           .select("team_id")
           .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
-          .single();
+          .maybeSingle();
 
         if (teamData?.team_id) {
-          const { data: members } = await supabase
+          const { data: membersData, error } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              profiles:profiles(
+              profiles:user_id (
                 full_name,
                 email
               )
             `)
             .eq("team_id", teamData.team_id);
 
-          if (members) {
-            setMembers(members as TeamMember[]);
+          if (error) {
+            throw error;
+          }
+
+          if (membersData) {
+            setMembers(membersData as unknown as TeamMember[]);
           }
         }
       } catch (error) {
         console.error("Error fetching team members:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch team members",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchMembers();
-  }, []);
+  }, [toast]);
 
   if (isLoading) {
     return <div>Loading...</div>;
