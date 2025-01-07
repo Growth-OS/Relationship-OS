@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialog";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Users2 } from "lucide-react";
 import { toast } from "sonner";
 
 const OrganisationSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isCreatingTeam, setIsCreatingTeam] = useState(false);
 
-  const { data: teamData, isLoading, isError } = useQuery({
+  const { data: teamData, isLoading, isError, refetch } = useQuery({
     queryKey: ["team"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -31,6 +32,43 @@ const OrganisationSettings = () => {
       return teamMember;
     },
   });
+
+  const handleCreateTeam = async () => {
+    try {
+      setIsCreatingTeam(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Create a new team
+      const { data: newTeam, error: teamError } = await supabase
+        .from("teams")
+        .insert([{ name: `${user.email}'s Organisation` }])
+        .select()
+        .single();
+
+      if (teamError) throw teamError;
+
+      // Add the user as owner
+      const { error: memberError } = await supabase
+        .from("team_members")
+        .insert([{
+          team_id: newTeam.id,
+          user_id: user.id,
+          role: 'owner',
+          joined_at: new Date().toISOString()
+        }]);
+
+      if (memberError) throw memberError;
+
+      await refetch();
+      toast.success("Organisation created successfully");
+    } catch (error) {
+      console.error("Error creating team:", error);
+      toast.error("Failed to create organisation");
+    } finally {
+      setIsCreatingTeam(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -60,8 +98,25 @@ const OrganisationSettings = () => {
       
       {!teamData ? (
         <Card>
-          <CardContent className="py-8">
-            <p className="text-center text-gray-600">No organisation found. Please contact support.</p>
+          <CardContent className="py-8 flex flex-col items-center justify-center space-y-4">
+            <Users2 className="h-12 w-12 text-gray-400" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold">No Organisation Found</h3>
+              <p className="text-gray-600 mb-4">Create your organisation to start inviting team members</p>
+              <Button 
+                onClick={handleCreateTeam}
+                disabled={isCreatingTeam}
+              >
+                {isCreatingTeam ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Organisation'
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
