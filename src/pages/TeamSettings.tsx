@@ -1,24 +1,21 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialog";
-import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { Team } from "@/integrations/supabase/types/auth";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
+import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialog";
 import { Loader2 } from "lucide-react";
 
 const TeamSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
-  const { data: team, isLoading, isError } = useQuery({
+  const { data: teamData, isLoading, isError } = useQuery({
     queryKey: ["team"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // First get the team where the user is a member
       const { data: teamMember, error: teamMemberError } = await supabase
         .from("team_members")
         .select("team_id, teams(*)")
@@ -30,24 +27,25 @@ const TeamSettings = () => {
         throw teamMemberError;
       }
 
-      if (!teamMember) {
-        console.log("No team found for user");
-        return null;
-      }
-      
-      return teamMember.teams as Team;
+      return teamMember;
     },
   });
-
-  if (isError) {
-    toast.error("Failed to load team settings");
-  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <Loader2 className="w-6 h-6 animate-spin" />
       </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="py-8">
+          <p className="text-center text-red-600">Error loading team settings. Please try again later.</p>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -58,7 +56,7 @@ const TeamSettings = () => {
         <p className="text-gray-600 text-left">Manage your team members and permissions</p>
       </div>
       
-      {!team ? (
+      {!teamData ? (
         <Card>
           <CardContent className="py-8">
             <p className="text-center text-gray-600">No team found. Please contact support.</p>
@@ -79,14 +77,14 @@ const TeamSettings = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <TeamMembersList teamId={team.id} />
+              <TeamMembersList teamId={teamData.team_id} />
             </CardContent>
           </Card>
 
           <InviteMemberDialog
             open={isInviteDialogOpen}
             onOpenChange={setIsInviteDialogOpen}
-            teamId={team.id}
+            teamId={teamData.team_id}
           />
         </div>
       )}
