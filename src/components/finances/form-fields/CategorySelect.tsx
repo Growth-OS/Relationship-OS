@@ -33,6 +33,7 @@ const categories = {
     'Education',
     'Subscriptions',
     'Hardware',
+    'Wages',
     'Other Expenses'
   ]
 };
