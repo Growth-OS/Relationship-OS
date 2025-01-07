@@ -20,7 +20,9 @@ export const BulkActions = ({
 
   return (
     <div className="flex items-center gap-4 py-4">
-      <Checkbox checked={allSelected} onCheckedChange={onSelectAll} />
+      <div className="w-[50px] flex justify-center">
+        <Checkbox checked={allSelected} onCheckedChange={onSelectAll} />
+      </div>
       <Button
         variant="outline"
         size="sm"
