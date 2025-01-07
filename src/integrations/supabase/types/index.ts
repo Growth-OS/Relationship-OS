@@ -1,6 +1,7 @@
 import { AuthProvider, OAuthConnection, Profile, Team, TeamMember, UserRole } from './auth';
 import { AIPrompt, LinkedInProfile, SubstackPost } from './content';
-import { Deal, DealStage, LeadSource, Prospect } from './deals';
+import { Deal, DealStage, LeadSource } from './deals';
+import { Prospect } from './prospects';
 import { AffiliateEarning, AffiliatePartner, FinancialTransaction, TransactionAttachment, TransactionType } from './finances';
 import { LinkedInMessage } from './linkedin';
 import { Project, ProjectCredential, ProjectDocument, ProjectStatus } from './projects';
@@ -121,6 +122,7 @@ export type Enums<T extends keyof Database['public']['Enums']> = Database['publi
 export * from './auth';
 export * from './content';
 export * from './deals';
+export * from './prospects';
 export * from './finances';
 export * from './linkedin';
 export * from './projects';
