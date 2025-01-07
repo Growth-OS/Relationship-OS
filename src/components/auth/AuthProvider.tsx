@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AuthError, Session } from "@supabase/supabase-js";
+import { AuthError, Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -80,8 +80,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
           break;
 
+        case 'PASSWORD_RECOVERY':
         case 'USER_DELETED':
-        case 'TOKEN_REVOKED':
           handleSignOut();
           break;
       }
