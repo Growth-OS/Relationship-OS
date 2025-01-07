@@ -17,50 +17,84 @@ serve(async (req) => {
     const webhookSecret = req.headers.get('x-webhook-secret');
     const expectedSecret = Deno.env.get('Zapier');
     
-    console.log('Webhook Secret Validation:');
-    console.log('-------------------------');
-    console.log('1. Received secret:', webhookSecret);
-    console.log('2. Expected secret:', expectedSecret);
-    console.log('3. Secret lengths:', {
-      received: webhookSecret?.length || 0,
-      expected: expectedSecret?.length || 0
-    });
-    console.log('4. Secrets match:', webhookSecret === expectedSecret);
-    console.log('-------------------------');
-
+    console.log('Request Headers:', Object.fromEntries(req.headers.entries()));
+    
     if (webhookSecret !== expectedSecret) {
-      console.log('Secret validation failed');
+      console.log('Secret validation failed:', {
+        received: webhookSecret,
+        expected: expectedSecret,
+        receivedLength: webhookSecret?.length,
+        expectedLength: expectedSecret?.length
+      });
+      
       return new Response(
         JSON.stringify({ 
           error: 'Invalid webhook secret',
-          message: 'The provided webhook secret does not match the expected value',
-          received_length: webhookSecret?.length,
-          expected_length: expectedSecret?.length
+          message: 'The provided webhook secret does not match the expected value'
         }),
         { 
           status: 401, 
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json' 
-          } 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
     }
 
-    const body = await req.json();
-    console.log('Received webhook payload:', body);
+    const rawBody = await req.text();
+    console.log('Raw request body:', rawBody);
+    
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch (e) {
+      console.log('JSON parse error:', e);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid JSON',
+          message: 'The request body must be valid JSON',
+          receivedBody: rawBody
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
-    // Ensure type is provided in the request body
+    console.log('Parsed webhook payload:', body);
+
+    // Validate required fields
     if (!body.type) {
-      throw new Error('Webhook type is required');
+      console.log('Missing type in payload:', body);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing type',
+          message: 'The type field is required in the webhook payload',
+          supportedTypes: ['prospect', 'deal', 'task'],
+          receivedPayload: body
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
-    // Validate required fields based on type
+    if (!body.data || !body.userId) {
+      console.log('Missing required fields:', { data: body.data, userId: body.userId });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing required fields',
+          message: 'Both data and userId are required fields',
+          receivedPayload: body
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { type, data, userId } = body;
-
-    if (!data || !userId) {
-      throw new Error('Data and userId are required fields');
-    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -72,7 +106,17 @@ serve(async (req) => {
     switch (type) {
       case 'prospect':
         if (!data.company_name) {
-          throw new Error('company_name is required for prospect type');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Missing company_name',
+              message: 'company_name is required for prospect type',
+              receivedData: data
+            }),
+            { 
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
         }
         const { error: prospectError } = await supabase
           .from('prospects')
@@ -82,12 +126,25 @@ serve(async (req) => {
             source: data.source || 'other',
           });
 
-        if (prospectError) throw prospectError;
+        if (prospectError) {
+          console.error('Supabase error:', prospectError);
+          throw prospectError;
+        }
         break;
 
       case 'deal':
         if (!data.company_name) {
-          throw new Error('company_name is required for deal type');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Missing company_name',
+              message: 'company_name is required for deal type',
+              receivedData: data
+            }),
+            { 
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
         }
         const { error: dealError } = await supabase
           .from('deals')
@@ -104,7 +161,17 @@ serve(async (req) => {
 
       case 'task':
         if (!data.title) {
-          throw new Error('title is required for task type');
+          return new Response(
+            JSON.stringify({ 
+              error: 'Missing title',
+              message: 'title is required for task type',
+              receivedData: data
+            }),
+            { 
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            }
+          );
         }
         const { error: taskError } = await supabase
           .from('tasks')
@@ -118,7 +185,17 @@ serve(async (req) => {
         break;
 
       default:
-        throw new Error(`Unsupported webhook type: ${type}`);
+        return new Response(
+          JSON.stringify({ 
+            error: 'Invalid type',
+            message: `Unsupported webhook type: ${type}. Supported types are: prospect, deal, task`,
+            receivedType: type
+          }),
+          { 
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
     }
 
     return new Response(
@@ -131,7 +208,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: 'Make sure to include "type" in your webhook payload. Supported types are: prospect, deal, task'
+        details: 'An unexpected error occurred while processing the webhook',
+        debug: {
+          errorName: error.name,
+          errorStack: error.stack
+        }
       }),
       { 
         status: 500,
