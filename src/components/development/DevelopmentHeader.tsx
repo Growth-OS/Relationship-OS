@@ -20,11 +20,11 @@ export const DevelopmentHeader = ({
   refetch
 }: DevelopmentHeaderProps) => {
   return (
-    <Card className="p-6 mb-6">
+    <Card className="p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Development</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-left">Development</h1>
+          <p className="text-sm text-muted-foreground text-left">
             Track ideas and areas for Growth OS development
           </p>
         </div>

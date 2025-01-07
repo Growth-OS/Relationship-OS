@@ -24,15 +24,15 @@ export const DevelopmentTabs = ({
 }: DevelopmentTabsProps) => {
   return (
     <Card className="p-6">
-      <Tabs defaultValue="all" onValueChange={setSelectedCategory} className="w-full">
-        <TabsList className="mb-4">
+      <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
+        <TabsList>
           <TabsTrigger value="all">All Items</TabsTrigger>
-          <TabsTrigger value="idea" className="flex items-center gap-2">
-            <Lightbulb className="w-4 h-4" />
+          <TabsTrigger value="idea">
+            <Lightbulb className="w-4 h-4 mr-2" />
             Ideas
           </TabsTrigger>
-          <TabsTrigger value="bug" className="flex items-center gap-2">
-            <Bug className="w-4 h-4" />
+          <TabsTrigger value="bug">
+            <Bug className="w-4 h-4 mr-2" />
             Bugs
           </TabsTrigger>
           <TabsTrigger value="feature">Features</TabsTrigger>
@@ -40,7 +40,7 @@ export const DevelopmentTabs = ({
           <TabsTrigger value="archived">Archived</TabsTrigger>
         </TabsList>
 
-        <div>
+        <div className="mt-4">
           {isLoading ? (
             <div className="text-center py-8 text-muted-foreground">Loading...</div>
           ) : filteredItems?.length === 0 ? (
