@@ -17,7 +17,11 @@ export const SettingsSidebar = () => {
         console.error("Logout error:", error);
         // Even if there's an error, we want to ensure the user is logged out locally
         navigate("/login", { replace: true });
-        toast.error("There was an issue with logout, but you've been signed out locally");
+        if (error.message.includes('session_not_found')) {
+          toast.success("You've been signed out successfully");
+        } else {
+          toast.error("There was an issue with logout, but you've been signed out locally");
+        }
         return;
       }
 

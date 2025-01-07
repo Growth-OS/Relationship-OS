@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        // If no session, clear local storage and set as not authenticated
         if (!session) {
           handleSignOut();
           return;
@@ -116,7 +115,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
   }
 
-  // Save the current path before redirecting to login
   if (!isAuthenticated && location.pathname !== '/login') {
     const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
     localStorage.setItem('return_path', returnPath);
