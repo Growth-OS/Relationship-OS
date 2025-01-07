@@ -21,14 +21,14 @@ export const CreateChatDialog = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create a new chat room
+      // Create a new chat room - convert Date to ISO string for Supabase
       const { data: room, error: roomError } = await supabase
         .from("chat_rooms")
         .insert({
           title,
           created_by: user.id,
           access_code: nanoid(12),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Convert to ISO string
         })
         .select()
         .single();
