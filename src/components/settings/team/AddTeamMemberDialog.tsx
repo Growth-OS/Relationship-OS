@@ -140,7 +140,7 @@ export const AddTeamMemberDialog = () => {
         <DialogHeader>
           <DialogTitle>Add New Team Member</DialogTitle>
           <DialogDescription>
-            Add a new member to your team. They will receive login credentials via email.
+            Add a new member to your team. Login credentials will be generated and displayed here for you to share with them securely.
           </DialogDescription>
         </DialogHeader>
 
