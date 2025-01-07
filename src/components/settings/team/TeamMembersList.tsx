@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-interface TeamMember {
-  id: string;
-  role: string;
-  user_id: string;
-  profiles: {
-    full_name: string | null;
-    email: string;
-  } | null;
-}
+import { TeamMember } from "./types";
 
 export const TeamMembersList = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -26,18 +17,19 @@ export const TeamMembersList = () => {
           .single();
 
         if (teamData?.team_id) {
-          const { data: members } = await supabase
+          const { data: members, error } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              profiles:profiles(full_name, email)
+              profiles:profiles!inner(full_name, email)
             `)
             .eq("team_id", teamData.team_id);
 
+          if (error) throw error;
           if (members) {
-            setMembers(members);
+            setMembers(members as TeamMember[]);
           }
         }
       } catch (error) {

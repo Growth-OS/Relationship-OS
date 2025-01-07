@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { UserRole } from "@/integrations/supabase/types";
+
+type Role = "owner" | "admin" | "member";
 
 export const AddTeamMemberDialog = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<UserRole>("member");
+  const [role, setRole] = useState<Role>("member");
   const [credentials, setCredentials] = useState<{ email: string; password: string } | null>(null);
 
   const generateCredentials = () => {
@@ -125,7 +126,7 @@ export const AddTeamMemberDialog = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="role">Role</Label>
-              <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
+              <Select value={role} onValueChange={(value: Role) => setRole(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
