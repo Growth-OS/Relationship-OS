@@ -18,22 +18,22 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
   const [role, setRole] = useState<"admin" | "member">("member");
   const [isLoading, setIsLoading] = useState(false);
 
-  const generateInviteToken = () => {
-    // Generate a secure random token
-    const array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-  };
-
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!teamId) return;
+    if (!teamId) {
+      toast.error("No team selected");
+      return;
+    }
 
     setIsLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        toast.error("Not authenticated");
+        return;
+      }
 
+      // Get inviter's profile
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, full_name")
@@ -41,10 +41,12 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .single();
 
       if (profileError) {
+        console.error("Error fetching profile:", profileError);
         toast.error("Error fetching user profile");
         return;
       }
 
+      // Check if user already exists
       const { data: existingProfile, error: existingProfileError } = await supabase
         .from("profiles")
         .select("id")
@@ -52,14 +54,17 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .single();
 
       if (existingProfileError && existingProfileError.code !== 'PGRST116') {
+        console.error("Error checking existing user:", existingProfileError);
         toast.error("Error checking existing user");
         return;
       }
 
-      const token = generateInviteToken();
+      // Generate invitation token
+      const token = crypto.randomUUID();
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
+      // Create invitation record
       const { error: inviteError } = await supabase
         .from("team_invitations")
         .insert({
@@ -72,7 +77,11 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
           expires_at: expiresAt.toISOString()
         });
 
-      if (inviteError) throw inviteError;
+      if (inviteError) {
+        console.error("Error creating invitation:", inviteError);
+        toast.error("Failed to create invitation");
+        return;
+      }
 
       // Send invitation email
       const { error: emailError } = await supabase.functions.invoke('send-invitation', {
@@ -85,7 +94,11 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         },
       });
 
-      if (emailError) throw emailError;
+      if (emailError) {
+        console.error("Error sending invitation email:", emailError);
+        toast.error("Failed to send invitation email");
+        return;
+      }
 
       toast.success("Team member invited successfully");
       onOpenChange(false);
