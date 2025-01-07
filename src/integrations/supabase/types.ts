@@ -1175,6 +1175,35 @@ export type Database = {
           },
         ]
       }
+      team_member_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          module: Database["public"]["Enums"]["module_permission"]
+          team_member_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module: Database["public"]["Enums"]["module_permission"]
+          team_member_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module?: Database["public"]["Enums"]["module_permission"]
+          team_member_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_permissions_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           id: string
@@ -1419,6 +1448,21 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+      module_permission:
+        | "dashboard"
+        | "prospects"
+        | "deals"
+        | "projects"
+        | "sequences"
+        | "tasks"
+        | "calendar"
+        | "affiliates"
+        | "finances"
+        | "invoices"
+        | "reporting"
+        | "development"
+        | "substack"
+        | "travels"
       project_status: "active" | "completed" | "on_hold"
       sequence_status: "active" | "paused" | "completed"
       sequence_step_type: "email" | "linkedin"
