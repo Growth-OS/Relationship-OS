@@ -7,9 +7,10 @@ import { Card } from '@/components/ui/card';
 
 interface JoinRoomProps {
   onJoinSuccess: (roomId: string) => void;
+  onJoin: () => void;
 }
 
-export const JoinRoom = ({ onJoinSuccess }: JoinRoomProps) => {
+export const JoinRoom = ({ onJoinSuccess, onJoin }: JoinRoomProps) => {
   const [accessCode, setAccessCode] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
@@ -67,6 +68,7 @@ export const JoinRoom = ({ onJoinSuccess }: JoinRoomProps) => {
     });
 
     onJoinSuccess(room.id);
+    onJoin();
   };
 
   return (

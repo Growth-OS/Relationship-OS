@@ -13,10 +13,11 @@ interface ChatRoom {
 }
 
 interface ChatRoomsListProps {
-  onSelectRoom: (roomId: string) => void;
+  onRoomSelect: (roomId: string) => void;
+  onJoinNewRoom: () => void;
 }
 
-export const ChatRoomsList = ({ onSelectRoom }: ChatRoomsListProps) => {
+export const ChatRoomsList = ({ onRoomSelect, onJoinNewRoom }: ChatRoomsListProps) => {
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [newRoomTitle, setNewRoomTitle] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -149,7 +150,7 @@ export const ChatRoomsList = ({ onSelectRoom }: ChatRoomsListProps) => {
             key={room.id}
             variant="outline"
             className="w-full justify-start"
-            onClick={() => onSelectRoom(room.id)}
+            onClick={() => onRoomSelect(room.id)}
           >
             {room.title}
           </Button>

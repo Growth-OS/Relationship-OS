@@ -49,7 +49,13 @@ export const ChatSidebar = () => {
       <ScrollArea className="flex-1">
         {showJoinRoom ? (
           <div className="p-4">
-            <JoinRoom onJoin={() => setShowJoinRoom(false)} />
+            <JoinRoom 
+              onJoinSuccess={(roomId) => {
+                setSelectedRoomId(roomId);
+                setShowJoinRoom(false);
+              }}
+              onJoin={() => setShowJoinRoom(false)}
+            />
           </div>
         ) : selectedRoomId ? (
           <ChatRoom

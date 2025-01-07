@@ -23,9 +23,10 @@ interface Participant {
 
 interface ChatRoomProps {
   roomId: string;
+  onBack: () => void;
 }
 
-export const ChatRoom = ({ roomId }: ChatRoomProps) => {
+export const ChatRoom = ({ roomId, onBack }: ChatRoomProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
