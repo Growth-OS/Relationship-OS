@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
-import { Deal } from "@/integrations/supabase/types/deals";
+import { Deal, LostReason } from "@/integrations/supabase/types/deals";
 import { LostReasonSelect } from "./form-fields/LostReasonSelect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ interface DealCardProps {
 }
 
 export const DealCard = ({ deal, onEdit }: DealCardProps) => {
-  const handleLostReasonChange = async (reason: string) => {
+  const handleLostReasonChange = async (reason: LostReason) => {
     try {
       const { error } = await supabase
         .from('deals')
