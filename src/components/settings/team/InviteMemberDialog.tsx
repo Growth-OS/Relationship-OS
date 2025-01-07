@@ -24,11 +24,13 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
     console.log("Starting invitation process...");
 
     if (!teamId) {
+      console.error("No team ID provided");
       toast.error("No team selected");
       return;
     }
 
     if (!email) {
+      console.error("No email provided");
       toast.error("Please enter an email address");
       return;
     }
@@ -40,15 +42,24 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
+        console.error("Auth error:", authError);
         throw new Error(authError?.message || "Not authenticated");
       }
 
+      console.log("Current user:", user.id);
+
       // Get inviter's profile
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
         .maybeSingle();
+
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+      }
+
+      console.log("Inviter profile:", profile);
 
       // Generate invitation token
       const token = crypto.randomUUID();
@@ -93,6 +104,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         throw new Error("Failed to send invitation email");
       }
 
+      console.log("Invitation process completed successfully");
       toast.success("Team member invited successfully");
       onOpenChange(false);
       setEmail("");
