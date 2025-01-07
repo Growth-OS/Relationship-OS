@@ -1,24 +1,26 @@
-import { createBrowserRouter, Outlet } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Join from "@/pages/Join";
 import Dashboard from "@/pages/Dashboard";
-import TeamSettings from "@/pages/TeamSettings";
-import Invoices from "@/pages/Invoices";
-import Projects from "@/pages/Projects";
 import Tasks from "@/pages/Tasks";
-import Prospects from "@/pages/Prospects";
 import Deals from "@/pages/Deals";
-import Finances from "@/pages/Finances";
+import Projects from "@/pages/Projects";
+import Prospects from "@/pages/Prospects";
 import Sequences from "@/pages/Sequences";
+import SequenceBuilder from "@/pages/SequenceBuilder";
+import Finances from "@/pages/Finances";
+import Invoices from "@/pages/Invoices";
 import Calendar from "@/pages/Calendar";
-import Boards from "@/pages/Boards";
-import BoardView from "@/pages/BoardView";
 import Travels from "@/pages/Travels";
 import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
+import AIPersona from "@/pages/AIPersona";
 import AIPrompts from "@/pages/AIPrompts";
+import TeamSettings from "@/pages/TeamSettings";
+import Boards from "@/pages/Boards";
+import BoardView from "@/pages/BoardView";
 import Development from "@/pages/Development";
 import Reporting from "@/pages/Reporting";
 import Affiliates from "@/pages/Affiliates";
@@ -29,92 +31,23 @@ import BackupSettings from "@/pages/BackupSettings";
 
 export const router = createBrowserRouter([
   {
-    element: (
-      <AuthProvider>
-        <Layout>
-          <Outlet />
-        </Layout>
-      </AuthProvider>
-    ),
+    path: "/",
+    element: <Landing />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/join",
+    element: <Join />,
+  },
+  {
+    path: "/dashboard",
+    element: <Layout />,
     children: [
       {
-        path: "/",
-        element: <Dashboard />,
-      },
-      {
-        path: "/dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "/dashboard/prospects",
-        element: <Prospects />,
-      },
-      {
-        path: "/dashboard/sequences",
-        element: <Sequences />,
-      },
-      {
-        path: "/dashboard/deals",
-        element: <Deals />,
-      },
-      {
-        path: "/dashboard/projects",
-        element: <Projects />,
-      },
-      {
-        path: "/dashboard/boards",
-        element: <Boards />,
-      },
-      {
-        path: "/dashboard/board/:id",
-        element: <BoardView />,
-      },
-      {
-        path: "/dashboard/tasks",
-        element: <Tasks />,
-      },
-      {
-        path: "/dashboard/calendar",
-        element: <Calendar />,
-      },
-      {
-        path: "/dashboard/travels",
-        element: <Travels />,
-      },
-      {
-        path: "/dashboard/substack",
-        element: <SubstackPosts />,
-      },
-      {
-        path: "/dashboard/substack/editor",
-        element: <SubstackPostEditor />,
-      },
-      {
-        path: "/dashboard/affiliates",
-        element: <Affiliates />,
-      },
-      {
-        path: "/dashboard/finances",
-        element: <Finances />,
-      },
-      {
-        path: "/dashboard/invoices",
-        element: <Invoices />,
-      },
-      {
-        path: "/dashboard/reporting",
-        element: <Reporting />,
-      },
-      {
-        path: "/dashboard/development",
-        element: <Development />,
-      },
-      {
-        path: "/dashboard/ai-prompts",
-        element: <AIPrompts />,
-      },
-      {
-        path: "/dashboard/settings",
+        path: "settings",
         element: <SettingsLayout />,
         children: [
           {
@@ -132,17 +65,89 @@ export const router = createBrowserRouter([
           {
             path: "backup",
             element: <BackupSettings />,
-          }
-        ]
+          },
+        ],
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
+      },
+      {
+        path: "tasks",
+        element: <Tasks />,
+      },
+      {
+        path: "deals",
+        element: <Deals />,
+      },
+      {
+        path: "projects",
+        element: <Projects />,
+      },
+      {
+        path: "prospects",
+        element: <Prospects />,
+      },
+      {
+        path: "sequences",
+        element: <Sequences />,
+      },
+      {
+        path: "sequence-builder",
+        element: <SequenceBuilder />,
+      },
+      {
+        path: "finances",
+        element: <Finances />,
+      },
+      {
+        path: "invoices",
+        element: <Invoices />,
+      },
+      {
+        path: "calendar",
+        element: <Calendar />,
+      },
+      {
+        path: "travels",
+        element: <Travels />,
+      },
+      {
+        path: "substack-posts",
+        element: <SubstackPosts />,
+      },
+      {
+        path: "substack-post-editor",
+        element: <SubstackPostEditor />,
+      },
+      {
+        path: "ai-persona",
+        element: <AIPersona />,
+      },
+      {
+        path: "ai-prompts",
+        element: <AIPrompts />,
+      },
+      {
+        path: "boards",
+        element: <Boards />,
+      },
+      {
+        path: "board-view",
+        element: <BoardView />,
+      },
+      {
+        path: "development",
+        element: <Development />,
+      },
+      {
+        path: "reporting",
+        element: <Reporting />,
+      },
+      {
+        path: "affiliates",
+        element: <Affiliates />,
       },
     ],
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/join",
-    element: <Join />,
   },
 ]);

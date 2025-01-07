@@ -10,54 +10,55 @@ const Join = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [invitation, setInvitation] = useState<any>(null);
-  const token = searchParams.get("token");
 
   useEffect(() => {
-    const checkInvitation = async () => {
-      if (!token) {
-        toast.error("Invalid invitation link");
-        navigate("/");
-        return;
-      }
+    const token = searchParams.get("token");
+    if (!token) {
+      toast.error("Invalid invitation link");
+      navigate("/");
+      return;
+    }
 
+    const fetchInvitation = async () => {
       try {
-        const { data: invite, error } = await supabase
+        const { data, error } = await supabase
           .from("team_invitations")
           .select("*, teams(name)")
           .eq("token", token)
           .single();
 
-        if (error || !invite) {
-          throw new Error("Invitation not found");
+        if (error) throw error;
+        if (!data) throw new Error("Invitation not found");
+
+        // Check if invitation has expired
+        if (new Date(data.expires_at) < new Date()) {
+          toast.error("This invitation has expired");
+          navigate("/");
+          return;
         }
 
-        if (new Date(invite.expires_at) < new Date()) {
-          throw new Error("Invitation has expired");
-        }
-
-        setInvitation(invite);
+        setInvitation(data);
       } catch (error) {
-        toast.error(error.message);
+        console.error("Error fetching invitation:", error);
+        toast.error("Failed to load invitation");
         navigate("/");
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkInvitation();
-  }, [token, navigate]);
+    fetchInvitation();
+  }, [searchParams, navigate]);
 
   const handleAcceptInvitation = async () => {
     if (!invitation) return;
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
-        // Save the token and redirect to signup
-        localStorage.setItem("invitation_token", token);
-        navigate("/login");
+        // If user is not logged in, redirect to login page
+        navigate(`/login?redirect=${window.location.pathname}${window.location.search}`);
         return;
       }
 
@@ -68,21 +69,25 @@ const Join = () => {
           team_id: invitation.team_id,
           user_id: user.id,
           role: invitation.role,
+          invited_by: invitation.invited_by,
+          joined_at: new Date().toISOString()
         });
 
       if (memberError) throw memberError;
 
-      // Delete the invitation
-      await supabase
+      // Update invitation status
+      const { error: inviteError } = await supabase
         .from("team_invitations")
-        .delete()
-        .eq("token", token);
+        .update({ status: "accepted" })
+        .eq("id", invitation.id);
 
-      toast.success("You've successfully joined the team!");
+      if (inviteError) throw inviteError;
+
+      toast.success("Successfully joined the team");
       navigate("/dashboard");
     } catch (error) {
+      console.error("Error accepting invitation:", error);
       toast.error("Failed to join team");
-      console.error("Join error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -90,31 +95,34 @@ const Join = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
       </div>
     );
   }
 
+  if (!invitation) return null;
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Team Invitation</CardTitle>
           <CardDescription>
-            You've been invited to join {invitation?.teams?.name}
+            You've been invited to join {invitation.teams?.name}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="mb-6 text-sm text-gray-600">
-            Click the button below to accept the invitation and join the team.
-          </p>
-          <Button
-            className="w-full"
+        <CardContent className="space-y-4">
+          <div className="text-sm text-gray-500">
+            <p>Role: {invitation.role}</p>
+            <p>Email: {invitation.email}</p>
+          </div>
+          <Button 
+            className="w-full" 
             onClick={handleAcceptInvitation}
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Accept Invitation"}
+            {isLoading ? "Joining..." : "Accept Invitation"}
           </Button>
         </CardContent>
       </Card>
