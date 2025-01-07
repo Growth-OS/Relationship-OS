@@ -39,16 +39,21 @@ const OrganisationSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Create a new team
+      // Start a transaction by creating the team first
       const { data: newTeam, error: teamError } = await supabase
         .from("teams")
-        .insert([{ name: `${user.email}'s Organisation` }])
+        .insert([{ 
+          name: `${user.email}'s Organisation`
+        }])
         .select()
         .single();
 
-      if (teamError) throw teamError;
+      if (teamError) {
+        console.error("Team creation error:", teamError);
+        throw teamError;
+      }
 
-      // Add the user as owner
+      // Then add the user as an owner
       const { error: memberError } = await supabase
         .from("team_members")
         .insert([{
@@ -58,13 +63,16 @@ const OrganisationSettings = () => {
           joined_at: new Date().toISOString()
         }]);
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error("Member creation error:", memberError);
+        throw memberError;
+      }
 
       await refetch();
       toast.success("Organisation created successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating team:", error);
-      toast.error("Failed to create organisation");
+      toast.error(error.message || "Failed to create organisation");
     } finally {
       setIsCreatingTeam(false);
     }
