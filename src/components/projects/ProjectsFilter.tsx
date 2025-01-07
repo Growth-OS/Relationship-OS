@@ -1,8 +1,9 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ProjectStatus } from "@/integrations/supabase/types/projects";
 
 interface ProjectsFilterProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: "all" | ProjectStatus;
+  onChange: (value: "all" | ProjectStatus) => void;
 }
 
 export const ProjectsFilter = ({ value, onChange }: ProjectsFilterProps) => {
