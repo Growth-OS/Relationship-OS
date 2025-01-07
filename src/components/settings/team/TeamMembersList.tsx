@@ -20,14 +20,14 @@ export const TeamMembersList = () => {
           .maybeSingle();
 
         if (teamData?.team_id) {
-          // Then get all members of that team with their profiles
+          // Then get all members of that team with their user data
           const { data: membersData, error } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              user:user_id (
+              user:profiles!user_id(
                 email,
                 full_name
               )
@@ -37,16 +37,7 @@ export const TeamMembersList = () => {
           if (error) throw error;
 
           if (membersData) {
-            const formattedMembers: TeamMember[] = membersData.map(member => ({
-              id: member.id,
-              role: member.role,
-              user_id: member.user_id,
-              profiles: {
-                full_name: member.user?.full_name || "Pending Setup",
-                email: member.user?.email || ""
-              }
-            }));
-            setMembers(formattedMembers);
+            setMembers(membersData);
           }
         }
       } catch (error) {
@@ -79,8 +70,8 @@ export const TeamMembersList = () => {
           <div key={member.id} className="py-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">{member.profiles?.full_name || "Pending Setup"}</p>
-                <p className="text-sm text-gray-500">{member.profiles?.email}</p>
+                <p className="font-medium">{member.user?.full_name || "Pending Setup"}</p>
+                <p className="text-sm text-gray-500">{member.user?.email}</p>
               </div>
               <span className="text-sm capitalize bg-gray-100 px-2 py-1 rounded">
                 {member.role}
