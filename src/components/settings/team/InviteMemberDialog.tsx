@@ -50,13 +50,12 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       }
 
       const { error: inviteError } = await supabase
-        .from("team_members")
+        .from("team_invitations")
         .insert({
           team_id: teamId,
-          user_id: existingProfile?.id,
+          email,
           role,
           invited_by: user.id,
-          temp_password: Math.random().toString(36).slice(-8),
         });
 
       if (inviteError) throw inviteError;
