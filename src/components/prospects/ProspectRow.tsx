@@ -69,16 +69,29 @@ export const ProspectRow = ({
       <TableCell>{prospect.contact_job_title || '-'}</TableCell>
       <TableCell>{prospect.contact_email || '-'}</TableCell>
       <TableCell>
-        {prospect.contact_linkedin ? (
-          <a 
-            href={prospect.contact_linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-600 hover:text-purple-700 hover:underline"
-          >
-            View Profile
-          </a>
-        ) : '-'}
+        <div className="space-y-1">
+          {prospect.company_website && (
+            <a 
+              href={prospect.company_website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-700 hover:underline block"
+            >
+              Website
+            </a>
+          )}
+          {prospect.contact_linkedin && (
+            <a 
+              href={prospect.contact_linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-700 hover:underline"
+            >
+              LinkedIn
+            </a>
+          )}
+          {!prospect.company_website && !prospect.contact_linkedin && '-'}
+        </div>
       </TableCell>
       <TableCell>
         {prospect.sequence_name ? (

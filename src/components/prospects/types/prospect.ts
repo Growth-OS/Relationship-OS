@@ -4,6 +4,7 @@ export interface Prospect {
   contact_email?: string;
   contact_job_title?: string;
   contact_linkedin?: string;
+  company_website?: string;
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
   notes?: string;
   sequence_name?: string;

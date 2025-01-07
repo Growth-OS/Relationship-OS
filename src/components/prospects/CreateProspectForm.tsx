@@ -14,6 +14,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
+  company_website: z.string().url().optional().or(z.literal("")),
   source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
   notes: z.string().optional(),
 });
@@ -48,6 +49,7 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
           contact_email: values.contact_email || null,
           contact_job_title: values.contact_job_title || null,
           contact_linkedin: values.contact_linkedin || null,
+          company_website: values.company_website || null,
           source: values.source,
           notes: values.notes || null,
           user_id: user.id,
@@ -79,6 +81,20 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
               <FormLabel>Company Name</FormLabel>
               <FormControl>
                 <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="company_website"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Company Website</FormLabel>
+              <FormControl>
+                <Input type="url" placeholder="https://example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
