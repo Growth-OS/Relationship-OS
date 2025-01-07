@@ -27,6 +27,7 @@ import ProfileSettings from "@/pages/ProfileSettings";
 import TeamSettings from "@/pages/TeamSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
+import ChatRoom from "@/components/chat/ChatRoom";
 
 export const routes: RouteObject[] = [
   {
@@ -44,6 +45,10 @@ export const routes: RouteObject[] = [
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: "chat/:roomId",
+        element: <ChatRoom />,
       },
       {
         path: "sequences",
