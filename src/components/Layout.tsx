@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
 import Sidebar from "./Sidebar";
-import { ChatSidebar } from "./chat/ChatSidebar";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,7 +14,6 @@ const Layout = ({ children }: LayoutProps) => {
           {children}
         </div>
       </main>
-      <ChatSidebar />
       <Toaster />
     </div>
   );
