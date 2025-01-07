@@ -37,7 +37,10 @@ const OrganisationSettings = () => {
     try {
       setIsCreatingTeam(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) {
+        toast.error("You must be logged in to create an organisation");
+        return;
+      }
 
       // First create the team
       const { data: newTeam, error: teamError } = await supabase
@@ -50,7 +53,8 @@ const OrganisationSettings = () => {
 
       if (teamError) {
         console.error("Team creation error:", teamError);
-        throw teamError;
+        toast.error("Failed to create organisation");
+        return;
       }
 
       // Then add the user as an owner
@@ -65,7 +69,10 @@ const OrganisationSettings = () => {
 
       if (memberError) {
         console.error("Member creation error:", memberError);
-        throw memberError;
+        // If member creation fails, we should clean up the team
+        await supabase.from("teams").delete().eq("id", newTeam.id);
+        toast.error("Failed to set up organisation membership");
+        return;
       }
 
       await refetch();
