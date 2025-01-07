@@ -23,7 +23,7 @@ const TeamSettings = () => {
         .from("team_members")
         .select("team_id, teams(*)")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (teamMemberError) {
         console.error("Error fetching team:", teamMemberError);
