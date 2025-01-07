@@ -55,7 +55,7 @@ export const FinancialOverview = () => {
   const netIncome = totalIncome - totalExpenses;
 
   if (isLoading) {
-    return <div>Loading financial overview...</div>;
+    return <div className="text-left">Loading financial overview...</div>;
   }
 
   return (
@@ -63,24 +63,24 @@ export const FinancialOverview = () => {
       <Card className="p-4">
         <div className="flex items-center gap-2">
           <ArrowUpIcon className="h-4 w-4 text-green-500" />
-          <h3 className="text-sm font-medium">Monthly Income</h3>
+          <h3 className="text-sm font-medium text-left">Monthly Income</h3>
         </div>
-        <p className="text-2xl font-bold">€{totalIncome.toFixed(2)}</p>
+        <p className="text-2xl font-bold text-left">€{totalIncome.toFixed(2)}</p>
       </Card>
 
       <Card className="p-4">
         <div className="flex items-center gap-2">
           <ArrowDownIcon className="h-4 w-4 text-red-500" />
-          <h3 className="text-sm font-medium">Monthly Expenses</h3>
+          <h3 className="text-sm font-medium text-left">Monthly Expenses</h3>
         </div>
-        <p className="text-2xl font-bold">€{totalExpenses.toFixed(2)}</p>
+        <p className="text-2xl font-bold text-left">€{totalExpenses.toFixed(2)}</p>
       </Card>
 
       <Card className="p-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-sm font-medium">Net Income</h3>
+          <h3 className="text-sm font-medium text-left">Net Income</h3>
         </div>
-        <p className={`text-2xl font-bold ${netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <p className={`text-2xl font-bold text-left ${netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           €{netIncome.toFixed(2)}
         </p>
       </Card>

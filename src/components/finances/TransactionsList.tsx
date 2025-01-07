@@ -97,7 +97,7 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="text-left">Loading...</div>;
   }
 
   return (
@@ -105,23 +105,23 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-            <TableHead>Files</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead className="text-left">Date</TableHead>
+            <TableHead className="text-left">Type</TableHead>
+            <TableHead className="text-left">Description</TableHead>
+            <TableHead className="text-left">Category</TableHead>
+            <TableHead className="text-left">Amount</TableHead>
+            <TableHead className="text-left">Files</TableHead>
+            <TableHead className="text-left">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {transactions?.map((transaction) => (
             <TableRow key={transaction.id}>
-              <TableCell>{format(new Date(transaction.date), 'MMM d, yyyy')}</TableCell>
-              <TableCell className="capitalize">{transaction.type}</TableCell>
-              <TableCell>{transaction.description}</TableCell>
-              <TableCell>{transaction.category}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-left">{format(new Date(transaction.date), 'MMM d, yyyy')}</TableCell>
+              <TableCell className="capitalize text-left">{transaction.type}</TableCell>
+              <TableCell className="text-left">{transaction.description}</TableCell>
+              <TableCell className="text-left">{transaction.category}</TableCell>
+              <TableCell className="text-left">
                 €{Number(transaction.amount).toFixed(2)}
               </TableCell>
               <TableCell>
