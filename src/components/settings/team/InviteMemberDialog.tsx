@@ -62,7 +62,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       // Insert module permissions
       const permissionsToInsert = selectedModules.map(module => ({
         team_member_id: teamMember.id,
-        module,
+        module: module as "dashboard" | "prospects" | "deals" | "sequences" | "tasks" | "calendar" | "affiliates" | "finances" | "invoices" | "reporting" | "development" | "substack" | "travels",
       }));
 
       const { error: permissionsError } = await supabase
