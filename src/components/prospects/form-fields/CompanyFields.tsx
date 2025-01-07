@@ -26,26 +26,15 @@ export const CompanyFields = ({ form }: CompanyFieldsProps) => {
       <FormField
         control={form.control}
         name="company_website"
-        render={({ field }) => {
-          console.log('Website field value:', field.value);
-          return (
-            <FormItem>
-              <FormLabel>Company Website</FormLabel>
-              <FormControl>
-                <Input 
-                  type="url" 
-                  placeholder="https://example.com" 
-                  {...field} 
-                  onChange={(e) => {
-                    console.log('Website input changed:', e.target.value);
-                    field.onChange(e);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          );
-        }}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Company Website</FormLabel>
+            <FormControl>
+              <Input type="url" placeholder="https://example.com" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
       />
     </>
   );

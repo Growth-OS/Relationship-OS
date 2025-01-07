@@ -11,7 +11,6 @@ import { toast } from "sonner";
 
 const formSchema = z.object({
   company_name: z.string().min(1, "Company name is required"),
-  company_website: z.string().url().optional().or(z.literal("")),
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
@@ -23,7 +22,6 @@ interface EditProspectFormProps {
   prospect: {
     id: string;
     company_name: string;
-    company_website?: string;
     contact_email?: string;
     contact_job_title?: string;
     contact_linkedin?: string;
@@ -38,7 +36,6 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
     resolver: zodResolver(formSchema),
     defaultValues: {
       company_name: prospect.company_name,
-      company_website: prospect.company_website || "",
       contact_email: prospect.contact_email || "",
       contact_job_title: prospect.contact_job_title || "",
       contact_linkedin: prospect.contact_linkedin || "",
@@ -49,19 +46,9 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Updating prospect with values:', values);
-      
       const { error } = await supabase
         .from('prospects')
-        .update({
-          company_name: values.company_name,
-          company_website: values.company_website || null,
-          contact_email: values.contact_email || null,
-          contact_job_title: values.contact_job_title || null,
-          contact_linkedin: values.contact_linkedin || null,
-          source: values.source,
-          notes: values.notes || null,
-        })
+        .update(values)
         .eq('id', prospect.id);
 
       if (error) throw error;
@@ -85,20 +72,6 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
               <FormLabel>Company Name</FormLabel>
               <FormControl>
                 <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="company_website"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company Website</FormLabel>
-              <FormControl>
-                <Input type="url" placeholder="https://example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

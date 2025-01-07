@@ -24,6 +24,7 @@ import { Outlet } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
+import TeamSettings from "@/pages/TeamSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
 
@@ -125,19 +126,23 @@ export const routes: RouteObject[] = [
             element: <ProfileSettings />,
           },
           {
+            path: "team",
+            element: <TeamSettings />,
+          },
+          {
             path: "branding",
             element: <BrandingSettings />,
           },
           {
             path: "backup",
             element: <BackupSettings />,
-          }
+          },
         ],
       },
     ],
   },
   {
     path: "*",
-    element: <Landing />,
+    element: <Landing />,  // Catch-all route to handle unknown paths
   }
 ];

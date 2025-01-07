@@ -1175,80 +1175,35 @@ export type Database = {
           },
         ]
       }
-      team_member_permissions: {
-        Row: {
-          created_at: string
-          id: string
-          module: Database["public"]["Enums"]["module_permission"]
-          team_member_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          module: Database["public"]["Enums"]["module_permission"]
-          team_member_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          module?: Database["public"]["Enums"]["module_permission"]
-          team_member_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_member_permissions_team_member_id_fkey"
-            columns: ["team_member_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       team_members: {
         Row: {
-          credentials_created_at: string | null
-          credentials_shared: boolean | null
           id: string
           invited_at: string
           invited_by: string | null
           joined_at: string | null
           role: Database["public"]["Enums"]["user_role"]
           team_id: string
-          temp_password: string | null
           user_id: string
         }
         Insert: {
-          credentials_created_at?: string | null
-          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id: string
-          temp_password?: string | null
           user_id: string
         }
         Update: {
-          credentials_created_at?: string | null
-          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id?: string
-          temp_password?: string | null
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "fk_team_members_user"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "team_members_team_id_fkey"
             columns: ["team_id"]
@@ -1424,29 +1379,6 @@ export type Database = {
         }
         Relationships: []
       }
-      team_member_roles: {
-        Row: {
-          role: Database["public"]["Enums"]["user_role"] | null
-          team_id: string | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_team_members_user"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "team_members_team_id_fkey"
-            columns: ["team_id"]
-            isOneToOne: false
-            referencedRelation: "teams"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Functions: {
       delete_sequence: {
@@ -1487,21 +1419,6 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
-      module_permission:
-        | "dashboard"
-        | "prospects"
-        | "deals"
-        | "projects"
-        | "sequences"
-        | "tasks"
-        | "calendar"
-        | "affiliates"
-        | "finances"
-        | "invoices"
-        | "reporting"
-        | "development"
-        | "substack"
-        | "travels"
       project_status: "active" | "completed" | "on_hold"
       sequence_status: "active" | "paused" | "completed"
       sequence_step_type: "email" | "linkedin"
@@ -1521,7 +1438,6 @@ export type Database = {
         | "other"
         | "projects"
         | "sequences"
-      team_role: "owner" | "admin" | "member"
       transaction_type: "income" | "expense"
       travel_status: "upcoming" | "completed" | "cancelled"
       user_role: "owner" | "admin" | "member"
