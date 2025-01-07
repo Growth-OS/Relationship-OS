@@ -24,14 +24,28 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
     setIsLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) {
+        toast.error("Error fetching user profile");
+        return;
+      }
+
+      const { data: existingProfile, error: existingProfileError } = await supabase
         .from("profiles")
         .select("id")
         .eq("email", email)
         .single();
 
-      if (profileError) {
-        toast.error("User not found");
+      if (existingProfileError && existingProfileError.code !== 'PGRST116') {
+        toast.error("Error checking existing user");
         return;
       }
 
@@ -39,12 +53,25 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .from("team_members")
         .insert({
           team_id: teamId,
-          user_id: profile.id,
+          user_id: existingProfile?.id,
           role,
-          joined_at: new Date().toISOString(),
+          invited_by: user.id,
+          temp_password: Math.random().toString(36).slice(-8),
         });
 
       if (inviteError) throw inviteError;
+
+      // Send invitation email
+      const { error: emailError } = await supabase.functions.invoke('send-invitation', {
+        body: {
+          email,
+          teamId,
+          role,
+          invitedBy: profile.full_name || user.email,
+        },
+      });
+
+      if (emailError) throw emailError;
 
       toast.success("Team member invited successfully");
       onOpenChange(false);
