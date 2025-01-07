@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Plus } from "lucide-react";
 import { CreateChatDialog } from "./CreateChatDialog";
 
 export const ChatRoomsList = () => {
@@ -24,7 +24,15 @@ export const ChatRoomsList = () => {
 
   return (
     <div className="space-y-2">
-      <CreateChatDialog />
+      <Button variant="default" className="w-full mb-4" asChild>
+        <CreateChatDialog>
+          <span className="flex items-center">
+            <Plus className="mr-2 h-4 w-4" />
+            New Chat Room
+          </span>
+        </CreateChatDialog>
+      </Button>
+      
       {rooms?.map((room) => (
         <Button
           key={room.id}

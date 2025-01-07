@@ -3,12 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MessageSquarePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { nanoid } from "@/lib/utils";
 
-export const CreateChatDialog = () => {
+interface CreateChatDialogProps {
+  children: React.ReactNode;
+}
+
+export const CreateChatDialog = ({ children }: CreateChatDialogProps) => {
   const [title, setTitle] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,10 +64,7 @@ export const CreateChatDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full justify-start">
-          <MessageSquarePlus className="mr-2 h-4 w-4" />
-          New Chat Room
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

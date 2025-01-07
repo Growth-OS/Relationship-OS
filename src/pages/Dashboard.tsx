@@ -39,8 +39,10 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <div className="bg-background p-4 rounded-lg border">
-          <h2 className="text-lg font-semibold mb-4">Chat Rooms</h2>
+        <div className="bg-background p-4 rounded-lg border shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 flex items-center justify-between">
+            Chat Rooms
+          </h2>
           <ChatRoomsList />
         </div>
       </div>
