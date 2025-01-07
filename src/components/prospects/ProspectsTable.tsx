@@ -99,16 +99,15 @@ export const ProspectsTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]"></TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Source</TableHead>
-              <TableHead>Job Title</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>LinkedIn</TableHead>
-              <TableHead>Sequence</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Notes</TableHead>
-              <TableHead className="w-[100px]"></TableHead>
+              <TableHead className="w-[50px] text-left"></TableHead>
+              <TableHead className="w-[300px] text-left">Company</TableHead>
+              <TableHead className="text-left">Source</TableHead>
+              <TableHead className="text-left">Job Title</TableHead>
+              <TableHead className="text-left">Email</TableHead>
+              <TableHead className="text-left">LinkedIn</TableHead>
+              <TableHead className="text-left">Sequence</TableHead>
+              <TableHead className="text-left">Progress</TableHead>
+              <TableHead className="w-[100px] text-left"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

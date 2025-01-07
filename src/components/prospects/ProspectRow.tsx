@@ -98,11 +98,6 @@ export const ProspectRow = ({
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell className="max-w-[200px] truncate">
-        {prospect.notes ? (
-          <span title={prospect.notes}>{prospect.notes}</span>
-        ) : '-'}
-      </TableCell>
       <TableCell>
         {!isConverted && (
           <ProspectActions
