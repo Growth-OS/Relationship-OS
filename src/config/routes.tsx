@@ -26,7 +26,6 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
-import TeamSettingsPage from "@/pages/TeamSettings";
 
 export const routes: RouteObject[] = [
   {
@@ -132,11 +131,7 @@ export const routes: RouteObject[] = [
           {
             path: "backup",
             element: <BackupSettings />,
-          },
-          {
-            path: "team",
-            element: <TeamSettingsPage />,
-          },
+          }
         ],
       },
     ],
