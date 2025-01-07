@@ -8,22 +8,27 @@ export const SettingsSidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // First clear local storage to ensure clean state
+      localStorage.clear();
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error("Logout error:", error);
-        toast.error("There was an issue logging out. Please try again.");
+        // Even if there's an error, we want to ensure the user is logged out locally
+        navigate("/login", { replace: true });
+        toast.error("There was an issue with logout, but you've been signed out locally");
         return;
       }
 
-      // Clear local storage and redirect
-      localStorage.clear();
       navigate("/login", { replace: true });
       toast.success("Successfully logged out");
       
     } catch (error) {
       console.error("Logout error:", error);
-      toast.error("An unexpected error occurred");
+      // Ensure user is logged out locally even if there's an error
+      navigate("/login", { replace: true });
+      toast.error("An unexpected error occurred, but you've been signed out locally");
     }
   };
 
