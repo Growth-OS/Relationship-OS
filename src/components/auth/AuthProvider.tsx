@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkSession();
 
     // Set up auth state change subscription
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state change:", event, !!session);
       
       switch (event) {
@@ -81,7 +81,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           break;
 
         case 'PASSWORD_RECOVERY':
-        case 'USER_DELETED':
           handleSignOut();
           break;
       }
