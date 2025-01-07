@@ -3,7 +3,7 @@ import { SettingsSidebar } from "./SettingsSidebar";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
-export const SettingsLayout = () => {
+const SettingsLayout = () => {
   const navigate = useNavigate();
 
   return (
@@ -27,3 +27,5 @@ export const SettingsLayout = () => {
     </div>
   );
 };
+
+export default SettingsLayout;
