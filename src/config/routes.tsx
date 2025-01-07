@@ -22,6 +22,10 @@ import AIPrompts from "@/pages/AIPrompts";
 import Development from "@/pages/Development";
 import Reporting from "@/pages/Reporting";
 import Affiliates from "@/pages/Affiliates";
+import { SettingsLayout } from "@/components/settings/SettingsLayout";
+import ProfileSettings from "@/pages/ProfileSettings";
+import BrandingSettings from "@/pages/BrandingSettings";
+import BackupSettings from "@/pages/BackupSettings";
 
 export const router = createBrowserRouter([
   {
@@ -110,8 +114,26 @@ export const router = createBrowserRouter([
         element: <AIPrompts />,
       },
       {
-        path: "/team-settings",
-        element: <TeamSettings />,
+        path: "/dashboard/settings",
+        element: <SettingsLayout />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          },
+          {
+            path: "team",
+            element: <TeamSettings />,
+          },
+          {
+            path: "branding",
+            element: <BrandingSettings />,
+          },
+          {
+            path: "backup",
+            element: <BackupSettings />,
+          }
+        ]
       },
     ],
   },
