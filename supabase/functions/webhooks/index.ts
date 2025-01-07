@@ -17,10 +17,16 @@ serve(async (req) => {
     const webhookSecret = req.headers.get('x-webhook-secret');
     const expectedSecret = Deno.env.get('Zapier');
     
-    console.log('Received headers:', Object.fromEntries(req.headers.entries()));
-    console.log('Received webhook secret:', webhookSecret);
-    console.log('Expected secret:', expectedSecret);
-    console.log('Headers match:', webhookSecret === expectedSecret);
+    console.log('Webhook Secret Validation:');
+    console.log('-------------------------');
+    console.log('1. Received secret:', webhookSecret);
+    console.log('2. Expected secret:', expectedSecret);
+    console.log('3. Secret lengths:', {
+      received: webhookSecret?.length || 0,
+      expected: expectedSecret?.length || 0
+    });
+    console.log('4. Secrets match:', webhookSecret === expectedSecret);
+    console.log('-------------------------');
 
     if (webhookSecret !== expectedSecret) {
       console.log('Secret validation failed');
