@@ -16,6 +16,7 @@ serve(async (req) => {
     // Verify webhook secret
     const webhookSecret = req.headers.get('x-webhook-secret');
     if (webhookSecret !== Deno.env.get('Zapier')) {
+      console.log('Invalid webhook secret received:', webhookSecret); // Add logging
       return new Response(
         JSON.stringify({ error: 'Invalid webhook secret' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
