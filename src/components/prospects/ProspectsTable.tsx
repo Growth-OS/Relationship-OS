@@ -104,6 +104,7 @@ export const ProspectsTable = ({
               <TableHead className="text-left">Source</TableHead>
               <TableHead className="text-left">Job Title</TableHead>
               <TableHead className="text-left">Email</TableHead>
+              <TableHead className="text-left">Website</TableHead>
               <TableHead className="text-left">LinkedIn</TableHead>
               <TableHead className="text-left">Sequence</TableHead>
               <TableHead className="text-left">Progress</TableHead>

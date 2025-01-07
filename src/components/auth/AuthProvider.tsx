@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AuthError, Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -17,11 +18,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Initial session check
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session check error:", error);
+          handleAuthError(error);
+          return;
+        }
+
+        if (!session) {
+          handleSignOut();
+          return;
+        }
+
+        setIsAuthenticated(true);
       } catch (error) {
         console.error("Session check error:", error);
-        setIsAuthenticated(false);
+        handleSignOut();
       } finally {
         setIsLoading(false);
       }
@@ -30,37 +43,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkSession();
 
     // Set up auth state change subscription
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
       console.log("Auth state change:", event, !!session);
       
       switch (event) {
         case 'SIGNED_OUT':
-          setIsAuthenticated(false);
-          localStorage.clear();
-          navigate('/login', { replace: true });
+          handleSignOut();
           toast.success('Signed out successfully');
           break;
 
         case 'SIGNED_IN':
-          setIsAuthenticated(true);
-          const returnPath = localStorage.getItem('return_path') || '/dashboard';
-          localStorage.removeItem('return_path');
-          if (location.pathname === '/login') {
-            navigate(returnPath, { replace: true });
+          if (session) {
+            setIsAuthenticated(true);
+            const returnPath = localStorage.getItem('return_path') || '/dashboard';
+            localStorage.removeItem('return_path');
+            if (location.pathname === '/login') {
+              navigate(returnPath, { replace: true });
+            }
+          } else {
+            handleSignOut();
           }
           break;
 
         case 'TOKEN_REFRESHED':
-          setIsAuthenticated(true);
-          console.log('Session token refreshed');
-          break;
-
-        case 'PASSWORD_RECOVERY':
-          toast.info('Check your email for password reset instructions');
+          if (session) {
+            setIsAuthenticated(true);
+            console.log('Session token refreshed');
+          }
           break;
 
         case 'USER_UPDATED':
-          toast.success('Your profile has been updated');
+          if (session) {
+            setIsAuthenticated(true);
+            toast.success('Your profile has been updated');
+          }
+          break;
+
+        case 'PASSWORD_RECOVERY':
+          handleSignOut();
           break;
       }
     });
@@ -70,6 +90,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, [navigate, location.pathname]);
 
+  const handleSignOut = () => {
+    localStorage.clear();
+    setIsAuthenticated(false);
+    navigate('/login', { replace: true });
+  };
+
+  const handleAuthError = (error: AuthError) => {
+    console.error('Auth error:', error);
+    handleSignOut();
+    
+    if (error.message.includes('session_not_found')) {
+      toast.error('Your session has expired. Please sign in again.');
+    } else {
+      toast.error('Authentication error. Please sign in again.');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -78,7 +115,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
   }
 
-  // Save the current path before redirecting to login
   if (!isAuthenticated && location.pathname !== '/login') {
     const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
     localStorage.setItem('return_path', returnPath);

@@ -1,42 +1,138 @@
 import { RouteObject } from "react-router-dom";
 import Layout from "@/components/Layout";
-import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
+import Landing from "@/pages/Landing";
 import Dashboard from "@/pages/Dashboard";
-import Projects from "@/pages/Projects";
+import Prospects from "@/pages/Prospects";
+import Tasks from "@/pages/Tasks";
 import Deals from "@/pages/Deals";
-import ChatRoom from "@/components/chat/ChatRoom";
-import JoinChatRoom from "@/components/chat/JoinChatRoom";
+import Projects from "@/pages/Projects";
+import Calendar from "@/pages/Calendar";
+import Affiliates from "@/pages/Affiliates";
+import Finances from "@/pages/Finances";
+import Reporting from "@/pages/Reporting";
+import Development from "@/pages/Development";
+import Invoices from "@/pages/Invoices";
+import Boards from "@/pages/Boards";
+import BoardView from "@/pages/BoardView";
+import Sequences from "@/pages/Sequences";
+import SequenceBuilder from "@/pages/SequenceBuilder";
+import SubstackPosts from "@/pages/SubstackPosts";
+import SubstackPostEditor from "@/pages/SubstackPostEditor";
+import Travels from "@/pages/Travels";
 import { Outlet } from "react-router-dom";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SettingsLayout } from "@/components/settings/SettingsLayout";
+import ProfileSettings from "@/pages/ProfileSettings";
+import BrandingSettings from "@/pages/BrandingSettings";
+import BackupSettings from "@/pages/BackupSettings";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Layout><Outlet /></Layout>,
+    element: <Landing />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/dashboard",
+    element: <AuthProvider><Layout><Outlet /></Layout></AuthProvider>,
     children: [
       {
-        path: "dashboard",
+        index: true,
         element: <Dashboard />,
       },
       {
-        path: "dashboard/chat/:roomId",
-        element: <ChatRoom />,
+        path: "sequences",
+        element: <Sequences />,
       },
       {
-        path: "chat/join/:accessCode",
-        element: <JoinChatRoom />,
+        path: "sequences/:sequenceId/edit",
+        element: <SequenceBuilder />,
       },
       {
-        path: "dashboard/projects",
-        element: <Projects />,
+        path: "prospects",
+        element: <Prospects />,
       },
       {
-        path: "dashboard/deals",
+        path: "tasks",
+        element: <Tasks />,
+      },
+      {
+        path: "deals",
         element: <Deals />,
       },
       {
-        path: "login",
-        element: <Login />,
+        path: "projects",
+        element: <Projects />,
+      },
+      {
+        path: "calendar",
+        element: <Calendar />,
+      },
+      {
+        path: "affiliates",
+        element: <Affiliates />,
+      },
+      {
+        path: "finances",
+        element: <Finances />,
+      },
+      {
+        path: "invoices",
+        element: <Invoices />,
+      },
+      {
+        path: "reporting",
+        element: <Reporting />,
+      },
+      {
+        path: "development",
+        element: <Development />,
+      },
+      {
+        path: "boards",
+        element: <Boards />,
+      },
+      {
+        path: "boards/:boardId",
+        element: <BoardView />,
+      },
+      {
+        path: "substack",
+        element: <SubstackPosts />,
+      },
+      {
+        path: "substack/new",
+        element: <SubstackPostEditor />,
+      },
+      {
+        path: "substack/edit/:id",
+        element: <SubstackPostEditor />,
+      },
+      {
+        path: "travels",
+        element: <Travels />,
+      },
+      {
+        path: "settings",
+        element: <SettingsLayout />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          },
+          {
+            path: "branding",
+            element: <BrandingSettings />,
+          },
+          {
+            path: "backup",
+            element: <BackupSettings />,
+          }
+        ],
       },
     ],
   },
