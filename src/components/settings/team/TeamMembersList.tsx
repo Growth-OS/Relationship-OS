@@ -12,6 +12,7 @@ export const TeamMembersList = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
+        // First get the user's team
         const { data: teamData } = await supabase
           .from("team_members")
           .select("team_id")
@@ -19,25 +20,33 @@ export const TeamMembersList = () => {
           .maybeSingle();
 
         if (teamData?.team_id) {
+          // Then get all members of that team with their profiles
           const { data: membersData, error } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              profiles:user_id (
-                full_name,
-                email
+              user:user_id (
+                email,
+                full_name
               )
             `)
             .eq("team_id", teamData.team_id);
 
-          if (error) {
-            throw error;
-          }
+          if (error) throw error;
 
           if (membersData) {
-            setMembers(membersData as unknown as TeamMember[]);
+            const formattedMembers: TeamMember[] = membersData.map(member => ({
+              id: member.id,
+              role: member.role,
+              user_id: member.user_id,
+              profiles: {
+                full_name: member.user?.full_name || "Pending Setup",
+                email: member.user?.email || ""
+              }
+            }));
+            setMembers(formattedMembers);
           }
         }
       } catch (error) {
