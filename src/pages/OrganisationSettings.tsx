@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialog";
 import { UserPlus, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const OrganisationSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -13,21 +14,29 @@ const OrganisationSettings = () => {
   const { data: teamData, isLoading, isError } = useQuery({
     queryKey: ["team"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
 
-      const { data: teamMember, error: teamMemberError } = await supabase
-        .from("team_members")
-        .select("team_id, teams(id, name), role")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        console.log("Fetching team data for user:", user.id);
 
-      if (teamMemberError) {
-        console.error("Error fetching team:", teamMemberError);
-        throw teamMemberError;
+        const { data: teamMember, error: teamMemberError } = await supabase
+          .from("team_members")
+          .select("team_id, teams(id, name), role")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (teamMemberError) {
+          console.error("Error fetching team:", teamMemberError);
+          throw teamMemberError;
+        }
+
+        console.log("Team data fetched:", teamMember);
+        return teamMember;
+      } catch (error) {
+        console.error("Error in team query:", error);
+        throw error;
       }
-
-      return teamMember;
     },
   });
 
@@ -39,7 +48,8 @@ const OrganisationSettings = () => {
     );
   }
 
-  if (isError) {
+  if (isError || !teamData?.team_id) {
+    toast.error("Failed to load organisation settings");
     return (
       <Card>
         <CardContent className="py-8">
@@ -74,14 +84,14 @@ const OrganisationSettings = () => {
             </Button>
           </CardHeader>
           <CardContent>
-            <TeamMembersList teamId={teamData?.team_id} />
+            <TeamMembersList teamId={teamData.team_id} />
           </CardContent>
         </Card>
 
         <InviteMemberDialog
           open={isInviteDialogOpen}
           onOpenChange={setIsInviteDialogOpen}
-          teamId={teamData?.team_id}
+          teamId={teamData.team_id}
         />
       </div>
     </div>
