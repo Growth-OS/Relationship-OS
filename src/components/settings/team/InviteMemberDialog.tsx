@@ -18,6 +18,13 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
   const [role, setRole] = useState<"admin" | "member">("member");
   const [isLoading, setIsLoading] = useState(false);
 
+  const generateInviteToken = () => {
+    // Generate a secure random token
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  };
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!teamId) return;
@@ -49,6 +56,10 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         return;
       }
 
+      const token = generateInviteToken();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
+
       const { error: inviteError } = await supabase
         .from("team_invitations")
         .insert({
@@ -56,6 +67,9 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
           email,
           role,
           invited_by: user.id,
+          token,
+          status: 'pending',
+          expires_at: expiresAt.toISOString()
         });
 
       if (inviteError) throw inviteError;
@@ -67,6 +81,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
           teamId,
           role,
           invitedBy: profile.full_name || user.email,
+          token
         },
       });
 
