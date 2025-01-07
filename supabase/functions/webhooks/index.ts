@@ -53,9 +53,16 @@ serve(async (req) => {
     );
 
     const body = await req.json();
+    console.log('Received webhook payload:', body);
+
+    // Ensure type is provided in the request body
+    if (!body.type) {
+      throw new Error('Webhook type is required');
+    }
+
     const { type, data, userId } = body;
 
-    console.log('Received webhook:', { type, data });
+    console.log('Processing webhook:', { type, data });
 
     switch (type) {
       case 'prospect':
@@ -108,7 +115,10 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing webhook:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: 'Make sure to include "type" in your webhook payload. Supported types are: prospect, deal, task'
+      }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
