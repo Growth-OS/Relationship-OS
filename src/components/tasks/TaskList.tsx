@@ -11,12 +11,13 @@ export const TaskList = ({
   sourceType, 
   sourceId, 
   showPagination = true,
-  groupBySource = true 
+  groupBySource = true,
+  showArchived = false 
 }: TaskListProps) => {
   const queryClient = useQueryClient();
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["tasks", sourceType, sourceId],
+    queryKey: ["tasks", sourceType, sourceId, showArchived],
     queryFn: async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -32,6 +33,7 @@ export const TaskList = ({
             sequences(id, name)
           `)
           .eq("user_id", user.id)
+          .eq("completed", showArchived) // Only show completed tasks in archived view
           .order("due_date", { ascending: true });
 
         if (sourceType && sourceId) {
@@ -70,7 +72,7 @@ export const TaskList = ({
       await queryClient.invalidateQueries({ queryKey: ["tasks"] });
       await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
       
-      toast.success(`Task ${completed ? "completed" : "uncompleted"}`);
+      toast.success(`Task ${completed ? "archived" : "unarchived"}`);
     } catch (error) {
       console.error("Error updating task:", error);
       toast.error("Failed to update task");
