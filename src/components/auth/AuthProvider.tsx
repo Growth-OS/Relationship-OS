@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AuthError, Session } from "@supabase/supabase-js";
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -21,21 +22,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (error) {
           console.error("Session check error:", error);
-          setIsAuthenticated(false);
+          handleAuthError(error);
           return;
         }
 
         // If no session, clear local storage and set as not authenticated
         if (!session) {
-          localStorage.clear();
-          setIsAuthenticated(false);
+          handleSignOut();
           return;
         }
 
         setIsAuthenticated(true);
       } catch (error) {
         console.error("Session check error:", error);
-        setIsAuthenticated(false);
+        handleSignOut();
       } finally {
         setIsLoading(false);
       }
@@ -49,9 +49,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       switch (event) {
         case 'SIGNED_OUT':
-          setIsAuthenticated(false);
-          localStorage.clear();
-          navigate('/login', { replace: true });
+          handleSignOut();
           toast.success('Signed out successfully');
           break;
 
@@ -64,8 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               navigate(returnPath, { replace: true });
             }
           } else {
-            setIsAuthenticated(false);
-            navigate('/login', { replace: true });
+            handleSignOut();
           }
           break;
 
@@ -85,9 +82,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         case 'USER_DELETED':
         case 'TOKEN_REVOKED':
-          setIsAuthenticated(false);
-          localStorage.clear();
-          navigate('/login', { replace: true });
+          handleSignOut();
           break;
       }
     });
@@ -96,6 +91,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname]);
+
+  const handleSignOut = () => {
+    localStorage.clear();
+    setIsAuthenticated(false);
+    navigate('/login', { replace: true });
+  };
+
+  const handleAuthError = (error: AuthError) => {
+    console.error('Auth error:', error);
+    handleSignOut();
+    
+    if (error.message.includes('session_not_found')) {
+      toast.error('Your session has expired. Please sign in again.');
+    } else {
+      toast.error('Authentication error. Please sign in again.');
+    }
+  };
 
   if (isLoading) {
     return (
