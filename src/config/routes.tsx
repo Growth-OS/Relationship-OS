@@ -14,7 +14,13 @@ import Finances from "@/pages/Finances";
 
 export const router = createBrowserRouter([
   {
-    element: <AuthProvider><Layout /></AuthProvider>,
+    element: (
+      <AuthProvider>
+        <Layout>
+          <Outlet />
+        </Layout>
+      </AuthProvider>
+    ),
     children: [
       {
         path: "/",

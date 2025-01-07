@@ -6,6 +6,7 @@ import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Team } from "@/integrations/supabase/types/auth";
 
 const TeamSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -22,7 +23,7 @@ const TeamSettings = () => {
         .select("team_id, teams(*)")
         .eq("user_id", user.id)
         .eq("role", "owner")
-        .maybeSingle(); // Changed from single() to maybeSingle()
+        .maybeSingle();
 
       if (teamMemberError) {
         console.error("Error fetching team:", teamMemberError);
@@ -34,7 +35,7 @@ const TeamSettings = () => {
         return null;
       }
       
-      return teamMember?.teams;
+      return teamMember.teams as Team;
     },
   });
 
@@ -70,14 +71,14 @@ const TeamSettings = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <TeamMembersList teamId={team?.id} />
+              <TeamMembersList teamId={team.id} />
             </CardContent>
           </Card>
 
           <InviteMemberDialog
             open={isInviteDialogOpen}
             onOpenChange={setIsInviteDialogOpen}
-            teamId={team?.id}
+            teamId={team.id}
           />
         </div>
       )}

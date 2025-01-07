@@ -1,4 +1,4 @@
-import { AuthProvider, OAuthConnection, Profile, Team, TeamMember, UserRole } from './auth';
+import { AuthProvider, OAuthConnection, Profile, Team, TeamMember, UserRole, TeamInvitation } from './auth';
 import { AIPrompt, LinkedInProfile, SubstackPost } from './content';
 import { Deal, DealStage, LeadSource } from './deals';
 import { Prospect } from './prospects';
@@ -7,9 +7,22 @@ import { LinkedInMessage } from './linkedin';
 import { Project, ProjectCredential, ProjectDocument, ProjectStatus } from './projects';
 import { Task, TaskSource } from './tasks';
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[];
+
 export type Database = {
   public: {
     Tables: {
+      team_invitations: {
+        Row: TeamInvitation;
+        Insert: Omit<TeamInvitation, 'id' | 'created_at'>;
+        Update: Partial<TeamInvitation>;
+      };
       linkedin_messages: {
         Row: LinkedInMessage;
         Insert: Partial<LinkedInMessage> & Pick<LinkedInMessage, 'unipile_message_id' | 'sender_name' | 'content' | 'received_at' | 'user_id'>;

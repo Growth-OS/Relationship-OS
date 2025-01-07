@@ -17,6 +17,14 @@ export interface Profile {
   email: string;
   full_name: string | null;
   created_at: string;
+  avatar_url: string | null;
+  headline: string | null;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  created_at: string;
 }
 
 export interface TeamMember {
@@ -27,10 +35,19 @@ export interface TeamMember {
   invited_by: string | null;
   invited_at: string;
   joined_at: string | null;
+  temp_password: string | null;
+  credentials_shared: boolean;
+  credentials_created_at: string;
 }
 
-export interface Team {
+export interface TeamInvitation {
   id: string;
-  name: string;
   created_at: string;
+  team_id: string;
+  email: string;
+  role: UserRole;
+  token: string;
+  invited_by: string;
+  expires_at: string;
+  status: string;
 }
