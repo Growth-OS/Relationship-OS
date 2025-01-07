@@ -28,32 +28,57 @@ export const AddTeamMemberDialog = () => {
     setIsLoading(true);
 
     try {
-      // First get the current user's team
-      const { data: { user } } = await supabase.auth.getUser();
+      // First get the current user and their profile
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
       if (!user) throw new Error("Not authenticated");
+
+      console.log("Current user:", user.id);
+
+      // Get the user's profile to verify it exists
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Profile error:", profileError);
+        throw new Error("Failed to fetch user profile");
+      }
+
+      if (!profile) {
+        console.error("No profile found for user:", user.id);
+        throw new Error("User profile not found");
+      }
 
       // Get the team where the current user is an owner or admin
       const { data: teamData, error: teamError } = await supabase
         .from("team_members")
         .select("team_id, role")
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
-      console.log("Team data:", teamData);
+      if (teamError) {
+        console.error("Team fetch error:", teamError);
+        throw new Error("Failed to fetch team information");
+      }
 
-      if (teamError || !teamData?.team_id) {
-        console.error("Team error:", teamError);
-        throw new Error("No team found or unauthorized");
+      if (!teamData?.team_id) {
+        console.error("No team found for user:", user.id);
+        throw new Error("No team found");
       }
 
       if (!["owner", "admin"].includes(teamData.role)) {
-        throw new Error("Insufficient permissions");
+        throw new Error("Insufficient permissions to add team members");
       }
+
+      console.log("Team data:", teamData);
 
       const generatedCredentials = generateCredentials();
 
       // Create the new user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authCreateError } = await supabase.auth.signUp({
         email: generatedCredentials.email,
         password: generatedCredentials.password,
         options: {
@@ -63,23 +88,27 @@ export const AddTeamMemberDialog = () => {
         },
       });
 
-      if (authError || !authData.user) {
-        console.error("Auth error:", authError);
-        throw authError;
+      if (authCreateError || !authData.user) {
+        console.error("Auth creation error:", authCreateError);
+        throw authCreateError || new Error("Failed to create user");
       }
 
-      // Add the user to the team
-      const { error: teamError2 } = await supabase.from("team_members").insert({
-        team_id: teamData.team_id,
-        user_id: authData.user.id,
-        role: role,
-        temp_password: generatedCredentials.password,
-        invited_by: user.id,
-      });
+      console.log("New user created:", authData.user.id);
 
-      if (teamError2) {
-        console.error("Team member insert error:", teamError2);
-        throw teamError2;
+      // Add the user to the team
+      const { error: teamMemberError } = await supabase
+        .from("team_members")
+        .insert({
+          team_id: teamData.team_id,
+          user_id: authData.user.id,
+          role: role,
+          temp_password: generatedCredentials.password,
+          invited_by: user.id,
+        });
+
+      if (teamMemberError) {
+        console.error("Team member insert error:", teamMemberError);
+        throw teamMemberError;
       }
 
       setCredentials(generatedCredentials);
