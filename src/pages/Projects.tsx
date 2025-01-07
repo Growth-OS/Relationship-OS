@@ -13,9 +13,10 @@ import { ProjectsSort } from "@/components/projects/ProjectsSort";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { ProjectStats } from "@/components/projects/ProjectStats";
 import { LayoutGrid, List, Kanban, Calendar } from "lucide-react";
+import { ProjectStatus } from "@/integrations/supabase/types/projects";
 
 const Projects = () => {
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | ProjectStatus>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("last_activity");
 
