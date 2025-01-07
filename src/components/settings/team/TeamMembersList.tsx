@@ -27,9 +27,9 @@ export const TeamMembersList = () => {
               id,
               role,
               user_id,
-              user:profiles!user_id(
-                email,
-                full_name
+              profiles:user_id (
+                full_name,
+                email
               )
             `)
             .eq("team_id", teamData.team_id);
@@ -37,7 +37,17 @@ export const TeamMembersList = () => {
           if (error) throw error;
 
           if (membersData) {
-            setMembers(membersData);
+            // Transform the data to match our TeamMember type
+            const transformedMembers: TeamMember[] = membersData.map(member => ({
+              id: member.id,
+              role: member.role,
+              user_id: member.user_id,
+              user: {
+                full_name: member.profiles?.full_name || null,
+                email: member.profiles?.email || ''
+              }
+            }));
+            setMembers(transformedMembers);
           }
         }
       } catch (error) {
