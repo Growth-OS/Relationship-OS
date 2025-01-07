@@ -3,6 +3,7 @@ import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
 
 interface ProspectRowProps {
@@ -24,86 +25,39 @@ export const ProspectRow = ({
   isSelected,
   onSelectChange
 }: ProspectRowProps) => {
-  const getSequenceStatusColor = (status?: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
-      case 'paused':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400';
-    }
-  };
-
-  const isConverted = prospect.status === 'converted';
-
   return (
-    <TableRow className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${
-      isConverted ? 'opacity-60' : ''
-    }`}>
-      <TableCell>
+    <TableRow className="hover:bg-muted/50">
+      <TableCell className="p-4">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelectChange}
-          className="mr-2"
-          disabled={isConverted}
         />
       </TableCell>
-      <TableCell className="font-medium">
-        <div className="flex items-center gap-2">
-          {prospect.company_name}
-          {isConverted && (
-            <Badge variant="secondary" className="text-xs">
-              Converted to Deal
-            </Badge>
-          )}
-        </div>
-      </TableCell>
-      <TableCell>
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
+      <TableCell className="p-4 font-medium">{prospect.company_name}</TableCell>
+      <TableCell className="p-4 text-muted-foreground">
+        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
           {sourceLabels[prospect.source]}
         </span>
       </TableCell>
-      <TableCell>{prospect.contact_job_title || '-'}</TableCell>
-      <TableCell>{prospect.contact_email || '-'}</TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          {prospect.company_website && (
-            <a 
-              href={prospect.company_website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-700 hover:underline block"
-            >
-              Website
-            </a>
-          )}
-          {prospect.contact_linkedin && (
-            <a 
-              href={prospect.contact_linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-700 hover:underline"
-            >
-              LinkedIn
-            </a>
-          )}
-          {!prospect.company_website && !prospect.contact_linkedin && '-'}
-        </div>
+      <TableCell className="p-4 text-muted-foreground">{prospect.contact_job_title || '-'}</TableCell>
+      <TableCell className="p-4 text-muted-foreground">{prospect.contact_email || '-'}</TableCell>
+      <TableCell className="p-4">
+        <ExternalLinks 
+          website={prospect.company_website} 
+          linkedin={prospect.contact_linkedin}
+        />
       </TableCell>
-      <TableCell>
+      <TableCell className="p-4">
         {prospect.sequence_name ? (
           <div className="space-y-1">
             <div>{prospect.sequence_name}</div>
-            <Badge className={getSequenceStatusColor(prospect.sequence_status)}>
+            <Badge>
               {prospect.sequence_status || 'Not started'}
             </Badge>
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell>
+      <TableCell className="p-4">
         {prospect.current_step ? (
           <div className="space-y-1">
             <div className="text-sm text-gray-600">Step {prospect.current_step}</div>
@@ -111,15 +65,13 @@ export const ProspectRow = ({
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell>
-        {!isConverted && (
-          <ProspectActions
-            prospect={prospect}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onConvertToLead={onConvertToLead}
-          />
-        )}
+      <TableCell className="p-4">
+        <ProspectActions
+          prospect={prospect}
+          onDelete={onDelete}
+          onEdit={onEdit}
+          onConvertToLead={onConvertToLead}
+        />
       </TableCell>
     </TableRow>
   );
