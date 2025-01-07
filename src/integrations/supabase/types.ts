@@ -173,6 +173,119 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          attachment_url: string | null
+          content: string
+          created_at: string
+          id: string
+          is_system_message: boolean | null
+          participant_id: string
+          room_id: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_system_message?: boolean | null
+          participant_id: string
+          room_id: string
+        }
+        Update: {
+          attachment_url?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_system_message?: boolean | null
+          participant_id?: string
+          room_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "chat_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_participants: {
+        Row: {
+          display_name: string
+          email: string | null
+          id: string
+          is_external: boolean | null
+          joined_at: string
+          room_id: string
+          user_id: string | null
+        }
+        Insert: {
+          display_name: string
+          email?: string | null
+          id?: string
+          is_external?: boolean | null
+          joined_at?: string
+          room_id: string
+          user_id?: string | null
+        }
+        Update: {
+          display_name?: string
+          email?: string | null
+          id?: string
+          is_external?: boolean | null
+          joined_at?: string
+          room_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_participants_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          access_code: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          title: string
+        }
+        Insert: {
+          access_code: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
+        }
+        Update: {
+          access_code?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
+        }
+        Relationships: []
+      }
       content_strategy: {
         Row: {
           content_pillars: string[] | null
@@ -1175,35 +1288,80 @@ export type Database = {
           },
         ]
       }
+      team_member_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          module: Database["public"]["Enums"]["module_permission"]
+          team_member_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module: Database["public"]["Enums"]["module_permission"]
+          team_member_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module?: Database["public"]["Enums"]["module_permission"]
+          team_member_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_member_permissions_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
+          credentials_created_at: string | null
+          credentials_shared: boolean | null
           id: string
           invited_at: string
           invited_by: string | null
           joined_at: string | null
           role: Database["public"]["Enums"]["user_role"]
           team_id: string
+          temp_password: string | null
           user_id: string
         }
         Insert: {
+          credentials_created_at?: string | null
+          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id: string
+          temp_password?: string | null
           user_id: string
         }
         Update: {
+          credentials_created_at?: string | null
+          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id?: string
+          temp_password?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_team_members_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "team_members_team_id_fkey"
             columns: ["team_id"]
@@ -1379,6 +1537,29 @@ export type Database = {
         }
         Relationships: []
       }
+      team_member_roles: {
+        Row: {
+          role: Database["public"]["Enums"]["user_role"] | null
+          team_id: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_team_members_user"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       delete_sequence: {
@@ -1419,6 +1600,21 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+      module_permission:
+        | "dashboard"
+        | "prospects"
+        | "deals"
+        | "projects"
+        | "sequences"
+        | "tasks"
+        | "calendar"
+        | "affiliates"
+        | "finances"
+        | "invoices"
+        | "reporting"
+        | "development"
+        | "substack"
+        | "travels"
       project_status: "active" | "completed" | "on_hold"
       sequence_status: "active" | "paused" | "completed"
       sequence_step_type: "email" | "linkedin"
@@ -1438,6 +1634,7 @@ export type Database = {
         | "other"
         | "projects"
         | "sequences"
+      team_role: "owner" | "admin" | "member"
       transaction_type: "income" | "expense"
       travel_status: "upcoming" | "completed" | "cancelled"
       user_role: "owner" | "admin" | "member"
