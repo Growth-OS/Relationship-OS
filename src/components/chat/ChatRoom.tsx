@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send } from "lucide-react";
+import { Copy, Send, Share2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -75,6 +75,14 @@ export const ChatRoom = () => {
     }
   };
 
+  const handleCopyInviteCode = () => {
+    if (room?.access_code) {
+      const inviteUrl = `${window.location.origin}/chat/join/${room.access_code}`;
+      navigator.clipboard.writeText(inviteUrl);
+      toast.success("Invite link copied to clipboard!");
+    }
+  };
+
   if (isLoadingRoom || isLoadingMessages) {
     return <div>Loading chat room...</div>;
   }
@@ -86,7 +94,13 @@ export const ChatRoom = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-6rem)] bg-background">
       <div className="border-b p-4">
-        <h1 className="text-2xl font-semibold">{room.title}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">{room.title}</h1>
+          <Button variant="outline" onClick={handleCopyInviteCode}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Chat
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="flex-1 p-4">

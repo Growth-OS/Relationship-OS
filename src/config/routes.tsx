@@ -1,153 +1,66 @@
 import { RouteObject } from "react-router-dom";
-import Layout from "@/components/Layout";
-import Login from "@/pages/Login";
+import Layout from "@/components/layout/Layout";
 import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
-import Prospects from "@/pages/Prospects";
-import Tasks from "@/pages/Tasks";
-import Deals from "@/pages/Deals";
 import Projects from "@/pages/Projects";
-import Calendar from "@/pages/Calendar";
-import Affiliates from "@/pages/Affiliates";
-import Finances from "@/pages/Finances";
-import Reporting from "@/pages/Reporting";
-import Development from "@/pages/Development";
-import Invoices from "@/pages/Invoices";
-import Boards from "@/pages/Boards";
-import BoardView from "@/pages/BoardView";
-import Sequences from "@/pages/Sequences";
-import SequenceBuilder from "@/pages/SequenceBuilder";
-import SubstackPosts from "@/pages/SubstackPosts";
-import SubstackPostEditor from "@/pages/SubstackPostEditor";
-import Travels from "@/pages/Travels";
-import { Outlet } from "react-router-dom";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { SettingsLayout } from "@/components/settings/SettingsLayout";
-import ProfileSettings from "@/pages/ProfileSettings";
-import TeamSettings from "@/pages/TeamSettings";
-import BrandingSettings from "@/pages/BrandingSettings";
-import BackupSettings from "@/pages/BackupSettings";
+import Project from "@/pages/Project";
+import Deals from "@/pages/Deals";
+import Deal from "@/pages/Deal";
+import Settings from "@/pages/Settings";
 import ChatRoom from "@/components/chat/ChatRoom";
+import JoinChatRoom from "@/components/chat/JoinChatRoom";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Landing />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/dashboard",
-    element: <AuthProvider><Layout><Outlet /></Layout></AuthProvider>,
+    element: <Layout />,
     children: [
       {
-        index: true,
+        path: "dashboard",
         element: <Dashboard />,
       },
       {
-        path: "chat/:roomId",
+        path: "dashboard/chat/:roomId",
         element: <ChatRoom />,
       },
       {
-        path: "sequences",
-        element: <Sequences />,
-      },
-      {
-        path: "sequences/:sequenceId/edit",
-        element: <SequenceBuilder />,
-      },
-      {
-        path: "prospects",
-        element: <Prospects />,
-      },
-      {
-        path: "tasks",
-        element: <Tasks />,
-      },
-      {
-        path: "deals",
-        element: <Deals />,
+        path: "chat/join/:accessCode",
+        element: <JoinChatRoom />,
       },
       {
         path: "projects",
         element: <Projects />,
       },
       {
-        path: "calendar",
-        element: <Calendar />,
+        path: "projects/:id",
+        element: <Project />,
       },
       {
-        path: "affiliates",
-        element: <Affiliates />,
+        path: "deals",
+        element: <Deals />,
       },
       {
-        path: "finances",
-        element: <Finances />,
-      },
-      {
-        path: "invoices",
-        element: <Invoices />,
-      },
-      {
-        path: "reporting",
-        element: <Reporting />,
-      },
-      {
-        path: "development",
-        element: <Development />,
-      },
-      {
-        path: "boards",
-        element: <Boards />,
-      },
-      {
-        path: "boards/:boardId",
-        element: <BoardView />,
-      },
-      {
-        path: "substack",
-        element: <SubstackPosts />,
-      },
-      {
-        path: "substack/new",
-        element: <SubstackPostEditor />,
-      },
-      {
-        path: "substack/edit/:id",
-        element: <SubstackPostEditor />,
-      },
-      {
-        path: "travels",
-        element: <Travels />,
+        path: "deals/:id",
+        element: <Deal />,
       },
       {
         path: "settings",
-        element: <SettingsLayout />,
-        children: [
-          {
-            path: "profile",
-            element: <ProfileSettings />,
-          },
-          {
-            path: "team",
-            element: <TeamSettings />,
-          },
-          {
-            path: "branding",
-            element: <BrandingSettings />,
-          },
-          {
-            path: "backup",
-            element: <BackupSettings />,
-          },
-        ],
+        element: <Settings />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "register",
+        element: <Register />,
       },
     ],
   },
   {
     path: "*",
-    element: <Landing />,  // Catch-all route to handle unknown paths
+    element: <Landing />,
   }
 ];
