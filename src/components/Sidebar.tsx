@@ -8,7 +8,6 @@ const Sidebar = () => {
     <div className="w-64 h-screen bg-background border-r border-border p-4 fixed left-0 top-0 flex flex-col">
       <SidebarLogo />
       <SidebarNavigation />
-      <div className="flex-1" />
       <SidebarFooter />
     </div>
   );

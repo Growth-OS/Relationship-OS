@@ -1,88 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { MessageSquare, Plus } from "lucide-react";
+import { CreateChatDialog } from "./CreateChatDialog";
 
-interface ChatRoomsListProps {
-  onRoomSelect: (roomId: string) => void;
-  onJoinNewRoom: () => void;
-}
-
-export const ChatRoomsList = ({ onRoomSelect, onJoinNewRoom }: ChatRoomsListProps) => {
-  const [rooms, setRooms] = useState<any[]>([]);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchRooms = async () => {
+export const ChatRoomsList = () => {
+  const { data: rooms, isLoading } = useQuery({
+    queryKey: ["chatRooms"],
+    queryFn: async () => {
       const { data, error } = await supabase
-        .from('chat_rooms')
-        .select('*')
-        .eq('is_active', true);
+        .from("chat_rooms")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-      if (error) {
-        toast({
-          title: 'Error fetching rooms',
-          description: error.message,
-          variant: 'destructive',
-        });
-        return;
-      }
+      if (error) throw error;
+      return data;
+    },
+  });
 
-      setRooms(data || []);
-    };
-
-    fetchRooms();
-
-    const channel = supabase
-      .channel('chat_rooms')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'chat_rooms',
-        },
-        () => {
-          fetchRooms();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
+  if (isLoading) {
+    return <div>Loading chat rooms...</div>;
+  }
 
   return (
-    <div className="space-y-2 px-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-full justify-start text-muted-foreground hover:text-foreground"
-        onClick={onJoinNewRoom}
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Join Room
+    <div className="space-y-2">
+      <Button variant="default" className="w-full mb-4" asChild>
+        <CreateChatDialog>
+          <span className="flex items-center">
+            <Plus className="mr-2 h-4 w-4" />
+            New Chat Room
+          </span>
+        </CreateChatDialog>
       </Button>
       
-      {rooms.map((room) => (
+      {rooms?.map((room) => (
         <Button
           key={room.id}
           variant="ghost"
-          size="sm"
-          className="w-full justify-start font-normal"
-          onClick={() => onRoomSelect(room.id)}
+          className="w-full justify-start"
+          asChild
         >
-          # {room.title}
+          <a href={`/dashboard/chat/${room.id}`}>
+            <MessageSquare className="mr-2 h-4 w-4" />
+            {room.title}
+          </a>
         </Button>
       ))}
-      
-      {rooms.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          No active chat rooms
-        </p>
-      )}
     </div>
   );
 };

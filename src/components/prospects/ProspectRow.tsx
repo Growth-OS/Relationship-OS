@@ -3,6 +3,7 @@ import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
 
 interface ProspectRowProps {
@@ -32,39 +33,21 @@ export const ProspectRow = ({
           onCheckedChange={onSelectChange}
         />
       </TableCell>
-      <TableCell className="p-4 font-medium text-left">{prospect.company_name}</TableCell>
-      <TableCell className="p-4 text-muted-foreground text-left">
+      <TableCell className="p-4 font-medium">{prospect.company_name}</TableCell>
+      <TableCell className="p-4 text-muted-foreground">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
           {sourceLabels[prospect.source]}
         </span>
       </TableCell>
-      <TableCell className="p-4 text-muted-foreground text-left">{prospect.contact_job_title || '-'}</TableCell>
-      <TableCell className="p-4 text-muted-foreground text-left">{prospect.contact_email || '-'}</TableCell>
-      <TableCell className="p-4 text-left">
-        {prospect.company_website ? (
-          <a 
-            href={prospect.company_website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-600 hover:text-purple-700 hover:underline"
-          >
-            Visit Website
-          </a>
-        ) : '-'}
+      <TableCell className="p-4 text-muted-foreground">{prospect.contact_job_title || '-'}</TableCell>
+      <TableCell className="p-4 text-muted-foreground">{prospect.contact_email || '-'}</TableCell>
+      <TableCell className="p-4">
+        <ExternalLinks 
+          website={prospect.company_website} 
+          linkedin={prospect.contact_linkedin}
+        />
       </TableCell>
-      <TableCell className="p-4 text-left">
-        {prospect.contact_linkedin ? (
-          <a 
-            href={prospect.contact_linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-600 hover:text-purple-700 hover:underline"
-          >
-            Profile
-          </a>
-        ) : '-'}
-      </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell className="p-4">
         {prospect.sequence_name ? (
           <div className="space-y-1">
             <div>{prospect.sequence_name}</div>
@@ -74,7 +57,7 @@ export const ProspectRow = ({
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell className="p-4">
         {prospect.current_step ? (
           <div className="space-y-1">
             <div className="text-sm text-gray-600">Step {prospect.current_step}</div>

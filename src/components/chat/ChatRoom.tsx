@@ -1,237 +1,141 @@
-import React, { useEffect, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Paperclip } from 'lucide-react';
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Copy, Send, Share2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-interface Message {
-  id: string;
-  content: string;
-  created_at: string;
-  participant_id: string;
-  attachment_url?: string;
-}
+export const ChatRoom = () => {
+  const { roomId } = useParams();
+  const [message, setMessage] = useState("");
 
-interface Participant {
-  id: string;
-  display_name: string;
-  is_external: boolean;
-}
+  // Fetch chat room details
+  const { data: room, isLoading: isLoadingRoom } = useQuery({
+    queryKey: ["chatRoom", roomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("chat_rooms")
+        .select("*")
+        .eq("id", roomId)
+        .single();
 
-interface ChatRoomProps {
-  roomId: string;
-  onBack: () => void;
-}
+      if (error) throw error;
+      return data;
+    },
+  });
 
-export const ChatRoom = ({ roomId, onBack }: ChatRoomProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [participantId, setParticipantId] = useState<string | null>(null);
-  const { toast } = useToast();
+  // Fetch chat messages
+  const { data: messages, isLoading: isLoadingMessages } = useQuery({
+    queryKey: ["chatMessages", roomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("chat_messages")
+        .select(`
+          *,
+          participant:chat_participants(display_name)
+        `)
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: true });
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      // Fetch messages
-      const { data: messagesData, error: messagesError } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('room_id', roomId)
-        .order('created_at', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
 
-      if (messagesError) {
-        toast({
-          title: 'Error fetching messages',
-          description: messagesError.message,
-          variant: 'destructive',
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim()) return;
+
+    try {
+      const { data: participant } = await supabase
+        .from("chat_participants")
+        .select("id")
+        .eq("room_id", roomId)
+        .single();
+
+      if (!participant) throw new Error("Not a participant of this chat");
+
+      const { error } = await supabase
+        .from("chat_messages")
+        .insert({
+          room_id: roomId,
+          participant_id: participant.id,
+          content: message,
         });
-        return;
-      }
 
-      setMessages(messagesData || []);
+      if (error) throw error;
 
-      // Fetch participants
-      const { data: participantsData, error: participantsError } = await supabase
-        .from('chat_participants')
-        .select('*')
-        .eq('room_id', roomId);
-
-      if (participantsError) {
-        toast({
-          title: 'Error fetching participants',
-          description: participantsError.message,
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      setParticipants(participantsData || []);
-
-      // Get current user's participant ID
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const currentParticipant = participantsData?.find(p => p.user_id === user.id);
-        if (currentParticipant) {
-          setParticipantId(currentParticipant.id);
-        }
-      }
-    };
-
-    fetchInitialData();
-
-    // Subscribe to new messages
-    const channel = supabase
-      .channel('chat_messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload) => {
-          setMessages((current) => [...current, payload.new as Message]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [roomId, toast]);
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !participantId) return;
-
-    const { error } = await supabase
-      .from('chat_messages')
-      .insert({
-        room_id: roomId,
-        participant_id: participantId,
-        content: newMessage,
-      });
-
-    if (error) {
-      toast({
-        title: 'Error sending message',
-        description: error.message,
-        variant: 'destructive',
-      });
-      return;
+      setMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
     }
-
-    setNewMessage('');
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !participantId) return;
-
-    const fileExt = file.name.split('.').pop();
-    const filePath = `${roomId}/${crypto.randomUUID()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('chat_files')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      toast({
-        title: 'Error uploading file',
-        description: uploadError.message,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('chat_files')
-      .getPublicUrl(filePath);
-
-    const { error: messageError } = await supabase
-      .from('chat_messages')
-      .insert({
-        room_id: roomId,
-        participant_id: participantId,
-        content: `Shared file: ${file.name}`,
-        attachment_url: publicUrl,
-      });
-
-    if (messageError) {
-      toast({
-        title: 'Error sending message',
-        description: messageError.message,
-        variant: 'destructive',
-      });
+  const handleCopyInviteCode = () => {
+    if (room?.access_code) {
+      const inviteUrl = `${window.location.origin}/chat/join/${room.access_code}`;
+      navigator.clipboard.writeText(inviteUrl);
+      toast.success("Invite link copied to clipboard!");
     }
   };
+
+  if (isLoadingRoom || isLoadingMessages) {
+    return <div>Loading chat room...</div>;
+  }
+
+  if (!room) {
+    return <div>Chat room not found</div>;
+  }
 
   return (
-    <Card className="flex flex-col h-[600px] p-4">
-      <ScrollArea className="flex-1 mb-4">
+    <div className="flex flex-col h-[calc(100vh-6rem)] bg-background">
+      <div className="border-b p-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">{room.title}</h1>
+          <Button variant="outline" onClick={handleCopyInviteCode}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Chat
+          </Button>
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.map((message) => {
-            const participant = participants.find(p => p.id === message.participant_id);
-            return (
-              <div
-                key={message.id}
-                className={`flex flex-col ${
-                  message.participant_id === participantId ? 'items-end' : 'items-start'
-                }`}
-              >
-                <span className="text-sm text-muted-foreground">
-                  {participant?.display_name}
-                </span>
-                <div className={`max-w-[80%] rounded-lg p-3 ${
-                  message.participant_id === participantId
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
-                }`}>
-                  <p>{message.content}</p>
-                  {message.attachment_url && (
-                    <a
-                      href={message.attachment_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      Download attachment
-                    </a>
-                  )}
-                </div>
+          {messages?.map((message) => (
+            <div
+              key={message.id}
+              className="flex flex-col space-y-1"
+            >
+              <span className="text-sm text-muted-foreground">
+                {message.participant?.display_name}
+              </span>
+              <div className="bg-secondary p-3 rounded-lg">
+                {message.content}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </ScrollArea>
-      <div className="flex gap-2">
-        <Input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Type a message..."
-          className="flex-1"
-        />
-        <Input
-          type="file"
-          onChange={handleFileUpload}
-          className="hidden"
-          id="file-upload"
-        />
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => document.getElementById('file-upload')?.click()}
-        >
-          <Paperclip className="h-4 w-4" />
-        </Button>
-        <Button onClick={handleSendMessage}>
-          <Send className="h-4 w-4" />
-        </Button>
-      </div>
-    </Card>
+
+      <form onSubmit={handleSendMessage} className="border-t p-4">
+        <div className="flex space-x-2">
+          <Input
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="flex-1"
+          />
+          <Button type="submit">
+            <Send className="h-4 w-4" />
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
+
+export default ChatRoom;

@@ -1,11 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { Calendar, Mail, Linkedin, Sparkles, Plus, FileText, MessageSquare } from "lucide-react";
+import { Calendar, Mail, Linkedin, Sparkles, Plus, FileText } from "lucide-react";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
-import { useNavigate } from "react-router-dom";
 
 export const DashboardExternalLinks = () => {
-  const navigate = useNavigate();
-  
   const links = [
     {
       icon: Calendar,
@@ -60,13 +57,6 @@ export const DashboardExternalLinks = () => {
           <Plus className="h-5 w-5 text-gray-600 dark:text-gray-400" />
           <span className="text-sm font-medium text-gray-900 dark:text-white">Create Task</span>
         </CreateTaskButton>
-        <button
-          onClick={() => navigate("/dashboard/chat")}
-          className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full justify-start"
-        >
-          <MessageSquare className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          <span className="text-sm font-medium text-gray-900 dark:text-white">New Chat Room</span>
-        </button>
       </div>
     </Card>
   );
