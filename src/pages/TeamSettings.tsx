@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { TeamMembersList } from "@/components/settings/team/TeamMembersList";
 import { InviteMemberDialog } from "@/components/settings/team/InviteMemberDialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 const TeamSettings = () => {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
@@ -18,7 +19,7 @@ const TeamSettings = () => {
 
       const { data: teamMember, error: teamMemberError } = await supabase
         .from("team_members")
-        .select("team_id, teams(*)")
+        .select("team_id, teams(id, name), role")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -40,6 +41,7 @@ const TeamSettings = () => {
   }
 
   if (isError) {
+    toast.error("Failed to load team settings");
     return (
       <Card>
         <CardContent className="py-8">
@@ -72,7 +74,11 @@ const TeamSettings = () => {
                   Manage your team members and their roles
                 </CardDescription>
               </div>
-              <Button onClick={() => setIsInviteDialogOpen(true)}>
+              <Button 
+                onClick={() => setIsInviteDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="h-4 w-4" />
                 Invite Member
               </Button>
             </CardHeader>
