@@ -20,14 +20,14 @@ export const TeamMembersList = () => {
           .maybeSingle();
 
         if (teamData?.team_id) {
-          // Then get all members of that team with their user data
+          // Then get all members of that team with their profile data
           const { data: membersData, error } = await supabase
             .from("team_members")
             .select(`
               id,
               role,
               user_id,
-              profiles:user_id (
+              user:user_id (
                 full_name,
                 email
               )
@@ -37,17 +37,7 @@ export const TeamMembersList = () => {
           if (error) throw error;
 
           if (membersData) {
-            // Transform the data to match our TeamMember type
-            const transformedMembers: TeamMember[] = membersData.map(member => ({
-              id: member.id,
-              role: member.role,
-              user_id: member.user_id,
-              user: {
-                full_name: member.profiles?.full_name || null,
-                email: member.profiles?.email || ''
-              }
-            }));
-            setMembers(transformedMembers);
+            setMembers(membersData as TeamMember[]);
           }
         }
       } catch (error) {
