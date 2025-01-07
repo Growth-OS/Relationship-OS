@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface InviteMemberDialogProps {
   open: boolean;
@@ -20,18 +21,23 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!teamId) {
       toast.error("No team selected");
       return;
     }
 
+    if (!email) {
+      toast.error("Please enter an email address");
+      return;
+    }
+
     setIsLoading(true);
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Not authenticated");
-        setIsLoading(false);
-        return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error(authError?.message || "Not authenticated");
       }
 
       // Get inviter's profile
@@ -42,10 +48,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .single();
 
       if (profileError) {
-        console.error("Error fetching profile:", profileError);
-        toast.error("Error fetching user profile");
-        setIsLoading(false);
-        return;
+        throw new Error("Error fetching user profile");
       }
 
       // Check if user already exists
@@ -56,10 +59,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         .single();
 
       if (existingProfileError && existingProfileError.code !== 'PGRST116') {
-        console.error("Error checking existing user:", existingProfileError);
-        toast.error("Error checking existing user");
-        setIsLoading(false);
-        return;
+        throw new Error("Error checking existing user");
       }
 
       // Generate invitation token
@@ -81,10 +81,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         });
 
       if (inviteError) {
-        console.error("Error creating invitation:", inviteError);
-        toast.error("Failed to create invitation");
-        setIsLoading(false);
-        return;
+        throw new Error("Failed to create invitation");
       }
 
       // Send invitation email
@@ -99,10 +96,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       });
 
       if (emailError) {
-        console.error("Error sending invitation email:", emailError);
-        toast.error("Failed to send invitation email");
-        setIsLoading(false);
-        return;
+        throw new Error("Failed to send invitation email");
       }
 
       toast.success("Team member invited successfully");
@@ -111,7 +105,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       setRole("member");
     } catch (error) {
       console.error("Error inviting member:", error);
-      toast.error("Failed to invite team member");
+      toast.error(error instanceof Error ? error.message : "Failed to invite team member");
     } finally {
       setIsLoading(false);
     }
@@ -137,12 +131,17 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
 
           <div className="space-y-2">
             <Label>Role</Label>
-            <RadioGroup value={role} onValueChange={(value) => setRole(value as "admin" | "member")}>
+            <RadioGroup 
+              value={role} 
+              onValueChange={(value) => setRole(value as "admin" | "member")}
+              disabled={isLoading}
+            >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="member" id="member" />
                 <Label htmlFor="member">Member</Label>
@@ -167,7 +166,14 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
               type="submit" 
               disabled={isLoading || !email}
             >
-              {isLoading ? "Inviting..." : "Send Invite"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Inviting...
+                </>
+              ) : (
+                "Send Invite"
+              )}
             </Button>
           </div>
         </form>
