@@ -7,6 +7,7 @@ import { MonthlyChartsSection } from "@/components/reporting/MonthlyChartsSectio
 import { ModuleFilter } from "@/components/reporting/ModuleFilter";
 import { FinancialReporting } from "@/components/reporting/FinancialReporting";
 import { SequenceMetrics } from "@/components/reporting/SequenceMetrics";
+import { LostDealsReport } from "@/components/reporting/LostDealsReport";
 import { useState } from "react";
 import { subDays } from "date-fns";
 
@@ -23,6 +24,7 @@ const Reporting = () => {
         .from('deals')
         .select('*')
         .gte('created_at', thirtyDaysAgo)
+        .neq('stage', 'lost')  // Exclude lost deals from pipeline value
         .in('stage', ['lead', 'meeting', 'negotiation', 'project_preparation', 'in_progress']);
       
       if (error) throw error;
@@ -109,13 +111,16 @@ const Reporting = () => {
 
       <div className="grid gap-6">
         {shouldShowDeals && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <TotalDealValueCard 
-              totalDealValue={totalDealValue}
-              previousPeriodValue={previousPeriodValue}
-            />
-            <DealStageConversions />
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <TotalDealValueCard 
+                totalDealValue={totalDealValue}
+                previousPeriodValue={previousPeriodValue}
+              />
+              <DealStageConversions />
+            </div>
+            <LostDealsReport />
+          </>
         )}
 
         {shouldShowProspects && (

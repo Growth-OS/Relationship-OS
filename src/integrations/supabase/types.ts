@@ -223,6 +223,7 @@ export type Database = {
           delivery_start_date: string | null
           id: string
           last_activity_date: string
+          lost_reason: Database["public"]["Enums"]["deal_lost_reason"] | null
           notes: string | null
           source: Database["public"]["Enums"]["lead_source"] | null
           stage: Database["public"]["Enums"]["deal_stage"]
@@ -241,6 +242,7 @@ export type Database = {
           delivery_start_date?: string | null
           id?: string
           last_activity_date?: string
+          lost_reason?: Database["public"]["Enums"]["deal_lost_reason"] | null
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
@@ -259,6 +261,7 @@ export type Database = {
           delivery_start_date?: string | null
           id?: string
           last_activity_date?: string
+          lost_reason?: Database["public"]["Enums"]["deal_lost_reason"] | null
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
@@ -1384,6 +1387,14 @@ export type Database = {
       auth_provider: "google"
       backup_type: "manual" | "automated" | "pre_migration"
       board_element_type: "sticky_note" | "shape" | "arrow" | "text"
+      deal_lost_reason:
+        | "price_too_high"
+        | "chose_competitor"
+        | "no_budget"
+        | "timing_not_right"
+        | "no_decision_made"
+        | "requirements_changed"
+        | "lost_contact"
       deal_stage:
         | "lead"
         | "meeting"
@@ -1393,6 +1404,7 @@ export type Database = {
         | "to_invoice"
         | "invoiced"
         | "paid"
+        | "lost"
       invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       lead_source:
         | "website"

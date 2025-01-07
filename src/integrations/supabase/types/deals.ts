@@ -1,5 +1,6 @@
-export type DealStage = 'lead' | 'meeting' | 'negotiation' | 'project_preparation' | 'in_progress' | 'to_invoice' | 'invoiced' | 'paid';
+export type DealStage = 'lead' | 'meeting' | 'negotiation' | 'project_preparation' | 'in_progress' | 'to_invoice' | 'invoiced' | 'paid' | 'lost';
 export type LeadSource = 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
+export type LostReason = 'price_too_high' | 'chose_competitor' | 'no_budget' | 'timing_not_right' | 'no_decision_made' | 'requirements_changed' | 'lost_contact';
 
 export interface Deal {
   id: string;
@@ -18,6 +19,7 @@ export interface Deal {
   country_flag: string | null;
   notes: string | null;
   source: LeadSource | null;
+  lost_reason: LostReason | null;
 }
 
 export interface Prospect {

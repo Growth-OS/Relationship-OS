@@ -12,6 +12,7 @@ export const DealStageConversions = () => {
       const { data, error } = await supabase
         .from('deals')
         .select('*')
+        .neq('stage', 'lost')  // Exclude lost deals from pipeline calculations
         .order('created_at', { ascending: false });
       
       if (error) throw error;

@@ -9,7 +9,8 @@ export const stages = [
   { id: 'in_progress', label: 'In Progress' },
   { id: 'to_invoice', label: 'To Invoice' },
   { id: 'invoiced', label: 'Invoiced' },
-  { id: 'paid', label: 'Paid' }
+  { id: 'paid', label: 'Paid' },
+  { id: 'lost', label: 'Lost' }
 ] as const;
 
 interface StageSelectProps {

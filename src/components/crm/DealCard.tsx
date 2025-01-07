@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 import { Deal } from "@/integrations/supabase/types/deals";
+import { LostReasonSelect } from "./form-fields/LostReasonSelect";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface DealCardProps {
   deal: Deal;
@@ -10,6 +13,21 @@ interface DealCardProps {
 }
 
 export const DealCard = ({ deal, onEdit }: DealCardProps) => {
+  const handleLostReasonChange = async (reason: string) => {
+    try {
+      const { error } = await supabase
+        .from('deals')
+        .update({ lost_reason: reason })
+        .eq('id', deal.id);
+
+      if (error) throw error;
+      toast.success('Lost reason updated');
+    } catch (error) {
+      console.error('Error updating lost reason:', error);
+      toast.error('Failed to update lost reason');
+    }
+  };
+
   return (
     <Card 
       className="p-4 hover:shadow-lg transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1 bg-white dark:bg-gray-800"
@@ -52,6 +70,14 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
         <div className="flex items-center gap-1 mt-2">
           <span>{deal.country_flag}</span>
           <span className="text-xs text-muted-foreground">{deal.country}</span>
+        </div>
+      )}
+      {deal.stage === 'lost' && (
+        <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+          <LostReasonSelect
+            value={deal.lost_reason}
+            onValueChange={handleLostReasonChange}
+          />
         </div>
       )}
     </Card>
