@@ -7,11 +7,12 @@ import Projects from "@/pages/Projects";
 import Deals from "@/pages/Deals";
 import ChatRoom from "@/components/chat/ChatRoom";
 import JoinChatRoom from "@/components/chat/JoinChatRoom";
+import { Outlet } from "react-router-dom";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <Layout />,
+    element: <Layout><Outlet /></Layout>,
     children: [
       {
         path: "dashboard",
