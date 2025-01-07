@@ -3,7 +3,6 @@ import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
 
 interface ProspectRowProps {
@@ -42,28 +41,28 @@ export const ProspectRow = ({
       <TableCell className="p-4 text-muted-foreground text-left">{prospect.contact_job_title || '-'}</TableCell>
       <TableCell className="p-4 text-muted-foreground text-left">{prospect.contact_email || '-'}</TableCell>
       <TableCell className="p-4 text-left">
-        <div className="flex space-x-4">
-          {prospect.company_website && (
-            <a 
-              href={prospect.company_website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-700 hover:underline"
-            >
-              Website
-            </a>
-          )}
-          {prospect.contact_linkedin && (
-            <a 
-              href={prospect.contact_linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-600 hover:text-purple-700 hover:underline"
-            >
-              LinkedIn
-            </a>
-          )}
-        </div>
+        {prospect.company_website ? (
+          <a 
+            href={prospect.company_website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            Visit
+          </a>
+        ) : '-'}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {prospect.contact_linkedin ? (
+          <a 
+            href={prospect.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            Profile
+          </a>
+        ) : '-'}
       </TableCell>
       <TableCell className="p-4 text-left">
         {prospect.sequence_name ? (
