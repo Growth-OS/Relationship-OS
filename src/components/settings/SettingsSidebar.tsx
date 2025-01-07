@@ -4,7 +4,7 @@ import {
   User, 
   Palette, 
   Database,
-  Users
+  Users2
 } from "lucide-react";
 
 export const SettingsSidebar = () => {
@@ -15,9 +15,9 @@ export const SettingsSidebar = () => {
       icon: User
     },
     {
-      href: "/dashboard/settings/team",
-      label: "Team",
-      icon: Users
+      href: "/dashboard/settings/organisation",
+      label: "Organisation",
+      icon: Users2
     },
     {
       href: "/dashboard/settings/branding",
