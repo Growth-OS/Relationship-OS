@@ -30,6 +30,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error("Not authenticated");
+        setIsLoading(false);
         return;
       }
 
@@ -43,6 +44,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       if (profileError) {
         console.error("Error fetching profile:", profileError);
         toast.error("Error fetching user profile");
+        setIsLoading(false);
         return;
       }
 
@@ -56,6 +58,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       if (existingProfileError && existingProfileError.code !== 'PGRST116') {
         console.error("Error checking existing user:", existingProfileError);
         toast.error("Error checking existing user");
+        setIsLoading(false);
         return;
       }
 
@@ -80,6 +83,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       if (inviteError) {
         console.error("Error creating invitation:", inviteError);
         toast.error("Failed to create invitation");
+        setIsLoading(false);
         return;
       }
 
@@ -97,6 +101,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       if (emailError) {
         console.error("Error sending invitation email:", emailError);
         toast.error("Failed to send invitation email");
+        setIsLoading(false);
         return;
       }
 
@@ -150,10 +155,18 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
           </div>
 
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading || !email}
+            >
               {isLoading ? "Inviting..." : "Send Invite"}
             </Button>
           </div>
