@@ -39,11 +39,11 @@ const OrganisationSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Start a transaction by creating the team first
+      // First create the team
       const { data: newTeam, error: teamError } = await supabase
         .from("teams")
         .insert([{ 
-          name: `${user.email}'s Organisation`
+          name: `${user.email}'s Organisation` 
         }])
         .select()
         .single();
