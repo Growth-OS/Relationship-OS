@@ -21,6 +21,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Starting invitation process...");
 
     if (!teamId) {
       toast.error("No team selected");
@@ -43,21 +44,19 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       }
 
       // Get inviter's profile
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
         .maybeSingle();
-
-      if (profileError) {
-        throw new Error("Error fetching user profile");
-      }
 
       // Generate invitation token
       const token = crypto.randomUUID();
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
+      console.log("Creating invitation record...");
+      
       // Create invitation record
       const { error: inviteError } = await supabase
         .from("team_invitations")
@@ -72,9 +71,12 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
         });
 
       if (inviteError) {
+        console.error("Failed to create invitation:", inviteError);
         throw new Error("Failed to create invitation");
       }
 
+      console.log("Sending invitation email...");
+      
       // Send invitation email
       const { error: emailError } = await supabase.functions.invoke('send-invitation', {
         body: {
@@ -87,6 +89,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
       });
 
       if (emailError) {
+        console.error("Failed to send invitation email:", emailError);
         throw new Error("Failed to send invitation email");
       }
 
@@ -160,7 +163,7 @@ export const InviteMemberDialog = ({ open, onOpenChange, teamId }: InviteMemberD
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Inviting...
+                  Sending Invite...
                 </>
               ) : (
                 "Send Invite"
