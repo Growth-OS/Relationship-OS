@@ -24,7 +24,6 @@ import Invoices from "@/pages/Invoices";
 import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
 import SettingsLayout from "@/components/settings/SettingsLayout";
-import TeamSettings from "@/pages/TeamSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
@@ -53,10 +52,6 @@ export const router = createBrowserRouter([
           {
             path: "profile",
             element: <ProfileSettings />,
-          },
-          {
-            path: "team",
-            element: <TeamSettings />,
           },
           {
             path: "branding",

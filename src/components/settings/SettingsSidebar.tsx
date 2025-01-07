@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
   User, 
-  Users, 
   Palette, 
   Database
 } from "lucide-react";
@@ -13,11 +12,6 @@ export const SettingsSidebar = () => {
       href: "/dashboard/settings/profile",
       label: "Profile",
       icon: User
-    },
-    {
-      href: "/dashboard/settings/team",
-      label: "Team",
-      icon: Users
     },
     {
       href: "/dashboard/settings/branding",
