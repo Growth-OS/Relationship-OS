@@ -1,6 +1,8 @@
+import { DealStage, LeadSource } from "@/integrations/supabase/types/deals";
+
 export interface DealFormData {
   company_name: string;
-  stage: 'lead' | 'meeting' | 'negotiation' | 'project_preparation' | 'in_progress' | 'to_invoice' | 'invoiced' | 'paid';
+  stage: DealStage;
   deal_value: number;
   delivery_start_date?: string;
   delivery_end_date?: string;
@@ -10,5 +12,5 @@ export interface DealFormData {
   country?: string;
   country_flag?: string;
   notes?: string;
-  source?: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
+  source?: LeadSource;
 }
