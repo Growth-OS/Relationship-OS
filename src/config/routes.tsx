@@ -27,6 +27,7 @@ import SettingsLayout from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
+import TeamSettings from "@/pages/TeamSettings";
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
           {
             path: "profile",
             element: <ProfileSettings />,
+          },
+          {
+            path: "team",
+            element: <TeamSettings />,
           },
           {
             path: "branding",
