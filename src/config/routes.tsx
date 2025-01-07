@@ -28,6 +28,7 @@ import { SettingsLayout } from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
+import { Outlet } from "react-router-dom";
 
 export const router = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Layout />,
+    element: <Layout><Outlet /></Layout>,
     children: [
       {
         path: "settings",
