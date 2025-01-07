@@ -49,9 +49,19 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      console.log('Updating prospect with values:', values);
+      
       const { error } = await supabase
         .from('prospects')
-        .update(values)
+        .update({
+          company_name: values.company_name,
+          company_website: values.company_website || null,
+          contact_email: values.contact_email || null,
+          contact_job_title: values.contact_job_title || null,
+          contact_linkedin: values.contact_linkedin || null,
+          source: values.source,
+          notes: values.notes || null,
+        })
         .eq('id', prospect.id);
 
       if (error) throw error;
