@@ -28,14 +28,23 @@ export const AddTeamMemberDialog = () => {
     setIsLoading(true);
 
     try {
-      const { data: teamData } = await supabase
+      // First get the current user's team
+      const { data: currentUser } = await supabase.auth.getUser();
+      if (!currentUser.user) throw new Error("Not authenticated");
+
+      // Get the team where the current user is an owner or admin
+      const { data: teamMemberData, error: teamError } = await supabase
         .from("team_members")
-        .select("team_id")
-        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .select("team_id, role")
+        .eq("user_id", currentUser.user.id)
         .single();
 
-      if (!teamData?.team_id) {
-        throw new Error("No team found");
+      if (teamError || !teamMemberData?.team_id) {
+        throw new Error("No team found or unauthorized");
+      }
+
+      if (!["owner", "admin"].includes(teamMemberData.role)) {
+        throw new Error("Insufficient permissions");
       }
 
       const generatedCredentials = generateCredentials();
@@ -52,21 +61,21 @@ export const AddTeamMemberDialog = () => {
 
       if (authError || !authData.user) throw authError;
 
-      const { error: teamError } = await supabase.from("team_members").insert({
-        team_id: teamData.team_id,
+      const { error: teamError2 } = await supabase.from("team_members").insert({
+        team_id: teamMemberData.team_id,
         user_id: authData.user.id,
         role: role,
         temp_password: generatedCredentials.password,
-        invited_by: (await supabase.auth.getUser()).data.user?.id,
+        invited_by: currentUser.user.id,
       });
 
-      if (teamError) throw teamError;
+      if (teamError2) throw teamError2;
 
       setCredentials(generatedCredentials);
       toast.success("Team member added successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding team member:", error);
-      toast.error("Failed to add team member");
+      toast.error(error.message || "Failed to add team member");
     } finally {
       setIsLoading(false);
     }
