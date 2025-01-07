@@ -1,120 +1,68 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Resend } from 'https://esm.sh/resend@2.0.0'
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
-interface InvitationRequest {
-  email: string;
-  teamId: string;
-  role: string;
-  invitedBy: string;
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    if (!RESEND_API_KEY) {
-      throw new Error("Missing RESEND_API_KEY");
-    }
+    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      throw new Error("Missing Supabase environment variables");
-    }
+    const { email, teamId, role, invitedBy } = await req.json()
+    const token = crypto.randomUUID()
+    const expiresAt = new Date()
+    expiresAt.setHours(expiresAt.getHours() + 24) // Token expires in 24 hours
 
-    // Initialize Supabase client
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Store the invitation token
+    const { error: inviteError } = await supabase
+      .from('team_invitations')
+      .insert({
+        email,
+        team_id: teamId,
+        role,
+        token,
+        expires_at: expiresAt.toISOString(),
+      })
 
-    // Get the JWT token from the request header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
+    if (inviteError) throw inviteError
 
-    // Verify the JWT token
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
+    // Send the invitation email
+    const inviteUrl = `${req.headers.get('origin')}/join?token=${token}`
+    
+    const { error: emailError } = await resend.emails.send({
+      from: 'Team Invitations <onboarding@resend.dev>',
+      to: email,
+      subject: `You've been invited to join a team`,
+      html: `
+        <h2>Team Invitation</h2>
+        <p>You've been invited by ${invitedBy} to join their team as a ${role}.</p>
+        <p>Click the link below to accept the invitation:</p>
+        <a href="${inviteUrl}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Accept Invitation</a>
+        <p>This invitation will expire in 24 hours.</p>
+      `,
+    })
 
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
+    if (emailError) throw emailError
 
-    console.log('Authenticated user:', user.email);
-
-    const invitationRequest: InvitationRequest = await req.json();
-    console.log('Sending invitation:', invitationRequest);
-
-    // Get team details
-    const { data: team } = await supabase
-      .from('teams')
-      .select('name')
-      .eq('id', invitationRequest.teamId)
-      .single();
-
-    if (!team) {
-      throw new Error('Team not found');
-    }
-
-    // Generate a unique invitation link
-    const invitationLink = `${SUPABASE_URL}/join?team=${invitationRequest.teamId}&email=${encodeURIComponent(invitationRequest.email)}`;
-
-    const emailHtml = `
-      <h2>You've been invited to join ${team.name}</h2>
-      <p>You've been invited by ${invitationRequest.invitedBy} to join the team as a ${invitationRequest.role}.</p>
-      <p>Click the button below to accept the invitation:</p>
-      <a href="${invitationLink}" style="background-color: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Accept Invitation</a>
-      <p>If you didn't expect this invitation, you can safely ignore this email.</p>
-    `;
-
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: "Team Invitations <onboarding@resend.dev>",
-        to: [invitationRequest.email],
-        subject: `Join ${team.name} on our platform`,
-        html: emailHtml,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      console.log('Email sent successfully:', data);
-
-      return new Response(JSON.stringify(data), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } else {
-      const error = await res.text();
-      console.error('Error from Resend API:', error);
-      return new Response(JSON.stringify({ error }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-  } catch (error: any) {
-    console.error("Error in send-invitation function:", error);
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  } catch (error) {
+    console.error('Error sending invitation:', error)
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
-};
-
-serve(handler);
+})
