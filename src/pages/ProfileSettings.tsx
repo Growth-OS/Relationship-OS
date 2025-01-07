@@ -1,9 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { toast } from "sonner";
 
 const ProfileSettings = () => {
@@ -19,29 +17,11 @@ const ProfileSettings = () => {
         .eq('id', user.id)
         .single();
         
-      if (error) throw error;
+      if (error) {
+        toast.error("Error fetching profile");
+        throw error;
+      }
       return profile;
-    },
-  });
-
-  const { data: teamMembers } = useQuery({
-    queryKey: ["team-members"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('team_members')
-        .select(`
-          id,
-          role,
-          profiles:profiles(
-            full_name,
-            email,
-            avatar_url
-          )
-        `)
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
-      
-      if (error) throw error;
-      return data;
     },
   });
 
@@ -54,10 +34,10 @@ const ProfileSettings = () => {
   }
 
   return (
-    <div className="max-w-[800px] space-y-6 text-left">
-      <h1 className="text-3xl font-bold text-left">Profile Settings</h1>
+    <div className="max-w-[800px] space-y-6">
+      <h1 className="text-3xl font-bold">Profile Settings</h1>
       
-      <Card className="w-full">
+      <Card>
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>
@@ -82,17 +62,6 @@ const ProfileSettings = () => {
               className="bg-muted max-w-lg"
             />
           </div>
-
-          {teamMembers?.map((member) => (
-            <div key={member.id} className="space-y-1">
-              <label className="text-sm font-medium">Team Role</label>
-              <Input 
-                value={member.role} 
-                readOnly 
-                className="bg-muted max-w-lg capitalize"
-              />
-            </div>
-          ))}
         </CardContent>
       </Card>
     </div>
