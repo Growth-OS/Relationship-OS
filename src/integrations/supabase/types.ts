@@ -1206,30 +1206,39 @@ export type Database = {
       }
       team_members: {
         Row: {
+          credentials_created_at: string | null
+          credentials_shared: boolean | null
           id: string
           invited_at: string
           invited_by: string | null
           joined_at: string | null
           role: Database["public"]["Enums"]["user_role"]
           team_id: string
+          temp_password: string | null
           user_id: string
         }
         Insert: {
+          credentials_created_at?: string | null
+          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id: string
+          temp_password?: string | null
           user_id: string
         }
         Update: {
+          credentials_created_at?: string | null
+          credentials_shared?: boolean | null
           id?: string
           invited_at?: string
           invited_by?: string | null
           joined_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           team_id?: string
+          temp_password?: string | null
           user_id?: string
         }
         Relationships: [
