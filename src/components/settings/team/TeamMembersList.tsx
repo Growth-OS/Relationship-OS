@@ -23,7 +23,7 @@ export const TeamMembersList = () => {
               id,
               role,
               user_id,
-              profiles:profiles!user_id(
+              profiles:profiles(
                 full_name,
                 email
               )
