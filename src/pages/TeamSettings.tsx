@@ -14,6 +14,7 @@ const TeamSettings = () => {
   const { data: teamData, isLoading, isError } = useQuery({
     queryKey: ["team"],
     queryFn: async () => {
+      console.log("Fetching team data...");
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -28,6 +29,7 @@ const TeamSettings = () => {
         throw teamMemberError;
       }
 
+      console.log("Team data fetched:", teamMember);
       return teamMember;
     },
   });
@@ -40,7 +42,7 @@ const TeamSettings = () => {
     );
   }
 
-  if (isError) {
+  if (isError || !teamData?.team_id) {
     toast.error("Failed to load team settings");
     return (
       <Card>
@@ -58,42 +60,34 @@ const TeamSettings = () => {
         <p className="text-gray-600 text-left">Manage your team members and permissions</p>
       </div>
       
-      {!teamData ? (
+      <div className="grid gap-8">
         <Card>
-          <CardContent className="py-8">
-            <p className="text-center text-gray-600">No team found. Please contact support.</p>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>
+                Manage your team members and their roles
+              </CardDescription>
+            </div>
+            <Button 
+              onClick={() => setIsInviteDialogOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <UserPlus className="h-4 w-4" />
+              Invite Member
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <TeamMembersList teamId={teamData.team_id} />
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid gap-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Team Members</CardTitle>
-                <CardDescription>
-                  Manage your team members and their roles
-                </CardDescription>
-              </div>
-              <Button 
-                onClick={() => setIsInviteDialogOpen(true)}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="h-4 w-4" />
-                Invite Member
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <TeamMembersList teamId={teamData.team_id} />
-            </CardContent>
-          </Card>
 
-          <InviteMemberDialog
-            open={isInviteDialogOpen}
-            onOpenChange={setIsInviteDialogOpen}
-            teamId={teamData.team_id}
-          />
-        </div>
-      )}
+        <InviteMemberDialog
+          open={isInviteDialogOpen}
+          onOpenChange={setIsInviteDialogOpen}
+          teamId={teamData.team_id}
+        />
+      </div>
     </div>
   );
 };
