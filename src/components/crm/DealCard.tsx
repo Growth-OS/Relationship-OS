@@ -63,8 +63,32 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
       {deal.contact_job_title && (
         <p className="text-xs text-muted-foreground mb-1">{deal.contact_job_title}</p>
       )}
+      <div className="flex flex-col gap-2 mt-2">
+        {deal.company_website && (
+          <a 
+            href={deal.company_website}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            Company Website
+          </a>
+        )}
+        {deal.contact_linkedin && (
+          <a 
+            href={deal.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            LinkedIn Profile
+          </a>
+        )}
+      </div>
       {deal.notes && (
-        <p className="text-xs text-muted-foreground line-clamp-2">{deal.notes}</p>
+        <p className="text-xs text-muted-foreground line-clamp-2 mt-2">{deal.notes}</p>
       )}
       {deal.country && (
         <div className="flex items-center gap-1 mt-2">

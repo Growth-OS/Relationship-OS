@@ -30,6 +30,16 @@ export const DealFormFields = ({ register, setValue, form }: DealFormFieldsProps
         <Input id="company_name" {...register('company_name', { required: true })} />
       </div>
 
+      <div className="col-span-2">
+        <Label htmlFor="company_website">Company Website</Label>
+        <Input 
+          id="company_website" 
+          type="url" 
+          placeholder="https://example.com"
+          {...register('company_website')} 
+        />
+      </div>
+
       <div className="col-span-1 space-y-2">
         <Label htmlFor="stage">Stage</Label>
         <StageSelect 

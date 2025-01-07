@@ -20,4 +20,5 @@ export interface Deal {
   notes: string | null;
   source: LeadSource | null;
   lost_reason: LostReason | null;
+  company_website: string | null;
 }

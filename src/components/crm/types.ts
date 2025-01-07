@@ -13,4 +13,5 @@ export interface DealFormData {
   country_flag?: string;
   notes?: string;
   source?: LeadSource;
+  company_website?: string;
 }

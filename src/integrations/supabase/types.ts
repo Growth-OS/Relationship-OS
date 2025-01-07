@@ -212,6 +212,7 @@ export type Database = {
       deals: {
         Row: {
           company_name: string
+          company_website: string | null
           contact_email: string | null
           contact_job_title: string | null
           contact_linkedin: string | null
@@ -231,6 +232,7 @@ export type Database = {
         }
         Insert: {
           company_name: string
+          company_website?: string | null
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
@@ -250,6 +252,7 @@ export type Database = {
         }
         Update: {
           company_name?: string
+          company_website?: string | null
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
@@ -778,6 +781,7 @@ export type Database = {
       prospects: {
         Row: {
           company_name: string
+          company_website: string | null
           contact_email: string | null
           contact_job_title: string | null
           contact_linkedin: string | null
@@ -790,6 +794,7 @@ export type Database = {
         }
         Insert: {
           company_name: string
+          company_website?: string | null
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
@@ -802,6 +807,7 @@ export type Database = {
         }
         Update: {
           company_name?: string
+          company_website?: string | null
           contact_email?: string | null
           contact_job_title?: string | null
           contact_linkedin?: string | null
