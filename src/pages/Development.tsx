@@ -74,7 +74,7 @@ const Development = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-[1200px] mx-auto px-4">
       <DevelopmentHeader
         isDialogOpen={isDialogOpen}
         setIsDialogOpen={setIsDialogOpen}

@@ -23,15 +23,15 @@ export const DevelopmentTabs = ({
   renderPriorityIcon
 }: DevelopmentTabsProps) => {
   return (
-    <Card className="p-6">
-      <Tabs defaultValue="all" onValueChange={setSelectedCategory}>
-        <TabsList>
+    <Card className="p-6 w-full">
+      <Tabs defaultValue="all" onValueChange={setSelectedCategory} className="w-full">
+        <TabsList className="w-full justify-start">
           <TabsTrigger value="all">All Items</TabsTrigger>
-          <TabsTrigger value="idea">
+          <TabsTrigger value="idea" className="flex items-center">
             <Lightbulb className="w-4 h-4 mr-2" />
             Ideas
           </TabsTrigger>
-          <TabsTrigger value="bug">
+          <TabsTrigger value="bug" className="flex items-center">
             <Bug className="w-4 h-4 mr-2" />
             Bugs
           </TabsTrigger>
@@ -40,11 +40,11 @@ export const DevelopmentTabs = ({
           <TabsTrigger value="archived">Archived</TabsTrigger>
         </TabsList>
 
-        <div className="mt-4">
+        <div className="mt-6">
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
+            <div className="text-left py-8 text-muted-foreground">Loading...</div>
           ) : filteredItems?.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-left py-8 text-muted-foreground">
               No items found. Add your first development item!
             </div>
           ) : (

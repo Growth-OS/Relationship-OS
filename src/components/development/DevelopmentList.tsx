@@ -18,9 +18,9 @@ export const DevelopmentList = ({
   renderPriorityIcon
 }: DevelopmentListProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full">
       {filteredItems?.map((item) => (
-        <Card key={item.id} className="p-4">
+        <Card key={item.id} className="p-4 w-full">
           <div className="flex items-start gap-4">
             <div 
               onClick={(e) => e.stopPropagation()} 
@@ -38,14 +38,14 @@ export const DevelopmentList = ({
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1 flex-1 min-w-0">
                   <h3 className={cn(
-                    "font-medium",
+                    "font-medium text-left",
                     item.status === 'completed' && "text-muted-foreground line-through"
                   )}>
                     {item.title}
                   </h3>
                   {item.description && (
                     <p className={cn(
-                      "text-sm text-muted-foreground",
+                      "text-sm text-muted-foreground text-left",
                       item.status === 'completed' && "line-through"
                     )}>
                       {item.description}
@@ -53,7 +53,7 @@ export const DevelopmentList = ({
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {renderPriorityIcon(item.priority)}
                   <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded">
                     {item.category}
