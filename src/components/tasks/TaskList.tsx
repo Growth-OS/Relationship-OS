@@ -33,14 +33,18 @@ export const TaskList = ({
             sequences(id, name)
           `)
           .eq("user_id", user.id)
-          .eq("completed", showArchived) // Only show completed tasks in archived view
-          .order("due_date", { ascending: true });
+          .eq("completed", showArchived); // Only show completed tasks in archived view
 
-        if (sourceType && sourceId) {
-          query = query
-            .eq("source", sourceType)
-            .eq("source_id", sourceId);
+        // If sourceType is provided and not in archived view, filter by source type
+        if (sourceType && !showArchived) {
+          query = query.eq("source", sourceType);
         }
+
+        if (sourceId) {
+          query = query.eq("source_id", sourceId);
+        }
+
+        query = query.order("due_date", { ascending: true });
 
         const { data, error } = await query;
 
