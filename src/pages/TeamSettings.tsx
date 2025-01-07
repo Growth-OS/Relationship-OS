@@ -43,6 +43,11 @@ const TeamSettings = () => {
     toast.error("Failed to load team settings");
   }
 
+  const handleInviteClick = () => {
+    console.log("Opening invite dialog");
+    setIsInviteDialogOpen(true);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -51,7 +56,7 @@ const TeamSettings = () => {
           <p className="text-gray-600 text-left">Manage your team members and permissions</p>
         </div>
         <Button 
-          onClick={() => setIsInviteDialogOpen(true)}
+          onClick={handleInviteClick}
           size="lg"
           className="gap-2"
         >
