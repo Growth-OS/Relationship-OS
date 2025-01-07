@@ -17,8 +17,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Initial session check
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session check error:", error);
+          setIsAuthenticated(false);
+          return;
+        }
+
+        // If no session, clear local storage and set as not authenticated
+        if (!session) {
+          localStorage.clear();
+          setIsAuthenticated(false);
+          return;
+        }
+
+        setIsAuthenticated(true);
       } catch (error) {
         console.error("Session check error:", error);
         setIsAuthenticated(false);
@@ -30,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkSession();
 
     // Set up auth state change subscription
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, !!session);
       
       switch (event) {
@@ -42,25 +56,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           break;
 
         case 'SIGNED_IN':
-          setIsAuthenticated(true);
-          const returnPath = localStorage.getItem('return_path') || '/dashboard';
-          localStorage.removeItem('return_path');
-          if (location.pathname === '/login') {
-            navigate(returnPath, { replace: true });
+          if (session) {
+            setIsAuthenticated(true);
+            const returnPath = localStorage.getItem('return_path') || '/dashboard';
+            localStorage.removeItem('return_path');
+            if (location.pathname === '/login') {
+              navigate(returnPath, { replace: true });
+            }
+          } else {
+            setIsAuthenticated(false);
+            navigate('/login', { replace: true });
           }
           break;
 
         case 'TOKEN_REFRESHED':
-          setIsAuthenticated(true);
-          console.log('Session token refreshed');
-          break;
-
-        case 'PASSWORD_RECOVERY':
-          toast.info('Check your email for password reset instructions');
+          if (session) {
+            setIsAuthenticated(true);
+            console.log('Session token refreshed');
+          }
           break;
 
         case 'USER_UPDATED':
-          toast.success('Your profile has been updated');
+          if (session) {
+            setIsAuthenticated(true);
+            toast.success('Your profile has been updated');
+          }
+          break;
+
+        case 'USER_DELETED':
+        case 'TOKEN_REVOKED':
+          setIsAuthenticated(false);
+          localStorage.clear();
+          navigate('/login', { replace: true });
           break;
       }
     });
