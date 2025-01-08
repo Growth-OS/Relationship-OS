@@ -4,6 +4,7 @@ import { ProjectCredentials } from "./portal/ProjectCredentials";
 import { ProjectTasks } from "./portal/ProjectTasks";
 import { ProjectFiles } from "./portal/ProjectFiles";
 import { ProjectDetails } from "./portal/ProjectDetails";
+import { ProjectNotes } from "./portal/ProjectNotes";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, DollarSign } from "lucide-react";
 import { format } from "date-fns";
@@ -83,6 +84,7 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
         <Tabs defaultValue="details" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="w-full justify-start">
             <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="notes">Notes</TabsTrigger>
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="files">Files</TabsTrigger>
@@ -90,6 +92,9 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
           <div className="flex-1 overflow-y-auto mt-4 pr-2">
             <TabsContent value="details" className="mt-0 h-full">
               <ProjectDetails project={project} onClose={onClose} />
+            </TabsContent>
+            <TabsContent value="notes" className="mt-0 h-full">
+              <ProjectNotes projectId={project.id} />
             </TabsContent>
             <TabsContent value="credentials" className="mt-0 h-full">
               <ProjectCredentials projectId={project.id} />
