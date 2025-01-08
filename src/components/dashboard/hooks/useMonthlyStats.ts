@@ -2,10 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfMonth, endOfMonth, subMonths } from "date-fns";
 
-const formatDateForSupabase = (date: Date) => {
-  return date.toISOString();
-};
-
 export const useMonthlyStats = () => {
   // Current month's revenue
   const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
@@ -15,8 +11,8 @@ export const useMonthlyStats = () => {
       if (!user) return 0;
 
       const currentMonth = new Date();
-      const startDate = formatDateForSupabase(startOfMonth(currentMonth));
-      const endDate = formatDateForSupabase(endOfMonth(currentMonth));
+      const startDate = startOfMonth(currentMonth).toISOString();
+      const endDate = endOfMonth(currentMonth).toISOString();
 
       const { data, error } = await supabase
         .from('revenue')
@@ -39,8 +35,8 @@ export const useMonthlyStats = () => {
       if (!user) return 0;
 
       const lastMonth = subMonths(new Date(), 1);
-      const startDate = formatDateForSupabase(startOfMonth(lastMonth));
-      const endDate = formatDateForSupabase(endOfMonth(lastMonth));
+      const startDate = startOfMonth(lastMonth).toISOString();
+      const endDate = endOfMonth(lastMonth).toISOString();
 
       const { data, error } = await supabase
         .from('revenue')
