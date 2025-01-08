@@ -28,7 +28,7 @@ export const DealStageColumn = ({ stage, deals, onEdit }: DealStageColumnProps) 
           </span>
         </div>
         <span className="text-xs font-medium text-[#1EAEDB]">
-          ${totalValue.toLocaleString()}
+          €{totalValue.toLocaleString()}
         </span>
       </div>
       <Droppable droppableId={stage.id}>
