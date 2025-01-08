@@ -14,7 +14,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
-  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
+  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other']),
   notes: z.string().optional(),
 });
 
@@ -25,7 +25,7 @@ interface EditProspectFormProps {
     contact_email?: string;
     contact_job_title?: string;
     contact_linkedin?: string;
-    source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'other';
+    source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
     notes?: string;
   };
   onSuccess: () => void;
@@ -96,6 +96,7 @@ export const EditProspectForm = ({ prospect, onSuccess }: EditProspectFormProps)
                   <SelectItem value="linkedin">LinkedIn</SelectItem>
                   <SelectItem value="cold_outreach">Cold Outreach</SelectItem>
                   <SelectItem value="conference">Conference</SelectItem>
+                  <SelectItem value="accelerator">Accelerator</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
