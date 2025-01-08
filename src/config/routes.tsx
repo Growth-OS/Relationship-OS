@@ -41,80 +41,93 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: (
-      <Layout>
-        <Outlet />
-      </Layout>
-    ),
+    element: <Layout><Outlet /></Layout>,
     errorElement: <ErrorBoundary />,
     children: [
       {
         path: "",
         element: <Dashboard />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "sequences",
         element: <Sequences />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "sequences/:sequenceId/edit",
         element: <SequenceBuilder />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "prospects",
         element: <Prospects />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "deals",
         element: <Deals />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "projects",
         element: <Projects />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "boards",
         element: <Boards />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "tasks",
         element: <Tasks />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "calendar",
         element: <Calendar />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "travels",
         element: <Travels />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "affiliates",
         element: <Affiliates />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "finances",
         element: <Finances />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "invoices",
         element: <Invoices />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "reporting",
         element: <Reporting />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "development",
         element: <Development />,
+        errorElement: <ErrorBoundary />,
       },
       {
         path: "settings",
         element: <SettingsLayout />,
+        errorElement: <ErrorBoundary />,
         children: [
           {
             path: "profile",
             element: <ProfileSettings />,
+            errorElement: <ErrorBoundary />,
           }
         ]
       }

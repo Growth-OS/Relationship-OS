@@ -1,9 +1,17 @@
-import { useRouteError } from "react-router-dom";
+import { useRouteError, isRouteErrorResponse } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 
 export const ErrorBoundary = () => {
-  const error = useRouteError() as Error;
+  const error = useRouteError();
+  
+  let errorMessage = "An unexpected error occurred";
+  
+  if (isRouteErrorResponse(error)) {
+    errorMessage = error.data?.message || error.statusText;
+  } else if (error instanceof Error) {
+    errorMessage = error.message;
+  }
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
@@ -15,7 +23,7 @@ export const ErrorBoundary = () => {
           Oops! Something went wrong
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          {error.message || "An unexpected error occurred"}
+          {errorMessage}
         </p>
         <div className="space-x-4">
           <Button
