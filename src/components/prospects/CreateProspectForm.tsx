@@ -17,7 +17,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
-  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
+  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other']),
   notes: z.string().optional(),
 });
 
@@ -95,6 +95,7 @@ export const CreateProspectForm = ({ onSuccess }: CreateProspectFormProps) => {
                   <SelectItem value="linkedin">LinkedIn</SelectItem>
                   <SelectItem value="cold_outreach">Cold Outreach</SelectItem>
                   <SelectItem value="conference">Conference</SelectItem>
+                  <SelectItem value="accelerator">Accelerator</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>

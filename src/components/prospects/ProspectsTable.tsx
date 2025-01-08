@@ -74,6 +74,7 @@ export const ProspectsTable = ({
     linkedin: 'LinkedIn',
     cold_outreach: 'Cold Outreach',
     conference: 'Conference',
+    accelerator: 'Accelerator',
     other: 'Other'
   };
 

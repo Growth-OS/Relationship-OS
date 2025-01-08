@@ -1644,6 +1644,7 @@ export type Database = {
         | "cold_outreach"
         | "conference"
         | "other"
+        | "accelerator"
       module_permission:
         | "dashboard"
         | "prospects"
