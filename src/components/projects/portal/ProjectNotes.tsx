@@ -57,7 +57,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         .insert({
           project_id: projectId,
           message: newNote,
-          role: "note",
+          role: "user",
           user_id: userData.user.id
         });
 
