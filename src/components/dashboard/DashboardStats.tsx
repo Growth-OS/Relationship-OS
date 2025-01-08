@@ -1,8 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
 export const DashboardStats = () => {
+  // Helper function to format dates for Supabase
+  const formatDateForSupabase = (date: Date) => {
+    return format(date, "yyyy-MM-dd");
+  };
+
   // Current month's revenue
   const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ['monthly-revenue'],
@@ -10,10 +15,16 @@ export const DashboardStats = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
 
+      const currentMonth = new Date();
+      const startDate = formatDateForSupabase(startOfMonth(currentMonth));
+      const endDate = formatDateForSupabase(endOfMonth(currentMonth));
+
       const { data, error } = await supabase
         .from('revenue')
         .select('monthly_revenue')
         .eq('user_id', user.id)
+        .gte('created_at', startDate)
+        .lte('created_at', endDate)
         .maybeSingle();
 
       if (error) throw new Error(error.message);
@@ -29,12 +40,15 @@ export const DashboardStats = () => {
       if (!user) return 0;
 
       const lastMonth = subMonths(new Date(), 1);
+      const startDate = formatDateForSupabase(startOfMonth(lastMonth));
+      const endDate = formatDateForSupabase(endOfMonth(lastMonth));
+
       const { data, error } = await supabase
         .from('revenue')
         .select('monthly_revenue')
         .eq('user_id', user.id)
-        .lte('created_at', endOfMonth(lastMonth))
-        .gte('created_at', startOfMonth(lastMonth))
+        .gte('created_at', startDate)
+        .lte('created_at', endDate)
         .maybeSingle();
 
       if (error) throw new Error(error.message);
@@ -49,12 +63,16 @@ export const DashboardStats = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
 
+      const currentMonth = new Date();
+      const startDate = formatDateForSupabase(startOfMonth(currentMonth));
+      const endDate = formatDateForSupabase(endOfMonth(currentMonth));
+
       const { count, error } = await supabase
         .from('deals')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('created_at', startOfMonth(new Date()))
-        .lte('created_at', endOfMonth(new Date()));
+        .gte('created_at', startDate)
+        .lte('created_at', endDate);
 
       if (error) throw new Error(error.message);
       return count || 0;
@@ -69,12 +87,15 @@ export const DashboardStats = () => {
       if (!user) return 0;
 
       const lastMonth = subMonths(new Date(), 1);
+      const startDate = formatDateForSupabase(startOfMonth(lastMonth));
+      const endDate = formatDateForSupabase(endOfMonth(lastMonth));
+
       const { count, error } = await supabase
         .from('deals')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('created_at', startOfMonth(lastMonth))
-        .lte('created_at', endOfMonth(lastMonth));
+        .gte('created_at', startDate)
+        .lte('created_at', endDate);
 
       if (error) throw new Error(error.message);
       return count || 0;
@@ -88,13 +109,17 @@ export const DashboardStats = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
 
+      const currentMonth = new Date();
+      const startDate = formatDateForSupabase(startOfMonth(currentMonth));
+      const endDate = formatDateForSupabase(endOfMonth(currentMonth));
+
       const { count, error } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('completed', true)
-        .gte('created_at', startOfMonth(new Date()))
-        .lte('created_at', endOfMonth(new Date()));
+        .gte('created_at', startDate)
+        .lte('created_at', endDate);
 
       if (error) throw new Error(error.message);
       return count || 0;
@@ -109,13 +134,16 @@ export const DashboardStats = () => {
       if (!user) return 0;
 
       const lastMonth = subMonths(new Date(), 1);
+      const startDate = formatDateForSupabase(startOfMonth(lastMonth));
+      const endDate = formatDateForSupabase(endOfMonth(lastMonth));
+
       const { count, error } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('completed', true)
-        .gte('created_at', startOfMonth(lastMonth))
-        .lte('created_at', endOfMonth(lastMonth));
+        .gte('created_at', startDate)
+        .lte('created_at', endDate);
 
       if (error) throw new Error(error.message);
       return count || 0;
