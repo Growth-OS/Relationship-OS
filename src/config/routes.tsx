@@ -7,6 +7,7 @@ import Join from "@/pages/Join";
 import Dashboard from "@/pages/Dashboard";
 import Sequences from "@/pages/Sequences";
 import SequenceBuilder from "@/pages/SequenceBuilder";
+import { Outlet } from "react-router-dom";
 
 export const router = createBrowserRouter([
   {
@@ -26,7 +27,11 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Layout />,
+    element: (
+      <Layout>
+        <Outlet />
+      </Layout>
+    ),
     errorElement: <ErrorBoundary />,
     children: [
       {
