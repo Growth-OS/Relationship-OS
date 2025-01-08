@@ -9,10 +9,22 @@ export const DashboardStats = () => {
       const { data, error } = await supabase
         .from('revenue')
         .select('monthly_revenue')
-        .maybeSingle();  // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (error) throw new Error(error.message);
       return data?.monthly_revenue || 0;
+    },
+  });
+
+  const { data: totalDeals, isLoading: isLoadingDeals } = useQuery({
+    queryKey: ['total-deals'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw new Error(error.message);
+      return count || 0;
     },
   });
 
@@ -25,7 +37,7 @@ export const DashboardStats = () => {
     },
     {
       name: 'Total Deals',
-      value: '150',
+      value: isLoadingDeals ? "..." : totalDeals?.toString() || '0',
       change: '1.2%',
       changeType: 'decrease',
     },
