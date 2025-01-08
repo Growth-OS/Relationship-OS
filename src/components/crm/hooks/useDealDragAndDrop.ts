@@ -14,16 +14,19 @@ export const useDealDragAndDrop = () => {
     
     if (source.droppableId !== destination.droppableId) {
       try {
+        const newStage = destination.droppableId as DealStage;
+        const oldStage = source.droppableId as DealStage;
+        
         console.log('Updating deal stage:', {
           dealId: draggableId,
-          newStage: destination.droppableId,
-          oldStage: source.droppableId
+          newStage,
+          oldStage
         });
 
         const { error } = await supabase
           .from('deals')
           .update({ 
-            stage: destination.droppableId as DealStage,
+            stage: newStage,
             last_activity_date: new Date().toISOString()
           })
           .eq('id', draggableId);
@@ -33,10 +36,7 @@ export const useDealDragAndDrop = () => {
           throw error;
         }
         
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ['deals'] }),
-          queryClient.invalidateQueries({ queryKey: ['dealConversions'] })
-        ]);
+        await queryClient.invalidateQueries({ queryKey: ['deals'] });
         
         toast.success('Deal stage updated successfully');
       } catch (error) {
