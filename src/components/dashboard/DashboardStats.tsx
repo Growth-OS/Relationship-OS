@@ -6,9 +6,13 @@ export const DashboardStats = () => {
   const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ['monthly-revenue'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
       const { data, error } = await supabase
         .from('revenue')
         .select('monthly_revenue')
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) throw new Error(error.message);
@@ -19,9 +23,13 @@ export const DashboardStats = () => {
   const { data: totalDeals, isLoading: isLoadingDeals } = useQuery({
     queryKey: ['total-deals'],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
       const { count, error } = await supabase
         .from('deals')
-        .select('*', { count: 'exact', head: true });
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
 
       if (error) throw new Error(error.message);
       return count || 0;
