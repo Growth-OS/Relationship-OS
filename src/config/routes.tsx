@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Sequences from "@/pages/Sequences";
 import SequenceBuilder from "@/pages/SequenceBuilder";
 import { Outlet } from "react-router-dom";
+import Prospects from "@/pages/Prospects";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
         path: "sequences/:sequenceId/edit",
         element: <SequenceBuilder />,
       },
+      {
+        path: "prospects",
+        element: <Prospects />,
+      }
     ],
   },
 ]);
