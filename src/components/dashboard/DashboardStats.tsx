@@ -6,21 +6,13 @@ export const DashboardStats = () => {
   const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ['monthly-revenue'],
     queryFn: async () => {
-      const startDate = startOfMonth(new Date()).toISOString();
-      const endDate = endOfMonth(new Date()).toISOString();
-
       const { data, error } = await supabase
-        .from('financial_transactions')
-        .select('amount')
-        .eq('type', 'income')
-        .gte('date', startDate)
-        .lte('date', endDate);
+        .from('revenue')
+        .select('monthly_revenue')
+        .single();
 
       if (error) throw new Error(error.message);
-      
-      // Calculate total revenue for the month
-      const total = data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
-      return total;
+      return data?.monthly_revenue || 0;
     },
   });
 

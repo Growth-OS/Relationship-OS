@@ -933,6 +933,30 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_revenue: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_revenue?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_revenue?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sequence_assignments: {
         Row: {
           completed_at: string | null
