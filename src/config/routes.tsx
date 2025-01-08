@@ -20,6 +20,8 @@ import Finances from "@/pages/Finances";
 import Invoices from "@/pages/Invoices";
 import Reporting from "@/pages/Reporting";
 import Development from "@/pages/Development";
+import SettingsLayout from "@/components/settings/SettingsLayout";
+import ProfileSettings from "@/pages/ProfileSettings";
 
 export const router = createBrowserRouter([
   {
@@ -105,6 +107,16 @@ export const router = createBrowserRouter([
       {
         path: "development",
         element: <Development />,
+      },
+      {
+        path: "settings",
+        element: <SettingsLayout />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          }
+        ]
       }
     ],
   },
