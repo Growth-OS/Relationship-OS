@@ -36,6 +36,23 @@ export const DashboardStats = () => {
     },
   });
 
+  const { data: completedTasks, isLoading: isLoadingTasks } = useQuery({
+    queryKey: ['completed-tasks'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
+
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('completed', true);
+
+      if (error) throw new Error(error.message);
+      return count || 0;
+    },
+  });
+
   const stats = [
     {
       name: 'Monthly Revenue',
@@ -50,8 +67,8 @@ export const DashboardStats = () => {
       changeType: 'decrease',
     },
     {
-      name: 'New Clients',
-      value: '30',
+      name: 'Tasks Completed',
+      value: isLoadingTasks ? "..." : completedTasks?.toString() || '0',
       change: '5.0%',
       changeType: 'increase',
     },
