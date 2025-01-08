@@ -104,7 +104,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <RichTextEditor content={newNote} onChange={setNewNote} />
+        <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
         <div className="flex justify-end">
           <Button onClick={handleAddNote}>Add Note</Button>
         </div>

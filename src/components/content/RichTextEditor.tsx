@@ -7,9 +7,10 @@ import { EditorToolbar } from './editor/EditorToolbar';
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
+  useTemplate?: boolean;
 }
 
-export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
+export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichTextEditorProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -18,7 +19,7 @@ export const RichTextEditor = ({ content, onChange }: RichTextEditorProps) => {
         types: ['heading', 'paragraph'],
       }),
     ],
-    content: content || defaultTemplate,
+    content: content || (useTemplate ? defaultTemplate : ''),
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
