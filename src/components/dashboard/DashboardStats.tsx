@@ -9,7 +9,7 @@ export const DashboardStats = () => {
       const { data, error } = await supabase
         .from('revenue')
         .select('monthly_revenue')
-        .single();
+        .maybeSingle();  // Changed from .single() to .maybeSingle()
 
       if (error) throw new Error(error.message);
       return data?.monthly_revenue || 0;
