@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Layout } from "@/components/Layout";
+import Layout from "@/components/Layout";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
