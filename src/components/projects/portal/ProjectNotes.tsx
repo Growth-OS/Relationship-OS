@@ -44,10 +44,17 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
     if (!newNote.trim()) return;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       const { error } = await supabase.from("project_chat_history").insert({
         project_id: projectId,
         message: newNote,
         role: "note",
+        user_id: user.id
       });
 
       if (error) throw error;
