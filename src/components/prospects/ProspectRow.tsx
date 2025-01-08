@@ -27,27 +27,27 @@ export const ProspectRow = ({
 }: ProspectRowProps) => {
   return (
     <TableRow className="hover:bg-muted/50">
-      <TableCell className="p-4">
+      <TableCell className="p-4 text-left align-top">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelectChange}
         />
       </TableCell>
-      <TableCell className="p-4 font-medium">{prospect.company_name}</TableCell>
-      <TableCell className="p-4 text-muted-foreground">
+      <TableCell className="p-4 text-left align-top">{prospect.company_name}</TableCell>
+      <TableCell className="p-4 text-left align-top">
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
           {sourceLabels[prospect.source]}
         </span>
       </TableCell>
-      <TableCell className="p-4 text-muted-foreground">{prospect.contact_job_title || '-'}</TableCell>
-      <TableCell className="p-4 text-muted-foreground">{prospect.contact_email || '-'}</TableCell>
-      <TableCell className="p-4">
+      <TableCell className="p-4 text-left align-top">{prospect.contact_job_title || '-'}</TableCell>
+      <TableCell className="p-4 text-left align-top">{prospect.contact_email || '-'}</TableCell>
+      <TableCell className="p-4 text-left align-top">
         <ExternalLinks 
           website={prospect.company_website} 
           linkedin={prospect.contact_linkedin}
         />
       </TableCell>
-      <TableCell className="p-4">
+      <TableCell className="p-4 text-left align-top">
         {prospect.sequence_name ? (
           <div className="space-y-1">
             <div>{prospect.sequence_name}</div>
@@ -57,7 +57,7 @@ export const ProspectRow = ({
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell className="p-4">
+      <TableCell className="p-4 text-left align-top">
         {prospect.current_step ? (
           <div className="space-y-1">
             <div className="text-sm text-gray-600">Step {prospect.current_step}</div>
@@ -65,7 +65,7 @@ export const ProspectRow = ({
           </div>
         ) : '-'}
       </TableCell>
-      <TableCell className="p-4">
+      <TableCell className="p-4 text-left align-top">
         <ProspectActions
           prospect={prospect}
           onDelete={onDelete}
