@@ -50,12 +50,14 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         throw new Error("No authenticated user found");
       }
 
-      const { error } = await supabase.from("project_chat_history").insert({
-        project_id: projectId,
-        message: newNote,
-        role: "note",
-        user_id: user.id
-      });
+      const { error } = await supabase
+        .from("project_chat_history")
+        .insert({
+          project_id: projectId,
+          message: newNote,
+          role: "note",
+          user_id: user.id
+        });
 
       if (error) throw error;
 
@@ -66,11 +68,11 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
 
       setNewNote("");
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding note:", error);
       toast({
         title: "Error",
-        description: "Failed to add note",
+        description: error.message || "Failed to add note",
         variant: "destructive",
       });
     }
@@ -91,11 +93,11 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
       });
 
       refetch();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting note:", error);
       toast({
         title: "Error",
-        description: "Failed to delete note",
+        description: error.message || "Failed to delete note",
         variant: "destructive",
       });
     }
