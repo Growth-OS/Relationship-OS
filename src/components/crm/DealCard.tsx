@@ -58,7 +58,7 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
         </div>
       </div>
       <p className="text-sm font-medium text-[#1EAEDB] mb-2">
-        ${Number(deal.deal_value).toLocaleString()}
+        €{Number(deal.deal_value).toLocaleString()}
       </p>
       {deal.contact_job_title && (
         <p className="text-xs text-muted-foreground mb-1">{deal.contact_job_title}</p>
