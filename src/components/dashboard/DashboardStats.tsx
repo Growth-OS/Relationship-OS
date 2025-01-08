@@ -1,21 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { startOfMonth, endOfMonth } from "date-fns";
 
 export const DashboardStats = () => {
-  const { data: revenueData, isLoading: isLoadingRevenue } = useQuery({
+  const { data: monthlyRevenue, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ['monthly-revenue'],
     queryFn: async () => {
+      const startDate = startOfMonth(new Date()).toISOString();
+      const endDate = endOfMonth(new Date()).toISOString();
+
       const { data, error } = await supabase
-        .from('revenue')
-        .select('monthly_revenue')
-        .single();
+        .from('financial_transactions')
+        .select('amount')
+        .eq('type', 'income')
+        .gte('date', startDate)
+        .lte('date', endDate);
 
       if (error) throw new Error(error.message);
-      return data;
+      
+      // Calculate total revenue for the month
+      const total = data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
+      return total;
     },
   });
-
-  const monthlyRevenue = revenueData?.monthly_revenue;
 
   const stats = [
     {
