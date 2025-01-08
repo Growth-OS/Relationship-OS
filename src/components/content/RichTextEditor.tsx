@@ -23,6 +23,12 @@ export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichT
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none',
+        placeholder: 'Start typing your note here...',
+      },
+    },
   });
 
   if (!editor) {
@@ -32,7 +38,7 @@ export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichT
   return (
     <div className="border rounded-lg overflow-hidden h-full flex flex-col">
       <EditorToolbar editor={editor} />
-      <div className="p-4 flex-1 overflow-y-auto prose max-w-none">
+      <div className="p-4 flex-1 overflow-y-auto prose max-w-none min-h-[200px] bg-background">
         <EditorContent editor={editor} />
       </div>
     </div>
