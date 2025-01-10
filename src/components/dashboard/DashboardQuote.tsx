@@ -52,7 +52,6 @@ export const DashboardQuote = () => {
   return (
     <Card className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md">
       <div className="p-6">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Daily Inspiration</h2>
         <div className="space-y-3">
           <p className="text-xl text-gray-700 dark:text-gray-300 italic leading-relaxed">"{quote?.content || fallbackQuote.content}"</p>
           <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">— {quote?.author || fallbackQuote.author}</p>
