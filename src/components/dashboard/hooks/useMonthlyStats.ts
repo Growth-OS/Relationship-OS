@@ -15,15 +15,15 @@ export const useMonthlyStats = () => {
       const endDate = endOfMonth(currentMonth).toISOString();
 
       const { data, error } = await supabase
-        .from('revenue')
-        .select('monthly_revenue')
+        .from('financial_transactions')
+        .select('amount')
         .eq('user_id', user.id)
-        .gte('created_at', startDate)
-        .lte('created_at', endDate)
-        .maybeSingle();
+        .eq('type', 'income')
+        .gte('date', startDate)
+        .lte('date', endDate);
 
       if (error) throw error;
-      return data?.monthly_revenue || 0;
+      return data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
     },
   });
 
@@ -39,15 +39,15 @@ export const useMonthlyStats = () => {
       const endDate = endOfMonth(lastMonth).toISOString();
 
       const { data, error } = await supabase
-        .from('revenue')
-        .select('monthly_revenue')
+        .from('financial_transactions')
+        .select('amount')
         .eq('user_id', user.id)
-        .gte('created_at', startDate)
-        .lte('created_at', endDate)
-        .maybeSingle();
+        .eq('type', 'income')
+        .gte('date', startDate)
+        .lte('date', endDate);
 
       if (error) throw error;
-      return data?.monthly_revenue || 0;
+      return data?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
     },
   });
 
