@@ -5,6 +5,7 @@ import { useState } from "react";
 import { format, subMonths } from "date-fns";
 import { FinancialSummaryCard } from "./financial/FinancialSummaryCard";
 import { MonthlyOverviewChart } from "./financial/MonthlyOverviewChart";
+import { ExpensesByCategoryChart } from "./financial/ExpensesByCategoryChart";
 
 export const FinancialReporting = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -109,7 +110,10 @@ export const FinancialReporting = () => {
         />
       </div>
 
-      <MonthlyOverviewChart data={monthlyData} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <MonthlyOverviewChart data={monthlyData} />
+        <ExpensesByCategoryChart />
+      </div>
     </div>
   );
 };
