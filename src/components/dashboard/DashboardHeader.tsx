@@ -32,14 +32,17 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-        Welcome back, {firstName}!
-      </h1>
-      <p className="text-gray-600 dark:text-gray-400">
-        Here's an overview of your business activities and upcoming tasks.
-      </p>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          Welcome back, {firstName}!
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Here's an overview of your business activities and upcoming tasks.
+        </p>
+      </div>
+      
       {quote && (
-        <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <p className="text-gray-700 dark:text-gray-300 italic">"{quote.content}"</p>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">— {quote.author}</p>
         </div>
