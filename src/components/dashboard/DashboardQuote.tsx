@@ -44,11 +44,10 @@ export const DashboardQuote = () => {
   if (!quote) return null;
 
   return (
-    <Card className="p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Daily Inspiration</h2>
+    <Card className="p-6 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="space-y-2">
-        <p className="text-gray-700 dark:text-gray-300 italic">"{quote.content}"</p>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">— {quote.author}</p>
+        <p className="text-lg text-gray-700 dark:text-gray-300 italic">"{quote.content}"</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">— {quote.author}</p>
       </div>
     </Card>
   );
