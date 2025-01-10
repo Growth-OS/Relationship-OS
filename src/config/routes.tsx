@@ -22,6 +22,7 @@ import Reporting from "@/pages/Reporting";
 import Development from "@/pages/Development";
 import SettingsLayout from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
+import Quotes from "@/pages/Quotes";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,11 @@ export const router = createBrowserRouter([
       {
         path: "",
         element: <Dashboard />,
+        errorElement: <ErrorBoundary />,
+      },
+      {
+        path: "quotes",
+        element: <Quotes />,
         errorElement: <ErrorBoundary />,
       },
       {
