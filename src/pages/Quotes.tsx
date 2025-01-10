@@ -12,8 +12,8 @@ interface Quote {
 
 // Fallback quote in case the API fails
 const fallbackQuote: Quote = {
-  content: "The best way to predict the future is to create it.",
-  author: "Peter Drucker"
+  content: "The way to get started is to quit talking and begin doing.",
+  author: "Walt Disney"
 };
 
 const Quotes = () => {
@@ -24,7 +24,7 @@ const Quotes = () => {
     queryKey: ["dailyQuote", today],
     queryFn: async () => {
       try {
-        const response = await fetch("https://api.quotable.io/random?tags=inspirational,motivational");
+        const response = await fetch("https://api.quotable.io/random?tags=business,success");
         if (!response.ok) {
           console.error("Quote API error:", response.statusText);
           return fallbackQuote;
