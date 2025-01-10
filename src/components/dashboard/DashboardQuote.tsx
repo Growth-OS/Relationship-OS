@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Quote {
   content: string;
@@ -13,10 +14,11 @@ const fallbackQuote: Quote = {
 };
 
 export const DashboardQuote = () => {
+  const { toast } = useToast();
   const today = new Date().toDateString();
   const [storedQuote, setStoredQuote] = useLocalStorage<Quote | null>(`daily-quote-${today}`, null);
 
-  const { data: quote } = useQuery({
+  const { data: quote, isError } = useQuery({
     queryKey: ["dailyQuote", today],
     queryFn: async () => {
       try {
@@ -24,8 +26,7 @@ export const DashboardQuote = () => {
         
         const response = await fetch("https://api.quotable.io/random?tags=business,success");
         if (!response.ok) {
-          console.error("Quote API error:", response.statusText);
-          return fallbackQuote;
+          throw new Error("Failed to fetch quote");
         }
         const data = await response.json();
         const newQuote = { content: data.content, author: data.author };
@@ -37,10 +38,16 @@ export const DashboardQuote = () => {
       }
     },
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    initialData: storedQuote,
+    initialData: storedQuote || fallbackQuote,
   });
 
-  if (!quote) return null;
+  if (isError) {
+    toast({
+      title: "Error loading quote",
+      description: "Using fallback quote instead",
+      variant: "destructive",
+    });
+  }
 
   return (
     <Card className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md">
