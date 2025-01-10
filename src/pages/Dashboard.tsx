@@ -5,7 +5,6 @@ import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTask
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
 import { DashboardExternalLinks } from "@/components/dashboard/DashboardExternalLinks";
-import { DashboardQuote } from "@/components/dashboard/DashboardQuote";
 
 const Dashboard = () => {
   const { data: user } = useQuery({
@@ -31,7 +30,6 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DashboardWeeklyTasks />
           <div className="space-y-6">
-            <DashboardQuote />
             <DashboardExternalLinks />
             <DashboardActivityChart />
           </div>
