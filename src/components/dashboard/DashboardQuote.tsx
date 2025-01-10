@@ -7,6 +7,12 @@ interface Quote {
   author: string;
 }
 
+// Fallback quote in case the API fails
+const fallbackQuote: Quote = {
+  content: "The way to get started is to quit talking and begin doing.",
+  author: "Walt Disney"
+};
+
 export const DashboardQuote = () => {
   const today = new Date().toDateString();
   const [storedQuote, setStoredQuote] = useLocalStorage<Quote | null>(`daily-quote-${today}`, null);
@@ -14,19 +20,26 @@ export const DashboardQuote = () => {
   const { data: quote } = useQuery({
     queryKey: ["dailyQuote", today],
     queryFn: async () => {
-      if (storedQuote) return storedQuote;
-      
-      const response = await fetch("https://api.quotable.io/random?tags=inspirational,motivational");
-      const data = await response.json();
-      const newQuote = { content: data.content, author: data.author };
-      setStoredQuote(newQuote);
-      return newQuote;
+      try {
+        if (storedQuote) return storedQuote;
+        
+        const response = await fetch("https://api.quotable.io/random?tags=business,success");
+        if (!response.ok) {
+          console.error("Quote API error:", response.statusText);
+          return fallbackQuote;
+        }
+        const data = await response.json();
+        const newQuote = { content: data.content, author: data.author };
+        setStoredQuote(newQuote);
+        return newQuote;
+      } catch (error) {
+        console.error("Error fetching quote:", error);
+        return fallbackQuote;
+      }
     },
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
     initialData: storedQuote,
   });
-
-  console.log("Quote data in DashboardQuote:", quote);
 
   if (!quote) return null;
 
