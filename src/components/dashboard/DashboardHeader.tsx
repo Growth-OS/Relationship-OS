@@ -30,6 +30,8 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     initialData: storedQuote,
   });
 
+  console.log("Quote data:", quote); // Add this to debug
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
