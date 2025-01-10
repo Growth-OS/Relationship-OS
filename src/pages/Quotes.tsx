@@ -10,6 +10,12 @@ interface Quote {
   author: string;
 }
 
+// Fallback quote in case the API fails
+const fallbackQuote: Quote = {
+  content: "The best way to predict the future is to create it.",
+  author: "Peter Drucker"
+};
+
 const Quotes = () => {
   const today = new Date().toDateString();
   const [storedQuote, setStoredQuote] = useLocalStorage<Quote | null>(`daily-quote-${today}`, null);
@@ -17,34 +23,25 @@ const Quotes = () => {
   const { data: quote, isLoading, isError, refetch } = useQuery({
     queryKey: ["dailyQuote", today],
     queryFn: async () => {
-      const response = await fetch("https://api.quotable.io/random?tags=inspirational,motivational");
-      if (!response.ok) {
-        throw new Error('Failed to fetch quote');
+      try {
+        const response = await fetch("https://api.quotable.io/random?tags=inspirational,motivational");
+        if (!response.ok) {
+          console.error("Quote API error:", response.statusText);
+          return fallbackQuote;
+        }
+        const data = await response.json();
+        const newQuote = { content: data.content, author: data.author };
+        setStoredQuote(newQuote);
+        return newQuote;
+      } catch (error) {
+        console.error("Failed to fetch quote:", error);
+        return fallbackQuote;
       }
-      const data = await response.json();
-      const newQuote = { content: data.content, author: data.author };
-      setStoredQuote(newQuote);
-      return newQuote;
     },
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    initialData: storedQuote,
-    retry: 2
+    initialData: storedQuote || fallbackQuote,
+    retry: 1
   });
-
-  if (isError) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Daily Inspiration</h1>
-        <Card className="p-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <p className="text-red-500">Failed to load quote. Please try again.</p>
-          <Button onClick={() => refetch()} variant="outline" size="sm" className="mt-4">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
-          </Button>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 p-6">
@@ -66,12 +63,12 @@ const Quotes = () => {
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-4 w-1/3" />
           </div>
-        ) : quote ? (
+        ) : (
           <div className="space-y-4">
             <p className="text-2xl text-gray-700 dark:text-gray-300 italic">"{quote.content}"</p>
             <p className="text-gray-500 dark:text-gray-400">— {quote.author}</p>
           </div>
-        ) : null}
+        )}
       </Card>
     </div>
   );
