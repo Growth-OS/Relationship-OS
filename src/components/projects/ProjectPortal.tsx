@@ -1,3 +1,6 @@
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectCredentials } from "./portal/ProjectCredentials";
 import { ProjectTasks } from "./portal/ProjectTasks";
@@ -11,38 +14,44 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-interface Project {
-  id: string;
-  name: string;
-  client_name: string;
-  description?: string;
-  status: string;
-  budget?: number;
-  start_date?: string;
-  end_date?: string;
-}
-
-interface ProjectPortalProps {
-  project: Project | null;
-}
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "active":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "completed":
-      return "bg-blue-50 text-blue-700 border-blue-200";
-    case "on_hold":
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    default:
-      return "bg-gray-50 text-gray-700 border-gray-200";
-  }
-};
-
-export const ProjectPortal = ({ project }: ProjectPortalProps) => {
+export const ProjectPortal = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  if (!project) return null;
+  const { data: project, isLoading } = useQuery({
+    queryKey: ["project", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!project) {
+    return <div>Project not found</div>;
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      case "completed":
+        return "bg-blue-50 text-blue-700 border-blue-200";
+      case "on_hold":
+        return "bg-amber-50 text-amber-700 border-amber-200";
+      default:
+        return "bg-gray-50 text-gray-700 border-gray-200";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">

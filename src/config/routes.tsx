@@ -27,6 +27,7 @@ import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
 import Login from "@/pages/Login";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { ProjectPortal } from "@/components/projects/ProjectPortal";
 
 export const router = createBrowserRouter([
   {
@@ -88,6 +89,10 @@ export const router = createBrowserRouter([
           {
             path: "projects",
             element: <Projects />,
+          },
+          {
+            path: "projects/:id",
+            element: <ProjectPortal />,
           },
           {
             path: "boards",
