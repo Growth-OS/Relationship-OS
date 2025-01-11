@@ -25,20 +25,11 @@ import SettingsLayout from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
-import Login from "@/pages/Login";
-import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
-import { ProjectPortal } from "@/components/projects/ProjectPortal";
 
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorBoundary />
-  },
-  {
     path: "/",
     element: <Layout><Outlet /></Layout>,
-    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -54,7 +45,6 @@ export const router = createBrowserRouter([
           {
             path: "settings",
             element: <SettingsLayout />,
-            errorElement: <ErrorBoundary />,
             children: [
               {
                 path: "profile",
@@ -89,10 +79,6 @@ export const router = createBrowserRouter([
           {
             path: "projects",
             element: <Projects />,
-          },
-          {
-            path: "projects/:id",
-            element: <ProjectPortal />,
           },
           {
             path: "boards",
