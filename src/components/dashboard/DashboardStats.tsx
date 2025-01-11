@@ -6,9 +6,10 @@ export const DashboardStats = () => {
   const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
   const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   const { totalDeals, lastMonthDeals, isLoadingDeals } = useDealStats();
+  const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
 
   const calculatePercentageChange = (current: number, previous: number) => {
-    if (previous === 0) return "New"; // Handle case where last month was 0
+    if (previous === 0) return "New"; // Handle case where last quarter was 0
     const change = ((current - previous) / previous) * 100;
     return `${Math.abs(change).toFixed(1)}%`;
   };
@@ -20,19 +21,19 @@ export const DashboardStats = () => {
 
   const stats = [
     {
-      name: 'Monthly Revenue',
+      name: `Q${currentQuarter} Revenue`,
       value: isLoadingRevenue ? "..." : `€${monthlyRevenue?.toLocaleString() || '0'}`,
       change: calculatePercentageChange(monthlyRevenue || 0, lastMonthRevenue || 0),
       changeType: determineChangeType(monthlyRevenue || 0, lastMonthRevenue || 0),
     },
     {
-      name: 'Total Deals',
+      name: `Q${currentQuarter} Deals`,
       value: isLoadingDeals ? "..." : totalDeals?.toString() || '0',
       change: calculatePercentageChange(totalDeals || 0, lastMonthDeals || 0),
       changeType: determineChangeType(totalDeals || 0, lastMonthDeals || 0),
     },
     {
-      name: 'Tasks Completed',
+      name: `Q${currentQuarter} Tasks`,
       value: isLoadingTasks ? "..." : completedTasks?.toString() || '0',
       change: calculatePercentageChange(completedTasks || 0, lastMonthTasks || 0),
       changeType: determineChangeType(completedTasks || 0, lastMonthTasks || 0),
@@ -56,7 +57,7 @@ export const DashboardStats = () => {
               ? '↑' 
               : stat.changeType === 'decrease' 
                 ? '↓' 
-                : '•'} {stat.change}
+                : '•'} {stat.change} vs last quarter
           </p>
         </div>
       ))}

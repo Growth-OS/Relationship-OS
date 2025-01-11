@@ -1,18 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { startOfQuarter, endOfQuarter, subQuarters } from "date-fns";
 
 export const useDealStats = () => {
-  // Current month's deals
+  // Current quarter's deals
   const { data: totalDeals, isLoading: isLoadingDeals } = useQuery({
-    queryKey: ['total-deals'],
+    queryKey: ['total-deals-quarterly'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
 
-      const currentMonth = new Date();
-      const startDate = startOfMonth(currentMonth).toISOString();
-      const endDate = endOfMonth(currentMonth).toISOString();
+      const currentQuarter = new Date();
+      const startDate = startOfQuarter(currentQuarter).toISOString();
+      const endDate = endOfQuarter(currentQuarter).toISOString();
 
       const { count, error } = await supabase
         .from('deals')
@@ -26,16 +26,16 @@ export const useDealStats = () => {
     },
   });
 
-  // Last month's deals
+  // Last quarter's deals
   const { data: lastMonthDeals } = useQuery({
-    queryKey: ['last-month-deals'],
+    queryKey: ['last-quarter-deals'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return 0;
 
-      const lastMonth = subMonths(new Date(), 1);
-      const startDate = startOfMonth(lastMonth).toISOString();
-      const endDate = endOfMonth(lastMonth).toISOString();
+      const lastQuarter = subQuarters(new Date(), 1);
+      const startDate = startOfQuarter(lastQuarter).toISOString();
+      const endDate = endOfQuarter(lastQuarter).toISOString();
 
       const { count, error } = await supabase
         .from('deals')
