@@ -53,7 +53,9 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
                 </Badge>
               )}
               {task.completed && (
-                <Badge variant="success">Completed</Badge>
+                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                  Completed
+                </Badge>
               )}
             </div>
           </div>
