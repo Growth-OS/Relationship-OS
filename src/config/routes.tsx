@@ -11,8 +11,6 @@ import Development from "@/pages/Development";
 import Sequences from "@/pages/Sequences";
 import SequenceBuilder from "@/pages/SequenceBuilder";
 import Travels from "@/pages/Travels";
-import Boards from "@/pages/Boards";
-import BoardView from "@/pages/BoardView";
 import AIPrompts from "@/pages/AIPrompts";
 import AIPersona from "@/pages/AIPersona";
 import Affiliates from "@/pages/Affiliates";
@@ -25,7 +23,6 @@ import SettingsLayout from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
-import { ProjectsTimelines } from "@/components/projects/ProjectsTimelines";
 import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import { Navigate } from "react-router-dom";
 
@@ -90,14 +87,6 @@ export const router = createBrowserRouter([
           {
             path: "quarterly-timeline",
             element: <ProjectsQuarterlyTimeline />,
-          },
-          {
-            path: "boards",
-            element: <Boards />,
-          },
-          {
-            path: "boards/:id",
-            element: <BoardView />,
           },
           {
             path: "tasks",

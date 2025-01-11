@@ -143,36 +143,6 @@ export type Database = {
         }
         Relationships: []
       }
-      boards: {
-        Row: {
-          canvas_data: Json | null
-          created_at: string
-          description: string | null
-          id: string
-          last_edited_at: string
-          name: string
-          user_id: string
-        }
-        Insert: {
-          canvas_data?: Json | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          last_edited_at?: string
-          name: string
-          user_id: string
-        }
-        Update: {
-          canvas_data?: Json | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          last_edited_at?: string
-          name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       chat_messages: {
         Row: {
           attachment_url: string | null

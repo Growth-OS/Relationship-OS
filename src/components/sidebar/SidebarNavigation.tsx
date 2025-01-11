@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { 
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
-  Bug, FileText, ChartLine, ChartPie, Database, LayoutDashboard, 
+  Bug, FileText, ChartLine, ChartPie, Database, 
   Sparkles, List, BookOpen, Plane, GanttChart
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
@@ -25,7 +25,6 @@ export const SidebarNavigation = () => {
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: GanttChart, label: "Timeline", path: "/dashboard/quarterly-timeline" },
-    { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Plane, label: "Travels", path: "/dashboard/travels" },
