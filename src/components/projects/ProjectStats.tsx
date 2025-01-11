@@ -62,7 +62,7 @@ export const ProjectStats = ({ projects }: ProjectStatsProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Total Budget</p>
-            <h3 className="text-2xl font-bold">${totalBudget.toLocaleString()}</h3>
+            <h3 className="text-2xl font-bold">€{totalBudget.toLocaleString()}</h3>
           </div>
         </div>
       </Card>

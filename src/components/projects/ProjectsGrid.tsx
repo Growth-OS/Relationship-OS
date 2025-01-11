@@ -91,7 +91,7 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                 {project.budget && (
                   <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <DollarSign className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" />
-                    <span className="font-medium">${project.budget.toLocaleString()}</span>
+                    <span className="font-medium">€{project.budget.toLocaleString()}</span>
                   </div>
                 )}
                 

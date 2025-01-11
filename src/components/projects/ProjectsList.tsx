@@ -74,7 +74,7 @@ export const ProjectsList = ({ projects, isLoading }: ProjectsListProps) => {
                   {project.status}
                 </Badge>
               </TableCell>
-              <TableCell>${project.budget?.toLocaleString()}</TableCell>
+              <TableCell>€{project.budget?.toLocaleString()}</TableCell>
               <TableCell>
                 {project.start_date && (
                   <>
