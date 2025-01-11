@@ -102,9 +102,8 @@ export const ProjectsTimelines = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-5xl mx-auto px-4">
       {projects?.map((project) => {
-        // Filter out tasks without due dates and completed tasks, then sort remaining tasks
         const tasksWithDates = project.tasks?.filter(task => task.due_date && !task.completed) || [];
         if (!tasksWithDates.length) return null;
 
@@ -117,8 +116,8 @@ export const ProjectsTimelines = () => {
         const totalDays = differenceInDays(latestDate, earliestDate) + 1;
 
         return (
-          <Card key={project.id} className="p-6">
-            <div className="flex items-center justify-between mb-4">
+          <Card key={project.id} className="p-4">
+            <div className="flex items-center justify-between mb-3">
               <div>
                 <h3 className="text-lg font-semibold">{project.name}</h3>
                 <p className="text-sm text-gray-600">{project.client_name}</p>
@@ -128,7 +127,7 @@ export const ProjectsTimelines = () => {
               </Badge>
             </div>
 
-            <div className="space-y-4">
+            <div className="relative bg-gray-50 rounded-lg p-2">
               {sortedTasks.map((task) => {
                 const taskDate = new Date(task.due_date!);
                 const offsetDays = differenceInDays(taskDate, earliestDate);
@@ -137,19 +136,18 @@ export const ProjectsTimelines = () => {
                 return (
                   <div 
                     key={task.id} 
-                    className="relative h-16 cursor-pointer"
+                    className="relative h-14 mb-2 last:mb-0"
                     onClick={() => setSelectedProject(project)}
                   >
-                    <div className="absolute inset-y-0 left-0 w-full bg-gray-50 rounded hover:bg-gray-100 transition-colors">
+                    <div className="absolute inset-y-0 left-0 w-full">
                       <div
-                        className="absolute h-full"
+                        className="absolute h-full flex items-center"
                         style={{
                           left: `${leftPercentage}%`,
-                          width: "8px",
-                          backgroundColor: task.completed ? "#10B981" : "#6B7280",
                         }}
                       >
-                        <Card className="absolute top-0 left-2 m-2 p-2 bg-white whitespace-nowrap">
+                        <div className="w-2 h-2 bg-primary rounded-full absolute -left-1" />
+                        <Card className="ml-2 p-2 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                           <div className="flex items-center gap-2">
                             <Checkbox
                               checked={task.completed}
@@ -176,7 +174,7 @@ export const ProjectsTimelines = () => {
               })}
             </div>
 
-            <div className="flex justify-between text-sm text-gray-500 mt-4">
+            <div className="flex justify-between text-sm text-gray-500 mt-3">
               <span>{format(earliestDate, "MMM d, yyyy")}</span>
               <span>{format(latestDate, "MMM d, yyyy")}</span>
             </div>
