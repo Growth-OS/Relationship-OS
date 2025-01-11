@@ -2,10 +2,11 @@ import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format, startOfQuarter, endOfQuarter, eachMonthOfInterval, isWithinInterval, addQuarters } from "date-fns";
-import { Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ProjectPortal } from "./ProjectPortal";
 
 interface Task {
   id: string;
@@ -18,11 +19,18 @@ interface Task {
 interface Project {
   id: string;
   name: string;
+  client_name: string;
+  status: string;
+  budget: number;
+  start_date: string;
+  end_date: string;
+  last_activity_date: string;
   tasks: Task[];
 }
 
 export const QuarterlyTimeline = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const quarterStart = startOfQuarter(currentDate);
   const quarterEnd = endOfQuarter(currentDate);
   const months = eachMonthOfInterval({ start: quarterStart, end: quarterEnd });
@@ -32,7 +40,7 @@ export const QuarterlyTimeline = () => {
     queryFn: async () => {
       const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
-        .select("id, name")
+        .select("id, name, client_name, status, budget, start_date, end_date, last_activity_date")
         .order("name");
 
       if (projectsError) throw projectsError;
@@ -104,9 +112,6 @@ export const QuarterlyTimeline = () => {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
-        <Button variant="outline" size="icon">
-          <Download className="h-4 w-4" />
-        </Button>
       </div>
 
       <div className="relative">
@@ -128,16 +133,17 @@ export const QuarterlyTimeline = () => {
                 {project.tasks.map((task) => (
                   <TooltipProvider key={task.id}>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <div
                           className={`absolute h-8 top-2 rounded border-2 ${getRandomColor(
                             projectIndex
-                          )} hover:opacity-80 transition-opacity`}
+                          )} hover:opacity-80 transition-opacity cursor-pointer`}
                           style={{
                             left: `${getTaskPosition(task.due_date)}%`,
                             width: "120px",
                             transform: "translateX(-60px)",
                           }}
+                          onClick={() => setSelectedProject(project)}
                         >
                           <div className="truncate px-2 text-sm">{task.title}</div>
                         </div>
@@ -161,6 +167,12 @@ export const QuarterlyTimeline = () => {
           ))}
         </div>
       </div>
+
+      <ProjectPortal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </Card>
   );
 };
