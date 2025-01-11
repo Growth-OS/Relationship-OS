@@ -52,19 +52,7 @@ export const useSequenceSteps = (sequenceId?: string) => {
 
       console.log('Sequence found:', data);
 
-      const sequence: Sequence = {
-        id: data.id,
-        created_at: data.created_at,
-        user_id: data.user_id,
-        name: data.name,
-        description: data.description,
-        status: data.status,
-        max_steps: data.max_steps,
-        sequence_steps: data.sequence_steps || [],
-        sequence_assignments: data.sequence_assignments || [],
-      };
-
-      return sequence;
+      return data as Sequence;
     },
     enabled: Boolean(sequenceId),
     retry: false
