@@ -83,6 +83,50 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_generated_templates: {
+        Row: {
+          created_at: string
+          generated_content: string
+          id: string
+          is_selected: boolean | null
+          metadata: Json | null
+          original_prompt: string
+          performance_metrics: Json | null
+          sequence_step_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generated_content: string
+          id?: string
+          is_selected?: boolean | null
+          metadata?: Json | null
+          original_prompt: string
+          performance_metrics?: Json | null
+          sequence_step_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generated_content?: string
+          id?: string
+          is_selected?: boolean | null
+          metadata?: Json | null
+          original_prompt?: string
+          performance_metrics?: Json | null
+          sequence_step_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generated_templates_sequence_step_id_fkey"
+            columns: ["sequence_step_id"]
+            isOneToOne: false
+            referencedRelation: "sequence_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_prompts: {
         Row: {
           category: string | null
