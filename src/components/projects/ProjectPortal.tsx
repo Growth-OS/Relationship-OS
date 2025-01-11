@@ -68,19 +68,19 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
             </TabsList>
             <div className="mt-4">
               <TabsContent value="details">
-                <ProjectDetails project={projectDetails || project} />
+                <ProjectDetails project={projectDetails || project} onClose={onClose} />
               </TabsContent>
               <TabsContent value="tasks">
-                <ProjectTasks project={projectDetails || project} />
+                <ProjectTasks projectId={project.id} />
               </TabsContent>
               <TabsContent value="credentials">
-                <ProjectCredentials project={project} />
+                <ProjectCredentials projectId={project.id} />
               </TabsContent>
               <TabsContent value="files">
-                <ProjectFiles project={project} />
+                <ProjectFiles projectId={project.id} />
               </TabsContent>
               <TabsContent value="notes">
-                <ProjectNotes project={project} />
+                <ProjectNotes projectId={project.id} />
               </TabsContent>
             </div>
           </Tabs>
