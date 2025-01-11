@@ -26,6 +26,7 @@ import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
 import { ProjectsTimelines } from "@/components/projects/ProjectsTimelines";
+import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,10 @@ export const router = createBrowserRouter([
           {
             path: "timelines",
             element: <ProjectsTimelines />,
+          },
+          {
+            path: "quarterly-timeline",
+            element: <ProjectsQuarterlyTimeline />,
           },
           {
             path: "boards",
