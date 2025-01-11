@@ -4,6 +4,7 @@ import { ProjectTasks } from "./portal/ProjectTasks";
 import { ProjectFiles } from "./portal/ProjectFiles";
 import { ProjectDetails } from "./portal/ProjectDetails";
 import { ProjectNotes } from "./portal/ProjectNotes";
+import { ProjectTimeline } from "./portal/ProjectTimeline";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, DollarSign, ChevronLeft } from "lucide-react";
 import { format } from "date-fns";
