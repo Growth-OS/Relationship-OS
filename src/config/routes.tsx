@@ -70,11 +70,20 @@ export const router = createBrowserRouter([
           },
           {
             path: "sequences",
-            element: <Sequences />,
-          },
-          {
-            path: "sequences/builder",
-            element: <SequenceBuilder />,
+            children: [
+              {
+                index: true,
+                element: <Sequences />,
+              },
+              {
+                path: ":id/edit",
+                element: <SequenceBuilder />,
+              },
+              {
+                path: "builder",
+                element: <SequenceBuilder />,
+              }
+            ]
           },
           {
             path: "projects",
