@@ -51,6 +51,7 @@ export const QuarterlyTimeline = () => {
             .from("tasks")
             .select("*")
             .eq("project_id", project.id)
+            .eq("completed", false)  // Only fetch non-completed tasks
             .gte("due_date", quarterStart.toISOString())
             .lte("due_date", quarterEnd.toISOString())
             .order("due_date");
@@ -64,7 +65,8 @@ export const QuarterlyTimeline = () => {
         })
       );
 
-      return projectsWithTasks;
+      // Filter out projects with no active tasks
+      return projectsWithTasks.filter(project => project.tasks.length > 0);
     },
   });
 
