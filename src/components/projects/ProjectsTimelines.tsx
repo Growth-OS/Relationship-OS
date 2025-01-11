@@ -116,8 +116,8 @@ export const ProjectsTimelines = () => {
         const totalDays = differenceInDays(latestDate, earliestDate) + 1;
 
         return (
-          <Card key={project.id} className="p-4">
-            <div className="flex items-center justify-between mb-3">
+          <Card key={project.id} className="p-6">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold">{project.name}</h3>
                 <p className="text-sm text-gray-600">{project.client_name}</p>
@@ -127,7 +127,7 @@ export const ProjectsTimelines = () => {
               </Badge>
             </div>
 
-            <div className="relative bg-gray-50 rounded-lg p-2">
+            <div className="relative bg-gray-50 rounded-lg p-4">
               {sortedTasks.map((task) => {
                 const taskDate = new Date(task.due_date!);
                 const offsetDays = differenceInDays(taskDate, earliestDate);
@@ -136,7 +136,7 @@ export const ProjectsTimelines = () => {
                 return (
                   <div 
                     key={task.id} 
-                    className="relative h-14 mb-2 last:mb-0"
+                    className="relative h-20 mb-4 last:mb-0"
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="absolute inset-y-0 left-0 w-full">
@@ -146,9 +146,9 @@ export const ProjectsTimelines = () => {
                           left: `${leftPercentage}%`,
                         }}
                       >
-                        <div className="w-2 h-2 bg-primary rounded-full absolute -left-1" />
-                        <Card className="ml-2 p-2 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                          <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-primary rounded-full absolute -left-1.5" />
+                        <Card className="ml-4 p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                          <div className="flex items-center gap-3">
                             <Checkbox
                               checked={task.completed}
                               onClick={(e) => {
@@ -174,7 +174,7 @@ export const ProjectsTimelines = () => {
               })}
             </div>
 
-            <div className="flex justify-between text-sm text-gray-500 mt-3">
+            <div className="flex justify-between text-sm text-gray-500 mt-4">
               <span>{format(earliestDate, "MMM d, yyyy")}</span>
               <span>{format(latestDate, "MMM d, yyyy")}</span>
             </div>
