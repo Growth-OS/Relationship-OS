@@ -43,9 +43,10 @@ export const CreateSequenceButton = () => {
         .insert([{
           name: data.name,
           description: data.description,
-          status: 'active', // Changed from 'paused' to 'active' by default
+          status: 'active',
           max_steps: 5,
-          user_id: user.id
+          user_id: user.id,
+          is_deleted: false
         }])
         .select()
         .single();
@@ -57,27 +58,18 @@ export const CreateSequenceButton = () => {
 
       console.log('Created sequence:', sequence);
 
-      // Verify the sequence was created
-      const { data: verifySequence, error: verifyError } = await supabase
-        .from('sequences')
-        .select('*')
-        .eq('id', sequence.id)
-        .single();
-
-      if (verifyError) {
-        console.error('Verification error:', verifyError);
-        throw verifyError;
-      }
-
-      console.log('Verified sequence exists:', verifySequence);
-
       toast.success('Sequence created successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
       reset();
       setOpen(false);
       
-      if (sequence) {
+      // Ensure we have a valid sequence ID before navigating
+      if (sequence && sequence.id) {
+        console.log('Navigating to sequence:', sequence.id);
         navigate(`/dashboard/sequences/${sequence.id}/edit`);
+      } else {
+        console.error('No sequence ID returned after creation');
+        toast.error('Error accessing new sequence');
       }
     } catch (error) {
       console.error('Error creating sequence:', error);
