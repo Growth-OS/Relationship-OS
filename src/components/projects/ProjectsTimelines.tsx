@@ -104,8 +104,8 @@ export const ProjectsTimelines = () => {
   return (
     <div className="space-y-8">
       {projects?.map((project) => {
-        // Filter out tasks without due dates and sort remaining tasks
-        const tasksWithDates = project.tasks?.filter(task => task.due_date) || [];
+        // Filter out tasks without due dates and completed tasks, then sort remaining tasks
+        const tasksWithDates = project.tasks?.filter(task => task.due_date && !task.completed) || [];
         if (!tasksWithDates.length) return null;
 
         const sortedTasks = [...tasksWithDates].sort(
