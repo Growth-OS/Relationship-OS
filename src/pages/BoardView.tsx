@@ -6,12 +6,20 @@ import { BoardCanvas } from "@/components/board/BoardCanvas";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 
 type Board = Database["public"]["Tables"]["boards"]["Row"];
 
 const BoardView = () => {
   const { boardId } = useParams();
   const navigate = useNavigate();
+
+  // Redirect if no boardId is provided
+  if (!boardId) {
+    toast.error("No board ID provided");
+    navigate('/dashboard/boards');
+    return null;
+  }
 
   const { data: board, isLoading } = useQuery({
     queryKey: ['board', boardId],
@@ -20,9 +28,19 @@ const BoardView = () => {
         .from('boards')
         .select('*')
         .eq('id', boardId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Failed to load board");
+        throw error;
+      }
+
+      if (!data) {
+        toast.error("Board not found");
+        navigate('/dashboard/boards');
+        return null;
+      }
+
       return data as Board;
     },
   });
