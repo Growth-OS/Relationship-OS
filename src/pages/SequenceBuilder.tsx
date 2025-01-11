@@ -12,7 +12,14 @@ const SequenceBuilder = () => {
   const { sequenceId } = useParams<{ sequenceId: string }>();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   
-  // Add validation for sequenceId
+  const { 
+    sequence, 
+    isLoading, 
+    addStep, 
+    isAddingStep,
+    error 
+  } = useSequenceSteps(sequenceId);
+
   if (!sequenceId) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -27,20 +34,12 @@ const SequenceBuilder = () => {
     );
   }
 
-  const { 
-    sequence, 
-    isLoading, 
-    addStep, 
-    isAddingStep,
-    error 
-  } = useSequenceSteps(sequenceId);
-
   if (error) {
     console.error('Error loading sequence:', error);
-    toast.error("Failed to load sequence");
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <p className="text-muted-foreground">Error loading sequence</p>
+        <p className="text-sm text-red-500">{error.message}</p>
         <Link to="/dashboard/sequences">
           <Button variant="outline" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
@@ -76,13 +75,18 @@ const SequenceBuilder = () => {
     );
   }
 
-  const handleAddStep = (values: {
+  const handleAddStep = async (values: {
     step_type: StepType;
     message_template: string;
     delay_days: number;
   }) => {
-    addStep(values);
-    setIsAddStepOpen(false);
+    try {
+      await addStep(values);
+      setIsAddStepOpen(false);
+    } catch (error) {
+      console.error('Error adding step:', error);
+      toast.error('Failed to add step');
+    }
   };
 
   return (
@@ -114,7 +118,7 @@ const SequenceBuilder = () => {
           </Button>
         </div>
 
-        <SequenceStepsList steps={sequence.sequence_steps} />
+        <SequenceStepsList steps={sequence.sequence_steps || []} />
 
         <AddStepDialog
           open={isAddStepOpen}

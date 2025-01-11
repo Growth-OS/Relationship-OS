@@ -18,12 +18,14 @@ interface CreateSequenceForm {
 
 export const CreateSequenceButton = () => {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm<CreateSequenceForm>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateSequenceForm>();
 
   const onSubmit = async (data: CreateSequenceForm) => {
     try {
+      setIsSubmitting(true);
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -31,49 +33,52 @@ export const CreateSequenceButton = () => {
         return;
       }
 
-      console.log('Creating sequence with data:', {
-        ...data,
-        user_id: user.id,
+      const sequenceData = {
+        name: data.name,
+        description: data.description,
         status: 'active',
-        max_steps: 5
-      });
+        max_steps: 5,
+        user_id: user.id,
+        is_deleted: false
+      };
+
+      console.log('Creating sequence with data:', sequenceData);
 
       const { data: sequence, error } = await supabase
         .from('sequences')
-        .insert([{
-          name: data.name,
-          description: data.description,
-          status: 'active',
-          max_steps: 5,
-          user_id: user.id,
-          is_deleted: false
-        }])
+        .insert([sequenceData])
         .select()
         .single();
 
       if (error) {
-        console.error('Error details:', error);
-        throw error;
+        console.error('Error creating sequence:', error);
+        toast.error('Failed to create sequence');
+        return;
+      }
+
+      if (!sequence?.id) {
+        console.error('No sequence ID returned after creation');
+        toast.error('Error creating sequence');
+        return;
       }
 
       console.log('Created sequence:', sequence);
-
-      toast.success('Sequence created successfully');
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
+      
       reset();
       setOpen(false);
+      toast.success('Sequence created successfully');
       
-      // Ensure we have a valid sequence ID before navigating
-      if (sequence && sequence.id) {
-        console.log('Navigating to sequence:', sequence.id);
+      // Add a small delay to ensure state updates are processed
+      setTimeout(() => {
         navigate(`/dashboard/sequences/${sequence.id}/edit`);
-      } else {
-        console.error('No sequence ID returned after creation');
-        toast.error('Error accessing new sequence');
-      }
+      }, 100);
+
     } catch (error) {
-      console.error('Error creating sequence:', error);
+      console.error('Error in sequence creation:', error);
       toast.error('Failed to create sequence');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -96,7 +101,11 @@ export const CreateSequenceButton = () => {
               id="name"
               placeholder="Enter sequence name"
               {...register("name", { required: true })}
+              disabled={isSubmitting}
             />
+            {errors.name && (
+              <p className="text-sm text-red-500">Name is required</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
@@ -104,6 +113,7 @@ export const CreateSequenceButton = () => {
               id="description"
               placeholder="Enter sequence description"
               {...register("description")}
+              disabled={isSubmitting}
             />
           </div>
           <Button type="submit" disabled={isSubmitting}>
