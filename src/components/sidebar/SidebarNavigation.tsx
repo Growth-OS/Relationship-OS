@@ -24,7 +24,7 @@ export const SidebarNavigation = () => {
     { icon: List, label: "Sequences", path: "/dashboard/sequences" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { icon: GanttChart, label: "Timelines", path: "/dashboard/timelines" },
+    { icon: GanttChart, label: "Timeline", path: "/dashboard/quarterly-timeline" },
     { icon: LayoutDashboard, label: "Boards", path: "/dashboard/boards" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
