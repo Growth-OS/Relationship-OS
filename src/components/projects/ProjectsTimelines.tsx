@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format, differenceInDays, addDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
 interface Task {
   id: string;
@@ -22,6 +23,8 @@ interface Project {
 }
 
 export const ProjectsTimelines = () => {
+  const navigate = useNavigate();
+  
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects-with-tasks"],
     queryFn: async () => {
@@ -46,6 +49,10 @@ export const ProjectsTimelines = () => {
       return projectsData as Project[];
     },
   });
+
+  const handleProjectClick = (projectId: string) => {
+    navigate(`/dashboard/projects?id=${projectId}`);
+  };
 
   if (isLoading) {
     return (
@@ -123,8 +130,12 @@ export const ProjectsTimelines = () => {
                 const leftPercentage = (offsetDays / totalDays) * 100;
 
                 return (
-                  <div key={task.id} className="relative h-16">
-                    <div className="absolute inset-y-0 left-0 w-full bg-gray-50 rounded">
+                  <div 
+                    key={task.id} 
+                    className="relative h-16 cursor-pointer"
+                    onClick={() => handleProjectClick(project.id)}
+                  >
+                    <div className="absolute inset-y-0 left-0 w-full bg-gray-50 rounded hover:bg-gray-100 transition-colors">
                       <div
                         className="absolute h-full"
                         style={{
