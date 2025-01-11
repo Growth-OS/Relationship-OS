@@ -1,7 +1,9 @@
+import { useMonthlyStats } from "./hooks/useMonthlyStats";
 import { useTaskStats } from "./hooks/useTaskStats";
 import { useDealStats } from "./hooks/useDealStats";
 
 export const DashboardStats = () => {
+  const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
   const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   const { totalDeals, lastMonthDeals, isLoadingDeals } = useDealStats();
   const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
@@ -19,6 +21,12 @@ export const DashboardStats = () => {
 
   const stats = [
     {
+      name: `Q${currentQuarter} Revenue`,
+      value: isLoadingRevenue ? "..." : `€${monthlyRevenue?.toLocaleString() || '0'}`,
+      change: calculatePercentageChange(monthlyRevenue || 0, lastMonthRevenue || 0),
+      changeType: determineChangeType(monthlyRevenue || 0, lastMonthRevenue || 0),
+    },
+    {
       name: `Q${currentQuarter} Deals`,
       value: isLoadingDeals ? "..." : totalDeals?.toString() || '0',
       change: calculatePercentageChange(totalDeals || 0, lastMonthDeals || 0),
@@ -33,7 +41,7 @@ export const DashboardStats = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {stats.map((stat) => (
         <div key={stat.name} className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold">{stat.name}</h3>
