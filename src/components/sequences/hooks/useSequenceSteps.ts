@@ -17,7 +17,7 @@ export const useSequenceSteps = (sequenceId?: string) => {
 
       console.log('Fetching sequence with ID:', sequenceId);
       
-      const { data, error } = await supabase
+      const query = supabase
         .from("sequences")
         .select(`
           *,
@@ -37,8 +37,9 @@ export const useSequenceSteps = (sequenceId?: string) => {
           )
         `)
         .eq("id", sequenceId)
-        .eq("is_deleted", false)
-        .maybeSingle();
+        .eq("is_deleted", false);
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) {
         console.error('Error fetching sequence:', error);
