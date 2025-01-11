@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTasks";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { DashboardActivityChart } from "@/components/dashboard/DashboardActivityChart";
 import { DashboardExternalLinks } from "@/components/dashboard/DashboardExternalLinks";
 
 const Dashboard = () => {
@@ -29,10 +28,7 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DashboardWeeklyTasks />
-          <div className="space-y-6">
-            <DashboardExternalLinks />
-            <DashboardActivityChart />
-          </div>
+          <DashboardExternalLinks />
         </div>
       </div>
     </div>
