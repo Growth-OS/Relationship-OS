@@ -43,8 +43,8 @@ export const DashboardQuote = () => {
         return fallbackQuote;
       }
     },
-    staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    retry: 2, // Retry failed requests up to 2 times
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 2,
   });
 
   if (isError) {
@@ -56,11 +56,15 @@ export const DashboardQuote = () => {
   }
 
   return (
-    <Card className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md">
-      <div className="p-6">
-        <div className="space-y-3">
-          <p className="text-xl text-gray-700 dark:text-gray-300 italic leading-relaxed">"{quote?.content || fallbackQuote.content}"</p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">— {quote?.author || fallbackQuote.author}</p>
+    <Card className="bg-gradient-to-br from-purple-50 to-white dark:from-gray-800 dark:to-gray-900 border-none shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="p-8">
+        <div className="space-y-4">
+          <p className="text-2xl text-gray-700 dark:text-gray-300 italic leading-relaxed font-serif">
+            "{quote?.content || fallbackQuote.content}"
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            — {quote?.author || fallbackQuote.author}
+          </p>
         </div>
       </div>
     </Card>
