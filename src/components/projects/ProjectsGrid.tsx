@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, DollarSign, Clock, Users, ArrowUpRight, CheckSquare, CheckCircle2, Circle } from "lucide-react";
+import { Calendar, DollarSign, Clock, Users, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
 
@@ -15,11 +15,6 @@ interface Project {
   start_date: string;
   end_date: string;
   last_activity_date: string;
-  tasks?: {
-    id: string;
-    title: string;
-    completed: boolean;
-  }[];
 }
 
 interface ProjectsGridProps {
@@ -91,36 +86,6 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                   <span>{project.client_name}</span>
                 </div>
               </div>
-
-              {project.tasks && project.tasks.length > 0 && (
-                <div className="space-y-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <span className="flex items-center">
-                      <CheckSquare className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" />
-                      Tasks ({project.tasks.filter(t => !t.completed).length} active)
-                    </span>
-                  </div>
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
-                    {project.tasks.slice(0, 3).map((task) => (
-                      <div key={task.id} className="flex items-start gap-2 text-sm">
-                        {task.completed ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <Circle className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                        )}
-                        <span className={`${task.completed ? 'text-gray-400 line-through' : 'text-gray-600 dark:text-gray-300'}`}>
-                          {task.title}
-                        </span>
-                      </div>
-                    ))}
-                    {project.tasks.length > 3 && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400 pl-6">
-                        +{project.tasks.length - 3} more tasks
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
 
               <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
                 {project.budget && (
