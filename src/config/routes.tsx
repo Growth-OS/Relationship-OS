@@ -21,6 +21,10 @@ import Invoices from "@/pages/Invoices";
 import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
 import Index from "@/pages/Index";
+import SettingsLayout from "@/components/settings/SettingsLayout";
+import ProfileSettings from "@/pages/ProfileSettings";
+import BrandingSettings from "@/pages/BrandingSettings";
+import BackupSettings from "@/pages/BackupSettings";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +41,24 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <Dashboard />,
+          },
+          {
+            path: "settings",
+            element: <SettingsLayout />,
+            children: [
+              {
+                path: "profile",
+                element: <ProfileSettings />,
+              },
+              {
+                path: "branding",
+                element: <BrandingSettings />,
+              },
+              {
+                path: "backup",
+                element: <BackupSettings />,
+              },
+            ],
           },
           {
             path: "deals",
