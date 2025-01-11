@@ -25,11 +25,13 @@ import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
 import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import { Navigate } from "react-router-dom";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout><Outlet /></Layout>,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -78,10 +80,12 @@ export const router = createBrowserRouter([
               {
                 path: ":id/edit",
                 element: <SequenceBuilder />,
+                errorElement: <ErrorBoundary />
               },
               {
                 path: "builder",
                 element: <SequenceBuilder />,
+                errorElement: <ErrorBoundary />
               }
             ]
           },
