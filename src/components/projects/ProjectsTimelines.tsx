@@ -11,7 +11,7 @@ import { Project as SupabaseProject } from "@/integrations/supabase/types/projec
 interface Task {
   id: string;
   title: string;
-  due_date: string;
+  due_date: string | null;
   completed: boolean;
   priority: string;
 }
@@ -51,7 +51,6 @@ export const ProjectsTimelines = () => {
       if (projectsError) throw projectsError;
       return projectsData as Project[];
     },
-    // Refresh data every 30 seconds to catch new tasks
     refetchInterval: 30000,
   });
 
@@ -102,14 +101,16 @@ export const ProjectsTimelines = () => {
   return (
     <div className="space-y-8">
       {projects?.map((project) => {
-        if (!project.tasks?.length) return null;
+        // Filter out tasks without due dates and sort remaining tasks
+        const tasksWithDates = project.tasks?.filter(task => task.due_date) || [];
+        if (!tasksWithDates.length) return null;
 
-        const sortedTasks = [...project.tasks].sort(
-          (a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+        const sortedTasks = [...tasksWithDates].sort(
+          (a, b) => new Date(a.due_date!).getTime() - new Date(b.due_date!).getTime()
         );
 
-        const earliestDate = new Date(sortedTasks[0].due_date);
-        const latestDate = new Date(sortedTasks[sortedTasks.length - 1].due_date);
+        const earliestDate = new Date(sortedTasks[0].due_date!);
+        const latestDate = new Date(sortedTasks[sortedTasks.length - 1].due_date!);
         const totalDays = differenceInDays(latestDate, earliestDate) + 1;
 
         return (
@@ -126,7 +127,7 @@ export const ProjectsTimelines = () => {
 
             <div className="space-y-4">
               {sortedTasks.map((task) => {
-                const taskDate = new Date(task.due_date);
+                const taskDate = new Date(task.due_date!);
                 const offsetDays = differenceInDays(taskDate, earliestDate);
                 const leftPercentage = (offsetDays / totalDays) * 100;
 
@@ -152,7 +153,7 @@ export const ProjectsTimelines = () => {
                               {task.priority}
                             </Badge>
                             <span className="text-sm text-gray-500">
-                              {format(new Date(task.due_date), "MMM d, yyyy")}
+                              {format(taskDate, "MMM d, yyyy")}
                             </span>
                           </div>
                         </Card>
