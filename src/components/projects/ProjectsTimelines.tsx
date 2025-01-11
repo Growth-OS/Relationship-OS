@@ -7,6 +7,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
 import { Project as SupabaseProject } from "@/integrations/supabase/types/projects";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useTaskOperations } from "@/components/sequences/hooks/useTaskOperations";
 
 interface Task {
   id: string;
@@ -22,6 +24,7 @@ interface Project extends SupabaseProject {
 
 export const ProjectsTimelines = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const { handleTaskComplete } = useTaskOperations();
   
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects-with-tasks"],
@@ -148,7 +151,16 @@ export const ProjectsTimelines = () => {
                       >
                         <Card className="absolute top-0 left-2 m-2 p-2 bg-white whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{task.title}</span>
+                            <Checkbox
+                              checked={task.completed}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTaskComplete(task.id, !task.completed, tasksWithDates);
+                              }}
+                            />
+                            <span className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
+                              {task.title}
+                            </span>
                             <Badge className={getPriorityColor(task.priority)}>
                               {task.priority}
                             </Badge>
