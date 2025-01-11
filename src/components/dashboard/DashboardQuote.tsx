@@ -29,11 +29,11 @@ export const DashboardQuote = () => {
       }
       
       try {
-        const response = await fetch("https://api.quotable.io/random?tags=business,success");
+        const response = await fetch("https://api.quotable.io/quotes/random?tags=success,business&maxLength=140");
         if (!response.ok) {
           throw new Error("Failed to fetch quote");
         }
-        const data = await response.json();
+        const [data] = await response.json();
         const newQuote = { content: data.content, author: data.author };
         setStoredQuote(newQuote);
         localStorage.setItem('quote-date', today);
@@ -44,6 +44,7 @@ export const DashboardQuote = () => {
       }
     },
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    retry: 2, // Retry failed requests up to 2 times
   });
 
   if (isError) {
