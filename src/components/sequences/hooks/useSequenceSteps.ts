@@ -1,24 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { StepType, DatabaseStepType, SequenceStep, DatabaseSequenceStep, Sequence } from "../types";
-import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { StepType, SequenceStep, Sequence } from "../types";
 import { toast } from "sonner";
-import { addDays, format } from "date-fns";
-import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
+import { mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
 
-export const useSequenceSteps = (sequenceId: string) => {
+export const useSequenceSteps = (sequenceId?: string) => {
   const queryClient = useQueryClient();
 
   const { data: sequence, isLoading, error } = useQuery({
     queryKey: ["sequence", sequenceId],
     queryFn: async () => {
-      console.log('Fetching sequence with ID:', sequenceId);
-      
       if (!sequenceId) {
         console.log('No sequence ID provided');
         return null;
       }
 
+      console.log('Fetching sequence with ID:', sequenceId);
+      
       const { data, error } = await supabase
         .from("sequences")
         .select(`
@@ -54,16 +52,6 @@ export const useSequenceSteps = (sequenceId: string) => {
 
       console.log('Sequence found:', data);
 
-      // Convert database steps to frontend steps
-      const frontendSteps = data.sequence_steps?.map((step: DatabaseSequenceStep): SequenceStep => ({
-        id: step.id,
-        step_number: step.step_number,
-        step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number),
-        message_template: step.message_template || "",
-        delay_days: step.delay_days || 0,
-        count: step.count
-      })) || [];
-
       const sequence: Sequence = {
         id: data.id,
         created_at: data.created_at,
@@ -72,13 +60,14 @@ export const useSequenceSteps = (sequenceId: string) => {
         description: data.description,
         status: data.status,
         max_steps: data.max_steps,
-        sequence_steps: frontendSteps,
+        sequence_steps: data.sequence_steps || [],
         sequence_assignments: data.sequence_assignments || [],
       };
 
       return sequence;
     },
-    enabled: Boolean(sequenceId), // Only run query if sequenceId is provided
+    enabled: Boolean(sequenceId),
+    retry: false
   });
 
   const addStepMutation = useMutation({
@@ -87,16 +76,14 @@ export const useSequenceSteps = (sequenceId: string) => {
       message_template: string;
       delay_days: number;
     }) => {
+      if (!sequenceId) throw new Error('No sequence ID provided');
+
       const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error('User must be authenticated to create steps');
-      }
+      if (!user) throw new Error('User must be authenticated to create steps');
 
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
       const dbStepType = mapFrontendStepTypeToDb(values.step_type);
 
-      // Create the sequence step
       const { data: stepData, error: stepError } = await supabase
         .from("sequence_steps")
         .insert({
@@ -112,68 +99,11 @@ export const useSequenceSteps = (sequenceId: string) => {
       if (stepError) throw stepError;
       if (!stepData) throw new Error("Failed to create step");
 
-      // Get all active assignments for this sequence
-      const { data: assignments, error: assignmentsError } = await supabase
-        .from("sequence_assignments")
-        .select(`
-          id,
-          prospect:prospects (
-            company_name,
-            contact_email,
-            contact_linkedin,
-            contact_job_title
-          )
-        `)
-        .eq("sequence_id", sequenceId)
-        .eq("status", "active");
-
-      if (assignmentsError) throw assignmentsError;
-      
-      // Create tasks for each prospect in the sequence
-      if (assignments && assignments.length > 0) {
-        const tasks = assignments.map(assignment => {
-          const dueDate = addDays(new Date(), values.delay_days);
-          const actionType = values.step_type.startsWith('email') ? 'Send email' : 
-                          values.step_type === 'linkedin_connection' ? 'Send LinkedIn connection request' : 
-                          'Send LinkedIn message';
-          
-          const prospectInfo = assignment.prospect;
-          const contactMethod = values.step_type.startsWith('email') ? 
-            `(${prospectInfo.contact_email})` : 
-            `(${prospectInfo.contact_linkedin})`;
-
-          return {
-            title: `${actionType} to ${prospectInfo.company_name} - ${prospectInfo.contact_job_title} ${contactMethod} - Step ${nextStepNumber}`,
-            description: `Action required for ${prospectInfo.company_name}:\n\n${values.message_template}`,
-            due_date: format(dueDate, 'yyyy-MM-dd'),
-            source: 'other' as TaskSource,
-            priority: 'medium',
-            user_id: user.id
-          };
-        });
-
-        // Insert all tasks at once
-        const { error: tasksError } = await supabase
-          .from("tasks")
-          .insert(tasks);
-
-        if (tasksError) {
-          console.error("Error creating tasks:", tasksError);
-          throw tasksError;
-        }
-      }
-
-      return {
-        id: stepData.id,
-        step_number: stepData.step_number,
-        step_type: mapDbStepTypeToFrontend(stepData.step_type as DatabaseStepType, stepData.step_number),
-        message_template: stepData.message_template || "",
-        delay_days: stepData.delay_days || 0,
-      } as SequenceStep;
+      return stepData as SequenceStep;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });
-      toast.success("Step added successfully and tasks created");
+      toast.success("Step added successfully");
     },
     onError: (error) => {
       console.error("Error adding step:", error);
