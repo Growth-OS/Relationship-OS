@@ -25,6 +25,7 @@ import SettingsLayout from "@/components/settings/SettingsLayout";
 import ProfileSettings from "@/pages/ProfileSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
+import { ProjectsTimelines } from "@/components/projects/ProjectsTimelines";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
           {
             path: "projects",
             element: <Projects />,
+          },
+          {
+            path: "timelines",
+            element: <ProjectsTimelines />,
           },
           {
             path: "boards",
