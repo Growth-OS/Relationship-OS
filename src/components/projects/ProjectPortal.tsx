@@ -4,6 +4,7 @@ import { ProjectDetails } from "./portal/ProjectDetails";
 import { ProjectCredentials } from "./portal/ProjectCredentials";
 import { ProjectFiles } from "./portal/ProjectFiles";
 import { ProjectNotes } from "./portal/ProjectNotes";
+import { ProjectTasks } from "./portal/ProjectTasks";
 
 interface Project {
   id: string;
@@ -34,6 +35,7 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
             <TabsTrigger value="credentials">Credentials</TabsTrigger>
             <TabsTrigger value="files">Files</TabsTrigger>
             <TabsTrigger value="notes">Notes</TabsTrigger>
+            <TabsTrigger value="tasks">Tasks</TabsTrigger>
           </TabsList>
           <div className="mt-4 flex-1 overflow-y-auto">
             <TabsContent value="details">
@@ -47,6 +49,9 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
             </TabsContent>
             <TabsContent value="notes">
               <ProjectNotes projectId={project.id} />
+            </TabsContent>
+            <TabsContent value="tasks">
+              <ProjectTasks projectId={project.id} />
             </TabsContent>
           </div>
         </Tabs>
