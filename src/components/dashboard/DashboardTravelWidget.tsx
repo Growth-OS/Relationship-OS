@@ -52,7 +52,7 @@ export const DashboardTravelWidget = () => {
   return (
     <Card 
       className="p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer bg-gradient-to-br from-white to-gray-50"
-      onClick={() => navigate("/travels")}
+      onClick={() => navigate("/dashboard/travels")}
     >
       <div className="space-y-4">
         <div className="flex justify-between items-center">
