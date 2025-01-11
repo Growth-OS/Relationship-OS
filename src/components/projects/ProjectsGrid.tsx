@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, DollarSign, Clock, Users, ArrowUpRight } from "lucide-react";
+import { Calendar, DollarSign, Clock, Users, ArrowUpRight, CheckSquare } from "lucide-react";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
 
@@ -15,6 +15,11 @@ interface Project {
   start_date: string;
   end_date: string;
   last_activity_date: string;
+  tasks?: {
+    id: string;
+    title: string;
+    completed: boolean;
+  }[];
 }
 
 interface ProjectsGridProps {
@@ -114,6 +119,15 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                     })}
                   </span>
                 </div>
+
+                {project.tasks && project.tasks.length > 0 && (
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                    <CheckSquare className="w-4 h-4 mr-2 text-gray-400 dark:text-gray-500" />
+                    <span>
+                      {project.tasks.filter(t => !t.completed).length} active tasks
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
