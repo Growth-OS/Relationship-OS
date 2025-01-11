@@ -35,7 +35,7 @@ export const useSequenceSteps = (sequenceId: string) => {
         `)
         .eq("id", sequenceId)
         .eq("is_deleted", false)
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('Error fetching sequence:', error);
@@ -57,7 +57,7 @@ export const useSequenceSteps = (sequenceId: string) => {
         message_template: step.message_template || "",
         delay_days: step.delay_days || 0,
         count: step.count
-      }));
+      })) || [];
 
       const sequence: Sequence = {
         id: data.id,
@@ -68,12 +68,12 @@ export const useSequenceSteps = (sequenceId: string) => {
         status: data.status,
         max_steps: data.max_steps,
         sequence_steps: frontendSteps,
-        sequence_assignments: data.sequence_assignments,
+        sequence_assignments: data.sequence_assignments || [],
       };
 
       return sequence;
     },
-    enabled: !!sequenceId, // Only run query if sequenceId is provided
+    enabled: Boolean(sequenceId), // Only run query if sequenceId is provided and is truthy
   });
 
   const addStepMutation = useMutation({

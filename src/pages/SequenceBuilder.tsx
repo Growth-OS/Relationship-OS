@@ -9,12 +9,11 @@ import { StepType } from "@/components/sequences/types";
 import { toast } from "sonner";
 
 const SequenceBuilder = () => {
-  const { sequenceId } = useParams();
+  const { sequenceId } = useParams<{ sequenceId: string }>();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   
   // Add validation for sequenceId
   if (!sequenceId) {
-    console.error("No sequence ID provided");
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <p className="text-muted-foreground">Invalid sequence ID</p>
@@ -36,7 +35,6 @@ const SequenceBuilder = () => {
     error 
   } = useSequenceSteps(sequenceId);
 
-  // Handle error state
   if (error) {
     console.error('Error loading sequence:', error);
     toast.error("Failed to load sequence");
@@ -87,15 +85,6 @@ const SequenceBuilder = () => {
     setIsAddStepOpen(false);
   };
 
-  // Convert DatabaseSequenceStep[] to SequenceStep[]
-  const steps = sequence.sequence_steps?.map(step => ({
-    id: step.id,
-    step_number: step.step_number,
-    step_type: step.step_type as StepType,
-    message_template: step.message_template || "",
-    delay_days: step.delay_days || 0,
-  })) || [];
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -125,7 +114,7 @@ const SequenceBuilder = () => {
           </Button>
         </div>
 
-        <SequenceStepsList steps={steps} />
+        <SequenceStepsList steps={sequence.sequence_steps} />
 
         <AddStepDialog
           open={isAddStepOpen}
