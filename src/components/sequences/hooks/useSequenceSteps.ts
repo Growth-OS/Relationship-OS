@@ -9,7 +9,7 @@ import { mapDbStepTypeToFrontend, mapFrontendStepTypeToDb } from "../utils/stepT
 export const useSequenceSteps = (sequenceId: string) => {
   const queryClient = useQueryClient();
 
-  const { data: sequence, isLoading } = useQuery({
+  const { data: sequence, isLoading, error } = useQuery({
     queryKey: ["sequence", sequenceId],
     queryFn: async () => {
       console.log('Fetching sequence with ID:', sequenceId);
@@ -73,6 +73,7 @@ export const useSequenceSteps = (sequenceId: string) => {
 
       return sequence;
     },
+    enabled: !!sequenceId, // Only run query if sequenceId is provided
   });
 
   const addStepMutation = useMutation({
@@ -178,6 +179,7 @@ export const useSequenceSteps = (sequenceId: string) => {
   return {
     sequence,
     isLoading,
+    error,
     addStep: addStepMutation.mutate,
     isAddingStep: addStepMutation.isPending
   };

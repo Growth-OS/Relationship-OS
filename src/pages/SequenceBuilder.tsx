@@ -6,17 +6,52 @@ import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { useSequenceSteps } from "@/components/sequences/hooks/useSequenceSteps";
 import { StepType } from "@/components/sequences/types";
+import { toast } from "sonner";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
   const [isAddStepOpen, setIsAddStepOpen] = useState(false);
   
+  // Add validation for sequenceId
+  if (!sequenceId) {
+    console.error("No sequence ID provided");
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground">Invalid sequence ID</p>
+        <Link to="/dashboard/sequences">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sequences
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
   const { 
     sequence, 
     isLoading, 
     addStep, 
-    isAddingStep 
-  } = useSequenceSteps(sequenceId!);
+    isAddingStep,
+    error 
+  } = useSequenceSteps(sequenceId);
+
+  // Handle error state
+  if (error) {
+    console.error('Error loading sequence:', error);
+    toast.error("Failed to load sequence");
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground">Error loading sequence</p>
+        <Link to="/dashboard/sequences">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sequences
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
