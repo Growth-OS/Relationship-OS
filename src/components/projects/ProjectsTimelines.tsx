@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { format, differenceInDays, addDays } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { ProjectPortal } from "./ProjectPortal";
 
 interface Task {
   id: string;
@@ -20,10 +21,14 @@ interface Project {
   client_name: string;
   status: string;
   tasks: Task[];
+  budget?: number;
+  start_date?: string;
+  end_date?: string;
+  description?: string;
 }
 
 export const ProjectsTimelines = () => {
-  const navigate = useNavigate();
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   
   const { data: projects, isLoading } = useQuery({
     queryKey: ["projects-with-tasks"],
@@ -35,6 +40,10 @@ export const ProjectsTimelines = () => {
           name,
           client_name,
           status,
+          description,
+          budget,
+          start_date,
+          end_date,
           tasks (
             id,
             title,
@@ -49,10 +58,6 @@ export const ProjectsTimelines = () => {
       return projectsData as Project[];
     },
   });
-
-  const handleProjectClick = (projectId: string) => {
-    navigate(`/dashboard/projects?id=${projectId}`);
-  };
 
   if (isLoading) {
     return (
@@ -133,7 +138,7 @@ export const ProjectsTimelines = () => {
                   <div 
                     key={task.id} 
                     className="relative h-16 cursor-pointer"
-                    onClick={() => handleProjectClick(project.id)}
+                    onClick={() => setSelectedProject(project)}
                   >
                     <div className="absolute inset-y-0 left-0 w-full bg-gray-50 rounded hover:bg-gray-100 transition-colors">
                       <div
@@ -169,6 +174,12 @@ export const ProjectsTimelines = () => {
           </Card>
         );
       })}
+
+      <ProjectPortal
+        project={selectedProject}
+        isOpen={!!selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </div>
   );
 };
