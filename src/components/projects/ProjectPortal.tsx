@@ -1,4 +1,4 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectDetails } from "./portal/ProjectDetails";
 import { ProjectTasks } from "./portal/ProjectTasks";
@@ -27,7 +27,7 @@ interface ProjectPortalProps {
 
 export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) => {
   // Fetch full project details including tasks when portal opens
-  const { data: projectDetails } = useQuery({
+  const { data: projectDetails, isLoading } = useQuery({
     queryKey: ["project", project?.id],
     queryFn: async () => {
       if (!project?.id) return null;
@@ -54,37 +54,47 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
     enabled: !!project?.id,
   });
 
+  // Only render content when we have a valid project
+  const renderContent = () => {
+    if (!project?.id) return null;
+
+    return (
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList className="w-full">
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="credentials">Credentials</TabsTrigger>
+          <TabsTrigger value="files">Files</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        <div className="mt-4">
+          <TabsContent value="details">
+            <ProjectDetails project={projectDetails || project} onClose={onClose} />
+          </TabsContent>
+          <TabsContent value="tasks">
+            <ProjectTasks projectId={project.id} />
+          </TabsContent>
+          <TabsContent value="credentials">
+            <ProjectCredentials projectId={project.id} />
+          </TabsContent>
+          <TabsContent value="files">
+            <ProjectFiles projectId={project.id} />
+          </TabsContent>
+          <TabsContent value="notes">
+            <ProjectNotes projectId={project.id} />
+          </TabsContent>
+        </div>
+      </Tabs>
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        {project && (
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="w-full">
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="tasks">Tasks</TabsTrigger>
-              <TabsTrigger value="credentials">Credentials</TabsTrigger>
-              <TabsTrigger value="files">Files</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
-            </TabsList>
-            <div className="mt-4">
-              <TabsContent value="details">
-                <ProjectDetails project={projectDetails || project} onClose={onClose} />
-              </TabsContent>
-              <TabsContent value="tasks">
-                <ProjectTasks projectId={project.id} />
-              </TabsContent>
-              <TabsContent value="credentials">
-                <ProjectCredentials projectId={project.id} />
-              </TabsContent>
-              <TabsContent value="files">
-                <ProjectFiles projectId={project.id} />
-              </TabsContent>
-              <TabsContent value="notes">
-                <ProjectNotes projectId={project.id} />
-              </TabsContent>
-            </div>
-          </Tabs>
-        )}
+        <DialogTitle>
+          {project?.name}
+        </DialogTitle>
+        {renderContent()}
       </DialogContent>
     </Dialog>
   );
