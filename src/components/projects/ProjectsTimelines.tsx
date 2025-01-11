@@ -102,7 +102,7 @@ export const ProjectsTimelines = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto px-4">
+    <div className="space-y-6">
       {projects?.map((project) => {
         const tasksWithDates = project.tasks?.filter(task => task.due_date && !task.completed) || [];
         if (!tasksWithDates.length) return null;
@@ -127,7 +127,7 @@ export const ProjectsTimelines = () => {
               </Badge>
             </div>
 
-            <div className="relative bg-gray-50 rounded-lg p-4">
+            <div className="relative bg-gray-50 rounded-lg p-6">
               {sortedTasks.map((task) => {
                 const taskDate = new Date(task.due_date!);
                 const offsetDays = differenceInDays(taskDate, earliestDate);
@@ -146,8 +146,8 @@ export const ProjectsTimelines = () => {
                           left: `${leftPercentage}%`,
                         }}
                       >
-                        <div className="w-3 h-3 bg-primary rounded-full absolute -left-1.5" />
-                        <Card className="ml-4 p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                        <div className="w-4 h-4 bg-primary rounded-full absolute -left-2" />
+                        <Card className="ml-6 p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer w-[calc(100%-2rem)]">
                           <div className="flex items-center gap-3">
                             <Checkbox
                               checked={task.completed}
