@@ -20,12 +20,17 @@ import Reporting from "@/pages/Reporting";
 import Invoices from "@/pages/Invoices";
 import SubstackPosts from "@/pages/SubstackPosts";
 import SubstackPostEditor from "@/pages/SubstackPostEditor";
+import Index from "@/pages/Index";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: <Layout><Outlet /></Layout>,
     children: [
+      {
+        index: true,
+        element: <Index />,
+      },
       {
         path: "dashboard",
         children: [
