@@ -1,10 +1,10 @@
 import { TaskGroup } from "@/components/dashboard/TaskGroup";
 import { TaskListSkeleton } from "./TaskListSkeleton";
-import { EmptyTaskList } from "./EmptyTaskList";
 import { TaskPagination } from "./TaskPagination";
 import { TaskData, TaskListProps } from "./types";
 import { useTaskQuery } from "./hooks/useTaskQuery";
 import { useTaskOperations } from "./hooks/useTaskOperations";
+import { ListTodo } from "lucide-react";
 
 export const TaskList = ({ 
   sourceType, 
@@ -17,7 +17,15 @@ export const TaskList = ({
   const { handleComplete, handleUpdate } = useTaskOperations();
 
   if (isLoading) return <TaskListSkeleton />;
-  if (!data?.tasks.length) return <EmptyTaskList />;
+  
+  if (!data?.tasks.length) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center bg-gray-50 rounded-lg">
+        <ListTodo className="h-12 w-12 text-gray-400 mb-2" />
+        <p className="text-gray-500">No tasks found</p>
+      </div>
+    );
+  }
 
   if (!groupBySource) {
     const source = sourceType || "other";

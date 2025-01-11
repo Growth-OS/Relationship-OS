@@ -37,7 +37,7 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
           </TabsList>
           <div className="mt-4 flex-1 overflow-y-auto">
             <TabsContent value="details">
-              <ProjectDetails project={project} />
+              <ProjectDetails project={project} onClose={onClose} />
             </TabsContent>
             <TabsContent value="credentials">
               <ProjectCredentials projectId={project.id} />
