@@ -12,6 +12,8 @@ export const useSequenceSteps = (sequenceId: string) => {
   const { data: sequence, isLoading } = useQuery({
     queryKey: ["sequence", sequenceId],
     queryFn: async () => {
+      console.log('Fetching sequence with ID:', sequenceId);
+      
       const { data, error } = await supabase
         .from("sequences")
         .select(`
@@ -32,10 +34,20 @@ export const useSequenceSteps = (sequenceId: string) => {
           )
         `)
         .eq("id", sequenceId)
+        .eq("is_deleted", false)
         .maybeSingle();
 
-      if (error) throw error;
-      if (!data) throw new Error("Sequence not found");
+      if (error) {
+        console.error('Error fetching sequence:', error);
+        throw error;
+      }
+
+      if (!data) {
+        console.log('No sequence found with ID:', sequenceId);
+        return null;
+      }
+
+      console.log('Sequence found:', data);
 
       // Convert database steps to frontend steps
       const frontendSteps = data.sequence_steps?.map((step: DatabaseSequenceStep): SequenceStep => ({

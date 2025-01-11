@@ -1,11 +1,11 @@
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ArrowLeft } from "lucide-react";
+import { PlusCircle, ArrowLeft, Loader2 } from "lucide-react";
 import { AddStepDialog } from "@/components/sequences/AddStepDialog";
 import { SequenceStepsList } from "@/components/sequences/SequenceStepsList";
 import { useState } from "react";
 import { useSequenceSteps } from "@/components/sequences/hooks/useSequenceSteps";
-import { StepType, SequenceStep } from "@/components/sequences/types";
+import { StepType } from "@/components/sequences/types";
 
 const SequenceBuilder = () => {
   const { sequenceId } = useParams();
@@ -19,11 +19,28 @@ const SequenceBuilder = () => {
   } = useSequenceSteps(sequenceId!);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Loading sequence...</span>
+        </div>
+      </div>
+    );
   }
 
   if (!sequence) {
-    return <div>Sequence not found</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <p className="text-muted-foreground">Sequence not found</p>
+        <Link to="/dashboard/sequences">
+          <Button variant="outline" size="sm" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sequences
+          </Button>
+        </Link>
+      </div>
+    );
   }
 
   const handleAddStep = (values: {
@@ -36,7 +53,7 @@ const SequenceBuilder = () => {
   };
 
   // Convert DatabaseSequenceStep[] to SequenceStep[]
-  const steps: SequenceStep[] = sequence.sequence_steps?.map(step => ({
+  const steps = sequence.sequence_steps?.map(step => ({
     id: step.id,
     step_number: step.step_number,
     step_type: step.step_type as StepType,
