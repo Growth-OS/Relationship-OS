@@ -6,6 +6,7 @@ import { format, differenceInDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
+import { Project as SupabaseProject } from "@/integrations/supabase/types/projects";
 
 interface Task {
   id: string;
@@ -15,17 +16,8 @@ interface Task {
   priority: string;
 }
 
-interface Project {
-  id: string;
-  name: string;
-  client_name: string;
-  status: string;
+interface Project extends SupabaseProject {
   tasks: Task[];
-  budget?: number;
-  start_date?: string;
-  end_date?: string;
-  description?: string;
-  last_activity_date: string;
 }
 
 export const ProjectsTimelines = () => {
@@ -127,7 +119,7 @@ export const ProjectsTimelines = () => {
                 <h3 className="text-lg font-semibold">{project.name}</h3>
                 <p className="text-sm text-gray-600">{project.client_name}</p>
               </div>
-              <Badge className={getStatusColor(project.status)}>
+              <Badge className={getStatusColor(project.status || '')}>
                 {project.status}
               </Badge>
             </div>
