@@ -25,7 +25,7 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { StepType } from "./types";
-import { Wand2 } from "lucide-react";
+import { Brain } from "lucide-react"; // Changed from Wand2 to Brain
 import { useState } from "react";
 import { AITemplateGeneratorModal } from "./ai-templates/AITemplateGeneratorModal";
 
@@ -110,8 +110,9 @@ export const AddStepDialog = ({ open, onOpenChange, onSubmit }: AddStepDialogPro
                         variant="outline"
                         size="sm"
                         onClick={() => setIsAIModalOpen(true)}
+                        className="gap-2 bg-primary/10 hover:bg-primary/20" // Added styling to make it more visible
                       >
-                        <Wand2 className="mr-2 h-4 w-4" />
+                        <Brain className="h-4 w-4" />
                         AI Assistant
                       </Button>
                     </FormLabel>
