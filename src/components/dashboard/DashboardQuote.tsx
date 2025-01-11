@@ -21,9 +21,14 @@ export const DashboardQuote = () => {
   const { data: quote, isError } = useQuery({
     queryKey: ["dailyQuote", today],
     queryFn: async () => {
+      if (storedQuote) {
+        const storedDate = localStorage.getItem('quote-date');
+        if (storedDate === today) {
+          return storedQuote;
+        }
+      }
+      
       try {
-        if (storedQuote) return storedQuote;
-        
         const response = await fetch("https://api.quotable.io/random?tags=business,success");
         if (!response.ok) {
           throw new Error("Failed to fetch quote");
@@ -31,6 +36,7 @@ export const DashboardQuote = () => {
         const data = await response.json();
         const newQuote = { content: data.content, author: data.author };
         setStoredQuote(newQuote);
+        localStorage.setItem('quote-date', today);
         return newQuote;
       } catch (error) {
         console.error("Error fetching quote:", error);
@@ -38,7 +44,6 @@ export const DashboardQuote = () => {
       }
     },
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
-    initialData: storedQuote || fallbackQuote,
   });
 
   if (isError) {
