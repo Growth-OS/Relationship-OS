@@ -25,6 +25,7 @@ interface Project {
   start_date?: string;
   end_date?: string;
   description?: string;
+  last_activity_date: string;
 }
 
 export const ProjectsTimelines = () => {
@@ -44,6 +45,7 @@ export const ProjectsTimelines = () => {
           budget,
           start_date,
           end_date,
+          last_activity_date,
           tasks!project_id(
             id,
             title,
@@ -107,7 +109,7 @@ export const ProjectsTimelines = () => {
 
   return (
     <div className="space-y-8">
-      {projects.map((project) => {
+      {projects?.map((project) => {
         if (!project.tasks?.length) return null;
 
         const sortedTasks = [...project.tasks].sort(
