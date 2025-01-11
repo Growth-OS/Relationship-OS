@@ -14,7 +14,12 @@ export const useSequenceSteps = (sequenceId: string) => {
     queryFn: async () => {
       console.log('Fetching sequence with ID:', sequenceId);
       
-      let query = supabase
+      if (!sequenceId) {
+        console.log('No sequence ID provided');
+        return null;
+      }
+
+      const { data, error } = await supabase
         .from("sequences")
         .select(`
           *,
@@ -33,14 +38,9 @@ export const useSequenceSteps = (sequenceId: string) => {
             )
           )
         `)
-        .eq("is_deleted", false);
-
-      // Only add the ID condition if sequenceId is defined
-      if (sequenceId) {
-        query = query.eq("id", sequenceId);
-      }
-
-      const { data, error } = await query.maybeSingle();
+        .eq("id", sequenceId)
+        .eq("is_deleted", false)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching sequence:', error);
@@ -78,7 +78,7 @@ export const useSequenceSteps = (sequenceId: string) => {
 
       return sequence;
     },
-    enabled: Boolean(sequenceId), // Only run query if sequenceId is provided and is truthy
+    enabled: Boolean(sequenceId), // Only run query if sequenceId is provided
   });
 
   const addStepMutation = useMutation({
