@@ -33,8 +33,13 @@ export const useTaskQuery = ({ sourceType, sourceId, showArchived = false }: Use
           query = query.eq("source", sourceType);
         }
 
+        // If sourceId is provided, filter by source_id or project_id depending on the source type
         if (sourceId) {
-          query = query.eq("source_id", sourceId);
+          if (sourceType === "projects") {
+            query = query.eq("project_id", sourceId);
+          } else {
+            query = query.eq("source_id", sourceId);
+          }
         }
 
         query = query.order("due_date", { ascending: true });

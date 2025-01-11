@@ -50,14 +50,10 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId }: Creat
         user_id: user.id,
         due_date: dueDate?.toISOString().split('T')[0],
         priority,
+        project_id: projectId // Ensure project_id is set
       };
 
-      // If we're in a project context, ensure project_id is set
-      if (source === "projects" && projectId) {
-        Object.assign(taskData, { project_id: projectId });
-      }
-
-      console.log("Creating task with data:", taskData); // Debug log
+      console.log("Creating task with data:", taskData);
 
       const { error } = await supabase.from("tasks").insert(taskData);
 
