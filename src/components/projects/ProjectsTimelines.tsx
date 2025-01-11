@@ -44,7 +44,7 @@ export const ProjectsTimelines = () => {
           budget,
           start_date,
           end_date,
-          tasks (
+          tasks!project_id(
             id,
             title,
             due_date,
@@ -57,6 +57,8 @@ export const ProjectsTimelines = () => {
       if (projectsError) throw projectsError;
       return projectsData as Project[];
     },
+    // Refresh data every 30 seconds to catch new tasks
+    refetchInterval: 30000,
   });
 
   if (isLoading) {
