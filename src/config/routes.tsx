@@ -12,28 +12,33 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        index: true,
-        element: (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "prospects",
-        element: (
-          <ProtectedRoute>
-            <Prospects />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "deals",
-        element: (
-          <ProtectedRoute>
-            <Deals />
-          </ProtectedRoute>
-        ),
+        path: "dashboard",
+        children: [
+          {
+            index: true,
+            element: (
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "prospects",
+            element: (
+              <ProtectedRoute>
+                <Prospects />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "deals",
+            element: (
+              <ProtectedRoute>
+                <Deals />
+              </ProtectedRoute>
+            ),
+          },
+        ],
       },
     ],
   },
