@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from "@/components/ui/table";
-import { ProspectActions } from "../components/ProspectActions";
+import { ProspectActions } from "../ProspectActions";
 import { ExternalLinks } from "../components/ExternalLinks";
 import type { Prospect } from "../types/prospect";
 
