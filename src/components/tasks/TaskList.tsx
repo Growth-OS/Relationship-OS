@@ -31,7 +31,7 @@ export const TaskList = ({
     const source = sourceType || "other";
     return (
       <TaskGroup 
-        source={source} 
+        source={source as TaskSource} 
         tasks={data.tasks}
         onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, data.tasks)}
         onUpdate={handleTaskUpdate}

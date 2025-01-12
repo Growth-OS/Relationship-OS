@@ -5,13 +5,12 @@ import { startOfWeek, endOfWeek, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGroup } from "./TaskGroup";
 import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
-import { TaskData } from "@/components/tasks/types";
+import { TaskData, TaskSource } from "@/components/tasks/types";
 
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
   const { handleTaskComplete, handleTaskUpdate } = useTaskOperations();
-  const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
     queryKey: ["weekly-tasks", startDate, endDate],
