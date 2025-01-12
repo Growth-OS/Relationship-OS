@@ -1,6 +1,4 @@
-import { StepType } from "../types";
-
-export type DatabaseStepType = "email" | "linkedin";
+import { StepType, DatabaseStepType } from "../types";
 
 export const mapDbStepTypeToFrontend = (dbType: DatabaseStepType, stepNumber: number): StepType => {
   if (dbType === "email") {

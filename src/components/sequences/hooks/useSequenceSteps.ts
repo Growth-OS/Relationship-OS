@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { StepType, SequenceStep, Sequence } from "../types";
+import { StepType, SequenceStep, Sequence, DatabaseSequenceStep } from "../types";
 import { toast } from "sonner";
-import { mapFrontendStepTypeToDb } from "../utils/stepTypeMapping";
+import { mapFrontendStepTypeToDb, mapDbStepTypeToFrontend } from "../utils/stepTypeMapping";
 
 export const useSequenceSteps = (sequenceId?: string) => {
   const queryClient = useQueryClient();
@@ -58,8 +58,19 @@ export const useSequenceSteps = (sequenceId?: string) => {
         return null;
       }
 
-      console.log('Sequence found:', data);
-      return data as Sequence;
+      // Transform the database steps to frontend format
+      const transformedSteps = data.sequence_steps?.map((step: DatabaseSequenceStep) => ({
+        ...step,
+        step_type: mapDbStepTypeToFrontend(step.step_type, step.step_number)
+      })) || [];
+
+      const sequence: Sequence = {
+        ...data,
+        sequence_steps: transformedSteps
+      };
+
+      console.log('Sequence found:', sequence);
+      return sequence;
     },
     enabled: Boolean(sequenceId),
     retry: false
@@ -108,7 +119,13 @@ export const useSequenceSteps = (sequenceId?: string) => {
         throw new Error("Failed to create step");
       }
 
-      return stepData as SequenceStep;
+      // Transform the database step to frontend format
+      const transformedStep: SequenceStep = {
+        ...stepData,
+        step_type: mapDbStepTypeToFrontend(stepData.step_type, stepData.step_number)
+      };
+
+      return transformedStep;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sequence", sequenceId] });

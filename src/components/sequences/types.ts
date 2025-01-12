@@ -1,5 +1,6 @@
 export type StepType = "email_1" | "email_2" | "linkedin_connection" | "linkedin_message_1" | "linkedin_message_2";
 export type DatabaseStepType = "email" | "linkedin";
+export type SequenceStatus = "active" | "paused" | "completed";
 
 export interface SequenceStep {
   id: string;
@@ -7,7 +8,7 @@ export interface SequenceStep {
   step_type: StepType;
   message_template: string;
   delay_days: number;
-  count?: number; // Added count as optional property
+  count?: number;
 }
 
 export interface DatabaseSequenceStep {
@@ -40,8 +41,9 @@ export interface Sequence {
   user_id: string;
   name: string;
   description: string | null;
-  status: 'active' | 'paused' | 'completed';
+  status: SequenceStatus;
   max_steps: number;
   sequence_steps?: SequenceStep[];
   sequence_assignments?: SequenceAssignment[];
+  is_deleted: boolean;
 }
