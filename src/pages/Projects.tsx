@@ -2,26 +2,22 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
-import { ProjectsKanban } from "@/components/projects/ProjectsKanban";
-import { ProjectsTimeline } from "@/components/projects/ProjectsTimeline";
-import { ProjectsFilter } from "@/components/projects/ProjectsFilter";
 import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
-import { ProjectsSort } from "@/components/projects/ProjectsSort";
-import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
-import { ProjectStats } from "@/components/projects/ProjectStats";
-import { LayoutGrid, List, Kanban, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CreateProjectForm } from "@/components/projects/CreateProjectForm";
 import { ProjectStatus } from "@/integrations/supabase/types/projects";
+import { Prospect } from "@/types/prospects";
 
 const Projects = () => {
+  const [filters, setFilters] = useState<Array<{ field: string; value: string }>>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | ProjectStatus>("all");
-  const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<string>("last_activity");
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ["projects", statusFilter, searchQuery, sortBy],
+    queryKey: ["projects", statusFilter, filters, sortBy],
     queryFn: async () => {
       let query = supabase
         .from("projects")
@@ -31,9 +27,10 @@ const Projects = () => {
         query = query.eq("status", statusFilter);
       }
 
-      if (searchQuery) {
-        query = query.or(`name.ilike.%${searchQuery}%,client_name.ilike.%${searchQuery}%`);
-      }
+      // Apply filters from search component
+      filters.forEach(filter => {
+        query = query.ilike(filter.field, `%${filter.value}%`);
+      });
 
       switch (sortBy) {
         case "name":
@@ -54,9 +51,24 @@ const Projects = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Transform Project data to match Prospect interface
+      return data.map(project => ({
+        id: project.id,
+        company_name: project.name,
+        contact_email: null,
+        source: 'other',
+        status: project.status,
+        company_website: null,
+        first_name: null,
+        training_event: null,
+        created_at: project.created_at,
+        user_id: project.user_id
+      })) as Prospect[];
     },
   });
+
+  const acceleratorOptions = ["Program A", "Program B", "Program C"]; // Add your actual options
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -66,58 +78,43 @@ const Projects = () => {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
             <p className="text-muted-foreground">Manage and track your client projects</p>
           </div>
-          <CreateProjectButton />
-        </div>
-      </div>
-
-      <ProjectStats projects={projects} />
-
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-4 flex-wrap flex-1">
-              <ProjectsSearch value={searchQuery} onChange={setSearchQuery} />
-              <ProjectsFilter value={statusFilter} onChange={setStatusFilter} />
-              <ProjectsSort value={sortBy} onChange={setSortBy} />
-            </div>
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Project</DialogTitle>
+                </DialogHeader>
+                <CreateProjectForm />
+              </DialogContent>
+            </Dialog>
+            <Button variant="outline">
+              <Upload className="h-4 w-4 mr-2" />
+              Import CSV
+            </Button>
           </div>
-
-          <Tabs defaultValue="grid" className="w-full">
-            <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="grid" className="flex items-center gap-2">
-                <LayoutGrid className="h-4 w-4" />
-                <span className="hidden sm:inline">Grid</span>
-              </TabsTrigger>
-              <TabsTrigger value="list" className="flex items-center gap-2">
-                <List className="h-4 w-4" />
-                <span className="hidden sm:inline">List</span>
-              </TabsTrigger>
-              <TabsTrigger value="kanban" className="flex items-center gap-2">
-                <Kanban className="h-4 w-4" />
-                <span className="hidden sm:inline">Kanban</span>
-              </TabsTrigger>
-              <TabsTrigger value="timeline" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span className="hidden sm:inline">Timeline</span>
-              </TabsTrigger>
-            </TabsList>
-            <div className="mt-6">
-              <TabsContent value="grid">
-                <ProjectsGrid projects={projects} isLoading={isLoading} />
-              </TabsContent>
-              <TabsContent value="list">
-                <ProjectsList projects={projects} isLoading={isLoading} />
-              </TabsContent>
-              <TabsContent value="kanban">
-                <ProjectsKanban projects={projects} isLoading={isLoading} />
-              </TabsContent>
-              <TabsContent value="timeline">
-                <ProjectsTimeline projects={projects} isLoading={isLoading} />
-              </TabsContent>
-            </div>
-          </Tabs>
         </div>
       </div>
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <ProjectsSearch 
+            filters={filters}
+            onFilterChange={setFilters}
+            acceleratorOptions={acceleratorOptions}
+          />
+          <ProjectsList 
+            projects={projects} 
+            isLoading={isLoading} 
+            filters={filters}
+          />
+        </div>
+      </Card>
     </div>
   );
 };
