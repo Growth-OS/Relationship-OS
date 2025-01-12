@@ -902,10 +902,12 @@ export type Database = {
           contact_job_title: string | null
           contact_linkedin: string | null
           created_at: string
+          first_name: string | null
           id: string
           notes: string | null
           source: Database["public"]["Enums"]["lead_source"]
           status: string | null
+          training_event: string | null
           user_id: string
         }
         Insert: {
@@ -915,10 +917,12 @@ export type Database = {
           contact_job_title?: string | null
           contact_linkedin?: string | null
           created_at?: string
+          first_name?: string | null
           id?: string
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
+          training_event?: string | null
           user_id: string
         }
         Update: {
@@ -928,10 +932,12 @@ export type Database = {
           contact_job_title?: string | null
           contact_linkedin?: string | null
           created_at?: string
+          first_name?: string | null
           id?: string
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
+          training_event?: string | null
           user_id?: string
         }
         Relationships: []
