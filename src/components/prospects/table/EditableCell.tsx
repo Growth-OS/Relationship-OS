@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface EditableCellProps {
+export interface EditableCellProps {
   isEditing: boolean;
   value: string;
   onChange: (value: string) => void;
@@ -10,7 +10,13 @@ interface EditableCellProps {
   options?: { value: string; label: string }[];
 }
 
-export const EditableCell = ({ isEditing, value, onChange, type = "text", options }: EditableCellProps) => {
+export const EditableCell = ({ 
+  isEditing, 
+  value, 
+  onChange, 
+  type = "text", 
+  options 
+}: EditableCellProps) => {
   if (!isEditing) {
     return <TableCell>{value}</TableCell>;
   }

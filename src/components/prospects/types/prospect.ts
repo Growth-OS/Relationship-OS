@@ -13,9 +13,16 @@ export interface Prospect {
   status?: string;
 }
 
-export interface ProspectActionsProps {
-  prospect: Prospect;
-  onDelete: (id: string) => Promise<void>;
-  onConvertToLead: (prospect: Prospect) => Promise<void>;
-  onEdit: (prospect: Prospect) => void;
+export interface EditableProspect extends Prospect {
+  isEditing: boolean;
+}
+
+export interface ProspectRowProps {
+  prospect: EditableProspect;
+  sourceLabels: Record<string, string>;
+  onUpdate: (id: string, data: Partial<EditableProspect>) => Promise<void>;
+  editValues: Record<string, Partial<EditableProspect>>;
+  setEditValues: (values: Record<string, Partial<EditableProspect>>) => void;
+  startEditing: (prospect: EditableProspect) => void;
+  cancelEditing: (id: string) => void;
 }

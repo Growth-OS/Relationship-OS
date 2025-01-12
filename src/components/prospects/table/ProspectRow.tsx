@@ -1,18 +1,8 @@
 import { TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
 import { ProspectActions } from "./ProspectActions";
-import { EditableProspect } from "../types/prospect";
+import { ProspectRowProps } from "../types/prospect";
 import { toast } from "sonner";
-
-interface ProspectRowProps {
-  prospect: EditableProspect;
-  sourceLabels: Record<string, string>;
-  onUpdate: (id: string, data: Partial<EditableProspect>) => Promise<void>;
-  editValues: Record<string, Partial<EditableProspect>>;
-  setEditValues: (values: Record<string, Partial<EditableProspect>>) => void;
-  startEditing: (prospect: EditableProspect) => void;
-  cancelEditing: (id: string) => void;
-}
 
 export const ProspectRow = ({
   prospect,
@@ -77,14 +67,14 @@ export const ProspectRow = ({
     <TableRow>
       <EditableCell
         isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.contact_email || prospect.contact_email || ""}
-        onChange={(value) => handleInputChange("contact_email", value)}
-        type="email"
+        value={editValues[prospect.id]?.company_name || prospect.company_name}
+        onChange={(value) => handleInputChange("company_name", value)}
       />
       <EditableCell
         isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.company_name || prospect.company_name}
-        onChange={(value) => handleInputChange("company_name", value)}
+        value={editValues[prospect.id]?.contact_email || prospect.contact_email || ""}
+        onChange={(value) => handleInputChange("contact_email", value)}
+        type="email"
       />
       <EditableCell
         isEditing={prospect.isEditing}
@@ -94,8 +84,9 @@ export const ProspectRow = ({
         options={sourceOptions}
       />
       <EditableCell
-        isEditing={false}
-        value={prospect.status || "active"}
+        isEditing={prospect.isEditing}
+        value={editValues[prospect.id]?.contact_job_title || prospect.contact_job_title || ""}
+        onChange={(value) => handleInputChange("contact_job_title", value)}
       />
       <ProspectActions
         isEditing={prospect.isEditing}
