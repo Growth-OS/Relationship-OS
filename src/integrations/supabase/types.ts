@@ -960,6 +960,39 @@ export type Database = {
         }
         Relationships: []
       }
+      sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_deleted: boolean
+          max_steps: number
+          name: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_deleted?: boolean
+          max_steps?: number
+          name: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_deleted?: boolean
+          max_steps?: number
+          name?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           content: string | null
