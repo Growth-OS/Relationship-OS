@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Upload, Plus, Filter } from "lucide-react";
+import { Upload, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ProspectsTable } from "@/components/prospects/ProspectsTable";
 import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
@@ -17,7 +17,7 @@ const ProspectsManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showConverted, setShowConverted] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['prospects', currentPage, showConverted],
     queryFn: async () => {
       console.log('Fetching prospects for page:', currentPage, 'showConverted:', showConverted);
@@ -95,6 +95,7 @@ const ProspectsManagement = () => {
               </DialogHeader>
               <CSVUploadDialog onSuccess={() => {
                 setUploadDialogOpen(false);
+                refetch();
                 toast.success("Prospects uploaded successfully");
               }} />
             </DialogContent>
@@ -113,6 +114,7 @@ const ProspectsManagement = () => {
               </DialogHeader>
               <CreateProspectForm onSuccess={() => {
                 setCreateDialogOpen(false);
+                refetch();
                 toast.success("Prospect added successfully");
               }} />
             </DialogContent>

@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, AlertCircle, CheckCircle } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface CSVUploadDialogProps {
