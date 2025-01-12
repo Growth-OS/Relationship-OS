@@ -33,7 +33,7 @@ export const TaskList = ({
       <TaskGroup 
         source={source as TaskSource} 
         tasks={data.tasks}
-        onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, data.tasks)}
+        onComplete={handleTaskComplete}
         onUpdate={handleTaskUpdate}
       />
     );
@@ -46,7 +46,7 @@ export const TaskList = ({
     }
     acc[taskSource].push(task);
     return acc;
-  }, {} as Record<string, TaskData[]>);
+  }, {} as Record<TaskSource, TaskData[]>);
 
   return (
     <div className="space-y-6">
@@ -55,7 +55,7 @@ export const TaskList = ({
           key={taskSource}
           source={taskSource as TaskSource}
           tasks={tasks}
-          onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks)}
+          onComplete={handleTaskComplete}
           onUpdate={handleTaskUpdate}
         />
       ))}

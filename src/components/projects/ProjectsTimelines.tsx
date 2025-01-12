@@ -46,7 +46,11 @@ export const ProjectsTimelines = () => {
             title,
             due_date,
             completed,
-            priority
+            priority,
+            created_at,
+            user_id,
+            description,
+            source
           )
         `)
         .order("last_activity_date", { ascending: false });
@@ -54,7 +58,6 @@ export const ProjectsTimelines = () => {
       if (projectsError) throw projectsError;
       return projectsData as Project[];
     },
-    refetchInterval: 30000,
   });
 
   if (isLoading) {
