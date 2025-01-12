@@ -55,12 +55,12 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>First Name</TableHead>
-            <TableHead>Website</TableHead>
-            <TableHead>Accelerator Program</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead className="text-left">Name</TableHead>
+            <TableHead className="text-left">Email</TableHead>
+            <TableHead className="text-left">First Name</TableHead>
+            <TableHead className="text-left">Website</TableHead>
+            <TableHead className="text-left">Accelerator Program</TableHead>
+            <TableHead className="text-left">Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,10 +70,10 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
               className="cursor-pointer hover:bg-gray-50"
               onClick={() => setSelectedProject(project)}
             >
-              <TableCell className="font-medium">{project.company_name}</TableCell>
-              <TableCell>{project.contact_email}</TableCell>
-              <TableCell>{project.first_name}</TableCell>
-              <TableCell>
+              <TableCell className="text-left font-medium">{project.company_name}</TableCell>
+              <TableCell className="text-left">{project.contact_email}</TableCell>
+              <TableCell className="text-left">{project.first_name}</TableCell>
+              <TableCell className="text-left">
                 {project.company_website && (
                   <a 
                     href={project.company_website}
@@ -86,8 +86,8 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
                   </a>
                 )}
               </TableCell>
-              <TableCell>{project.training_event}</TableCell>
-              <TableCell>
+              <TableCell className="text-left">{project.training_event}</TableCell>
+              <TableCell className="text-left">
                 <Badge 
                   variant={project.status === 'active' ? 'default' : 'secondary'}
                 >
