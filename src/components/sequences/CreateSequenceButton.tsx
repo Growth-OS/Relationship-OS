@@ -34,6 +34,7 @@ export const CreateSequenceButton = () => {
         return;
       }
 
+      // Create the sequence data object with proper typing
       const sequenceData = {
         name: data.name,
         description: data.description,
@@ -48,7 +49,7 @@ export const CreateSequenceButton = () => {
       const { data: sequence, error } = await supabase
         .from('sequences')
         .insert(sequenceData)
-        .select()
+        .select('*')
         .maybeSingle();
 
       if (error) {
@@ -57,23 +58,23 @@ export const CreateSequenceButton = () => {
         return;
       }
 
-      if (!sequence?.id) {
-        console.error('No sequence ID returned after creation');
+      if (!sequence) {
+        console.error('No sequence returned after creation');
         toast.error('Error creating sequence');
         return;
       }
 
       console.log('Created sequence:', sequence);
+      
+      // Invalidate and refetch sequences
       await queryClient.invalidateQueries({ queryKey: ['sequences'] });
       
       reset();
       setOpen(false);
       toast.success('Sequence created successfully');
       
-      // Add a small delay to ensure state updates are processed
-      setTimeout(() => {
-        navigate(`/dashboard/sequences/${sequence.id}/edit`);
-      }, 100);
+      // Navigate to the sequence builder
+      navigate(`/dashboard/sequences/${sequence.id}/edit`);
 
     } catch (error) {
       console.error('Error in sequence creation:', error);
