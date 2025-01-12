@@ -11,6 +11,8 @@ export interface Prospect {
   sequence_status?: string;
   current_step?: number;
   status?: string;
+  first_name?: string;
+  training_event?: string;
 }
 
 export interface EditableProspect extends Prospect {
