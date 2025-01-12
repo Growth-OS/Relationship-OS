@@ -5,6 +5,8 @@ import { TaskSource } from "@/integrations/supabase/types/tasks";
 export const useSequenceAssignment = () => {
   const handleAssignSequence = async (sequenceId: string, selectedIds: string[]) => {
     try {
+      console.log('Starting sequence assignment:', { sequenceId, selectedIds });
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('You must be logged in to assign sequences');
@@ -18,7 +20,10 @@ export const useSequenceAssignment = () => {
         .eq("sequence_id", sequenceId)
         .in("prospect_id", selectedIds);
 
-      if (checkError) throw checkError;
+      if (checkError) {
+        console.error('Error checking existing assignments:', checkError);
+        throw checkError;
+      }
 
       const existingProspectIds = existingAssignments?.map(a => a.prospect_id) || [];
       const prospectsToAssign = selectedIds.filter(id => !existingProspectIds.includes(id));
@@ -38,10 +43,16 @@ export const useSequenceAssignment = () => {
         .eq("id", sequenceId)
         .single();
 
-      if (sequenceError) throw sequenceError;
+      if (sequenceError) {
+        console.error('Error fetching sequence details:', sequenceError);
+        throw sequenceError;
+      }
+
+      console.log('Sequence details:', sequence);
 
       // Create assignments and tasks
       for (const prospectId of prospectsToAssign) {
+        // Create assignment
         const { data: assignment, error: assignmentError } = await supabase
           .from("sequence_assignments")
           .insert({
@@ -53,15 +64,24 @@ export const useSequenceAssignment = () => {
           .select()
           .single();
 
-        if (assignmentError) throw assignmentError;
+        if (assignmentError) {
+          console.error('Error creating assignment:', assignmentError);
+          throw assignmentError;
+        }
 
+        console.log('Created assignment:', assignment);
+
+        // Get prospect details
         const { data: prospect, error: prospectError } = await supabase
           .from("prospects")
           .select("*")
           .eq("id", prospectId)
           .single();
 
-        if (prospectError) throw prospectError;
+        if (prospectError) {
+          console.error('Error fetching prospect:', prospectError);
+          throw prospectError;
+        }
 
         // Create tasks for each step
         const tasks = sequence.sequence_steps.map(step => ({
@@ -79,11 +99,16 @@ export const useSequenceAssignment = () => {
           completed: false
         }));
 
+        console.log('Creating tasks:', tasks);
+
         const { error: tasksError } = await supabase
           .from("tasks")
           .insert(tasks);
 
-        if (tasksError) throw tasksError;
+        if (tasksError) {
+          console.error('Error creating tasks:', tasksError);
+          throw tasksError;
+        }
       }
 
       toast.success(

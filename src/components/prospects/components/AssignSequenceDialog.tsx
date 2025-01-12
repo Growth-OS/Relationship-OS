@@ -27,6 +27,7 @@ export const AssignSequenceDialog = ({
   const { data: sequences = [], isLoading } = useQuery({
     queryKey: ['sequences'],
     queryFn: async () => {
+      console.log('Fetching sequences for assignment dialog');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('No user found');
 
@@ -34,23 +35,40 @@ export const AssignSequenceDialog = ({
         .from('sequences')
         .select('*')
         .eq('user_id', user.id)
-        .eq('status', 'active');
+        .eq('status', 'active')
+        .eq('is_deleted', false);
       
       if (error) {
         console.error('Error fetching sequences:', error);
         throw error;
       }
 
+      console.log('Available sequences:', data);
       return data || [];
     },
   });
 
   const handleAssign = async () => {
-    if (onAssign) {
-      await onAssign(selectedSequence);
-      if (onSuccess) {
-        onSuccess();
+    try {
+      if (!selectedSequence) {
+        toast.error('Please select a sequence');
+        return;
       }
+
+      console.log('Assigning sequence:', selectedSequence);
+      console.log('To prospects:', prospects);
+
+      if (onAssign) {
+        await onAssign(selectedSequence);
+        if (onSuccess) {
+          onSuccess();
+        }
+        toast.success('Prospects assigned to sequence successfully');
+        setSelectedSequence("");
+      }
+    } catch (error) {
+      console.error('Error assigning sequence:', error);
+      toast.error('Failed to assign sequence');
     }
   };
 
