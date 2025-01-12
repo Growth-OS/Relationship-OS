@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { startOfWeek, endOfWeek, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGroup } from "./TaskGroup";
-import { useTaskOperations } from "@/components/sequences/hooks/useTaskOperations";
+import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
 
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -26,8 +26,7 @@ export const DashboardWeeklyTasks = () => {
           *,
           projects(id, name),
           deals(id, company_name),
-          substack_posts(id, title),
-          sequences(id, name)
+          substack_posts(id, title)
         `)
         .eq("user_id", user.user.id)
         .eq("completed", false)

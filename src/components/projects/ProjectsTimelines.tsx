@@ -8,7 +8,7 @@ import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
 import { Project as SupabaseProject } from "@/integrations/supabase/types/projects";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useTaskOperations } from "@/components/sequences/hooks/useTaskOperations";
+import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
 
 interface Task {
   id: string;

@@ -22,7 +22,10 @@ export interface TaskData extends Task {
   substack_posts?: { id: string; title: string } | null;
 }
 
-export interface TasksResponse {
-  data: TaskData[];
-  count: number;
+export interface TaskListProps {
+  sourceType?: TaskSource;
+  sourceId?: string;
+  showPagination?: boolean;
+  groupBySource?: boolean;
+  showArchived?: boolean;
 }
