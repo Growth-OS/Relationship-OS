@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { SequenceStatus } from "./types";
 
 interface CreateSequenceForm {
   name: string;
@@ -36,7 +37,7 @@ export const CreateSequenceButton = () => {
       const sequenceData = {
         name: data.name,
         description: data.description,
-        status: 'active',
+        status: 'active' as SequenceStatus,
         max_steps: 5,
         user_id: user.id,
         is_deleted: false
@@ -46,7 +47,7 @@ export const CreateSequenceButton = () => {
 
       const { data: sequence, error } = await supabase
         .from('sequences')
-        .insert([sequenceData])
+        .insert(sequenceData)
         .select()
         .single();
 
