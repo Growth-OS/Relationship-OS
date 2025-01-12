@@ -2,13 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AssignSequenceDialog } from "./AssignSequenceDialog";
 import { useState } from "react";
-import type { Prospect } from "../types/prospect";
 
 interface BulkActionsProps {
   selectedIds: string[];
   allSelected: boolean;
   onSelectAll: () => void;
-  onAssignSequence: (sequenceId: string) => Promise<void>;
+  onAssignSequence: (sequenceId: string, selectedIds: string[]) => Promise<void>;
 }
 
 export const BulkActions = ({
@@ -35,7 +34,7 @@ export const BulkActions = ({
       <AssignSequenceDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
-        onAssign={onAssignSequence}
+        onAssign={(sequenceId) => onAssignSequence(sequenceId, selectedIds)}
         onSuccess={() => setIsAssignDialogOpen(false)}
       />
     </div>
