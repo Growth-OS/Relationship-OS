@@ -15,6 +15,12 @@ export const useSequenceSteps = (sequenceId?: string) => {
         return null;
       }
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Authentication required");
+        throw new Error("Not authenticated");
+      }
+
       console.log('Fetching sequence with ID:', sequenceId);
       
       const { data, error } = await supabase
@@ -38,10 +44,12 @@ export const useSequenceSteps = (sequenceId?: string) => {
         `)
         .eq("id", sequenceId)
         .eq("is_deleted", false)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
         console.error('Error fetching sequence:', error);
+        toast.error("Failed to load sequence");
         throw error;
       }
 
@@ -63,10 +71,16 @@ export const useSequenceSteps = (sequenceId?: string) => {
       message_template: string;
       delay_days: number;
     }) => {
-      if (!sequenceId) throw new Error('No sequence ID provided');
+      if (!sequenceId) {
+        toast.error("No sequence ID provided");
+        throw new Error('No sequence ID provided');
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User must be authenticated to create steps');
+      if (!user) {
+        toast.error("Authentication required");
+        throw new Error('User must be authenticated to create steps');
+      }
 
       const nextStepNumber = sequence?.sequence_steps?.length + 1 || 1;
       const dbStepType = mapFrontendStepTypeToDb(values.step_type);
@@ -83,8 +97,16 @@ export const useSequenceSteps = (sequenceId?: string) => {
         .select()
         .single();
 
-      if (stepError) throw stepError;
-      if (!stepData) throw new Error("Failed to create step");
+      if (stepError) {
+        console.error('Error adding step:', stepError);
+        toast.error("Failed to add step");
+        throw stepError;
+      }
+      
+      if (!stepData) {
+        toast.error("Failed to create step");
+        throw new Error("Failed to create step");
+      }
 
       return stepData as SequenceStep;
     },

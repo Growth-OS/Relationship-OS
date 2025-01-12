@@ -4,42 +4,52 @@ import { SequenceStats } from "@/components/sequences/SequenceStats";
 import { SequencesList } from "@/components/sequences/SequencesList";
 import { CreateSequenceButton } from "@/components/sequences/CreateSequenceButton";
 import type { Sequence } from "@/components/sequences/types";
+import { toast } from "sonner";
 
 const Sequences = () => {
   const { data: sequences, isLoading, error } = useQuery({
     queryKey: ["sequences"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error("Authentication required");
+          throw new Error("Not authenticated");
+        }
 
-      console.log('Fetching sequences...');
-      const { data, error } = await supabase
-        .from("sequences")
-        .select(`
-          *,
-          sequence_steps (
-            count
-          ),
-          sequence_assignments (
-            id,
-            status,
-            current_step,
-            prospect: prospects (
-              company_name
+        console.log('Fetching sequences...');
+        const { data, error } = await supabase
+          .from("sequences")
+          .select(`
+            *,
+            sequence_steps (
+              count
+            ),
+            sequence_assignments (
+              id,
+              status,
+              current_step,
+              prospect: prospects (
+                company_name
+              )
             )
-          )
-        `)
-        .eq("user_id", user.id)
-        .eq("is_deleted", false)
-        .order("created_at", { ascending: false });
+          `)
+          .eq("user_id", user.id)
+          .eq("is_deleted", false)
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error('Error fetching sequences:', error);
-        throw error;
+        if (error) {
+          console.error('Error fetching sequences:', error);
+          toast.error("Failed to load sequences");
+          throw error;
+        }
+
+        console.log('Sequences fetched:', data);
+        return data as unknown as Sequence[];
+      } catch (err) {
+        console.error('Query error:', err);
+        throw err;
       }
-
-      console.log('Sequences fetched:', data);
-      return data as unknown as Sequence[];
     },
   });
 
