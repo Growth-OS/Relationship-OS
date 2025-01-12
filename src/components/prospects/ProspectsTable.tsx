@@ -36,7 +36,7 @@ export const ProspectsTable = ({
   onShowConvertedChange,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const { handleDelete, handleConvertToLead, handleAssignSequence } = useProspectOperations();
+  const { handleDelete, handleConvertToLead } = useProspectOperations();
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -56,13 +56,6 @@ export const ProspectsTable = ({
 
   const handleEdit = (prospect: Prospect) => {
     console.log("Edit prospect:", prospect);
-  };
-
-  const handleAssignSequenceToProspects = async (sequenceId: string) => {
-    const success = await handleAssignSequence(sequenceId, selectedIds);
-    if (success) {
-      setSelectedIds([]);
-    }
   };
 
   if (isLoading) return <TableLoadingState />;
@@ -85,7 +78,6 @@ export const ProspectsTable = ({
           selectedIds={selectedIds}
           allSelected={selectedIds.length === prospects.length}
           onSelectAll={handleSelectAll}
-          onAssignSequence={handleAssignSequenceToProspects}
         />
         <div className="flex items-center space-x-2">
           <Switch
@@ -106,8 +98,6 @@ export const ProspectsTable = ({
               <TableHead className="text-left align-top">Job Title</TableHead>
               <TableHead className="text-left align-top">Email</TableHead>
               <TableHead className="text-left align-top">LinkedIn</TableHead>
-              <TableHead className="text-left align-top">Sequence</TableHead>
-              <TableHead className="text-left align-top">Progress</TableHead>
               <TableHead className="w-[100px] text-left align-top"></TableHead>
             </TableRow>
           </TableHeader>

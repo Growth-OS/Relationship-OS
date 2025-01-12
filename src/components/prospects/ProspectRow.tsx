@@ -1,7 +1,6 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
@@ -46,24 +45,6 @@ export const ProspectRow = ({
           website={prospect.company_website} 
           linkedin={prospect.contact_linkedin}
         />
-      </TableCell>
-      <TableCell className="p-4 text-left align-top">
-        {prospect.sequence_name ? (
-          <div className="space-y-1">
-            <div>{prospect.sequence_name}</div>
-            <Badge>
-              {prospect.sequence_status || 'Not started'}
-            </Badge>
-          </div>
-        ) : '-'}
-      </TableCell>
-      <TableCell className="p-4 text-left align-top">
-        {prospect.current_step ? (
-          <div className="space-y-1">
-            <div className="text-sm text-gray-600">Step {prospect.current_step}</div>
-            <Progress value={prospect.current_step * 20} className="h-2" />
-          </div>
-        ) : '-'}
       </TableCell>
       <TableCell className="p-4 text-left align-top">
         <ProspectActions
