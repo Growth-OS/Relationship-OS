@@ -1605,12 +1605,14 @@ export type Database = {
       prospect_sequence_info: {
         Row: {
           company_name: string | null
+          company_website: string | null
           completed_at: string | null
           contact_email: string | null
           contact_job_title: string | null
           contact_linkedin: string | null
           created_at: string | null
           current_step: number | null
+          first_name: string | null
           id: string | null
           notes: string | null
           paused_at: string | null
@@ -1618,41 +1620,8 @@ export type Database = {
           sequence_status: string | null
           source: Database["public"]["Enums"]["lead_source"] | null
           status: string | null
+          training_event: string | null
           user_id: string | null
-        }
-        Insert: {
-          company_name?: string | null
-          completed_at?: never
-          contact_email?: string | null
-          contact_job_title?: string | null
-          contact_linkedin?: string | null
-          created_at?: string | null
-          current_step?: never
-          id?: string | null
-          notes?: string | null
-          paused_at?: never
-          sequence_name?: never
-          sequence_status?: never
-          source?: Database["public"]["Enums"]["lead_source"] | null
-          status?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          company_name?: string | null
-          completed_at?: never
-          contact_email?: string | null
-          contact_job_title?: string | null
-          contact_linkedin?: string | null
-          created_at?: string | null
-          current_step?: never
-          id?: string | null
-          notes?: string | null
-          paused_at?: never
-          sequence_name?: never
-          sequence_status?: never
-          source?: Database["public"]["Enums"]["lead_source"] | null
-          status?: string | null
-          user_id?: string | null
         }
         Relationships: []
       }
