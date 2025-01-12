@@ -30,5 +30,10 @@ export const useTaskOperations = () => {
     }
   };
 
-  return { handleTaskComplete };
+  const handleTaskUpdate = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+  };
+
+  return { handleTaskComplete, handleTaskUpdate };
 };

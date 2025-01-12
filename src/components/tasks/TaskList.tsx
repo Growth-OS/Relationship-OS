@@ -14,7 +14,7 @@ export const TaskList = ({
   showArchived = false 
 }: TaskListProps) => {
   const { data, isLoading } = useTaskQuery({ sourceType, sourceId, showArchived });
-  const { handleComplete, handleUpdate } = useTaskOperations();
+  const { handleTaskComplete, handleTaskUpdate } = useTaskOperations();
 
   if (isLoading) return <TaskListSkeleton />;
   
@@ -33,8 +33,8 @@ export const TaskList = ({
       <TaskGroup 
         source={source} 
         tasks={data.tasks}
-        onComplete={handleComplete}
-        onUpdate={handleUpdate}
+        onComplete={handleTaskComplete}
+        onUpdate={handleTaskUpdate}
       />
     );
   }
@@ -53,10 +53,10 @@ export const TaskList = ({
       {Object.entries(groupedTasks).map(([taskSource, tasks]) => (
         <TaskGroup
           key={taskSource}
-          source={taskSource}
+          source={taskSource as TaskSource}
           tasks={tasks}
-          onComplete={handleComplete}
-          onUpdate={handleUpdate}
+          onComplete={handleTaskComplete}
+          onUpdate={handleTaskUpdate}
         />
       ))}
       {showPagination && data.total > 0 && (

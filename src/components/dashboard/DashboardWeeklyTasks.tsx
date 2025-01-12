@@ -82,7 +82,7 @@ export const DashboardWeeklyTasks = () => {
           <TaskGroup
             key={source}
             source={source}
-            tasks={sourceTasks}
+            tasks={sourceTasks || []}
             onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks || [])}
             onUpdate={handleTaskUpdate}
           />

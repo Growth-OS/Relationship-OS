@@ -23,7 +23,6 @@ const Tasks = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="deals">Deals</TabsTrigger>
-            <TabsTrigger value="sequences">Sequences</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="substack">Substack</TabsTrigger>
@@ -35,9 +34,6 @@ const Tasks = () => {
           </TabsContent>
           <TabsContent value="deals">
             <TaskList sourceType="deals" />
-          </TabsContent>
-          <TabsContent value="sequences">
-            <TaskList sourceType="sequences" />
           </TabsContent>
           <TabsContent value="content">
             <TaskList sourceType="content" />
