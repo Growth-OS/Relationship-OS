@@ -17,6 +17,13 @@ export interface ProspectRowProps {
 }
 
 export interface ProspectActionsProps {
+  prospect: Prospect;
+  onDelete: (id: string) => Promise<void>;
+  onEdit: (prospect: Prospect) => void;
+  onConvertToLead: (prospect: Prospect) => Promise<void>;
+}
+
+export interface TableProspectActionsProps {
   isEditing: boolean;
   onEdit: () => void;
   onSave: () => void;

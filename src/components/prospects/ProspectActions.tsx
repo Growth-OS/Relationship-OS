@@ -3,10 +3,10 @@ import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditProspectDialog } from "./components/EditProspectDialog";
 import { ConvertToLeadButton } from "./components/ConvertToLeadButton";
-import { ProspectActionsProps } from "./types/prospect";
+import type { ProspectActionsProps } from "./types/prospect";
 import { useQueryClient } from "@tanstack/react-query";
 
-export const ProspectActions = ({ prospect, onDelete }: ProspectActionsProps) => {
+export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }: ProspectActionsProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 

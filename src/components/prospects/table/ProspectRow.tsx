@@ -1,7 +1,7 @@
 import { TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
 import { ProspectActions } from "./ProspectActions";
-import { ProspectRowProps } from "../types/prospect";
+import type { ProspectRowProps, EditableProspect } from "../types/prospect";
 import { toast } from "sonner";
 
 export const ProspectRow = ({
