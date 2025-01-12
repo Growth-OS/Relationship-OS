@@ -1,8 +1,13 @@
 import { Table, TableBody } from "@/components/ui/table";
 import { useState, useEffect } from "react";
-import { Prospect, EditableProspect } from "@/types/prospects";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Prospect } from "@/types/prospects";
+import { EditableProspect } from "./types/prospect";
 import { ProspectTableHeader } from "./table/ProspectTableHeader";
 import { ProspectRow } from "./table/ProspectRow";
+import { CSVUploadDialog } from "./components/CSVUploadDialog";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -24,6 +29,7 @@ export const ProspectsTable = ({
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
   const [editValues, setEditValues] = useState<Record<string, Partial<Prospect>>>({});
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
@@ -71,22 +77,43 @@ export const ProspectsTable = ({
   }
 
   return (
-    <Table>
-      <ProspectTableHeader />
-      <TableBody>
-        {editableProspects.map((prospect) => (
-          <ProspectRow
-            key={prospect.id}
-            prospect={prospect}
-            sourceLabels={sourceLabels}
-            onUpdate={onUpdate!}
-            editValues={editValues}
-            setEditValues={setEditValues}
-            startEditing={startEditing}
-            cancelEditing={cancelEditing}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="space-y-4">
+      <div className="flex justify-end mb-4">
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload CSV
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Upload Prospects CSV</DialogTitle>
+            </DialogHeader>
+            <CSVUploadDialog onSuccess={() => {
+              setUploadDialogOpen(false);
+            }} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Table>
+        <ProspectTableHeader />
+        <TableBody>
+          {editableProspects.map((prospect) => (
+            <ProspectRow
+              key={prospect.id}
+              prospect={prospect}
+              sourceLabels={sourceLabels}
+              onUpdate={onUpdate!}
+              editValues={editValues}
+              setEditValues={setEditValues}
+              startEditing={startEditing}
+              cancelEditing={cancelEditing}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
