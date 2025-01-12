@@ -6,24 +6,17 @@ import { format, differenceInDays } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
-import { Project as SupabaseProject } from "@/integrations/supabase/types/projects";
+import { Project } from "@/integrations/supabase/types/projects";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
+import { TaskData } from "@/components/tasks/types";
 
-interface Task {
-  id: string;
-  title: string;
-  due_date: string | null;
-  completed: boolean;
-  priority: string;
-}
-
-interface Project extends SupabaseProject {
-  tasks: Task[];
+interface ProjectWithTasks extends Project {
+  tasks: TaskData[];
 }
 
 export const ProjectsTimelines = () => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithTasks | null>(null);
   const { handleTaskComplete } = useTaskOperations();
   
   const { data: projects, isLoading } = useQuery({
@@ -32,15 +25,7 @@ export const ProjectsTimelines = () => {
       const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
         .select(`
-          id,
-          name,
-          client_name,
-          status,
-          description,
-          budget,
-          start_date,
-          end_date,
-          last_activity_date,
+          *,
           tasks!project_id(
             id,
             title,
@@ -56,7 +41,7 @@ export const ProjectsTimelines = () => {
         .order("last_activity_date", { ascending: false });
 
       if (projectsError) throw projectsError;
-      return projectsData as Project[];
+      return projectsData as ProjectWithTasks[];
     },
   });
 
@@ -153,16 +138,16 @@ export const ProjectsTimelines = () => {
                         <Card className="ml-6 p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer w-[calc(100%-2rem)]">
                           <div className="flex items-center gap-3">
                             <Checkbox
-                              checked={task.completed}
+                              checked={task.completed || false}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleTaskComplete(task.id, !task.completed, tasksWithDates);
+                                handleTaskComplete(task.id, !task.completed);
                               }}
                             />
                             <span className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
                               {task.title}
                             </span>
-                            <Badge className={getPriorityColor(task.priority)}>
+                            <Badge className={getPriorityColor(task.priority || '')}>
                               {task.priority}
                             </Badge>
                             <span className="text-sm text-gray-500">

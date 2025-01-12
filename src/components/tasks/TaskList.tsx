@@ -41,10 +41,10 @@ export const TaskList = ({
 
   const groupedTasks = data.tasks.reduce((acc, task) => {
     const taskSource = task.source || "other";
-    if (!acc[taskSource]) {
-      acc[taskSource] = [];
+    if (!acc[taskSource as TaskSource]) {
+      acc[taskSource as TaskSource] = [];
     }
-    acc[taskSource].push(task);
+    acc[taskSource as TaskSource].push(task);
     return acc;
   }, {} as Record<TaskSource, TaskData[]>);
 
