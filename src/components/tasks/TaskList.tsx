@@ -1,7 +1,7 @@
 import { TaskGroup } from "@/components/dashboard/TaskGroup";
 import { TaskListSkeleton } from "./TaskListSkeleton";
 import { TaskPagination } from "./TaskPagination";
-import { TaskData, TaskListProps } from "./types";
+import { TaskData, TaskListProps, TaskSource } from "./types";
 import { useTaskQuery } from "./hooks/useTaskQuery";
 import { useTaskOperations } from "./hooks/useTaskOperations";
 import { ListTodo } from "lucide-react";
@@ -33,7 +33,7 @@ export const TaskList = ({
       <TaskGroup 
         source={source} 
         tasks={data.tasks}
-        onComplete={handleTaskComplete}
+        onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, data.tasks)}
         onUpdate={handleTaskUpdate}
       />
     );
@@ -55,7 +55,7 @@ export const TaskList = ({
           key={taskSource}
           source={taskSource as TaskSource}
           tasks={tasks}
-          onComplete={handleTaskComplete}
+          onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks)}
           onUpdate={handleTaskUpdate}
         />
       ))}

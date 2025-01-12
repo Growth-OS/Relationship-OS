@@ -1,22 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { getSourceIcon } from "@/components/tasks/utils";
-
-interface TaskData {
-  id: string;
-  title: string;
-  description?: string;
-  due_date?: string;
-  completed?: boolean;
-  priority?: string;
-  projects?: { id: string; name: string };
-  deals?: { id: string; company_name: string };
-  sequences?: { id: string; name: string };
-  substack_posts?: { id: string; title: string };
-}
+import { TaskData, TaskSource } from "@/components/tasks/types";
 
 export interface TaskGroupProps {
-  source: string;
+  source: TaskSource;
   tasks: TaskData[];
   onComplete: (taskId: string, completed: boolean) => Promise<void>;
   onUpdate: () => Promise<void>;

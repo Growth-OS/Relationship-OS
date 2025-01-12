@@ -5,11 +5,12 @@ import { startOfWeek, endOfWeek, format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGroup } from "./TaskGroup";
 import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
+import { TaskData } from "@/components/tasks/types";
 
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
-  const { handleTaskComplete } = useTaskOperations();
+  const { handleTaskComplete, handleTaskUpdate } = useTaskOperations();
   const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useQuery({
@@ -40,7 +41,7 @@ export const DashboardWeeklyTasks = () => {
       }
 
       console.log("Fetched tasks:", data);
-      return data;
+      return data as TaskData[];
     },
   });
 
@@ -52,12 +53,7 @@ export const DashboardWeeklyTasks = () => {
     }
     acc[source].push(task);
     return acc;
-  }, {} as Record<string, typeof tasks>);
-
-  const handleTaskUpdate = async () => {
-    // Refetch the weekly tasks when a task is updated
-    await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
-  };
+  }, {} as Record<string, TaskData[]>);
 
   if (isLoading) {
     return (
@@ -81,7 +77,7 @@ export const DashboardWeeklyTasks = () => {
         {groupedTasks && Object.entries(groupedTasks).map(([source, sourceTasks]) => (
           <TaskGroup
             key={source}
-            source={source}
+            source={source as TaskSource}
             tasks={sourceTasks || []}
             onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks || [])}
             onUpdate={handleTaskUpdate}
