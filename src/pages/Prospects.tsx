@@ -1,8 +1,9 @@
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
-import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
+import { Card } from "@/components/ui/card";
 import { ProjectsList } from "@/components/projects/ProjectsList";
+import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";

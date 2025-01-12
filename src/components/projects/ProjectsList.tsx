@@ -1,6 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
 import { Prospect } from "@/types/prospects";
 
 interface ProjectsListProps {
@@ -24,7 +23,7 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
     return filters.every(filter => {
       const value = project[filter.field as keyof Prospect];
       if (!value) return false;
-      return value.toLowerCase().includes(filter.value.toLowerCase());
+      return String(value).toLowerCase().includes(filter.value.toLowerCase());
     });
   });
 
