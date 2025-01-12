@@ -33,7 +33,7 @@ export const TaskList = ({
       <TaskGroup 
         source={source as TaskSource} 
         tasks={data.tasks}
-        onComplete={handleTaskComplete}
+        onComplete={(taskId, completed) => handleTaskComplete(taskId, completed)}
         onUpdate={handleTaskUpdate}
       />
     );
@@ -55,7 +55,7 @@ export const TaskList = ({
           key={taskSource}
           source={taskSource as TaskSource}
           tasks={tasks}
-          onComplete={handleTaskComplete}
+          onComplete={(taskId, completed) => handleTaskComplete(taskId, completed)}
           onUpdate={handleTaskUpdate}
         />
       ))}

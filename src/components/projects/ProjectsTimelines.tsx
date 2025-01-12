@@ -118,7 +118,6 @@ export const ProjectsTimelines = () => {
                 {project.status}
               </Badge>
             </div>
-
             <div className="relative bg-gray-50 rounded-lg p-6">
               {sortedTasks.map((task) => {
                 const taskDate = new Date(task.due_date!);
@@ -134,9 +133,7 @@ export const ProjectsTimelines = () => {
                     <div className="absolute inset-y-0 left-0 w-full">
                       <div
                         className="absolute h-full flex items-center"
-                        style={{
-                          left: `${leftPercentage}%`,
-                        }}
+                        style={{ left: `${leftPercentage}%` }}
                       >
                         <div className="w-4 h-4 bg-primary rounded-full absolute -left-2" />
                         <Card className="ml-6 p-4 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer w-[calc(100%-2rem)]">
