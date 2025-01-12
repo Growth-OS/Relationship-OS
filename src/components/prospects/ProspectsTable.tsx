@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { useSequenceAssignment } from "./hooks/useSequenceAssignment";
 import { Search, SlidersHorizontal } from "lucide-react";
 import debounce from "lodash/debounce";
+import { toast } from "@/hooks/use-toast";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -41,10 +42,12 @@ export const ProspectsTable = ({
   onPageChange,
   showConverted,
   onShowConvertedChange,
+  onSearch,
+  onFilter,
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sourceFilter, setSourceFilter] = useState<string>("");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
   const { handleDelete, handleConvertToLead } = useProspectOperations();
   const { handleAssignSequence } = useSequenceAssignment();
 
@@ -68,19 +71,23 @@ export const ProspectsTable = ({
     console.log("Edit prospect:", prospect);
   };
 
-  // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((term: string) => {
       console.log("Searching for:", term);
-      // Implement your search logic here
+      onSearch?.(term);
     }, 300),
-    []
+    [onSearch]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.target.value;
     setSearchTerm(term);
     debouncedSearch(term);
+  };
+
+  const handleSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+    onFilter?.({ source: value === "all" ? undefined : value });
   };
 
   const sourceLabels: Record<string, string> = {
@@ -128,12 +135,12 @@ export const ProspectsTable = ({
           </div>
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-gray-500" />
-            <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <Select value={sourceFilter} onValueChange={handleSourceFilterChange}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Filter by source" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All sources</SelectItem>
+                <SelectItem value="all">All sources</SelectItem>
                 {Object.entries(sourceLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
