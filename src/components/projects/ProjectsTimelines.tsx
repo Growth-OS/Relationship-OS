@@ -142,7 +142,7 @@ export const ProjectsTimelines = () => {
                               checked={task.completed || false}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleTaskComplete(task.id, !task.completed);
+                                handleTaskComplete(task.id, !task.completed, sortedTasks);
                               }}
                             />
                             <span className={`font-medium ${task.completed ? 'line-through text-gray-500' : ''}`}>
