@@ -49,7 +49,7 @@ export const CreateSequenceButton = () => {
         .from('sequences')
         .insert(sequenceData)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error creating sequence:', error);
