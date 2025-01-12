@@ -6,13 +6,6 @@ export interface EditableProspect extends Prospect {
   isEditing: boolean;
 }
 
-export interface ProspectActionsProps {
-  prospect: Prospect;
-  onDelete: (id: string) => void;
-  onEdit: (prospect: Prospect) => void;
-  onConvertToLead: (prospect: Prospect) => Promise<void>;
-}
-
 export interface ProspectRowProps {
   prospect: EditableProspect;
   sourceLabels: Record<string, string>;
@@ -21,4 +14,11 @@ export interface ProspectRowProps {
   setEditValues: (values: Record<string, Partial<Prospect>>) => void;
   startEditing: (prospect: EditableProspect) => void;
   cancelEditing: (id: string) => void;
+}
+
+export interface ProspectActionsProps {
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: () => void;
+  onCancel: () => void;
 }
