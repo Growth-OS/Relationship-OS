@@ -35,33 +35,19 @@ export const ProjectsTimelines = () => {
             created_at,
             user_id,
             description,
-            source
+            source,
+            source_id,
+            project_id,
+            deal_id,
+            substack_post_id
           )
         `)
         .order("last_activity_date", { ascending: false });
 
       if (projectsError) throw projectsError;
-      return projectsData as ProjectWithTasks[];
+      return projectsData as unknown as ProjectWithTasks[];
     },
   });
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-      </div>
-    );
-  }
-
-  if (!projects?.length) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">No projects found</p>
-      </div>
-    );
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -88,6 +74,24 @@ export const ProjectsTimelines = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </div>
+    );
+  }
+
+  if (!projects?.length) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">No projects found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
