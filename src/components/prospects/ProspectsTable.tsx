@@ -15,6 +15,7 @@ import type { Prospect } from "./types/prospect";
 import { useProspectOperations } from "./hooks/useProspectOperations";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useSequenceAssignment } from "./hooks/useSequenceAssignment";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -37,6 +38,7 @@ export const ProspectsTable = ({
 }: ProspectsTableProps) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { handleDelete, handleConvertToLead } = useProspectOperations();
+  const { handleAssignSequence } = useSequenceAssignment();
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -78,6 +80,7 @@ export const ProspectsTable = ({
           selectedIds={selectedIds}
           allSelected={selectedIds.length === prospects.length}
           onSelectAll={handleSelectAll}
+          onAssignSequence={handleAssignSequence}
         />
         <div className="flex items-center space-x-2">
           <Switch

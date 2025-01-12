@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Prospect } from "../types/prospect";
 
 export const useProspectOperations = () => {
   const handleDelete = async (id: string) => {
@@ -17,8 +18,11 @@ export const useProspectOperations = () => {
     }
   };
 
-  const handleConvertToLead = async (prospect: any) => {
+  const handleConvertToLead = async (prospect: Prospect) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase
         .from("deals")
         .insert({
@@ -28,6 +32,7 @@ export const useProspectOperations = () => {
           contact_linkedin: prospect.contact_linkedin,
           source: prospect.source,
           stage: "lead",
+          user_id: user.id
         });
 
       if (error) throw error;
