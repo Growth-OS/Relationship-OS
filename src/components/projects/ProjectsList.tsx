@@ -8,20 +8,20 @@ import { ProjectPortal } from "./ProjectPortal";
 interface Project {
   id: string;
   name: string;
-  client_name: string;
+  contact_email: string;
+  first_name: string;
+  company_website: string;
+  training_event: string;
   status: string;
-  budget: number;
-  start_date: string;
-  end_date: string;
-  last_activity_date: string;
 }
 
 interface ProjectsListProps {
   projects: Project[];
   isLoading: boolean;
+  filters: Array<{ field: string; value: string }>;
 }
 
-export const ProjectsList = ({ projects, isLoading }: ProjectsListProps) => {
+export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps) => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   if (isLoading) {
@@ -34,59 +34,65 @@ export const ProjectsList = ({ projects, isLoading }: ProjectsListProps) => {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      case "on_hold":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const filteredProjects = projects.filter(project => {
+    return filters.every(filter => {
+      const value = project[filter.field as keyof Project];
+      if (!value) return false;
+      return value.toLowerCase().includes(filter.value.toLowerCase());
+    });
+  });
+
+  if (filteredProjects.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        No prospects found matching the current filters
+      </div>
+    );
+  }
 
   return (
     <>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Project</TableHead>
-            <TableHead>Client</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>First Name</TableHead>
+            <TableHead>Website</TableHead>
+            <TableHead>Accelerator Program</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Budget</TableHead>
-            <TableHead>Timeline</TableHead>
-            <TableHead>Last Activity</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <TableRow
               key={project.id}
               className="cursor-pointer hover:bg-gray-50"
               onClick={() => setSelectedProject(project)}
             >
               <TableCell className="font-medium">{project.name}</TableCell>
-              <TableCell>{project.client_name}</TableCell>
+              <TableCell>{project.contact_email}</TableCell>
+              <TableCell>{project.first_name}</TableCell>
               <TableCell>
-                <Badge className={getStatusColor(project.status)}>
-                  {project.status}
-                </Badge>
-              </TableCell>
-              <TableCell>€{project.budget?.toLocaleString()}</TableCell>
-              <TableCell>
-                {project.start_date && (
-                  <>
-                    {format(new Date(project.start_date), "MMM d, yyyy")}
-                    {project.end_date && (
-                      <> - {format(new Date(project.end_date), "MMM d, yyyy")}</>
-                    )}
-                  </>
+                {project.company_website && (
+                  <a 
+                    href={project.company_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {project.company_website}
+                  </a>
                 )}
               </TableCell>
+              <TableCell>{project.training_event}</TableCell>
               <TableCell>
-                {format(new Date(project.last_activity_date), "MMM d, yyyy")}
+                <Badge 
+                  variant={project.status === 'active' ? 'default' : 'secondary'}
+                >
+                  {project.status}
+                </Badge>
               </TableCell>
             </TableRow>
           ))}

@@ -1,133 +1,50 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ProspectsTable } from "@/components/prospects/ProspectsTable";
-import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
-
-const ITEMS_PER_PAGE = 10;
+import { useState, useMemo } from "react";
+import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
+import { ProjectsList } from "@/components/projects/ProjectsList";
 
 const Prospects = () => {
-  const [open, setOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showConverted, setShowConverted] = useState(false);
-  const queryClient = useQueryClient();
+  const [filters, setFilters] = useState<Array<{ field: string; value: string }>>([]);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['prospects', currentPage, showConverted],
+  const { data: prospects, isLoading } = useQuery({
+    queryKey: ['prospects'],
     queryFn: async () => {
-      console.log('Fetching prospects for page:', currentPage, 'showConverted:', showConverted);
-      
-      // First, get the total count based on conversion status
-      const countQuery = supabase
-        .from('prospect_sequence_info')
-        .select('*', { count: 'exact', head: true });
-
-      if (showConverted) {
-        countQuery.eq('status', 'converted');
-      } else {
-        countQuery.neq('status', 'converted');
-      }
-
-      const { count, error: countError } = await countQuery;
-      
-      if (countError) {
-        console.error('Error fetching count:', countError);
-        throw countError;
-      }
-
-      // Then get the paginated data
-      const dataQuery = supabase
-        .from('prospect_sequence_info')
+      const { data, error } = await supabase
+        .from('prospects')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (showConverted) {
-        dataQuery.eq('status', 'converted');
-      } else {
-        dataQuery.neq('status', 'converted');
-      }
-
-      const { data: prospectsData, error: dataError } = await dataQuery
-        .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
-      
-      if (dataError) {
-        console.error('Error fetching prospects:', dataError);
-        throw dataError;
-      }
-      
-      return {
-        prospects: prospectsData || [],
-        totalCount: count || 0,
-      };
+      if (error) throw error;
+      return data || [];
     },
-    staleTime: 5000,
-    retry: 2,
-    refetchOnWindowFocus: true,
   });
 
-  const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
+  const acceleratorOptions = useMemo(() => {
+    if (!prospects) return [];
+    const uniquePrograms = new Set(
+      prospects
+        .map(p => p.training_event)
+        .filter(Boolean)
     );
-  }
-
-  if (error) {
-    console.error('Query error:', error);
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-500">Error loading prospects. Please try again.</div>
-      </div>
-    );
-  }
+    return Array.from(uniquePrograms);
+  }, [prospects]);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="text-left">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Prospects</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Track and manage your potential leads
-          </p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-black hover:bg-black/90 text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Prospect
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Add New Prospect</DialogTitle>
-            </DialogHeader>
-            <CreateProspectForm onSuccess={() => {
-              setOpen(false);
-              queryClient.invalidateQueries({ queryKey: ['prospects'] });
-            }} />
-          </DialogContent>
-        </Dialog>
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-lg shadow-sm">
+        <ProjectsSearch
+          filters={filters}
+          onFilterChange={setFilters}
+          acceleratorOptions={acceleratorOptions}
+        />
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-        <ProspectsTable 
-          prospects={data?.prospects || []}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
+      <div className="bg-white rounded-lg shadow-sm">
+        <ProjectsList
+          projects={prospects || []}
           isLoading={isLoading}
-          showConverted={showConverted}
-          onShowConvertedChange={setShowConverted}
+          filters={filters}
         />
       </div>
     </div>
