@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AssignSequenceDialog } from "./AssignSequenceDialog";
 import { useState } from "react";
+import type { Prospect } from "../types/prospect";
 
 interface BulkActionsProps {
   selectedIds: string[];
@@ -35,6 +36,7 @@ export const BulkActions = ({
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
         onAssign={onAssignSequence}
+        onSuccess={() => setIsAssignDialogOpen(false)}
       />
     </div>
   );

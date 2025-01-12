@@ -5,24 +5,22 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { Prospect } from "../types/prospect";
 
 interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAssign?: (sequenceId: string) => Promise<void>;
-  prospects?: Prospect[];
   onSuccess?: () => void;
 }
 
 export const AssignSequenceDialog = ({ 
   open, 
-  onOpenChange, 
+  onOpenChange,
   onAssign,
-  prospects,
   onSuccess 
 }: AssignSequenceDialogProps) => {
   const [selectedSequence, setSelectedSequence] = useState<string>("");
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const { data: sequences = [], isLoading } = useQuery({
     queryKey: ['sequences'],
@@ -49,26 +47,28 @@ export const AssignSequenceDialog = ({
   });
 
   const handleAssign = async () => {
-    try {
-      if (!selectedSequence) {
-        toast.error('Please select a sequence');
-        return;
-      }
+    if (!selectedSequence) {
+      toast.error('Please select a sequence');
+      return;
+    }
 
+    try {
+      setIsAssigning(true);
       console.log('Assigning sequence:', selectedSequence);
-      console.log('To prospects:', prospects);
 
       if (onAssign) {
         await onAssign(selectedSequence);
+        toast.success('Prospects assigned to sequence successfully');
+        setSelectedSequence("");
         if (onSuccess) {
           onSuccess();
         }
-        toast.success('Prospects assigned to sequence successfully');
-        setSelectedSequence("");
       }
     } catch (error) {
       console.error('Error assigning sequence:', error);
       toast.error('Failed to assign sequence');
+    } finally {
+      setIsAssigning(false);
     }
   };
 
@@ -104,10 +104,10 @@ export const AssignSequenceDialog = ({
           )}
           <Button 
             onClick={handleAssign} 
-            disabled={!selectedSequence || isLoading}
+            disabled={!selectedSequence || isLoading || isAssigning}
             className="w-full"
           >
-            Assign to Sequence
+            {isAssigning ? 'Assigning...' : 'Assign to Sequence'}
           </Button>
         </div>
       </DialogContent>

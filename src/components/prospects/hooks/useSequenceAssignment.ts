@@ -83,31 +83,35 @@ export const useSequenceAssignment = () => {
           throw prospectError;
         }
 
-        // Create tasks for each step
-        const tasks = sequence.sequence_steps.map(step => ({
-          title: `${step.step_type === 'email' ? 'Send email' : 
-                 step.step_type === 'linkedin' && step.step_number === 1 ? 'Send LinkedIn connection request' : 
-                 'Send LinkedIn message'} to ${prospect.company_name} - ${prospect.contact_job_title} (${
-                   step.step_type === 'email' ? prospect.contact_email : prospect.contact_linkedin
-                 }) - Step ${step.step_number}`,
-          description: step.message_template,
-          due_date: new Date(Date.now() + (step.delay_days || 0) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          source: 'sequences' as TaskSource,
-          sequence_id: sequenceId,
-          priority: 'medium',
-          user_id: user.id,
-          completed: false
-        }));
+        if (sequence.sequence_steps && sequence.sequence_steps.length > 0) {
+          // Create tasks for each step
+          const tasks = sequence.sequence_steps.map(step => ({
+            title: `${step.step_type === 'email' ? 'Send email' : 
+                   step.step_type === 'linkedin' && step.step_number === 1 ? 'Send LinkedIn connection request' : 
+                   'Send LinkedIn message'} to ${prospect.company_name} - ${prospect.contact_job_title} (${
+                     step.step_type === 'email' ? prospect.contact_email : prospect.contact_linkedin
+                   }) - Step ${step.step_number}`,
+            description: step.message_template,
+            due_date: new Date(Date.now() + (step.delay_days || 0) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            source: 'sequences' as TaskSource,
+            sequence_id: sequenceId,
+            priority: 'medium',
+            user_id: user.id,
+            completed: false
+          }));
 
-        console.log('Creating tasks:', tasks);
+          console.log('Creating tasks:', tasks);
 
-        const { error: tasksError } = await supabase
-          .from("tasks")
-          .insert(tasks);
+          if (tasks.length > 0) {
+            const { error: tasksError } = await supabase
+              .from("tasks")
+              .insert(tasks);
 
-        if (tasksError) {
-          console.error('Error creating tasks:', tasksError);
-          throw tasksError;
+            if (tasksError) {
+              console.error('Error creating tasks:', tasksError);
+              throw tasksError;
+            }
+          }
         }
       }
 
