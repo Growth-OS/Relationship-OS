@@ -1015,6 +1015,38 @@ export type Database = {
           },
         ]
       }
+      sequence_error_logs: {
+        Row: {
+          created_at: string
+          error_message: string
+          id: string
+          sequence_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message: string
+          id?: string
+          sequence_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string
+          id?: string
+          sequence_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_error_logs_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sequence_steps: {
         Row: {
           created_at: string
@@ -1049,6 +1081,35 @@ export type Database = {
             columns: ["sequence_id"]
             isOneToOne: false
             referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequence_template_variables: {
+        Row: {
+          created_at: string
+          id: string
+          step_id: string
+          variable_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          step_id: string
+          variable_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          step_id?: string
+          variable_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_template_variables_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "sequence_steps"
             referencedColumns: ["id"]
           },
         ]
@@ -1618,6 +1679,26 @@ export type Database = {
         Args: {
           p_sequence_id: string
           p_user_id: string
+        }
+        Returns: undefined
+      }
+      extract_template_variables: {
+        Args: {
+          template_text: string
+        }
+        Returns: string[]
+      }
+      replace_template_variables: {
+        Args: {
+          template_text: string
+          variables: Json
+        }
+        Returns: string
+      }
+      validate_and_save_template_variables: {
+        Args: {
+          p_step_id: string
+          p_variables: string[]
         }
         Returns: undefined
       }
