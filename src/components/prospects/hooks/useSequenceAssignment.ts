@@ -3,14 +3,14 @@ import { toast } from "sonner";
 import { TaskSource } from "@/integrations/supabase/types/tasks";
 
 export const useSequenceAssignment = () => {
-  const handleAssignSequence = async (sequenceId: string, selectedIds: string[]) => {
+  const handleAssignSequence = async (sequenceId: string, selectedIds: string[]): Promise<void> => {
     try {
       console.log('Starting sequence assignment:', { sequenceId, selectedIds });
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('You must be logged in to assign sequences');
-        return false;
+        return;
       }
 
       // Check for existing assignments
@@ -30,7 +30,7 @@ export const useSequenceAssignment = () => {
 
       if (prospectsToAssign.length === 0) {
         toast.error("Selected prospects are already assigned to this sequence");
-        return false;
+        return;
       }
 
       // Get sequence details
@@ -120,12 +120,9 @@ export const useSequenceAssignment = () => {
           ? "Prospects assigned to sequence (some were already assigned)"
           : "Prospects assigned to sequence"
       );
-      
-      return true;
     } catch (error) {
       console.error("Error assigning sequence:", error);
       toast.error("Failed to assign sequence");
-      return false;
     }
   };
 
