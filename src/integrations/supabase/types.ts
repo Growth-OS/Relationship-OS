@@ -960,6 +960,99 @@ export type Database = {
         }
         Relationships: []
       }
+      sequence_assignments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          id: string
+          paused_at: string | null
+          prospect_id: string
+          sequence_id: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          paused_at?: string | null
+          prospect_id: string
+          sequence_id: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          paused_at?: string | null
+          prospect_id?: string
+          sequence_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_assignments_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_sequence_info"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_assignments_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sequence_assignments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sequence_steps: {
+        Row: {
+          created_at: string
+          delay_days: number | null
+          id: string
+          message_template: string | null
+          sequence_id: string
+          step_number: number
+          step_type: string
+        }
+        Insert: {
+          created_at?: string
+          delay_days?: number | null
+          id?: string
+          message_template?: string | null
+          sequence_id: string
+          step_number: number
+          step_type: string
+        }
+        Update: {
+          created_at?: string
+          delay_days?: number | null
+          id?: string
+          message_template?: string | null
+          sequence_id?: string
+          step_number?: number
+          step_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_steps_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sequences: {
         Row: {
           created_at: string
@@ -1099,6 +1192,7 @@ export type Database = {
           id: string
           priority: string | null
           project_id: string | null
+          sequence_id: string | null
           source: Database["public"]["Enums"]["task_source"] | null
           source_id: string | null
           substack_post_id: string | null
@@ -1114,6 +1208,7 @@ export type Database = {
           id?: string
           priority?: string | null
           project_id?: string | null
+          sequence_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
@@ -1129,6 +1224,7 @@ export type Database = {
           id?: string
           priority?: string | null
           project_id?: string | null
+          sequence_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
@@ -1148,6 +1244,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
             referencedColumns: ["id"]
           },
           {

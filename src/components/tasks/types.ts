@@ -18,10 +18,10 @@ export interface TaskData {
   source?: TaskSource;
   source_id?: string;
   priority?: string;
-  projects?: { id: string; name: string };
-  deals?: { id: string; company_name: string };
-  sequences?: { id: string; name: string };
-  substack_posts?: { id: string; title: string };
+  projects?: { id: string; name: string } | null;
+  deals?: { id: string; company_name: string } | null;
+  sequences?: { id: string; name: string } | null;
+  substack_posts?: { id: string; title: string } | null;
 }
 
 export interface TasksResponse {

@@ -4,30 +4,24 @@ export type SequenceStatus = "active" | "paused" | "completed";
 
 export interface SequenceStep {
   id: string;
-  step_number: number;
-  step_type: StepType;
-  message_template: string;
-  delay_days: number;
-  count?: number;
-}
-
-export interface DatabaseSequenceStep {
-  id: string;
   sequence_id: string;
   step_number: number;
-  step_type: DatabaseStepType;
+  step_type: StepType;
   message_template: string | null;
-  delay_days: number | null;
-  preferred_time: string | null;
+  delay_days: number;
   created_at: string;
-  count?: number;
 }
 
 export interface SequenceAssignment {
   id: string;
+  sequence_id: string;
+  prospect_id: string;
   status: string;
   current_step: number;
-  prospect: {
+  created_at: string;
+  completed_at: string | null;
+  paused_at: string | null;
+  prospect?: {
     company_name: string;
     contact_email: string | null;
     contact_linkedin: string | null;
