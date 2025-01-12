@@ -8,8 +8,6 @@ import Tasks from "@/pages/Tasks";
 import Calendar from "@/pages/Calendar";
 import Finances from "@/pages/Finances";
 import Development from "@/pages/Development";
-import Sequences from "@/pages/Sequences";
-import SequenceBuilder from "@/pages/SequenceBuilder";
 import Travels from "@/pages/Travels";
 import AIPrompts from "@/pages/AIPrompts";
 import AIPersona from "@/pages/AIPersona";
@@ -69,25 +67,6 @@ export const router = createBrowserRouter([
           {
             path: "prospects",
             element: <Prospects />,
-          },
-          {
-            path: "sequences",
-            children: [
-              {
-                index: true,
-                element: <Sequences />,
-              },
-              {
-                path: ":id/edit",
-                element: <SequenceBuilder />,
-                errorElement: <ErrorBoundary />
-              },
-              {
-                path: "builder",
-                element: <SequenceBuilder />,
-                errorElement: <ErrorBoundary />
-              }
-            ]
           },
           {
             path: "projects",
