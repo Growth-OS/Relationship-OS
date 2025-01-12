@@ -38,9 +38,9 @@ export const ProjectsSearch = ({ filters, onFilterChange, acceleratorOptions }: 
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by name..."
-            value={filters.find(f => f.field === 'name')?.value || ''}
-            onChange={(e) => updateFilter('name', e.target.value)}
+            placeholder="Search by company name..."
+            value={filters.find(f => f.field === 'company_name')?.value || ''}
+            onChange={(e) => updateFilter('company_name', e.target.value)}
             className="pl-9 bg-background"
           />
         </div>
@@ -48,8 +48,8 @@ export const ProjectsSearch = ({ filters, onFilterChange, acceleratorOptions }: 
         <div className="relative flex-1 min-w-[200px]">
           <Input
             placeholder="Search by email..."
-            value={filters.find(f => f.field === 'email')?.value || ''}
-            onChange={(e) => updateFilter('email', e.target.value)}
+            value={filters.find(f => f.field === 'contact_email')?.value || ''}
+            onChange={(e) => updateFilter('contact_email', e.target.value)}
             className="bg-background"
           />
         </div>
@@ -57,8 +57,8 @@ export const ProjectsSearch = ({ filters, onFilterChange, acceleratorOptions }: 
         <div className="relative flex-1 min-w-[200px]">
           <Input
             placeholder="Search by website..."
-            value={filters.find(f => f.field === 'website')?.value || ''}
-            onChange={(e) => updateFilter('website', e.target.value)}
+            value={filters.find(f => f.field === 'company_website')?.value || ''}
+            onChange={(e) => updateFilter('company_website', e.target.value)}
             className="bg-background"
           />
         </div>

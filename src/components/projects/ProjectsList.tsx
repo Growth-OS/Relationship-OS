@@ -1,17 +1,17 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
 import { useState } from "react";
 import { ProjectPortal } from "./ProjectPortal";
 
 interface Project {
   id: string;
-  name: string;
-  contact_email: string;
-  first_name: string;
-  company_website: string;
-  training_event: string;
+  name?: string;
+  company_name: string;
+  contact_email: string | null;
+  first_name: string | null;
+  company_website: string | null;
+  training_event: string | null;
   status: string;
 }
 
@@ -70,7 +70,7 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
               className="cursor-pointer hover:bg-gray-50"
               onClick={() => setSelectedProject(project)}
             >
-              <TableCell className="font-medium">{project.name}</TableCell>
+              <TableCell className="font-medium">{project.company_name}</TableCell>
               <TableCell>{project.contact_email}</TableCell>
               <TableCell>{project.first_name}</TableCell>
               <TableCell>
