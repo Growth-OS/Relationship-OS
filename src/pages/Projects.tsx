@@ -2,73 +2,34 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProjectsKanban } from "@/components/projects/ProjectsKanban";
+import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
-import { ProjectsSearch } from "@/components/projects/ProjectsSearch";
+import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { CreateProjectForm } from "@/components/projects/CreateProjectForm";
-import { ProjectStatus } from "@/integrations/supabase/types/projects";
-import { Prospect } from "@/types/prospects";
+import { Upload } from "lucide-react";
 
 const Projects = () => {
-  const [filters, setFilters] = useState<Array<{ field: string; value: string }>>([]);
-  const [statusFilter, setStatusFilter] = useState<"all" | ProjectStatus>("all");
-  const [sortBy, setSortBy] = useState<string>("last_activity");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("all");
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ["projects", statusFilter, filters, sortBy],
+    queryKey: ["projects", statusFilter],
     queryFn: async () => {
       let query = supabase
         .from("projects")
-        .select("*");
+        .select("*")
+        .order("last_activity_date", { ascending: false });
 
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
 
-      // Apply filters from search component
-      filters.forEach(filter => {
-        query = query.ilike(filter.field, `%${filter.value}%`);
-      });
-
-      switch (sortBy) {
-        case "name":
-          query = query.order("name");
-          break;
-        case "client":
-          query = query.order("client_name");
-          break;
-        case "start_date":
-          query = query.order("start_date");
-          break;
-        case "budget":
-          query = query.order("budget");
-          break;
-        default:
-          query = query.order("last_activity_date", { ascending: false });
-      }
-
       const { data, error } = await query;
       if (error) throw error;
-
-      // Transform Project data to match Prospect interface
-      return data.map(project => ({
-        id: project.id,
-        company_name: project.name,
-        contact_email: null,
-        source: 'other',
-        status: project.status,
-        company_website: null,
-        first_name: null,
-        training_event: null,
-        created_at: project.created_at,
-        user_id: project.user_id
-      })) as Prospect[];
+      return data;
     },
   });
-
-  const acceleratorOptions = ["Program A", "Program B", "Program C"]; // Add your actual options
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -79,20 +40,7 @@ const Projects = () => {
             <p className="text-muted-foreground">Manage and track your client projects</p>
           </div>
           <div className="flex gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Project</DialogTitle>
-                </DialogHeader>
-                <CreateProjectForm />
-              </DialogContent>
-            </Dialog>
+            <CreateProjectButton />
             <Button variant="outline">
               <Upload className="h-4 w-4 mr-2" />
               Import CSV
@@ -102,18 +50,38 @@ const Projects = () => {
       </div>
 
       <Card className="p-6">
-        <div className="space-y-4">
-          <ProjectsSearch 
-            filters={filters}
-            onFilterChange={setFilters}
-            acceleratorOptions={acceleratorOptions}
-          />
-          <ProjectsList 
-            projects={projects} 
-            isLoading={isLoading} 
-            filters={filters}
-          />
-        </div>
+        <Tabs defaultValue="grid" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <TabsList>
+              <TabsTrigger value="grid">Grid</TabsTrigger>
+              <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="kanban">Kanban</TabsTrigger>
+            </TabsList>
+
+            <select
+              className="border rounded-md p-2"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+            >
+              <option value="all">All Projects</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="on_hold">On Hold</option>
+            </select>
+          </div>
+
+          <TabsContent value="grid" className="mt-0">
+            <ProjectsGrid projects={projects} isLoading={isLoading} />
+          </TabsContent>
+
+          <TabsContent value="list" className="mt-0">
+            <ProjectsList projects={projects} isLoading={isLoading} />
+          </TabsContent>
+
+          <TabsContent value="kanban" className="mt-0">
+            <ProjectsKanban projects={projects} isLoading={isLoading} />
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
