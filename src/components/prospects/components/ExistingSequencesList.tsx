@@ -5,24 +5,28 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
+import { useMessageGeneration } from "../hooks/useMessageGeneration";
 
 interface ExistingSequencesListProps {
   selectedProspects: string[];
+  onAssign: (sequenceId: string) => Promise<void>;
   onSuccess: () => void;
 }
 
 export const ExistingSequencesList = ({
   selectedProspects,
+  onAssign,
   onSuccess,
 }: ExistingSequencesListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { generateMessage, isGenerating } = useMessageGeneration();
 
   const { data: sequences, isLoading } = useQuery({
     queryKey: ["sequences"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("sequences")
-        .select("*")
+        .select("*, sequence_steps(*)")
         .eq("status", "active")
         .order("created_at", { ascending: false });
 
@@ -37,19 +41,55 @@ export const ExistingSequencesList = ({
 
   const assignProspectsToSequence = async (sequenceId: string) => {
     try {
-      const assignmentsToInsert = selectedProspects.map(prospectId => ({
-        sequence_id: sequenceId,
-        prospect_id: prospectId,
-        status: "active",
-        current_step: 1,
-      }));
+      // First, get prospect details for message generation
+      const { data: prospects, error: prospectsError } = await supabase
+        .from("prospects")
+        .select("*")
+        .in("id", selectedProspects);
 
-      const { error } = await supabase
-        .from("sequence_assignments")
-        .insert(assignmentsToInsert);
+      if (prospectsError) throw prospectsError;
 
-      if (error) throw error;
+      // Get sequence steps
+      const { data: steps, error: stepsError } = await supabase
+        .from("sequence_steps")
+        .select("*")
+        .eq("sequence_id", sequenceId)
+        .order("step_number", { ascending: true });
 
+      if (stepsError) throw stepsError;
+
+      // Generate messages for each step and prospect
+      for (const prospect of prospects) {
+        const prospectData = {
+          "First Name": prospect.first_name || "",
+          "Company Name": prospect.company_name || "",
+          "Website": prospect.company_website || "",
+          "Training Event": prospect.training_event || "",
+        };
+
+        for (const step of steps) {
+          if (step.message_template) {
+            const generatedMessage = await generateMessage({
+              template: step.message_template,
+              prospectData,
+              stepType: step.step_type,
+            });
+
+            if (generatedMessage) {
+              // Update the step with the generated message
+              const { error: updateError } = await supabase
+                .from("sequence_steps")
+                .update({ message_template: generatedMessage })
+                .eq("id", step.id);
+
+              if (updateError) throw updateError;
+            }
+          }
+        }
+      }
+
+      // Assign prospects to the sequence
+      await onAssign(sequenceId);
       toast.success("Prospects assigned to sequence successfully");
       onSuccess();
     } catch (error) {
@@ -90,12 +130,16 @@ export const ExistingSequencesList = ({
                     {sequence.description}
                   </p>
                 )}
+                <p className="text-sm text-muted-foreground">
+                  {sequence.sequence_steps?.length || 0} steps
+                </p>
               </div>
               <Button
                 onClick={() => assignProspectsToSequence(sequence.id)}
                 size="sm"
+                disabled={isGenerating}
               >
-                Assign
+                {isGenerating ? "Generating..." : "Assign"}
               </Button>
             </div>
           ))}
