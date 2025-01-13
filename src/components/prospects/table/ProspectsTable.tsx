@@ -24,6 +24,7 @@ export const ProspectsTable = ({
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
   const [editValues, setEditValues] = useState<Record<string, Partial<Prospect>>>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
@@ -56,6 +57,14 @@ export const ProspectsTable = ({
     });
   };
 
+  const handleSelectChange = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(prevId => prevId !== id));
+    }
+  };
+
   const sourceLabels: Record<string, string> = {
     linkedin: "LinkedIn",
     referral: "Referral",
@@ -84,6 +93,8 @@ export const ProspectsTable = ({
             setEditValues={setEditValues}
             startEditing={startEditing}
             cancelEditing={cancelEditing}
+            isSelected={selectedIds.includes(prospect.id)}
+            onSelectChange={(checked) => handleSelectChange(prospect.id, checked)}
           />
         ))}
       </TableBody>
