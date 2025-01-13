@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface BulkActionsProps {
   selectedIds: string[];
@@ -15,6 +16,8 @@ export const BulkActions = ({
   onSelectAll,
   onSuccess,
 }: BulkActionsProps) => {
+  const queryClient = useQueryClient();
+
   const handleBulkDelete = async () => {
     try {
       const { error } = await supabase
@@ -24,6 +27,9 @@ export const BulkActions = ({
 
       if (error) throw error;
 
+      // Invalidate and refetch prospects data
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      
       toast.success("Selected prospects deleted successfully");
       onSuccess();
     } catch (error) {
