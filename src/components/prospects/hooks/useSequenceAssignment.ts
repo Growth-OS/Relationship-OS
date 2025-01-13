@@ -50,6 +50,17 @@ export const useSequenceAssignment = () => {
 
       console.log('Sequence details:', sequence);
 
+      // Update prospects status
+      const { error: updateError } = await supabase
+        .from("prospects")
+        .update({ status: 'in_sequence' })
+        .in('id', prospectsToAssign);
+
+      if (updateError) {
+        console.error('Error updating prospects status:', updateError);
+        throw updateError;
+      }
+
       // Create assignments and tasks
       for (const prospectId of prospectsToAssign) {
         // Create assignment
