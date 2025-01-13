@@ -16,7 +16,7 @@ export const CreateInvoiceDialog = ({ open, onOpenChange }: CreateInvoiceDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row justify-between items-center">
           <DialogTitle>Create New Invoice</DialogTitle>
           {previewData && (
@@ -40,9 +40,9 @@ export const CreateInvoiceDialog = ({ open, onOpenChange }: CreateInvoiceDialogP
           )}
         </DialogHeader>
         
-        <div className="grid grid-cols-1 gap-6 mt-4">
+        <div className="grid grid-cols-1 gap-4">
           {showPreview && previewData && (
-            <div className="border rounded-lg p-4">
+            <div className="border rounded-lg">
               <InvoicePreview invoice={previewData} />
             </div>
           )}
