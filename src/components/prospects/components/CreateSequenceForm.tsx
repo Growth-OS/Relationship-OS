@@ -1,35 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle, Trash2, Wand2 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RichTextEditor } from "@/components/content/RichTextEditor";
+import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { MessagePreviewModal } from "./MessagePreviewModal";
 import { useMessageGeneration } from "../hooks/useMessageGeneration";
+import { SequenceStep } from "./sequence-form/SequenceStep";
+import { SequenceDetails } from "./sequence-form/SequenceDetails";
+import { FormValues, formSchema } from "./sequence-form/types";
 
 interface CreateSequenceFormProps {
   onSuccess: () => void;
   selectedProspects: string[];
 }
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  steps: z.array(z.object({
-    step_type: z.enum(["email", "linkedin_connection", "linkedin_message"]),
-    delay_days: z.coerce.number().min(0),
-    message_template: z.string().optional(),
-  })).min(1, "At least one step is required"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
 
 export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSequenceFormProps) => {
   const form = useForm<FormValues>({
@@ -54,7 +40,6 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
   const handleGenerateMessage = async (index: number) => {
     const step = form.getValues(`steps.${index}`);
     
-    // Example prospect data for preview
     const exampleData = {
       "First Name": "John",
       "Company Name": "Acme Corp",
@@ -95,7 +80,6 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
         return;
       }
 
-      // Create the sequence
       const { data: sequence, error: sequenceError } = await supabase
         .from("sequences")
         .insert({
@@ -109,7 +93,6 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
 
       if (sequenceError) throw sequenceError;
 
-      // Create sequence steps
       const stepsToInsert = values.steps.map((step, index) => ({
         sequence_id: sequence.id,
         step_number: index + 1,
@@ -124,7 +107,6 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
 
       if (stepsError) throw stepsError;
 
-      // Assign prospects to the sequence
       if (selectedProspects.length > 0) {
         const assignmentsToInsert = selectedProspects.map(prospectId => ({
           sequence_id: sequence.id,
@@ -151,33 +133,7 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sequence Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter sequence name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Enter sequence description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <SequenceDetails form={form} />
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -204,95 +160,20 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
           </div>
 
           {form.watch("steps").map((step, index) => (
-            <div key={index} className="p-4 border rounded-lg space-y-4">
-              <div className="flex items-center justify-between">
-                <h4 className="font-medium">Step {index + 1}</h4>
-                {index > 0 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const currentSteps = form.getValues("steps");
-                      form.setValue(
-                        "steps",
-                        currentSteps.filter((_, i) => i !== index)
-                      );
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name={`steps.${index}.step_type`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Step Type</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select step type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="linkedin_connection">LinkedIn Connection</SelectItem>
-                          <SelectItem value="linkedin_message">LinkedIn Message</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`steps.${index}.delay_days`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Delay (Days)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name={`steps.${index}.message_template`}
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>Message Template</FormLabel>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleGenerateMessage(index)}
-                        disabled={isGenerating}
-                      >
-                        <Wand2 className="h-4 w-4 mr-2" />
-                        Generate Message
-                      </Button>
-                    </div>
-                    <FormControl>
-                      <RichTextEditor
-                        content={field.value || ""}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <SequenceStep
+              key={index}
+              index={index}
+              form={form}
+              onDelete={() => {
+                const currentSteps = form.getValues("steps");
+                form.setValue(
+                  "steps",
+                  currentSteps.filter((_, i) => i !== index)
+                );
+              }}
+              onGenerateMessage={() => handleGenerateMessage(index)}
+              isGenerating={isGenerating}
+            />
           ))}
         </div>
 
@@ -318,4 +199,3 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
     </Form>
   );
 };
-
