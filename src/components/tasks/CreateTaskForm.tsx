@@ -3,10 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { TaskSource } from "./types";
+
+const taskCategories: { label: string; value: TaskSource }[] = [
+  { label: "Projects", value: "projects" },
+  { label: "Deals", value: "deals" },
+  { label: "Content", value: "content" },
+  { label: "Ideas", value: "ideas" },
+  { label: "Substack", value: "substack" },
+  { label: "Other", value: "other" },
+];
 
 export interface CreateTaskFormProps {
   onSuccess?: () => void;
@@ -27,6 +37,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
       description: defaultValues?.description || "",
       due_date: "",
       priority: "medium",
+      source: source || "other",
     },
   });
 
@@ -40,7 +51,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
         .insert({
           title: values.title,
           description: values.description,
-          source: source || "other",
+          source: values.source,
           source_id: sourceId,
           user_id: user.id,
           due_date: values.due_date,
@@ -85,6 +96,34 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="source"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+                disabled={!!source} // Disable if source is provided as prop
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {taskCategories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </FormItem>
           )}
         />
