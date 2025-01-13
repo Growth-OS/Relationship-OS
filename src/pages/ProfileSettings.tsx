@@ -17,10 +17,16 @@ const ProfileSettings = () => {
   });
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Error signing out:", error);
+        toast.error("Error signing out");
+        return;
+      }
+    } catch (error) {
+      console.error("Error signing out:", error);
       toast.error("Error signing out");
-      return;
     }
   };
 
