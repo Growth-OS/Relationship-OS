@@ -54,27 +54,27 @@ export const ProspectRow = ({
 
   return (
     <TableRow className="hover:bg-muted/50">
-      <TableCell className="p-4 text-left align-top">
+      <TableCell className="p-4">
         <Checkbox
           checked={isSelected}
           onCheckedChange={onSelectChange}
         />
       </TableCell>
-      <TableCell className="p-4 text-left align-top">{prospect.company_name}</TableCell>
-      <TableCell className="p-4 text-left align-top">
+      <TableCell className="p-4">{prospect.company_name}</TableCell>
+      <TableCell className="p-4">
         <Badge variant="outline">
           {sourceLabels[prospect.source]}
         </Badge>
       </TableCell>
-      <TableCell className="p-4 text-left align-top">{prospect.contact_job_title || '-'}</TableCell>
-      <TableCell className="p-4 text-left align-top">{prospect.contact_email || '-'}</TableCell>
-      <TableCell className="p-4 text-left align-top">
+      <TableCell className="p-4">{prospect.contact_job_title || '-'}</TableCell>
+      <TableCell className="p-4">{prospect.contact_email || '-'}</TableCell>
+      <TableCell className="p-4">
         <ExternalLinks 
           website={prospect.company_website} 
           linkedin={prospect.contact_linkedin}
         />
       </TableCell>
-      <TableCell className="p-4 text-left align-top">
+      <TableCell className="p-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
@@ -93,7 +93,7 @@ export const ProspectRow = ({
           </Tooltip>
         </TooltipProvider>
       </TableCell>
-      <TableCell className="p-4 text-left align-top">
+      <TableCell className="p-4">
         <ProspectActions
           prospect={prospect}
           onDelete={onDelete}
