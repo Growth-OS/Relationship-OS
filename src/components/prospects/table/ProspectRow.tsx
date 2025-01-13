@@ -81,7 +81,7 @@ export const ProspectRow = ({
           className="ml-4"
         />
       </TableCell>
-      <TableCell className="font-medium text-left">
+      <TableCell className="font-medium pl-4">
         {prospect.company_name}
       </TableCell>
       <TableCell>
