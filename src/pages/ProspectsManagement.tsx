@@ -20,8 +20,6 @@ const ProspectsManagement = () => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['prospects', currentPage, showConverted],
     queryFn: async () => {
-      console.log('Fetching prospects for page:', currentPage, 'showConverted:', showConverted);
-      
       const countQuery = supabase
         .from('prospect_sequence_info')
         .select('*', { count: 'exact', head: true });
