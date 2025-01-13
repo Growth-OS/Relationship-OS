@@ -1,10 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { TaskSource, TaskData } from "@/components/tasks/types";
 
-export const useTaskQuery = (source?: TaskSource, sourceId?: string) => {
-  return useQuery({
-    queryKey: ['tasks', source, sourceId],
+interface TaskQueryParams {
+  sourceType?: TaskSource;
+  sourceId?: string;
+  showArchived?: boolean;
+}
+
+interface TaskQueryResult {
+  tasks: TaskData[];
+  total: number;
+}
+
+export const useTaskQuery = ({ sourceType, sourceId, showArchived }: TaskQueryParams) => {
+  return useQuery<TaskQueryResult>({
+    queryKey: ['tasks', sourceType, sourceId, showArchived],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
@@ -16,21 +27,28 @@ export const useTaskQuery = (source?: TaskSource, sourceId?: string) => {
           projects(id, name),
           deals(id, company_name),
           substack_posts(id, title)
-        `)
+        `, { count: 'exact' })
         .eq('user_id', user.id);
 
-      if (source) {
-        query = query.eq('source', source);
+      if (sourceType) {
+        query = query.eq('source', sourceType);
       }
 
       if (sourceId) {
         query = query.eq('source_id', sourceId);
       }
 
-      const { data, error } = await query;
+      if (!showArchived) {
+        query = query.eq('completed', false);
+      }
+
+      const { data, count, error } = await query;
       if (error) throw error;
 
-      return data;
+      return {
+        tasks: data as TaskData[],
+        total: count || 0
+      };
     },
   });
 };

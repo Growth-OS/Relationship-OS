@@ -6,28 +6,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { TaskSource } from "@/integrations/supabase/types/tasks";
+import { TaskSource } from "@/components/tasks/types";
 
-interface CreateTaskFormProps {
+export interface CreateTaskFormProps {
   onSuccess?: () => void;
+  source?: TaskSource;
+  sourceId?: string;
+  projectId?: string;
   defaultValues?: {
     title?: string;
     description?: string;
-    source?: TaskSource;
-    source_id?: string;
-    project_id?: string;
   };
 }
 
-export const CreateTaskForm = ({ onSuccess, defaultValues }: CreateTaskFormProps) => {
+export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, defaultValues }: CreateTaskFormProps) => {
   const queryClient = useQueryClient();
   const form = useForm({
     defaultValues: {
       title: defaultValues?.title || "",
       description: defaultValues?.description || "",
-      source: defaultValues?.source || "other",
-      source_id: defaultValues?.source_id || "",
-      project_id: defaultValues?.project_id || "",
       due_date: "",
       priority: "medium",
     },
@@ -43,12 +40,12 @@ export const CreateTaskForm = ({ onSuccess, defaultValues }: CreateTaskFormProps
         .insert({
           title: values.title,
           description: values.description,
-          source: values.source as TaskSource,
-          source_id: values.source_id,
+          source: source,
+          source_id: sourceId,
           user_id: user.id,
           due_date: values.due_date,
           priority: values.priority,
-          project_id: values.project_id,
+          project_id: projectId,
         });
 
       if (error) throw error;
