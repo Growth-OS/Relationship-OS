@@ -9,13 +9,19 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface ConvertToLeadButtonProps {
   prospect: Prospect;
+  onConvert?: () => void;
 }
 
-export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
+export const ConvertToLeadButton = ({ prospect, onConvert }: ConvertToLeadButtonProps) => {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConvertToLead = async () => {
+    if (onConvert) {
+      onConvert();
+      return;
+    }
+
     try {
       setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
@@ -23,8 +29,6 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
         toast.error('You must be logged in to convert prospects');
         return;
       }
-
-      console.log('Converting prospect to lead:', prospect);
 
       // Create new deal
       const { error: dealError } = await supabase

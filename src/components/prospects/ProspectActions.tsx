@@ -6,10 +6,21 @@ import { ConvertToLeadButton } from "./components/ConvertToLeadButton";
 import type { ProspectActionsProps } from "./types/prospect";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }: ProspectActionsProps) => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const handleDelete = async () => {
@@ -18,6 +29,16 @@ export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }:
       await onDelete(prospect.id);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleConvertToDeal = async () => {
+    try {
+      await onConvertToLead(prospect);
+      setShowConvertDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+    } catch (error) {
+      console.error('Error converting prospect:', error);
     }
   };
 
@@ -61,8 +82,28 @@ export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }:
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      
-      <ConvertToLeadButton prospect={prospect} />
+
+      <ConvertToLeadButton 
+        prospect={prospect}
+        onConvert={() => setShowConvertDialog(true)}
+      />
+
+      <AlertDialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Conversion to Deal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to convert this prospect to a deal? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConvertToDeal}>
+              Convert to Deal
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <EditProspectDialog
         prospect={prospect}
