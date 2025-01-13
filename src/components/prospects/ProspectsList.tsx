@@ -30,7 +30,7 @@ export const ProspectsList = ({ prospects, isLoading }: ProspectsListProps) => {
             <TableHead>Contact</TableHead>
             <TableHead>Source</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Created At</TableHead>
+            <TableHead>Created</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -53,13 +53,14 @@ export const ProspectsList = ({ prospects, isLoading }: ProspectsListProps) => {
               </TableCell>
               <TableCell>
                 <Badge 
-                  variant={prospect.is_converted_to_deal ? "success" : "default"}
+                  variant={prospect.is_converted_to_deal ? "secondary" : "default"}
+                  className={prospect.is_converted_to_deal ? "bg-green-100 text-green-800 hover:bg-green-200" : ""}
                 >
                   {prospect.is_converted_to_deal ? "Converted" : "Active"}
                 </Badge>
               </TableCell>
               <TableCell>
-                {format(new Date(prospect.created_at), "MMM d, yyyy")}
+                {new Date().toISOString()}
               </TableCell>
             </TableRow>
           ))}

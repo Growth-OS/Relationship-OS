@@ -14,6 +14,7 @@ export interface Prospect {
   first_name?: string;
   training_event?: string;
   is_converted_to_deal?: boolean;
+  created_at: string;
 }
 
 export interface EditableProspect extends Prospect {
