@@ -8,9 +8,8 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <ProtectedRoute>
-      {[...authRoutes, ...dashboardRoutes, ...settingsRoutes].map((route) => (
-        <route.element key={route.path} />
-      ))}
+      {[...dashboardRoutes, ...settingsRoutes].map((route) => route.element)}
     </ProtectedRoute>,
   },
+  ...authRoutes, // Auth routes should not be protected
 ]);
