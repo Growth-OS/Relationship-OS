@@ -5,8 +5,11 @@ import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const ProfileSettings = () => {
+  const navigate = useNavigate();
+  
   const { data: user } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
@@ -22,23 +25,28 @@ const ProfileSettings = () => {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // If no session, just clear local storage and redirect
+        // If no session exists, just clear local storage and redirect
+        console.log("No active session found, performing local cleanup");
         localStorage.clear();
-        window.location.href = '/login';
+        navigate('/login');
         return;
       }
 
-      // If we have a session, attempt to sign out
+      // Attempt to sign out
       const { error } = await supabase.auth.signOut();
       if (error) {
-        console.error("Error signing out:", error);
-        toast.error("Error signing out");
+        console.error("Error during sign out:", error);
+        // If there's an error, force a clean logout
+        localStorage.clear();
+        navigate('/login');
+        toast.error("Error signing out, please try again");
       }
     } catch (error) {
-      console.error("Error during sign out:", error);
-      // If there's an error, force a clean logout
+      console.error("Error during logout process:", error);
+      // Ensure user is logged out even if there's an error
       localStorage.clear();
-      window.location.href = '/login';
+      navigate('/login');
+      toast.error("Error signing out, please try again");
     }
   };
 
