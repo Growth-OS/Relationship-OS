@@ -45,9 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setIsAuthenticated(true);
           const returnPath = localStorage.getItem('return_path') || '/dashboard';
           localStorage.removeItem('return_path');
-          if (location.pathname === '/login') {
-            navigate(returnPath, { replace: true });
-          }
+          navigate(returnPath, { replace: true });
           break;
 
         case 'TOKEN_REFRESHED':
@@ -68,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname]);
+  }, [navigate]);
 
   if (isLoading) {
     return (
