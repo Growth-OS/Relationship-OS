@@ -1,25 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Plane } from "lucide-react";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, startOfQuarter, endOfQuarter } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const DashboardTravelWidget = () => {
   const navigate = useNavigate();
+  const currentDate = new Date();
 
-  const { data: nextTravel, isLoading } = useQuery({
-    queryKey: ["next-travel"],
+  const { data: travels, isLoading } = useQuery({
+    queryKey: ["quarterly-travels"],
     queryFn: async () => {
       const { data: travels, error } = await supabase
         .from("travels")
         .select("*")
         .eq("status", "upcoming")
-        .gte("departure_date", new Date().toISOString())
-        .order("departure_date", { ascending: true })
-        .limit(1)
-        .single();
+        .gte("departure_date", startOfQuarter(currentDate).toISOString())
+        .lte("departure_date", endOfQuarter(currentDate).toISOString())
+        .order("departure_date", { ascending: true });
 
       if (error) throw error;
       return travels;
@@ -34,20 +34,15 @@ export const DashboardTravelWidget = () => {
     );
   }
 
-  if (!nextTravel) {
+  if (!travels?.length) {
     return (
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
-          <p>No upcoming travels</p>
+          <p>No upcoming travels this quarter</p>
         </div>
       </Card>
     );
   }
-
-  const daysUntilDeparture = differenceInDays(
-    new Date(nextTravel.departure_date),
-    new Date()
-  );
 
   return (
     <Card 
@@ -56,49 +51,61 @@ export const DashboardTravelWidget = () => {
     >
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold">Next Journey</h3>
+          <h3 className="font-semibold">Quarterly Travels</h3>
           <span className="text-sm text-muted-foreground">
-            {daysUntilDeparture} days to departure
+            {travels.length} {travels.length === 1 ? 'journey' : 'journeys'} planned
           </span>
         </div>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <div className="flex items-center justify-between gap-4 py-4">
-                <div className="flex flex-col items-center">
-                  <div className="text-3xl mb-2">{nextTravel.origin_country_flag}</div>
-                  <span className="text-sm font-medium text-center">{nextTravel.origin_country}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(nextTravel.departure_date), "d MMM yyyy")}
-                  </span>
-                </div>
-                
-                <div className="flex-1 flex items-center justify-center gap-2">
-                  <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
-                  <Plane className="w-5 h-5 text-primary rotate-0 animate-pulse" />
-                  <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
-                </div>
+        <div className="space-y-4">
+          {travels.map((travel) => {
+            const daysUntilDeparture = differenceInDays(
+              new Date(travel.departure_date),
+              currentDate
+            );
 
-                <div className="flex flex-col items-center">
-                  <div className="text-3xl mb-2">{nextTravel.destination_country_flag}</div>
-                  <span className="text-sm font-medium text-center">{nextTravel.destination_country}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {format(new Date(nextTravel.return_date), "d MMM yyyy")}
-                  </span>
-                </div>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="text-sm">
-                {nextTravel.company_name && (
-                  <p>Visiting: {nextTravel.company_name}</p>
-                )}
-                {nextTravel.notes && <p>{nextTravel.notes}</p>}
-              </div>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            return (
+              <TooltipProvider key={travel.id}>
+                <Tooltip>
+                  <TooltipTrigger className="w-full">
+                    <div className="flex items-center justify-between gap-4 py-2 border-t first:border-t-0">
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl">{travel.origin_country_flag}</div>
+                        <span className="text-xs font-medium">{travel.origin_country}</span>
+                      </div>
+                      
+                      <div className="flex-1 flex items-center justify-center gap-2">
+                        <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
+                        <Plane className="w-4 h-4 text-primary rotate-0" />
+                        <div className="h-[2px] flex-1 bg-gradient-to-r from-gray-200 via-primary/20 to-gray-200" />
+                      </div>
+
+                      <div className="flex flex-col items-center">
+                        <div className="text-2xl">{travel.destination_country_flag}</div>
+                        <span className="text-xs font-medium">{travel.destination_country}</span>
+                      </div>
+
+                      <div className="min-w-24 text-right">
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(travel.departure_date), "d MMM")}
+                        </span>
+                      </div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-sm space-y-1">
+                      <p>In {daysUntilDeparture} days</p>
+                      {travel.company_name && (
+                        <p>Visiting: {travel.company_name}</p>
+                      )}
+                      {travel.notes && <p>{travel.notes}</p>}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+        </div>
       </div>
     </Card>
   );
