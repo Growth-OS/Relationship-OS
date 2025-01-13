@@ -7,9 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Trash2, Wand2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
+import { useState } from "react";
+import { MessagePreviewModal } from "./MessagePreviewModal";
+import { useMessageGeneration } from "../hooks/useMessageGeneration";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -22,11 +25,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-interface CreateSequenceFormProps {
-  onSuccess: () => void;
-  selectedProspects: string[];
-}
 
 export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSequenceFormProps) => {
   const form = useForm<FormValues>({
@@ -43,6 +41,45 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
       ],
     },
   });
+
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [activeStepIndex, setActiveStepIndex] = useState<number | null>(null);
+  const { generateMessage, isGenerating } = useMessageGeneration();
+
+  const handleGenerateMessage = async (index: number) => {
+    const step = form.getValues(`steps.${index}`);
+    
+    // Example prospect data for preview
+    const exampleData = {
+      "First Name": "John",
+      "Company Name": "Acme Corp",
+      "Website": "www.acme.com",
+      "Training Event": "Tech Conference 2024"
+    };
+
+    try {
+      const generatedMessage = await generateMessage({
+        template: step.message_template || "",
+        prospectData: exampleData,
+        stepType: step.step_type,
+      });
+
+      if (generatedMessage) {
+        setActiveStepIndex(index);
+        form.setValue(`steps.${index}.message_template`, generatedMessage);
+        setPreviewModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Error generating message:", error);
+      toast.error("Failed to generate message");
+    }
+  };
+
+  const handleRegenerateMessage = async () => {
+    if (activeStepIndex !== null) {
+      await handleGenerateMessage(activeStepIndex);
+    }
+  };
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -227,7 +264,19 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
                 name={`steps.${index}.message_template`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Message Template</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Message Template</FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleGenerateMessage(index)}
+                        disabled={isGenerating}
+                      >
+                        <Wand2 className="h-4 w-4 mr-2" />
+                        Generate Message
+                      </Button>
+                    </div>
                     <FormControl>
                       <RichTextEditor
                         content={field.value || ""}
@@ -248,6 +297,19 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
           </Button>
         </div>
       </form>
+
+      {activeStepIndex !== null && (
+        <MessagePreviewModal
+          open={previewModalOpen}
+          onOpenChange={setPreviewModalOpen}
+          message={form.getValues(`steps.${activeStepIndex}.message_template`) || ""}
+          onSave={(message) => {
+            form.setValue(`steps.${activeStepIndex}.message_template`, message);
+          }}
+          onRegenerate={handleRegenerateMessage}
+          isRegenerating={isGenerating}
+        />
+      )}
     </Form>
   );
 };
