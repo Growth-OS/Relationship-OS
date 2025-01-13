@@ -1,5 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChartBarIcon, Users, DollarSign, NewspaperIcon, Wallet, ListChecks } from "lucide-react";
+import { ChartBarIcon, Users, DollarSign, NewspaperIcon, Wallet } from "lucide-react";
 
 interface ModuleFilterProps {
   value: string;
@@ -11,7 +11,6 @@ export const ModuleFilter = ({ value, onChange }: ModuleFilterProps) => {
     { value: 'all', label: 'All Dashboards', icon: ChartBarIcon },
     { value: 'prospects', label: 'Lead Pipeline', icon: Users },
     { value: 'deals', label: 'Client Projects', icon: DollarSign },
-    { value: 'sequences', label: 'Sequences', icon: ListChecks },
     { value: 'affiliate', label: 'Affiliate Revenue', icon: NewspaperIcon },
     { value: 'finances', label: 'Finances', icon: Wallet },
   ];
