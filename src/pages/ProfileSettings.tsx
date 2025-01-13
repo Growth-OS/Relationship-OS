@@ -22,7 +22,6 @@ const ProfileSettings = () => {
       if (error) {
         console.error("Error signing out:", error);
         toast.error("Error signing out");
-        return;
       }
     } catch (error) {
       console.error("Error signing out:", error);
