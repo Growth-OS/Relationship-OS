@@ -21,13 +21,13 @@ const ProspectsManagement = () => {
     queryKey: ['prospects', currentPage, showConverted],
     queryFn: async () => {
       const countQuery = supabase
-        .from('prospect_sequence_info')
+        .from('prospects')
         .select('*', { count: 'exact', head: true });
 
       if (showConverted) {
-        countQuery.eq('status', 'converted');
+        countQuery.eq('is_converted_to_deal', true);
       } else {
-        countQuery.neq('status', 'converted');
+        countQuery.eq('is_converted_to_deal', false);
       }
 
       const { count, error: countError } = await countQuery;
@@ -38,14 +38,14 @@ const ProspectsManagement = () => {
       }
 
       const dataQuery = supabase
-        .from('prospect_sequence_info')
+        .from('prospects')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (showConverted) {
-        dataQuery.eq('status', 'converted');
+        dataQuery.eq('is_converted_to_deal', true);
       } else {
-        dataQuery.neq('status', 'converted');
+        dataQuery.eq('is_converted_to_deal', false);
       }
 
       const { data: prospectsData, error: dataError } = await dataQuery
