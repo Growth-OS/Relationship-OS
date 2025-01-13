@@ -120,7 +120,7 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
                 ) : '-'}
               </TableCell>
               <TableCell className="text-left">
-                {project.sequence_name ? (
+                {project.sequence_name || project.status === 'in_sequence' ? (
                   <div className="flex items-center gap-2">
                     {getSequenceStatusIcon(project.sequence_status)}
                     <Badge variant={project.sequence_status === 'active' ? 'default' : 'secondary'}>
@@ -132,7 +132,7 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
                 )}
               </TableCell>
               <TableCell className="text-left">
-                {!project.sequence_name && (
+                {!project.sequence_name && project.status !== 'in_sequence' && (
                   <Button
                     variant="outline"
                     size="sm"
