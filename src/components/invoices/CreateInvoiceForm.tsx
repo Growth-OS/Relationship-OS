@@ -49,6 +49,36 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
     },
   });
 
+  useEffect(() => {
+    const generateInvoiceNumber = async () => {
+      try {
+        const currentYear = new Date().getFullYear().toString().slice(-2);
+        
+        // Get the latest invoice number for the current year
+        const { data: invoices } = await supabase
+          .from('invoices')
+          .select('invoice_number')
+          .ilike('invoice_number', `${currentYear}-%`)
+          .order('invoice_number', { ascending: false })
+          .limit(1);
+
+        let nextNumber = 1;
+        if (invoices && invoices.length > 0) {
+          const lastNumber = parseInt(invoices[0].invoice_number.split('-')[1]);
+          nextNumber = lastNumber + 1;
+        }
+
+        const newInvoiceNumber = `${currentYear}-${nextNumber}`;
+        form.setValue('invoice_number', newInvoiceNumber);
+      } catch (error) {
+        console.error('Error generating invoice number:', error);
+        toast.error('Failed to generate invoice number');
+      }
+    };
+
+    generateInvoiceNumber();
+  }, [form]);
+
   const calculateTotals = (data: InvoiceFormData) => {
     const items = data.items.map((item) => ({
       ...item,

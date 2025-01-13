@@ -47,7 +47,7 @@ export const InvoiceFormFields = ({ form }: InvoiceFormFieldsProps) => {
           <FormItem>
             <FormLabel>Invoice Number</FormLabel>
             <FormControl>
-              <Input placeholder="INV-001" {...field} />
+              <Input placeholder="YY-N" {...field} disabled />
             </FormControl>
             <FormMessage />
           </FormItem>
