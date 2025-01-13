@@ -17,16 +17,11 @@ export const supabase = createClient<Database>(
       autoRefreshToken: true,
       detectSessionInUrl: true,
       flowType: 'pkce',
-      storage: localStorage,
-      storageKey: 'supabase.auth.token',
     },
     global: {
       headers: {
         'X-Client-Info': 'supabase-js-web',
       },
-    },
-    db: {
-      schema: 'public'
     },
   }
 );
@@ -35,7 +30,7 @@ export const supabase = createClient<Database>(
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing cached data');
-    localStorage.clear(); // Clear all cached data
+    localStorage.clear();
   } else if (event === 'SIGNED_IN') {
     console.log('User signed in, session established');
   } else if (event === 'TOKEN_REFRESHED') {
