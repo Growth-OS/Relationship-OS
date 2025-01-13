@@ -10,19 +10,19 @@ export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTabl
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[50px]">
-          <Checkbox
-            checked={isAllSelected}
-            onCheckedChange={onSelectAll}
-            className="ml-4"
-          />
+        <TableHead className="w-[50px] text-center">
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={isAllSelected}
+              onCheckedChange={onSelectAll}
+            />
+          </div>
         </TableHead>
         <TableHead>Company</TableHead>
         <TableHead>Source</TableHead>
         <TableHead>Job Title</TableHead>
         <TableHead>Email</TableHead>
-        <TableHead>Website</TableHead>
-        <TableHead>LinkedIn</TableHead>
+        <TableHead>Links</TableHead>
         <TableHead>Status</TableHead>
         <TableHead>Actions</TableHead>
       </TableRow>
