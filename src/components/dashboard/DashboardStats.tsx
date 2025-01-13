@@ -1,66 +1,50 @@
-import { useMonthlyStats } from "./hooks/useMonthlyStats";
-import { useTaskStats } from "./hooks/useTaskStats";
-import { useDealStats } from "./hooks/useDealStats";
+import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const DashboardStats = () => {
-  const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
-  const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
-  const { totalDeals, lastMonthDeals, isLoadingDeals } = useDealStats();
-  const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: async () => {
+      const { data: prospects } = await supabase
+        .from('prospects')
+        .select('*');
 
-  const calculatePercentageChange = (current: number, previous: number) => {
-    if (previous === 0) return "New"; // Handle case where last quarter was 0
-    const change = ((current - previous) / previous) * 100;
-    return `${Math.abs(change).toFixed(1)}%`;
-  };
+      const { data: deals } = await supabase
+        .from('deals')
+        .select('*');
 
-  const determineChangeType = (current: number, previous: number) => {
-    if (previous === 0) return 'neutral';
-    return current >= previous ? 'increase' : 'decrease';
-  };
+      const { data: tasks } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('completed', false);
 
-  const stats = [
-    {
-      name: `Q${currentQuarter} Revenue`,
-      value: isLoadingRevenue ? "..." : `€${monthlyRevenue?.toLocaleString() || '0'}`,
-      change: calculatePercentageChange(monthlyRevenue || 0, lastMonthRevenue || 0),
-      changeType: determineChangeType(monthlyRevenue || 0, lastMonthRevenue || 0),
+      return {
+        totalProspects: prospects?.length || 0,
+        totalDeals: deals?.length || 0,
+        pendingTasks: tasks?.length || 0,
+      };
     },
-    {
-      name: `Q${currentQuarter} Deals`,
-      value: isLoadingDeals ? "..." : totalDeals?.toString() || '0',
-      change: calculatePercentageChange(totalDeals || 0, lastMonthDeals || 0),
-      changeType: determineChangeType(totalDeals || 0, lastMonthDeals || 0),
-    },
-    {
-      name: `Q${currentQuarter} Tasks`,
-      value: isLoadingTasks ? "..." : completedTasks?.toString() || '0',
-      change: calculatePercentageChange(completedTasks || 0, lastMonthTasks || 0),
-      changeType: determineChangeType(completedTasks || 0, lastMonthTasks || 0),
-    },
-  ];
+  });
+
+  if (isLoading) {
+    return <div>Loading stats...</div>;
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {stats.map((stat) => (
-        <div key={stat.name} className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-lg font-semibold">{stat.name}</h3>
-          <p className="text-2xl font-bold">{stat.value}</p>
-          <p className={`text-sm ${
-            stat.changeType === 'increase' 
-              ? 'text-green-500' 
-              : stat.changeType === 'decrease' 
-                ? 'text-red-500' 
-                : 'text-gray-500'
-          }`}>
-            {stat.changeType === 'increase' 
-              ? '↑' 
-              : stat.changeType === 'decrease' 
-                ? '↓' 
-                : '•'} {stat.change} vs last quarter
-          </p>
-        </div>
-      ))}
+      <Card className="p-4">
+        <h3 className="text-sm font-medium text-gray-500">Total Prospects</h3>
+        <p className="text-2xl font-bold">{stats?.totalProspects}</p>
+      </Card>
+      <Card className="p-4">
+        <h3 className="text-sm font-medium text-gray-500">Active Deals</h3>
+        <p className="text-2xl font-bold">{stats?.totalDeals}</p>
+      </Card>
+      <Card className="p-4">
+        <h3 className="text-sm font-medium text-gray-500">Pending Tasks</h3>
+        <p className="text-2xl font-bold">{stats?.pendingTasks}</p>
+      </Card>
     </div>
   );
 };

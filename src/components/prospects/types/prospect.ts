@@ -7,9 +7,6 @@ export interface Prospect {
   company_website?: string;
   source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
   notes?: string;
-  sequence_name?: string;
-  sequence_status?: string;
-  current_step?: number;
   status?: string;
   first_name?: string;
   training_event?: string;
