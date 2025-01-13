@@ -13,6 +13,7 @@ interface ProspectRowProps {
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: any) => void;
   onConvertToLead: (prospect: Prospect) => Promise<void>;
+  onConvertToSequence?: (prospect: Prospect) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }
@@ -23,17 +24,26 @@ export const ProspectRow = ({
   onDelete, 
   onEdit,
   onConvertToLead,
+  onConvertToSequence,
   isSelected,
   onSelectChange
 }: ProspectRowProps) => {
   const getStatusBadgeVariant = (status: string | undefined, isConverted: boolean | undefined) => {
     if (status === 'converted' || isConverted) return 'secondary';
-    return 'default';
+    if (status === 'in_sequence') return 'default';
+    return 'outline';
+  };
+
+  const getStatusText = () => {
+    if (prospect.status === 'converted' || prospect.is_converted_to_deal) return 'Converted to Lead';
+    if (prospect.status === 'in_sequence') return `In Sequence${prospect.sequence_name ? `: ${prospect.sequence_name}` : ''}`;
+    if (prospect.status === 'completed_sequence') return 'Sequence Completed';
+    return 'Active';
   };
 
   const handleConvertToLead = async () => {
     try {
-      console.log('Converting prospect to sequence:', prospect.id);
+      console.log('Converting prospect to lead:', prospect.id);
       await onConvertToLead(prospect);
       toast.success("Prospect successfully converted to a lead");
     } catch (error) {
@@ -68,14 +78,17 @@ export const ProspectRow = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant={getStatusBadgeVariant(prospect.status, prospect.is_converted_to_deal)}>
-                {prospect.is_converted_to_deal || prospect.status === 'converted' ? 'Converted' : 'Active'}
+              <Badge 
+                variant={getStatusBadgeVariant(prospect.status, prospect.is_converted_to_deal)}
+                className={prospect.status === 'in_sequence' ? 'bg-blue-100 text-blue-800' : ''}
+              >
+                {getStatusText()}
               </Badge>
             </TooltipTrigger>
             <TooltipContent>
-              {prospect.is_converted_to_deal || prospect.status === 'converted' 
-                ? 'This prospect has been converted to a deal'
-                : 'This prospect is active and can be converted to a deal'}
+              {prospect.status === 'in_sequence' && prospect.current_step 
+                ? `Current Step: ${prospect.current_step}`
+                : getStatusText()}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -86,6 +99,7 @@ export const ProspectRow = ({
           onDelete={onDelete}
           onEdit={onEdit}
           onConvertToLead={handleConvertToLead}
+          onConvertToSequence={onConvertToSequence}
         />
       </TableCell>
     </TableRow>

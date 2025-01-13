@@ -1,6 +1,21 @@
-import { Prospect } from "@/types/prospects";
-
-export type { Prospect };
+export interface Prospect {
+  id: string;
+  company_name: string;
+  contact_email?: string;
+  contact_job_title?: string;
+  contact_linkedin?: string;
+  company_website?: string;
+  source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
+  notes?: string;
+  sequence_name?: string;
+  sequence_status?: string;
+  current_step?: number;
+  status?: string;
+  first_name?: string;
+  training_event?: string;
+  is_converted_to_deal?: boolean;
+  created_at: string;
+}
 
 export interface EditableProspect extends Prospect {
   isEditing: boolean;
@@ -21,6 +36,7 @@ export interface ProspectActionsProps {
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: Prospect) => void;
   onConvertToLead: (prospect: Prospect) => Promise<void>;
+  onConvertToSequence?: (prospect: Prospect) => void;
 }
 
 export interface TableProspectActionsProps {
