@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Prospect } from "../types/prospect";
+import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ConvertToLeadButtonProps {
   prospect: Prospect;
@@ -11,9 +13,11 @@ interface ConvertToLeadButtonProps {
 
 export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
   const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleConvertToLead = async () => {
     try {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('You must be logged in to convert prospects');
@@ -63,6 +67,8 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
     } catch (error) {
       console.error('Error in conversion:', error);
       toast.error('Failed to convert prospect to lead');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,15 +76,29 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
   const isConverted = prospect.is_converted_to_deal || prospect.status === 'converted';
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleConvertToLead}
-      className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
-      title="Convert to Lead"
-      disabled={isConverted}
-    >
-      <ArrowRight className="h-4 w-4 text-purple-600" />
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleConvertToLead}
+            className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
+            disabled={isConverted || isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />
+            ) : (
+              <ArrowRight className="h-4 w-4 text-purple-600" />
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          {isConverted 
+            ? "This prospect has already been converted to a deal"
+            : "Convert this prospect to a deal"}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

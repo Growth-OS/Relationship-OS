@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ProspectRowProps {
   prospect: Prospect;
@@ -24,6 +25,11 @@ export const ProspectRow = ({
   isSelected,
   onSelectChange
 }: ProspectRowProps) => {
+  const getStatusBadgeVariant = (status: string | undefined, isConverted: boolean | undefined) => {
+    if (status === 'converted' || isConverted) return 'secondary';
+    return 'default';
+  };
+
   return (
     <TableRow className="hover:bg-muted/50">
       <TableCell className="p-4 text-left align-top">
@@ -34,9 +40,9 @@ export const ProspectRow = ({
       </TableCell>
       <TableCell className="p-4 text-left align-top">{prospect.company_name}</TableCell>
       <TableCell className="p-4 text-left align-top">
-        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+        <Badge variant="outline">
           {sourceLabels[prospect.source]}
-        </span>
+        </Badge>
       </TableCell>
       <TableCell className="p-4 text-left align-top">{prospect.contact_job_title || '-'}</TableCell>
       <TableCell className="p-4 text-left align-top">{prospect.contact_email || '-'}</TableCell>
@@ -45,6 +51,22 @@ export const ProspectRow = ({
           website={prospect.company_website} 
           linkedin={prospect.contact_linkedin}
         />
+      </TableCell>
+      <TableCell className="p-4 text-left align-top">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant={getStatusBadgeVariant(prospect.status, prospect.is_converted_to_deal)}>
+                {prospect.is_converted_to_deal || prospect.status === 'converted' ? 'Converted' : 'Active'}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              {prospect.is_converted_to_deal || prospect.status === 'converted' 
+                ? 'This prospect has been converted to a deal'
+                : 'This prospect is active and can be converted to a deal'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </TableCell>
       <TableCell className="p-4 text-left align-top">
         <ProspectActions
