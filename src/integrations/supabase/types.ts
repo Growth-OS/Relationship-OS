@@ -906,6 +906,8 @@ export type Database = {
           id: string
           is_converted_to_deal: boolean | null
           notes: string | null
+          sequence_id: string | null
+          sequence_status: string | null
           source: Database["public"]["Enums"]["lead_source"]
           status: string | null
           training_event: string | null
@@ -922,6 +924,8 @@ export type Database = {
           id?: string
           is_converted_to_deal?: boolean | null
           notes?: string | null
+          sequence_id?: string | null
+          sequence_status?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
           training_event?: string | null
@@ -938,12 +942,22 @@ export type Database = {
           id?: string
           is_converted_to_deal?: boolean | null
           notes?: string | null
+          sequence_id?: string | null
+          sequence_status?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
           training_event?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prospects_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       revenue: {
         Row: {
