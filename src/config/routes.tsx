@@ -20,6 +20,7 @@ import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import BackupSettings from "@/pages/BackupSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
+import Calendar from "@/pages/Calendar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
