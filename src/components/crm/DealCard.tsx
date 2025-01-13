@@ -30,7 +30,9 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
 
   return (
     <Card 
-      className="p-4 hover:shadow-lg transition-all duration-200 cursor-move group border-l-4 border-l-[#1EAEDB] hover:translate-x-1 bg-white dark:bg-gray-800"
+      className="p-4 transition-all duration-200 cursor-move group border-l-4 border-l-gray-200 
+        hover:translate-x-1 bg-white dark:bg-gray-800 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]
+        dark:shadow-[0_8px_30px_rgb(255,255,255,0.05)]"
       onClick={() => onEdit(deal)}
     >
       <div className="flex justify-between items-start mb-3">
@@ -47,7 +49,7 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-8 w-8 hover:bg-[#E3F2FD] hover:text-[#1EAEDB] dark:hover:bg-gray-700"
+            className="h-8 w-8 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700"
             onClick={(e) => {
               e.stopPropagation();
               onEdit(deal);
@@ -57,11 +59,11 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
           </Button>
         </div>
       </div>
-      <p className="text-sm font-medium text-[#1EAEDB] mb-2">
+      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
         €{Number(deal.deal_value).toLocaleString()}
       </p>
       {deal.contact_job_title && (
-        <p className="text-xs text-muted-foreground mb-1">{deal.contact_job_title}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{deal.contact_job_title}</p>
       )}
       <div className="flex flex-col gap-2 mt-2">
         {deal.company_website && (
@@ -70,7 +72,7 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="text-xs text-purple-600 hover:text-purple-700 hover:underline"
+            className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:underline"
           >
             Company Website
           </a>
@@ -81,19 +83,19 @@ export const DealCard = ({ deal, onEdit }: DealCardProps) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="text-xs text-purple-600 hover:text-purple-700 hover:underline"
+            className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 hover:underline"
           >
             LinkedIn Profile
           </a>
         )}
       </div>
       {deal.notes && (
-        <p className="text-xs text-muted-foreground line-clamp-2 mt-2">{deal.notes}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-2">{deal.notes}</p>
       )}
       {deal.country && (
         <div className="flex items-center gap-1 mt-2">
           <span>{deal.country_flag}</span>
-          <span className="text-xs text-muted-foreground">{deal.country}</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">{deal.country}</span>
         </div>
       )}
       {deal.stage === 'lost' && (
