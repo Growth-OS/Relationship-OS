@@ -89,13 +89,13 @@ export const ProspectRow = ({
           {sourceLabels[prospect.source]}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         {prospect.contact_job_title || '-'}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         {prospect.contact_email || '-'}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         {prospect.company_website ? (
           <a
             href={prospect.company_website}
