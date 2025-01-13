@@ -21,7 +21,7 @@ export const ProspectRow = ({
 
   return (
     <TableRow className="hover:bg-muted/50">
-      <TableCell className="w-[50px] text-center">
+      <TableCell className="w-[50px]">
         <div className="flex items-center justify-center">
           <Checkbox
             checked={isSelected}
@@ -29,28 +29,28 @@ export const ProspectRow = ({
           />
         </div>
       </TableCell>
-      <TableCell className="font-medium">{prospect.company_name}</TableCell>
-      <TableCell>
+      <TableCell className="font-medium text-left">{prospect.company_name}</TableCell>
+      <TableCell className="text-left">
         <Badge variant="outline">
           {sourceLabels[prospect.source]}
         </Badge>
       </TableCell>
-      <TableCell>{prospect.contact_job_title || '-'}</TableCell>
-      <TableCell>{prospect.contact_email || '-'}</TableCell>
-      <TableCell>
+      <TableCell className="text-left">{prospect.contact_job_title || '-'}</TableCell>
+      <TableCell className="text-left">{prospect.contact_email || '-'}</TableCell>
+      <TableCell className="text-left">
         <ExternalLinks 
           website={prospect.company_website} 
           linkedin={prospect.contact_linkedin}
         />
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         <Badge 
           variant={getStatusBadgeVariant(prospect.is_converted_to_deal)}
         >
           {prospect.is_converted_to_deal ? 'Converted' : 'Active'}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="text-left">
         <ProspectActions
           prospect={prospect}
           onDelete={onDelete}

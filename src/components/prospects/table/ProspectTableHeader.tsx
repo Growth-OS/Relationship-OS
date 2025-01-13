@@ -10,7 +10,7 @@ export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTabl
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-[50px] text-center">
+        <TableHead className="w-[50px]">
           <div className="flex items-center justify-center">
             <Checkbox
               checked={isAllSelected}
@@ -18,13 +18,13 @@ export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTabl
             />
           </div>
         </TableHead>
-        <TableHead>Company</TableHead>
-        <TableHead>Source</TableHead>
-        <TableHead>Job Title</TableHead>
-        <TableHead>Email</TableHead>
-        <TableHead>Links</TableHead>
-        <TableHead>Status</TableHead>
-        <TableHead>Actions</TableHead>
+        <TableHead className="text-left">Company</TableHead>
+        <TableHead className="text-left">Source</TableHead>
+        <TableHead className="text-left">Job Title</TableHead>
+        <TableHead className="text-left">Email</TableHead>
+        <TableHead className="text-left">Links</TableHead>
+        <TableHead className="text-left">Status</TableHead>
+        <TableHead className="text-left">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );
