@@ -1,17 +1,30 @@
 import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 
-export const ProspectTableHeader = () => {
+interface ProspectTableHeaderProps {
+  onSelectAll?: () => void;
+  isAllSelected?: boolean;
+}
+
+export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTableHeaderProps) => {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-12 p-4 text-left">Select</TableHead>
-        <TableHead className="p-4 text-left">Company</TableHead>
-        <TableHead className="p-4 text-left">Source</TableHead>
-        <TableHead className="p-4 text-left">Job Title</TableHead>
-        <TableHead className="p-4 text-left">Email</TableHead>
-        <TableHead className="p-4 text-left">Website</TableHead>
-        <TableHead className="p-4 text-left">LinkedIn</TableHead>
-        <TableHead className="p-4 text-left">Actions</TableHead>
+        <TableHead className="w-[50px]">
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={onSelectAll}
+            className="ml-4"
+          />
+        </TableHead>
+        <TableHead>Company</TableHead>
+        <TableHead>Source</TableHead>
+        <TableHead>Job Title</TableHead>
+        <TableHead>Email</TableHead>
+        <TableHead>Website</TableHead>
+        <TableHead>LinkedIn</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead>Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

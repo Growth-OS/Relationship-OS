@@ -2,7 +2,9 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
 import { ProspectActions } from "./ProspectActions";
 import type { ProspectRowProps, EditableProspect } from "../types/prospect";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const ProspectRow = ({
   prospect,
@@ -65,29 +67,35 @@ export const ProspectRow = ({
     label,
   }));
 
+  const getStatusBadgeVariant = (isConverted: boolean | undefined) => {
+    if (isConverted) return 'secondary';
+    return 'outline';
+  };
+
   return (
-    <TableRow className="hover:bg-muted/50">
-      <TableCell className="p-4 text-left">
-        <input
-          type="checkbox"
+    <TableRow className="hover:bg-muted/50 transition-colors">
+      <TableCell className="w-[50px]">
+        <Checkbox
           checked={isSelected}
-          onChange={(e) => onSelectChange(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300"
+          onCheckedChange={onSelectChange}
+          className="ml-4"
         />
       </TableCell>
-      <TableCell className="p-4 text-left font-medium">
+      <TableCell className="font-medium">
         {prospect.company_name}
       </TableCell>
-      <TableCell className="p-4 text-left">
-        {sourceLabels[prospect.source]}
+      <TableCell>
+        <Badge variant="outline" className="text-xs capitalize">
+          {sourceLabels[prospect.source]}
+        </Badge>
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell>
         {prospect.contact_job_title || '-'}
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell>
         {prospect.contact_email || '-'}
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell>
         {prospect.company_website ? (
           <a
             href={prospect.company_website}
@@ -99,7 +107,7 @@ export const ProspectRow = ({
           </a>
         ) : '-'}
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell>
         {prospect.contact_linkedin ? (
           <a
             href={prospect.contact_linkedin}
@@ -111,7 +119,15 @@ export const ProspectRow = ({
           </a>
         ) : '-'}
       </TableCell>
-      <TableCell className="p-4 text-left">
+      <TableCell>
+        <Badge 
+          variant={getStatusBadgeVariant(prospect.is_converted_to_deal)}
+          className="text-xs"
+        >
+          {prospect.is_converted_to_deal ? 'Converted' : 'Active'}
+        </Badge>
+      </TableCell>
+      <TableCell>
         <ProspectActions
           isEditing={prospect.isEditing}
           onEdit={() => startEditing(prospect)}
