@@ -13,6 +13,7 @@ export interface Prospect {
   status?: string;
   first_name?: string;
   training_event?: string;
+  is_converted_to_deal?: boolean;
 }
 
 export interface EditableProspect extends Prospect {

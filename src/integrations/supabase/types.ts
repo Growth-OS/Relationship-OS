@@ -904,6 +904,7 @@ export type Database = {
           created_at: string
           first_name: string | null
           id: string
+          is_converted_to_deal: boolean | null
           notes: string | null
           source: Database["public"]["Enums"]["lead_source"]
           status: string | null
@@ -919,6 +920,7 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          is_converted_to_deal?: boolean | null
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
@@ -934,6 +936,7 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          is_converted_to_deal?: boolean | null
           notes?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null

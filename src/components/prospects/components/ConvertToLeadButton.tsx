@@ -22,7 +22,8 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
 
       console.log('Converting prospect to lead:', prospect);
 
-      const { error } = await supabase
+      // Create new deal
+      const { error: dealError } = await supabase
         .from('deals')
         .insert({
           user_id: user.id,
@@ -32,23 +33,27 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
           contact_job_title: prospect.contact_job_title,
           stage: 'lead',
           source: prospect.source,
-          notes: prospect.notes
+          notes: prospect.notes,
+          company_website: prospect.company_website
         });
 
-      if (error) {
-        console.error('Error converting prospect to lead:', error);
-        throw error;
+      if (dealError) {
+        console.error('Error creating deal:', dealError);
+        throw dealError;
       }
 
       // Update prospect status
-      const { error: updateError } = await supabase
+      const { error: prospectError } = await supabase
         .from('prospects')
-        .update({ status: 'converted' })
+        .update({ 
+          status: 'converted',
+          is_converted_to_deal: true 
+        })
         .eq('id', prospect.id);
 
-      if (updateError) {
-        console.error('Error updating prospect status:', updateError);
-        throw updateError;
+      if (prospectError) {
+        console.error('Error updating prospect status:', prospectError);
+        throw prospectError;
       }
 
       await queryClient.invalidateQueries({ queryKey: ['prospects'] });
@@ -61,6 +66,9 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
     }
   };
 
+  // Disable button if prospect is already converted
+  const isConverted = prospect.is_converted_to_deal || prospect.status === 'converted';
+
   return (
     <Button
       variant="ghost"
@@ -68,6 +76,7 @@ export const ConvertToLeadButton = ({ prospect }: ConvertToLeadButtonProps) => {
       onClick={handleConvertToLead}
       className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
       title="Convert to Lead"
+      disabled={isConverted}
     >
       <ArrowRight className="h-4 w-4 text-purple-600" />
     </Button>
