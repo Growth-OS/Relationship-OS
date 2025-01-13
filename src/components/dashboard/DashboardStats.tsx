@@ -1,46 +1,39 @@
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfQuarter, endOfQuarter, subQuarters } from "date-fns";
-import { EuroIcon, Users2, ListTodo } from "lucide-react";
+import { Users2, ListTodo, Building2 } from "lucide-react";
 
 export const DashboardStats = () => {
-  const currentQuarter = new Date();
-  const startDate = startOfQuarter(currentQuarter).toISOString();
-  const endDate = endOfQuarter(currentQuarter).toISOString();
-
   const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-quarterly-stats', startDate, endDate],
+    queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      // Get quarterly revenue
-      const { data: revenue } = await supabase
-        .from('financial_transactions')
-        .select('amount')
-        .eq('type', 'income')
-        .gte('date', startDate)
-        .lte('date', endDate);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-      // Get quarterly deals
-      const { count: dealsCount } = await supabase
+      // Get total prospects
+      const { count: prospectsCount } = await supabase
+        .from('prospects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      // Get active deals
+      const { count: activeDealsCount } = await supabase
         .from('deals')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', startDate)
-        .lte('created_at', endDate);
+        .eq('user_id', user.id)
+        .neq('stage', 'lost');
 
-      // Get quarterly completed tasks
-      const { count: tasksCount } = await supabase
+      // Get pending tasks
+      const { count: pendingTasksCount } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
-        .eq('completed', true)
-        .gte('created_at', startDate)
-        .lte('created_at', endDate);
-
-      const totalRevenue = revenue?.reduce((sum, transaction) => sum + Number(transaction.amount), 0) || 0;
+        .eq('user_id', user.id)
+        .eq('completed', false);
 
       return {
-        quarterlyRevenue: totalRevenue,
-        quarterlyDeals: dealsCount || 0,
-        quarterlyTasks: tasksCount || 0,
+        totalProspects: prospectsCount || 0,
+        activeDeals: activeDealsCount || 0,
+        pendingTasks: pendingTasksCount || 0,
       };
     },
   });
@@ -58,25 +51,22 @@ export const DashboardStats = () => {
 
   const statCards = [
     {
-      title: "Q1 Revenue",
-      value: `€${stats?.quarterlyRevenue.toLocaleString() || '0'}`,
-      subtitle: "New vs last quarter",
-      icon: EuroIcon,
+      title: "Total Prospects",
+      value: stats?.totalProspects.toString() || '0',
+      icon: Building2,
       color: "text-emerald-500",
       bgColor: "bg-emerald-50",
     },
     {
-      title: "Q1 Deals",
-      value: stats?.quarterlyDeals.toString() || '0',
-      subtitle: "New vs last quarter",
+      title: "Active Deals",
+      value: stats?.activeDeals.toString() || '0',
       icon: Users2,
       color: "text-blue-500",
       bgColor: "bg-blue-50",
     },
     {
-      title: "Q1 Tasks",
-      value: stats?.quarterlyTasks.toString() || '0',
-      subtitle: "New vs last quarter",
+      title: "Pending Tasks",
+      value: stats?.pendingTasks.toString() || '0',
       icon: ListTodo,
       color: "text-purple-500",
       bgColor: "bg-purple-50",
@@ -96,7 +86,6 @@ export const DashboardStats = () => {
               </div>
             </div>
             <p className="text-2xl font-bold">{stat.value}</p>
-            <p className="text-sm text-gray-600 mt-1">{stat.subtitle}</p>
           </Card>
         );
       })}

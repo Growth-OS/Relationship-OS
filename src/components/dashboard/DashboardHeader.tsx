@@ -1,5 +1,3 @@
-import { DashboardQuote } from "@/components/dashboard/DashboardQuote";
-
 interface DashboardHeaderProps {
   firstName: string;
 }
@@ -12,7 +10,6 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
           Welcome back, {firstName}!
         </h1>
       </div>
-      <DashboardQuote />
     </div>
   );
 };
