@@ -56,6 +56,9 @@ const Prospects = () => {
         console.error('Error fetching prospects:', dataError);
         throw dataError;
       }
+
+      console.log('Fetched prospects:', prospectsData); // Debug log
+      console.log('Total count:', count); // Debug log
       
       return {
         prospects: prospectsData || [],
