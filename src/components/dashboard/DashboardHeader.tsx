@@ -73,13 +73,13 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     {
       label: "New Invoice",
       icon: Receipt,
-      onClick: () => navigate("/invoices"),
+      onClick: () => navigate("/dashboard/invoices"),
       color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
     },
     {
       label: "Add Transaction",
       icon: Wallet,
-      onClick: () => navigate("/finances"),
+      onClick: () => navigate("/dashboard/finances"),
       color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
     },
     {
