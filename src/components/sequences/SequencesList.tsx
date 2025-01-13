@@ -65,12 +65,12 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sequences.map((sequence) => (
+          {sequences?.map((sequence) => (
             <TableRow key={sequence.id}>
               <TableCell>{sequence.name}</TableCell>
               <TableCell>{sequence.description}</TableCell>
-              <TableCell>{sequence.sequence_steps.length}</TableCell>
-              <TableCell>{sequence.sequence_assignments.length}</TableCell>
+              <TableCell>{sequence.sequence_steps?.length || 0}</TableCell>
+              <TableCell>{sequence.sequence_assignments?.length || 0}</TableCell>
               <TableCell>
                 <Badge
                   variant={
