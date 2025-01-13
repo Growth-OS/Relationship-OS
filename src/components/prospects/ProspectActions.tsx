@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Pencil, Trash2, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { EditProspectDialog } from "./components/EditProspectDialog";
 import { ConvertToLeadButton } from "./components/ConvertToLeadButton";
@@ -81,12 +81,30 @@ export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }:
             <p>Delete prospect</p>
           </TooltipContent>
         </Tooltip>
-      </TooltipProvider>
 
-      <ConvertToLeadButton 
-        prospect={prospect}
-        onConvert={() => setShowConvertDialog(true)}
-      />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowConvertDialog(true)}
+              disabled={prospect.is_converted_to_deal || prospect.status === 'converted'}
+              className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />
+              ) : (
+                <ArrowRight className="h-4 w-4 text-purple-600" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {prospect.is_converted_to_deal || prospect.status === 'converted'
+              ? "This prospect has already been converted to a deal"
+              : "Convert this prospect to a deal"}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <AlertDialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
         <AlertDialogContent>
