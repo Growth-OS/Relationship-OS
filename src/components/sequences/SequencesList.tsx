@@ -59,20 +59,11 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
 
   if (!sequences?.length) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Sequences</h1>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Sequence
-          </Button>
-        </div>
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <p className="text-muted-foreground">No sequences found</p>
-          <p className="text-sm text-muted-foreground">
-            Create a sequence to get started
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <p className="text-muted-foreground">No sequences found</p>
+        <p className="text-sm text-muted-foreground">
+          Create a sequence to get started
+        </p>
         <CreateSequenceDialog
           open={createDialogOpen}
           onOpenChange={setCreateDialogOpen}
@@ -83,14 +74,6 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Sequences</h1>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Sequence
-        </Button>
-      </div>
-
       <Table>
         <TableHeader>
           <TableRow>
