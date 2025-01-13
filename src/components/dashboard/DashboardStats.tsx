@@ -6,40 +6,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { startOfQuarter, endOfQuarter, subQuarters } from "date-fns";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { useMonthlyStats } from "./hooks/useMonthlyStats";
+import { useTaskStats } from "./hooks/useTaskStats";
 
 export const DashboardStats = () => {
   const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
+  const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
-
-      // Get current quarter data
-      const currentQuarter = new Date();
-      const startDate = startOfQuarter(currentQuarter);
-      const endDate = endOfQuarter(currentQuarter);
-
-      // Get last quarter data for comparison
-      const lastQuarter = subQuarters(currentQuarter, 1);
-      const lastStartDate = startOfQuarter(lastQuarter);
-      const lastEndDate = endOfQuarter(lastQuarter);
-
-      // Get active deals
-      const { count: activeDealsCount } = await supabase
-        .from('deals')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .neq('stage', 'lost');
-
-      const { count: lastQuarterDeals } = await supabase
-        .from('deals')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .neq('stage', 'lost')
-        .gte('created_at', lastStartDate.toISOString())
-        .lte('created_at', lastEndDate.toISOString());
 
       // Get invoice metrics
       const { data: invoiceMetrics } = await supabase
@@ -49,11 +26,6 @@ export const DashboardStats = () => {
         .maybeSingle();
 
       return {
-        activeDeals: {
-          current: activeDealsCount || 0,
-          previous: lastQuarterDeals || 0,
-          trend: generateTrendData(12)
-        },
         invoices: {
           current: invoiceMetrics?.overdue_invoices || 6739,
           previous: 0,
@@ -77,7 +49,7 @@ export const DashboardStats = () => {
     return ((current - previous) / previous) * 100;
   };
 
-  if (isLoading || isLoadingRevenue) {
+  if (isLoading || isLoadingRevenue || isLoadingTasks) {
     return <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-pulse">
       {[1, 2, 3].map((i) => (
         <Card key={i} className="p-6">
@@ -99,11 +71,11 @@ export const DashboardStats = () => {
       bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
     },
     {
-      title: "Active Deals",
-      current: stats?.activeDeals.current || 0,
-      previous: stats?.activeDeals.previous || 0,
-      trend: stats?.activeDeals.trend || [],
-      icon: Users2,
+      title: "Tasks Completed",
+      current: completedTasks || 0,
+      previous: lastMonthTasks || 0,
+      trend: generateTrendData(12),
+      icon: ListTodo,
       color: "text-blue-500",
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
