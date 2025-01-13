@@ -60,7 +60,7 @@ export const ProspectsList = ({ prospects, isLoading }: ProspectsListProps) => {
                 </Badge>
               </TableCell>
               <TableCell>
-                {new Date().toISOString()}
+                {format(new Date(prospect.created_at), 'MMM d, yyyy')}
               </TableCell>
             </TableRow>
           ))}

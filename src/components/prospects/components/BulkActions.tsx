@@ -6,9 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ConvertToDealDialog } from "./ConvertToDealDialog";
-import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,10 +25,8 @@ export const BulkActions = ({
   selectedIds,
   allSelected,
   onSelectAll,
-  selectedProspects,
   onSuccess,
 }: BulkActionsProps) => {
-  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -69,9 +66,6 @@ export const BulkActions = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => setIsConvertDialogOpen(true)}>
-            Convert to Deal
-          </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => setIsDeleteDialogOpen(true)}
             className="text-destructive"
@@ -80,13 +74,6 @@ export const BulkActions = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <ConvertToDealDialog
-        open={isConvertDialogOpen}
-        onOpenChange={setIsConvertDialogOpen}
-        prospects={selectedProspects}
-        onSuccess={onSuccess}
-      />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
