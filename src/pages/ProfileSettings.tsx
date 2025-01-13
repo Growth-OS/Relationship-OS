@@ -18,14 +18,27 @@ const ProfileSettings = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      // First check if we have a valid session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // If no session, just clear local storage and redirect
+        localStorage.clear();
+        window.location.href = '/login';
+        return;
+      }
+
+      // If we have a session, attempt to sign out
+      const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Error signing out:", error);
         toast.error("Error signing out");
       }
     } catch (error) {
-      console.error("Error signing out:", error);
-      toast.error("Error signing out");
+      console.error("Error during sign out:", error);
+      // If there's an error, force a clean logout
+      localStorage.clear();
+      window.location.href = '/login';
     }
   };
 
