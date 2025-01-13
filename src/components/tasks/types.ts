@@ -1,4 +1,4 @@
-export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'sequences' | 'other';
+export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'other';
 
 export interface Task {
   id: string;

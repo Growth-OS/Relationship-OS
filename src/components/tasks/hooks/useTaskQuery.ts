@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskSource, TaskData } from "@/components/tasks/types";
+import { TaskSource, TaskData } from "../types";
 
 interface TaskQueryParams {
   sourceType?: TaskSource;

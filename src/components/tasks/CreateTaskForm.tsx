@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { TaskSource } from "@/components/tasks/types";
+import { TaskSource } from "./types";
 
 export interface CreateTaskFormProps {
   onSuccess?: () => void;
@@ -40,7 +40,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
         .insert({
           title: values.title,
           description: values.description,
-          source: source,
+          source: source || "other",
           source_id: sourceId,
           user_id: user.id,
           due_date: values.due_date,
