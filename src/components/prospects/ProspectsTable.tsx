@@ -94,8 +94,6 @@ export const ProspectsTable = ({
     return <div>Loading...</div>;
   }
 
-  const selectedProspects = prospects.filter(p => selectedIds.includes(p.id));
-
   return (
     <div className="space-y-4">
       <div className="flex justify-start mb-4">
@@ -121,7 +119,6 @@ export const ProspectsTable = ({
         selectedIds={selectedIds}
         allSelected={selectedIds.length === prospects.length}
         onSelectAll={handleSelectAll}
-        selectedProspects={selectedProspects}
         onSuccess={() => setSelectedIds([])}
       />
 
