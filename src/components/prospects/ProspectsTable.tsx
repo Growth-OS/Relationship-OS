@@ -98,7 +98,7 @@ export const ProspectsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-start mb-4">
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="gap-2">
