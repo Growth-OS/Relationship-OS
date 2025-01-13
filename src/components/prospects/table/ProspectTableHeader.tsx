@@ -4,14 +4,14 @@ export const ProspectTableHeader = () => {
   return (
     <TableHeader>
       <TableRow>
-        <TableHead className="w-12 text-left">Select</TableHead>
-        <TableHead className="text-left">Company</TableHead>
-        <TableHead className="text-left">Source</TableHead>
-        <TableHead className="text-left">Job Title</TableHead>
-        <TableHead className="text-left">Email</TableHead>
-        <TableHead className="text-left">Website</TableHead>
-        <TableHead className="text-left">LinkedIn</TableHead>
-        <TableHead className="text-left">Actions</TableHead>
+        <TableHead className="w-12 p-4 text-left">Select</TableHead>
+        <TableHead className="p-4 text-left">Company</TableHead>
+        <TableHead className="p-4 text-left">Source</TableHead>
+        <TableHead className="p-4 text-left">Job Title</TableHead>
+        <TableHead className="p-4 text-left">Email</TableHead>
+        <TableHead className="p-4 text-left">Website</TableHead>
+        <TableHead className="p-4 text-left">LinkedIn</TableHead>
+        <TableHead className="p-4 text-left">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );
