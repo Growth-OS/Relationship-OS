@@ -46,6 +46,13 @@ export const CreateSequenceDialog = ({
 
   const onSubmit = async (values: SequenceFormValues) => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user?.id) {
+        toast.error("You must be logged in to create a sequence");
+        return;
+      }
+
       // Insert new sequence
       const { data: sequence, error: sequenceError } = await supabase
         .from("sequences")
@@ -53,6 +60,7 @@ export const CreateSequenceDialog = ({
           name: values.name,
           description: values.description,
           status: values.status,
+          user_id: session.user.id,
         })
         .select()
         .single();
