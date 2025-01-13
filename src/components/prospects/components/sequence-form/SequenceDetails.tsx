@@ -1,6 +1,5 @@
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
 
@@ -10,16 +9,14 @@ interface SequenceDetailsProps {
 
 export const SequenceDetails = ({ form }: SequenceDetailsProps) => {
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Sequence Name</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter sequence name" {...field} />
-            </FormControl>
+            <Input {...field} placeholder="Enter sequence name" />
             <FormMessage />
           </FormItem>
         )}
@@ -31,13 +28,11 @@ export const SequenceDetails = ({ form }: SequenceDetailsProps) => {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Description (Optional)</FormLabel>
-            <FormControl>
-              <Textarea placeholder="Enter sequence description" {...field} />
-            </FormControl>
+            <Input {...field} placeholder="Enter sequence description" />
             <FormMessage />
           </FormItem>
         )}
       />
-    </>
+    </div>
   );
 };
