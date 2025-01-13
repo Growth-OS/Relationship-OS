@@ -71,12 +71,6 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
     },
     {
-      label: "Schedule",
-      icon: Calendar,
-      onClick: () => navigate("/dashboard/calendar"),
-      color: "bg-green-100 text-green-700 hover:bg-green-200",
-    },
-    {
       label: "New Invoice",
       icon: Receipt,
       onClick: () => navigate("/invoices"),
@@ -87,6 +81,12 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       icon: Wallet,
       onClick: () => navigate("/finances"),
       color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
+    },
+    {
+      label: "Schedule",
+      icon: Calendar,
+      onClick: () => navigate("/dashboard/calendar"),
+      color: "bg-green-100 text-green-700 hover:bg-green-200",
     },
   ];
 
