@@ -1,12 +1,13 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, List, PlayCircle, PauseCircle } from "lucide-react";
 import { Prospect } from "@/types/prospects";
 import { useState } from "react";
 import { AssignSequenceDialog } from "@/components/prospects/components/AssignSequenceDialog";
 import { useSequenceAssignment } from "@/components/prospects/hooks/useSequenceAssignment";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface ProjectsListProps {
   projects: Prospect[];
@@ -63,6 +64,13 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
     }
   };
 
+  const getSequenceStatusIcon = (status?: string) => {
+    if (!status) return null;
+    return status === 'active' ? 
+      <PlayCircle className="h-4 w-4 text-green-500" /> : 
+      <PauseCircle className="h-4 w-4 text-amber-500" />;
+  };
+
   return (
     <>
       <Table>
@@ -72,7 +80,8 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
             <TableHead className="text-left">Email</TableHead>
             <TableHead className="text-left">First Name</TableHead>
             <TableHead className="text-left">Website</TableHead>
-            <TableHead className="text-left">Accelerator Program</TableHead>
+            <TableHead className="text-left">Sequence</TableHead>
+            <TableHead className="text-left">Step</TableHead>
             <TableHead className="text-left">Status</TableHead>
             <TableHead className="text-left">Actions</TableHead>
           </TableRow>
@@ -95,18 +104,45 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
                   </a>
                 )}
               </TableCell>
-              <TableCell className="text-left">{project.training_event}</TableCell>
-              <TableCell className="text-left">{project.status}</TableCell>
               <TableCell className="text-left">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => handleConvertToSequence(project.id)}
-                >
-                  Convert to Sequence
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                {project.sequence_name ? (
+                  <div className="flex items-center gap-2">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                    <span>{project.sequence_name}</span>
+                  </div>
+                ) : '-'}
+              </TableCell>
+              <TableCell className="text-left">
+                {project.sequence_name && project.current_step ? (
+                  <Badge variant="secondary">
+                    Step {project.current_step}
+                  </Badge>
+                ) : '-'}
+              </TableCell>
+              <TableCell className="text-left">
+                {project.sequence_name ? (
+                  <div className="flex items-center gap-2">
+                    {getSequenceStatusIcon(project.sequence_status)}
+                    <Badge variant={project.sequence_status === 'active' ? 'default' : 'secondary'}>
+                      {project.sequence_status === 'active' ? 'Active' : 'Paused'}
+                    </Badge>
+                  </div>
+                ) : (
+                  <Badge variant="outline">Not in sequence</Badge>
+                )}
+              </TableCell>
+              <TableCell className="text-left">
+                {!project.sequence_name && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => handleConvertToSequence(project.id)}
+                  >
+                    Convert to Sequence
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
