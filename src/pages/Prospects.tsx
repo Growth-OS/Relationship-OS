@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ProspectsTable } from "@/components/prospects/ProspectsTable";
+import { ProspectsTable } from "@/components/prospects/table/ProspectsTable";
 import { CreateProspectForm } from "@/components/prospects/CreateProspectForm";
 import { CSVUploadDialog } from "@/components/prospects/CSVUploadDialog";
 import { toast } from "sonner";

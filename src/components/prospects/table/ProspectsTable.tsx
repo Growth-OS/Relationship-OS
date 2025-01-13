@@ -12,6 +12,8 @@ import { BulkActions } from "../components/BulkActions";
 import { TablePagination } from "../components/TablePagination";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -30,6 +32,8 @@ export const ProspectsTable = ({
   currentPage,
   totalPages,
   onPageChange,
+  showConverted = false,
+  onShowConvertedChange,
   isLoading,
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
@@ -120,7 +124,15 @@ export const ProspectsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-start mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-converted"
+            checked={showConverted}
+            onCheckedChange={onShowConvertedChange}
+          />
+          <Label htmlFor="show-converted">Show converted prospects</Label>
+        </div>
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="gap-2">
