@@ -15,6 +15,7 @@ import { EditSequenceDialog } from "./EditSequenceDialog";
 import { ViewSequenceDialog } from "./ViewSequenceDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Sequence {
   id: string;
@@ -34,15 +35,18 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleDelete = async (sequence: Sequence) => {
     try {
-      const { error } = await supabase
-        .from("sequences")
-        .update({ is_deleted: true })
-        .eq("id", sequence.id);
+      const { error } = await supabase.rpc('delete_sequence', {
+        p_sequence_id: sequence.id,
+        p_user_id: (await supabase.auth.getUser()).data.user?.id
+      });
 
       if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ['sequences'] });
       toast.success("Sequence deleted successfully");
       setDeleteDialogOpen(false);
     } catch (error) {
