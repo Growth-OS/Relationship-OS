@@ -7,11 +7,10 @@ import { settingsRoutes } from "./routes/settings.routes";
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute />,
-    children: [
-      ...authRoutes,
-      ...dashboardRoutes,
-      ...settingsRoutes,
-    ],
+    element: <ProtectedRoute>
+      {[...authRoutes, ...dashboardRoutes, ...settingsRoutes].map((route) => (
+        <route.element key={route.path} />
+      ))}
+    </ProtectedRoute>,
   },
 ]);
