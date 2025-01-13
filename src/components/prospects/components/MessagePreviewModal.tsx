@@ -42,11 +42,11 @@ export const MessagePreviewModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="w-full max-w-3xl p-6">
         <DialogHeader>
           <DialogTitle>Preview Generated Message</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-6 mt-4">
           <Editor
             value={editedMessage}
             onChange={setEditedMessage}

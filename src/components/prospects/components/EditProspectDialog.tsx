@@ -17,14 +17,16 @@ export const EditProspectDialog = ({
 }: EditProspectDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="w-full max-w-2xl p-6">
         <DialogHeader>
           <DialogTitle>Edit Prospect</DialogTitle>
         </DialogHeader>
-        <EditProspectForm 
-          prospect={prospect} 
-          onSuccess={onSuccess}
-        />
+        <div className="mt-4">
+          <EditProspectForm 
+            prospect={prospect} 
+            onSuccess={onSuccess}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
