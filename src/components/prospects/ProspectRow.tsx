@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 interface ProspectRowProps {
   prospect: Prospect;
@@ -28,6 +29,17 @@ export const ProspectRow = ({
   const getStatusBadgeVariant = (status: string | undefined, isConverted: boolean | undefined) => {
     if (status === 'converted' || isConverted) return 'secondary';
     return 'default';
+  };
+
+  const handleConvertToLead = async () => {
+    try {
+      console.log('Converting prospect to sequence:', prospect.id);
+      await onConvertToLead(prospect);
+      toast.success("Prospect successfully converted to a lead");
+    } catch (error) {
+      console.error('Error converting prospect:', error);
+      toast.error("Failed to convert prospect to lead");
+    }
   };
 
   return (
@@ -73,7 +85,7 @@ export const ProspectRow = ({
           prospect={prospect}
           onDelete={onDelete}
           onEdit={onEdit}
-          onConvertToLead={onConvertToLead}
+          onConvertToLead={handleConvertToLead}
         />
       </TableCell>
     </TableRow>

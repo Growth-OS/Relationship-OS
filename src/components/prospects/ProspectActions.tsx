@@ -1,64 +1,62 @@
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, Pencil, Trash2 } from "lucide-react";
+import type { Prospect } from "./types/prospect";
 import { useState } from "react";
-import { EditProspectDialog } from "./components/EditProspectDialog";
-import { ConvertToLeadButton } from "./components/ConvertToLeadButton";
-import type { ProspectActionsProps } from "./types/prospect";
-import { useQueryClient } from "@tanstack/react-query";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }: ProspectActionsProps) => {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showConvertDialog, setShowConvertDialog] = useState(false);
-  const queryClient = useQueryClient();
+interface ProspectActionsProps {
+  prospect: Prospect;
+  onDelete: (id: string) => Promise<void>;
+  onEdit: (prospect: Prospect) => void;
+  onConvertToLead: (prospect: Prospect) => Promise<void>;
+}
+
+export const ProspectActions = ({
+  prospect,
+  onDelete,
+  onEdit,
+  onConvertToLead,
+}: ProspectActionsProps) => {
+  const [isConverting, setIsConverting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    setIsLoading(true);
     try {
+      setIsDeleting(true);
       await onDelete(prospect.id);
     } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   };
 
-  const handleConvertToDeal = async () => {
+  const handleConvertToLead = async () => {
     try {
+      setIsConverting(true);
       await onConvertToLead(prospect);
-      setShowConvertDialog(false);
-      queryClient.invalidateQueries({ queryKey: ['prospects'] });
-    } catch (error) {
-      console.error('Error converting prospect:', error);
+    } finally {
+      setIsConverting(false);
     }
   };
 
   return (
-    <div className="flex gap-2 justify-end">
+    <div className="flex items-center gap-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsEditDialogOpen(true)}
-              className="hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => onEdit(prospect)}
             >
-              <Pencil className="h-4 w-4 text-gray-600" />
+              <Pencil className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Edit prospect details</p>
-          </TooltipContent>
+          <TooltipContent>Edit prospect</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -67,19 +65,12 @@ export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }:
               variant="ghost"
               size="icon"
               onClick={handleDelete}
-              disabled={isLoading}
-              className="hover:bg-red-50 dark:hover:bg-red-900/20"
+              disabled={isDeleting}
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 text-red-600 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4 text-red-600" />
-              )}
+              <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Delete prospect</p>
-          </TooltipContent>
+          <TooltipContent>Delete prospect</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -87,51 +78,20 @@ export const ProspectActions = ({ prospect, onDelete, onEdit, onConvertToLead }:
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setShowConvertDialog(true)}
-              disabled={prospect.is_converted_to_deal || prospect.status === 'converted'}
-              className="hover:bg-purple-50 dark:hover:bg-purple-900/20"
+              onClick={handleConvertToLead}
+              disabled={isConverting || prospect.is_converted_to_deal || prospect.status === 'converted'}
+              className="text-purple-600 hover:text-purple-700"
             >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 text-purple-600 animate-spin" />
-              ) : (
-                <ArrowRight className="h-4 w-4 text-purple-600" />
-              )}
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
             {prospect.is_converted_to_deal || prospect.status === 'converted'
-              ? "This prospect has already been converted to a deal"
-              : "Convert this prospect to a deal"}
+              ? "This prospect has already been converted"
+              : "Convert to lead"}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
-
-      <AlertDialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Conversion to Deal</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to convert this prospect to a deal? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConvertToDeal}>
-              Convert to Deal
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <EditProspectDialog
-        prospect={prospect}
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onSuccess={() => {
-          setIsEditDialogOpen(false);
-          queryClient.invalidateQueries({ queryKey: ['prospects'] });
-        }}
-      />
     </div>
   );
 };
