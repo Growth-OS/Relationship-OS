@@ -37,7 +37,6 @@ export const ProspectRow = ({
 
   const handleConvertToLead = async () => {
     try {
-      console.log('Converting prospect to lead:', prospect.id);
       await onConvertToLead(prospect);
       toast.success("Prospect successfully converted to a lead");
     } catch (error) {
