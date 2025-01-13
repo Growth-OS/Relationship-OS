@@ -2,11 +2,11 @@ import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProspectTableHeaderProps {
-  onSelectAll?: () => void;
   isAllSelected?: boolean;
+  onSelectAll?: (checked: boolean) => void;
 }
 
-export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTableHeaderProps) => {
+export const ProspectTableHeader = ({ isAllSelected, onSelectAll }: ProspectTableHeaderProps) => {
   return (
     <TableHeader>
       <TableRow>
@@ -22,7 +22,8 @@ export const ProspectTableHeader = ({ onSelectAll, isAllSelected }: ProspectTabl
         <TableHead className="text-left">Source</TableHead>
         <TableHead className="text-left">Job Title</TableHead>
         <TableHead className="text-left">Email</TableHead>
-        <TableHead className="text-left">Links</TableHead>
+        <TableHead className="text-left">LinkedIn</TableHead>
+        <TableHead className="text-left">Website</TableHead>
         <TableHead className="text-left">Status</TableHead>
         <TableHead className="text-left">Actions</TableHead>
       </TableRow>

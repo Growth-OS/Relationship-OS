@@ -2,7 +2,6 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExternalLinks } from "../components/ExternalLinks";
 import type { ProspectRowProps } from "../types/prospect";
 
 export const ProspectRow = ({
@@ -38,10 +37,28 @@ export const ProspectRow = ({
       <TableCell className="text-left">{prospect.contact_job_title || '-'}</TableCell>
       <TableCell className="text-left">{prospect.contact_email || '-'}</TableCell>
       <TableCell className="text-left">
-        <ExternalLinks 
-          website={prospect.company_website} 
-          linkedin={prospect.contact_linkedin}
-        />
+        {prospect.contact_linkedin ? (
+          <a 
+            href={prospect.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            View Profile
+          </a>
+        ) : '-'}
+      </TableCell>
+      <TableCell className="text-left">
+        {prospect.company_website ? (
+          <a 
+            href={prospect.company_website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            Visit Website
+          </a>
+        ) : '-'}
       </TableCell>
       <TableCell className="text-left">
         <Badge 
