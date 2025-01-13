@@ -1,11 +1,17 @@
 import { Table, TableBody } from "@/components/ui/table";
 import { useState, useEffect } from "react";
-import { Prospect, EditableProspect } from "../types/prospect";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Prospect } from "@/types/prospects";
+import { EditableProspect } from "../types/prospect";
 import { ProspectTableHeader } from "./ProspectTableHeader";
 import { ProspectRow } from "./ProspectRow";
-import { Button } from "@/components/ui/button";
-import { Filter, Plus, Upload } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CSVUploadDialog } from "../components/CSVUploadDialog";
+import { BulkActions } from "../components/BulkActions";
+import { TablePagination } from "../components/TablePagination";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -21,11 +27,14 @@ interface ProspectsTableProps {
 
 export const ProspectsTable = ({
   prospects,
+  currentPage,
+  totalPages,
+  onPageChange,
   isLoading,
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
@@ -47,6 +56,54 @@ export const ProspectsTable = ({
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('prospects')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success("Prospect deleted successfully");
+    } catch (error) {
+      console.error('Error deleting prospect:', error);
+      toast.error("Failed to delete prospect");
+    }
+  };
+
+  const handleEdit = async (prospect: Prospect) => {
+    try {
+      const { error } = await supabase
+        .from('prospects')
+        .update(prospect)
+        .eq('id', prospect.id);
+
+      if (error) throw error;
+
+      toast.success("Prospect updated successfully");
+    } catch (error) {
+      console.error('Error updating prospect:', error);
+      toast.error("Failed to update prospect");
+    }
+  };
+
+  const handleConvertToLead = async (prospect: Prospect) => {
+    try {
+      const { error } = await supabase
+        .from('prospects')
+        .update({ is_converted_to_deal: true })
+        .eq('id', prospect.id);
+
+      if (error) throw error;
+
+      toast.success("Prospect converted to lead successfully");
+    } catch (error) {
+      console.error('Error converting prospect to lead:', error);
+      toast.error("Failed to convert prospect to lead");
+    }
+  };
+
   const sourceLabels: Record<string, string> = {
     linkedin: "LinkedIn",
     referral: "Referral",
@@ -63,68 +120,55 @@ export const ProspectsTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Filters
-          </Button>
-          {selectedIds.length > 0 && (
-            <span className="text-sm text-muted-foreground">
-              {selectedIds.length} selected
-            </span>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Upload className="h-4 w-4" />
-                Import CSV
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Import Prospects</DialogTitle>
-              </DialogHeader>
-              {/* CSV upload content */}
-            </DialogContent>
-          </Dialog>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Prospect
-          </Button>
-        </div>
+      <div className="flex justify-start mb-4">
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload CSV
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Upload Prospects CSV</DialogTitle>
+            </DialogHeader>
+            <CSVUploadDialog onSuccess={() => {
+              setUploadDialogOpen(false);
+            }} />
+          </DialogContent>
+        </Dialog>
       </div>
 
+      <BulkActions
+        selectedIds={selectedIds}
+        allSelected={selectedIds.length === prospects.length}
+        onSelectAll={handleSelectAll}
+        onSuccess={() => setSelectedIds([])}
+      />
+
       <Table>
-        <ProspectTableHeader
-          onSelectAll={handleSelectAll}
-          isAllSelected={selectedIds.length === prospects.length}
-        />
+        <ProspectTableHeader />
         <TableBody>
           {editableProspects.map((prospect) => (
             <ProspectRow
               key={prospect.id}
               prospect={prospect}
               sourceLabels={sourceLabels}
-              onDelete={async () => {
-                // Handle delete
-              }}
-              onEdit={() => {
-                // Handle edit
-              }}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onConvertToLead={handleConvertToLead}
               isSelected={selectedIds.includes(prospect.id)}
               onSelectChange={(checked) => handleSelectChange(prospect.id, checked)}
             />
           ))}
         </TableBody>
       </Table>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 };
