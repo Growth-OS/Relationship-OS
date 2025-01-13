@@ -54,6 +54,24 @@ export const BulkActions = ({
     }
   };
 
+  const handleAssignToSequence = async (sequenceId: string) => {
+    try {
+      const { error } = await supabase
+        .from('prospects')
+        .update({ sequence_id: sequenceId })
+        .in('id', selectedIds);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      toast.success(`Successfully assigned ${selectedIds.length} prospects to sequence`);
+      onSuccess();
+    } catch (error) {
+      console.error('Error assigning prospects to sequence:', error);
+      toast.error('Failed to assign prospects to sequence');
+    }
+  };
+
   return (
     <div className="flex items-center gap-4 py-4">
       <div className="w-[50px] flex justify-center">
@@ -90,6 +108,7 @@ export const BulkActions = ({
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
         selectedProspects={selectedIds}
+        onAssign={handleAssignToSequence}
         onSuccess={() => {
           setIsAssignDialogOpen(false);
           onSuccess();

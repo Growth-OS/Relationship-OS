@@ -6,7 +6,7 @@ import { ExistingSequencesList } from "./ExistingSequencesList";
 export interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedProspects?: string[];
+  selectedProspects: string[];
   onAssign: (sequenceId: string) => Promise<void>;
   onSuccess: () => void;
 }

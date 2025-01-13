@@ -14,7 +14,6 @@ export interface Prospect {
   first_name?: string;
   training_event?: string;
   is_converted_to_deal?: boolean;
-  created_at: string;
 }
 
 export interface EditableProspect extends Prospect {
@@ -29,14 +28,8 @@ export interface ProspectRowProps {
   setEditValues: (values: Record<string, Partial<Prospect>>) => void;
   startEditing: (prospect: EditableProspect) => void;
   cancelEditing: (id: string) => void;
-}
-
-export interface ProspectActionsProps {
-  prospect: Prospect;
-  onDelete: (id: string) => Promise<void>;
-  onEdit: (prospect: Prospect) => void;
-  onConvertToLead: (prospect: Prospect) => Promise<void>;
-  onConvertToSequence?: (prospect: Prospect) => void;
+  isSelected: boolean;
+  onSelectChange: (checked: boolean) => void;
 }
 
 export interface TableProspectActionsProps {
