@@ -3,16 +3,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateSequenceForm } from "./CreateSequenceForm";
 import { ExistingSequencesList } from "./ExistingSequencesList";
 
-interface AssignSequenceDialogProps {
+export interface AssignSequenceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedProspects: string[];
+  selectedProspects?: string[];
+  onAssign: (sequenceId: string) => Promise<void>;
+  onSuccess: () => void;
 }
 
 export const AssignSequenceDialog = ({
   open,
   onOpenChange,
-  selectedProspects,
+  selectedProspects = [],
+  onAssign,
+  onSuccess,
 }: AssignSequenceDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -28,13 +32,14 @@ export const AssignSequenceDialog = ({
           <TabsContent value="existing">
             <ExistingSequencesList
               selectedProspects={selectedProspects}
-              onSuccess={() => onOpenChange(false)}
+              onAssign={onAssign}
+              onSuccess={onSuccess}
             />
           </TabsContent>
           <TabsContent value="create">
             <CreateSequenceForm
               selectedProspects={selectedProspects}
-              onSuccess={() => onOpenChange(false)}
+              onSuccess={onSuccess}
             />
           </TabsContent>
         </Tabs>

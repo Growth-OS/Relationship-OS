@@ -34,6 +34,7 @@ export const BulkActions = ({
       <AssignSequenceDialog
         open={isAssignDialogOpen}
         onOpenChange={setIsAssignDialogOpen}
+        selectedProspects={selectedIds}
         onAssign={(sequenceId) => onAssignSequence(sequenceId, selectedIds)}
         onSuccess={() => setIsAssignDialogOpen(false)}
       />
