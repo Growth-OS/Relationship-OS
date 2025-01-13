@@ -18,12 +18,12 @@ export const EditableCell = ({
   options 
 }: EditableCellProps) => {
   if (!isEditing) {
-    return <TableCell>{value}</TableCell>;
+    return <TableCell className="text-left">{value}</TableCell>;
   }
 
   if (type === "select" && options) {
     return (
-      <TableCell>
+      <TableCell className="text-left">
         <Select value={value} onValueChange={onChange}>
           <SelectTrigger>
             <SelectValue />
@@ -41,7 +41,7 @@ export const EditableCell = ({
   }
 
   return (
-    <TableCell>
+    <TableCell className="text-left">
       <Input
         type={type}
         value={value}

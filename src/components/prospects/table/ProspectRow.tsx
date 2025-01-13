@@ -1,4 +1,4 @@
-import { TableRow } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { EditableCell } from "./EditableCell";
 import { ProspectActions } from "./ProspectActions";
 import type { ProspectRowProps, EditableProspect } from "../types/prospect";
@@ -12,6 +12,8 @@ export const ProspectRow = ({
   setEditValues,
   startEditing,
   cancelEditing,
+  isSelected,
+  onSelectChange,
 }: ProspectRowProps) => {
   const handleInputChange = (field: keyof EditableProspect, value: string) => {
     setEditValues({
@@ -64,36 +66,59 @@ export const ProspectRow = ({
   }));
 
   return (
-    <TableRow>
-      <EditableCell
-        isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.company_name || prospect.company_name}
-        onChange={(value) => handleInputChange("company_name", value)}
-      />
-      <EditableCell
-        isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.contact_email || prospect.contact_email || ""}
-        onChange={(value) => handleInputChange("contact_email", value)}
-        type="email"
-      />
-      <EditableCell
-        isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.source || prospect.source}
-        onChange={(value) => handleInputChange("source", value)}
-        type="select"
-        options={sourceOptions}
-      />
-      <EditableCell
-        isEditing={prospect.isEditing}
-        value={editValues[prospect.id]?.contact_job_title || prospect.contact_job_title || ""}
-        onChange={(value) => handleInputChange("contact_job_title", value)}
-      />
-      <ProspectActions
-        isEditing={prospect.isEditing}
-        onEdit={() => startEditing(prospect)}
-        onSave={saveChanges}
-        onCancel={() => cancelEditing(prospect.id)}
-      />
+    <TableRow className="hover:bg-muted/50">
+      <TableCell className="p-4 text-left">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={(e) => onSelectChange(e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300"
+        />
+      </TableCell>
+      <TableCell className="p-4 text-left font-medium">
+        {prospect.company_name}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {sourceLabels[prospect.source]}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {prospect.contact_job_title || '-'}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {prospect.contact_email || '-'}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {prospect.company_website ? (
+          <a
+            href={prospect.company_website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            Website
+          </a>
+        ) : '-'}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        {prospect.contact_linkedin ? (
+          <a
+            href={prospect.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            LinkedIn
+          </a>
+        ) : '-'}
+      </TableCell>
+      <TableCell className="p-4 text-left">
+        <ProspectActions
+          isEditing={prospect.isEditing}
+          onEdit={() => startEditing(prospect)}
+          onSave={saveChanges}
+          onCancel={() => cancelEditing(prospect.id)}
+        />
+      </TableCell>
     </TableRow>
   );
 };
