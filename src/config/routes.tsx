@@ -5,6 +5,7 @@ import Prospects from "@/pages/Prospects";
 import Deals from "@/pages/Deals";
 import Login from "@/pages/Login";
 import Index from "@/pages/Index";
+import Sequences from "@/pages/Sequences";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const router = createBrowserRouter([
@@ -32,6 +33,14 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <Prospects />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "sequences",
+            element: (
+              <ProtectedRoute>
+                <Sequences />
               </ProtectedRoute>
             ),
           },
