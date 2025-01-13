@@ -30,7 +30,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           return;
         }
 
-        console.log("Initial session check:", !!session);
         if (mounted) {
           setIsAuthenticated(!!session);
           setIsLoading(false);
@@ -48,9 +47,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Set up auth state change subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, !!session);
-      
       if (!mounted) return;
+
+      console.log("Auth state change:", event, !!session);
 
       switch (event) {
         case 'SIGNED_OUT':
