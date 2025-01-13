@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PlusCircle, Calendar, Briefcase, ListTodo } from "lucide-react";
+import { PlusCircle, Calendar, Briefcase, ListTodo, Receipt, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,6 +75,18 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       icon: Calendar,
       onClick: () => navigate("/dashboard/calendar"),
       color: "bg-green-100 text-green-700 hover:bg-green-200",
+    },
+    {
+      label: "New Invoice",
+      icon: Receipt,
+      onClick: () => navigate("/invoices"),
+      color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
+    },
+    {
+      label: "Add Transaction",
+      icon: Wallet,
+      onClick: () => navigate("/finances"),
+      color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
     },
   ];
 
