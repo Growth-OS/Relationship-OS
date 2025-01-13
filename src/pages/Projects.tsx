@@ -7,8 +7,6 @@ import { ProjectsKanban } from "@/components/projects/ProjectsKanban";
 import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
-import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("all");
@@ -41,10 +39,6 @@ const Projects = () => {
           </div>
           <div className="flex gap-2">
             <CreateProjectButton />
-            <Button variant="outline">
-              <Upload className="h-4 w-4 mr-2" />
-              Import CSV
-            </Button>
           </div>
         </div>
       </div>
