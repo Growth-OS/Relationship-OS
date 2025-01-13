@@ -28,6 +28,7 @@ export const ExistingSequencesList = ({
         .from("sequences")
         .select("*, sequence_steps(*)")
         .eq("status", "active")
+        .eq("is_deleted", false) // Add this line to filter out deleted sequences
         .order("created_at", { ascending: false });
 
       if (error) throw error;
