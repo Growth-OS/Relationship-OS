@@ -8,6 +8,7 @@ import { EditableProspect } from "./types/prospect";
 import { ProspectTableHeader } from "./table/ProspectTableHeader";
 import { ProspectRow } from "./table/ProspectRow";
 import { CSVUploadDialog } from "./components/CSVUploadDialog";
+import { BulkActions } from "./components/BulkActions";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -30,6 +31,7 @@ export const ProspectsTable = ({
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
   const [editValues, setEditValues] = useState<Record<string, Partial<Prospect>>>({});
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
@@ -62,6 +64,22 @@ export const ProspectsTable = ({
     });
   };
 
+  const handleSelectAll = () => {
+    if (selectedIds.length === prospects.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(prospects.map(p => p.id));
+    }
+  };
+
+  const handleSelectChange = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(prevId => prevId !== id));
+    }
+  };
+
   const sourceLabels: Record<string, string> = {
     linkedin: "LinkedIn",
     referral: "Referral",
@@ -75,6 +93,8 @@ export const ProspectsTable = ({
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  const selectedProspects = prospects.filter(p => selectedIds.includes(p.id));
 
   return (
     <div className="space-y-4">
@@ -97,6 +117,14 @@ export const ProspectsTable = ({
         </Dialog>
       </div>
 
+      <BulkActions
+        selectedIds={selectedIds}
+        allSelected={selectedIds.length === prospects.length}
+        onSelectAll={handleSelectAll}
+        selectedProspects={selectedProspects}
+        onSuccess={() => setSelectedIds([])}
+      />
+
       <Table>
         <ProspectTableHeader />
         <TableBody>
@@ -110,6 +138,8 @@ export const ProspectsTable = ({
               setEditValues={setEditValues}
               startEditing={startEditing}
               cancelEditing={cancelEditing}
+              isSelected={selectedIds.includes(prospect.id)}
+              onSelectChange={(checked) => handleSelectChange(prospect.id, checked)}
             />
           ))}
         </TableBody>
