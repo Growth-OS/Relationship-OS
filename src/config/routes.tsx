@@ -61,6 +61,14 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "deals/new",
+            element: (
+              <ProtectedRoute>
+                <Deals />
+              </ProtectedRoute>
+            ),
+          },
+          {
             path: "projects",
             element: (
               <ProtectedRoute>
@@ -78,6 +86,14 @@ export const router = createBrowserRouter([
           },
           {
             path: "tasks",
+            element: (
+              <ProtectedRoute>
+                <Tasks />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "tasks/new",
             element: (
               <ProtectedRoute>
                 <Tasks />
@@ -141,7 +157,23 @@ export const router = createBrowserRouter([
             ),
           },
           {
+            path: "finances/new",
+            element: (
+              <ProtectedRoute>
+                <Finances />
+              </ProtectedRoute>
+            ),
+          },
+          {
             path: "invoices",
+            element: (
+              <ProtectedRoute>
+                <Invoices />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "invoices/new",
             element: (
               <ProtectedRoute>
                 <Invoices />

@@ -61,25 +61,25 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     {
       label: "New Task",
       icon: ListTodo,
-      onClick: () => navigate("/dashboard/tasks"),
+      onClick: () => navigate("/dashboard/tasks/new"),
       color: "bg-purple-100 text-purple-700 hover:bg-purple-200",
     },
     {
       label: "New Deal",
       icon: Briefcase,
-      onClick: () => navigate("/dashboard/deals"),
+      onClick: () => navigate("/dashboard/deals/new"),
       color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
     },
     {
       label: "New Invoice",
       icon: Receipt,
-      onClick: () => navigate("/dashboard/invoices"),
+      onClick: () => navigate("/dashboard/invoices/new"),
       color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
     },
     {
       label: "Add Transaction",
       icon: Wallet,
-      onClick: () => navigate("/dashboard/finances"),
+      onClick: () => navigate("/dashboard/finances/new"),
       color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
     },
     {
