@@ -966,6 +966,44 @@ export type Database = {
         }
         Relationships: []
       }
+      sequence_analytics: {
+        Row: {
+          average_time_per_step: unknown | null
+          completed_steps: number | null
+          created_at: string
+          id: string
+          sequence_id: string
+          total_prospects: number | null
+          updated_at: string
+        }
+        Insert: {
+          average_time_per_step?: unknown | null
+          completed_steps?: number | null
+          created_at?: string
+          id?: string
+          sequence_id: string
+          total_prospects?: number | null
+          updated_at?: string
+        }
+        Update: {
+          average_time_per_step?: unknown | null
+          completed_steps?: number | null
+          created_at?: string
+          id?: string
+          sequence_id?: string
+          total_prospects?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sequence_analytics_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sequence_assignments: {
         Row: {
           completed_at: string | null
@@ -975,7 +1013,9 @@ export type Database = {
           paused_at: string | null
           prospect_id: string
           sequence_id: string
+          skipped_steps: number[] | null
           status: string
+          updated_at: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -985,7 +1025,9 @@ export type Database = {
           paused_at?: string | null
           prospect_id: string
           sequence_id: string
+          skipped_steps?: number[] | null
           status?: string
+          updated_at?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -995,7 +1037,9 @@ export type Database = {
           paused_at?: string | null
           prospect_id?: string
           sequence_id?: string
+          skipped_steps?: number[] | null
           status?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1026,6 +1070,7 @@ export type Database = {
           created_at: string
           error_message: string
           id: string
+          notified: boolean | null
           sequence_id: string | null
           user_id: string | null
         }
@@ -1033,6 +1078,7 @@ export type Database = {
           created_at?: string
           error_message: string
           id?: string
+          notified?: boolean | null
           sequence_id?: string | null
           user_id?: string | null
         }
@@ -1040,6 +1086,7 @@ export type Database = {
           created_at?: string
           error_message?: string
           id?: string
+          notified?: boolean | null
           sequence_id?: string | null
           user_id?: string | null
         }
@@ -1057,29 +1104,35 @@ export type Database = {
         Row: {
           created_at: string
           delay_days: number | null
+          dynamic_template: boolean | null
           id: string
           message_template: string | null
           sequence_id: string
           step_number: number
           step_type: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
           delay_days?: number | null
+          dynamic_template?: boolean | null
           id?: string
           message_template?: string | null
           sequence_id: string
           step_number: number
           step_type: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
           delay_days?: number | null
+          dynamic_template?: boolean | null
           id?: string
           message_template?: string | null
           sequence_id?: string
           step_number?: number
           step_type?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1129,6 +1182,7 @@ export type Database = {
           max_steps: number
           name: string
           status: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
@@ -1139,6 +1193,7 @@ export type Database = {
           max_steps?: number
           name: string
           status?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
@@ -1149,6 +1204,7 @@ export type Database = {
           max_steps?: number
           name?: string
           status?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1614,10 +1670,12 @@ export type Database = {
           current_step: number | null
           first_name: string | null
           id: string | null
+          last_sequence_update: string | null
           notes: string | null
           paused_at: string | null
           sequence_name: string | null
           sequence_status: string | null
+          skipped_steps: number[] | null
           source: Database["public"]["Enums"]["lead_source"] | null
           status: string | null
           training_event: string | null

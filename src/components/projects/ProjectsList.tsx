@@ -1,5 +1,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import { Prospect } from "@/types/prospects";
 
 interface ProjectsListProps {
@@ -45,6 +47,7 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
           <TableHead className="text-left">Website</TableHead>
           <TableHead className="text-left">Accelerator Program</TableHead>
           <TableHead className="text-left">Status</TableHead>
+          <TableHead className="text-left">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -67,6 +70,20 @@ export const ProjectsList = ({ projects, isLoading, filters }: ProjectsListProps
             </TableCell>
             <TableCell className="text-left">{project.training_event}</TableCell>
             <TableCell className="text-left">{project.status}</TableCell>
+            <TableCell className="text-left">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  // TODO: Implement sequence conversion logic
+                  console.log('Converting prospect to sequence:', project.id);
+                }}
+              >
+                Convert to Sequence
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
