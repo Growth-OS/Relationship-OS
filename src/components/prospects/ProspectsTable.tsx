@@ -9,6 +9,7 @@ import { ProspectTableHeader } from "./table/ProspectTableHeader";
 import { ProspectRow } from "./table/ProspectRow";
 import { CSVUploadDialog } from "./components/CSVUploadDialog";
 import { BulkActions } from "./components/BulkActions";
+import { TablePagination } from "./components/TablePagination";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -25,6 +26,9 @@ interface ProspectsTableProps {
 
 export const ProspectsTable = ({
   prospects,
+  currentPage,
+  totalPages,
+  onPageChange,
   onUpdate,
   isLoading,
 }: ProspectsTableProps) => {
@@ -141,6 +145,12 @@ export const ProspectsTable = ({
           ))}
         </TableBody>
       </Table>
+
+      <TablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 };
