@@ -55,6 +55,17 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
     }
   };
 
+  if (!sequences?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <p className="text-muted-foreground">No sequences found</p>
+        <p className="text-sm text-muted-foreground">
+          Create a sequence to get started
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       <Table>
@@ -69,7 +80,7 @@ export const SequencesList = ({ sequences }: SequencesListProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sequences?.map((sequence) => (
+          {sequences.map((sequence) => (
             <TableRow key={sequence.id}>
               <TableCell>{sequence.name}</TableCell>
               <TableCell>{sequence.description}</TableCell>
