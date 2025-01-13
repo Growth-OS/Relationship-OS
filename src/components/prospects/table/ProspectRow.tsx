@@ -10,6 +10,7 @@ export const ProspectRow = ({
   sourceLabels,
   onDelete,
   onEdit,
+  onConvertToLead,
   isSelected,
   onSelectChange,
 }: ProspectRowProps) => {
@@ -52,6 +53,7 @@ export const ProspectRow = ({
           prospect={prospect}
           onDelete={onDelete}
           onEdit={onEdit}
+          onConvertToLead={onConvertToLead}
         />
       </TableCell>
     </TableRow>

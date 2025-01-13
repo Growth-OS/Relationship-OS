@@ -22,6 +22,7 @@ export interface ProspectRowProps {
   sourceLabels: Record<string, string>;
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: Prospect) => void;
+  onConvertToLead: (prospect: Prospect) => Promise<void>;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }

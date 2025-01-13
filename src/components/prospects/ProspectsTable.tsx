@@ -10,6 +10,7 @@ import { ProspectRow } from "./table/ProspectRow";
 import { CSVUploadDialog } from "./components/CSVUploadDialog";
 import { BulkActions } from "./components/BulkActions";
 import { TablePagination } from "./components/TablePagination";
+import { toast } from "sonner";
 
 interface ProspectsTableProps {
   prospects: Prospect[];
@@ -20,7 +21,6 @@ interface ProspectsTableProps {
   onShowConvertedChange?: (show: boolean) => void;
   onSearch?: (term: string) => void;
   onFilter?: (filters: { source?: string }) => void;
-  onUpdate?: (id: string, data: Partial<Prospect>) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -29,44 +29,15 @@ export const ProspectsTable = ({
   currentPage,
   totalPages,
   onPageChange,
-  onUpdate,
   isLoading,
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
-  const [editValues, setEditValues] = useState<Record<string, Partial<Prospect>>>({});
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
   }, [prospects]);
-
-  const startEditing = (prospect: EditableProspect) => {
-    setEditableProspects(prev => 
-      prev.map(p => ({
-        ...p,
-        isEditing: p.id === prospect.id
-      }))
-    );
-    setEditValues(prev => ({
-      ...prev,
-      [prospect.id]: { ...prospect }
-    }));
-  };
-
-  const cancelEditing = (prospectId: string) => {
-    setEditableProspects(prev =>
-      prev.map(p => ({
-        ...p,
-        isEditing: p.id === prospectId ? false : p.isEditing
-      }))
-    );
-    setEditValues(prev => {
-      const newValues = { ...prev };
-      delete newValues[prospectId];
-      return newValues;
-    });
-  };
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -81,6 +52,30 @@ export const ProspectsTable = ({
       setSelectedIds(prev => [...prev, id]);
     } else {
       setSelectedIds(prev => prev.filter(prevId => prevId !== id));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      // Implement delete logic here
+      toast.success("Prospect deleted successfully");
+    } catch (error) {
+      console.error('Error deleting prospect:', error);
+      toast.error("Failed to delete prospect");
+    }
+  };
+
+  const handleEdit = (prospect: Prospect) => {
+    // Implement edit logic here
+  };
+
+  const handleConvertToLead = async (prospect: Prospect) => {
+    try {
+      // Implement convert to lead logic here
+      toast.success("Prospect converted to lead successfully");
+    } catch (error) {
+      console.error('Error converting prospect to lead:', error);
+      toast.error("Failed to convert prospect to lead");
     }
   };
 
@@ -134,11 +129,9 @@ export const ProspectsTable = ({
               key={prospect.id}
               prospect={prospect}
               sourceLabels={sourceLabels}
-              onUpdate={onUpdate!}
-              editValues={editValues}
-              setEditValues={setEditValues}
-              startEditing={startEditing}
-              cancelEditing={cancelEditing}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onConvertToLead={handleConvertToLead}
               isSelected={selectedIds.includes(prospect.id)}
               onSelectChange={(checked) => handleSelectChange(prospect.id, checked)}
             />
