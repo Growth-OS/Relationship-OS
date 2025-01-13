@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Pencil, Trash2, ListPlus } from "lucide-react";
+import { ArrowRight, Pencil, Trash2 } from "lucide-react";
 import type { Prospect } from "./types/prospect";
 import { useState } from "react";
 import {
@@ -14,7 +14,6 @@ interface ProspectActionsProps {
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: Prospect) => void;
   onConvertToLead: (prospect: Prospect) => Promise<void>;
-  onConvertToSequence?: (prospect: Prospect) => void;
 }
 
 export const ProspectActions = ({
@@ -22,7 +21,6 @@ export const ProspectActions = ({
   onDelete,
   onEdit,
   onConvertToLead,
-  onConvertToSequence,
 }: ProspectActionsProps) => {
   const [isConverting, setIsConverting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -45,8 +43,7 @@ export const ProspectActions = ({
     }
   };
 
-  const isInSequence = prospect.status === 'in_sequence';
-  const isConverted = prospect.is_converted_to_deal || prospect.status === 'converted';
+  const isConverted = prospect.is_converted_to_deal;
 
   return (
     <div className="flex items-center gap-2">
@@ -96,29 +93,6 @@ export const ProspectActions = ({
               : "Convert to lead"}
           </TooltipContent>
         </Tooltip>
-
-        {onConvertToSequence && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onConvertToSequence(prospect)}
-                disabled={isInSequence || isConverted}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <ListPlus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isInSequence
-                ? "Already in sequence"
-                : isConverted
-                ? "Cannot add converted prospect to sequence"
-                : "Add to sequence"}
-            </TooltipContent>
-          </Tooltip>
-        )}
       </TooltipProvider>
     </div>
   );

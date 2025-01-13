@@ -5,7 +5,6 @@ import Prospects from "@/pages/Prospects";
 import Deals from "@/pages/Deals";
 import Login from "@/pages/Login";
 import Index from "@/pages/Index";
-import Sequences from "@/pages/Sequences";
 import Projects from "@/pages/Projects";
 import Tasks from "@/pages/Tasks";
 import Travels from "@/pages/Travels";
@@ -50,14 +49,6 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <Prospects />
-              </ProtectedRoute>
-            ),
-          },
-          {
-            path: "sequences",
-            element: (
-              <ProtectedRoute>
-                <Sequences />
               </ProtectedRoute>
             ),
           },

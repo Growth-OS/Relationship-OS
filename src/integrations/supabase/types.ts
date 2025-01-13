@@ -906,8 +906,6 @@ export type Database = {
           id: string
           is_converted_to_deal: boolean | null
           notes: string | null
-          sequence_id: string | null
-          sequence_status: string | null
           source: Database["public"]["Enums"]["lead_source"]
           status: string | null
           training_event: string | null
@@ -924,8 +922,6 @@ export type Database = {
           id?: string
           is_converted_to_deal?: boolean | null
           notes?: string | null
-          sequence_id?: string | null
-          sequence_status?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
           training_event?: string | null
@@ -942,22 +938,12 @@ export type Database = {
           id?: string
           is_converted_to_deal?: boolean | null
           notes?: string | null
-          sequence_id?: string | null
-          sequence_status?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           status?: string | null
           training_event?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "prospects_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       revenue: {
         Row: {
@@ -979,249 +965,6 @@ export type Database = {
           id?: string
           monthly_revenue?: number
           updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      sequence_analytics: {
-        Row: {
-          average_time_per_step: unknown | null
-          completed_steps: number | null
-          created_at: string
-          id: string
-          sequence_id: string
-          total_prospects: number | null
-          updated_at: string
-        }
-        Insert: {
-          average_time_per_step?: unknown | null
-          completed_steps?: number | null
-          created_at?: string
-          id?: string
-          sequence_id: string
-          total_prospects?: number | null
-          updated_at?: string
-        }
-        Update: {
-          average_time_per_step?: unknown | null
-          completed_steps?: number | null
-          created_at?: string
-          id?: string
-          sequence_id?: string
-          total_prospects?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sequence_analytics_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sequence_assignments: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          current_step: number
-          id: string
-          paused_at: string | null
-          prospect_id: string
-          sequence_id: string
-          skipped_steps: number[] | null
-          status: string
-          updated_at: string | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          current_step?: number
-          id?: string
-          paused_at?: string | null
-          prospect_id: string
-          sequence_id: string
-          skipped_steps?: number[] | null
-          status?: string
-          updated_at?: string | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          current_step?: number
-          id?: string
-          paused_at?: string | null
-          prospect_id?: string
-          sequence_id?: string
-          skipped_steps?: number[] | null
-          status?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sequence_assignments_prospect_id_fkey"
-            columns: ["prospect_id"]
-            isOneToOne: false
-            referencedRelation: "prospect_sequence_info"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sequence_assignments_prospect_id_fkey"
-            columns: ["prospect_id"]
-            isOneToOne: false
-            referencedRelation: "prospects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sequence_assignments_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sequence_error_logs: {
-        Row: {
-          created_at: string
-          error_message: string
-          id: string
-          notified: boolean | null
-          sequence_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          error_message: string
-          id?: string
-          notified?: boolean | null
-          sequence_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          error_message?: string
-          id?: string
-          notified?: boolean | null
-          sequence_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sequence_error_logs_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sequence_steps: {
-        Row: {
-          created_at: string
-          delay_days: number | null
-          dynamic_template: boolean | null
-          id: string
-          message_template: string | null
-          sequence_id: string
-          step_number: number
-          step_type: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          delay_days?: number | null
-          dynamic_template?: boolean | null
-          id?: string
-          message_template?: string | null
-          sequence_id: string
-          step_number: number
-          step_type: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          delay_days?: number | null
-          dynamic_template?: boolean | null
-          id?: string
-          message_template?: string | null
-          sequence_id?: string
-          step_number?: number
-          step_type?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sequence_steps_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sequence_template_variables: {
-        Row: {
-          created_at: string
-          id: string
-          step_id: string
-          variable_name: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          step_id: string
-          variable_name: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          step_id?: string
-          variable_name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "sequence_template_variables_step_id_fkey"
-            columns: ["step_id"]
-            isOneToOne: false
-            referencedRelation: "sequence_steps"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sequences: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          is_deleted: boolean
-          max_steps: number
-          name: string
-          status: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_deleted?: boolean
-          max_steps?: number
-          name: string
-          status?: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          is_deleted?: boolean
-          max_steps?: number
-          name?: string
-          status?: string
-          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1332,7 +1075,6 @@ export type Database = {
           id: string
           priority: string | null
           project_id: string | null
-          sequence_id: string | null
           source: Database["public"]["Enums"]["task_source"] | null
           source_id: string | null
           substack_post_id: string | null
@@ -1348,7 +1090,6 @@ export type Database = {
           id?: string
           priority?: string | null
           project_id?: string | null
-          sequence_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
@@ -1364,7 +1105,6 @@ export type Database = {
           id?: string
           priority?: string | null
           project_id?: string | null
-          sequence_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
@@ -1384,13 +1124,6 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_sequence_id_fkey"
-            columns: ["sequence_id"]
-            isOneToOne: false
-            referencedRelation: "sequences"
             referencedColumns: ["id"]
           },
           {
@@ -1671,31 +1404,6 @@ export type Database = {
           paid_invoices: number | null
           total_amount: number | null
           total_invoices: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
-      prospect_sequence_info: {
-        Row: {
-          company_name: string | null
-          company_website: string | null
-          completed_at: string | null
-          contact_email: string | null
-          contact_job_title: string | null
-          contact_linkedin: string | null
-          created_at: string | null
-          current_step: number | null
-          first_name: string | null
-          id: string | null
-          last_sequence_update: string | null
-          notes: string | null
-          paused_at: string | null
-          sequence_name: string | null
-          sequence_status: string | null
-          skipped_steps: number[] | null
-          source: Database["public"]["Enums"]["lead_source"] | null
-          status: string | null
-          training_event: string | null
           user_id: string | null
         }
         Relationships: []

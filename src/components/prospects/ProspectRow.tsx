@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLinks } from "./components/ExternalLinks";
 import type { Prospect } from "./types/prospect";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 
 interface ProspectRowProps {
@@ -13,7 +12,6 @@ interface ProspectRowProps {
   onDelete: (id: string) => Promise<void>;
   onEdit: (prospect: any) => void;
   onConvertToLead: (prospect: Prospect) => Promise<void>;
-  onConvertToSequence?: (prospect: Prospect) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }
@@ -24,20 +22,16 @@ export const ProspectRow = ({
   onDelete, 
   onEdit,
   onConvertToLead,
-  onConvertToSequence,
   isSelected,
   onSelectChange
 }: ProspectRowProps) => {
-  const getStatusBadgeVariant = (status: string | undefined, isConverted: boolean | undefined) => {
-    if (status === 'converted' || isConverted) return 'secondary';
-    if (status === 'in_sequence') return 'default';
+  const getStatusBadgeVariant = (isConverted: boolean | undefined) => {
+    if (isConverted) return 'secondary';
     return 'outline';
   };
 
   const getStatusText = () => {
-    if (prospect.status === 'converted' || prospect.is_converted_to_deal) return 'Converted to Lead';
-    if (prospect.status === 'in_sequence') return `In Sequence${prospect.sequence_name ? `: ${prospect.sequence_name}` : ''}`;
-    if (prospect.status === 'completed_sequence') return 'Sequence Completed';
+    if (prospect.is_converted_to_deal) return 'Converted to Lead';
     return 'Active';
   };
 
@@ -75,23 +69,11 @@ export const ProspectRow = ({
         />
       </TableCell>
       <TableCell className="p-4 text-left">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge 
-                variant={getStatusBadgeVariant(prospect.status, prospect.is_converted_to_deal)}
-                className={prospect.status === 'in_sequence' ? 'bg-blue-100 text-blue-800' : ''}
-              >
-                {getStatusText()}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              {prospect.status === 'in_sequence' && prospect.current_step 
-                ? `Current Step: ${prospect.current_step}`
-                : getStatusText()}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Badge 
+          variant={getStatusBadgeVariant(prospect.is_converted_to_deal)}
+        >
+          {getStatusText()}
+        </Badge>
       </TableCell>
       <TableCell className="p-4 text-left">
         <ProspectActions
@@ -99,7 +81,6 @@ export const ProspectRow = ({
           onDelete={onDelete}
           onEdit={onEdit}
           onConvertToLead={handleConvertToLead}
-          onConvertToSequence={onConvertToSequence}
         />
       </TableCell>
     </TableRow>
