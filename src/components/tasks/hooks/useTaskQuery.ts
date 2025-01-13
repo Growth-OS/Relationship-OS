@@ -22,8 +22,7 @@ export const useTaskQuery = ({ sourceType, sourceId, showArchived = false }: Use
             *,
             projects(id, name),
             deals(id, company_name),
-            substack_posts(id, title),
-            sequences(id, name)
+            substack_posts(id, title)
           `)
           .eq("user_id", user.id)
           .eq("completed", showArchived);
@@ -50,6 +49,8 @@ export const useTaskQuery = ({ sourceType, sourceId, showArchived = false }: Use
           console.error("Error fetching tasks:", error);
           throw error;
         }
+
+        console.log("Fetched tasks:", data);
 
         return {
           tasks: data || [],
