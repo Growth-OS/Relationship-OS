@@ -14,17 +14,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const location = useLocation();
 
   useEffect(() => {
+    let mounted = true;
+
     // Initial session check
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Session check error:", error);
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+          }
+          return;
+        }
+
         console.log("Initial session check:", !!session);
-        setIsAuthenticated(!!session);
+        if (mounted) {
+          setIsAuthenticated(!!session);
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Session check error:", error);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+        }
       }
     };
 
@@ -34,6 +50,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state change:", event, !!session);
       
+      if (!mounted) return;
+
       switch (event) {
         case 'SIGNED_OUT':
           setIsAuthenticated(false);
@@ -43,24 +61,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           break;
 
         case 'SIGNED_IN':
-          setIsAuthenticated(true);
-          const returnPath = localStorage.getItem('return_path') || '/dashboard';
-          localStorage.removeItem('return_path');
-          navigate(returnPath, { replace: true });
+          if (session) {
+            setIsAuthenticated(true);
+            const returnPath = localStorage.getItem('return_path') || '/dashboard';
+            localStorage.removeItem('return_path');
+            navigate(returnPath, { replace: true });
+          }
           break;
 
         case 'TOKEN_REFRESHED':
-          setIsAuthenticated(true);
-          console.log('Session token refreshed');
+          if (session) {
+            setIsAuthenticated(true);
+            console.log('Session token refreshed');
+          }
           break;
 
         case 'USER_UPDATED':
-          toast.success('Your profile has been updated');
+          if (session) {
+            setIsAuthenticated(true);
+            toast.success('Your profile has been updated');
+          }
           break;
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
