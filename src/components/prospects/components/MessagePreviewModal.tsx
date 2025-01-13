@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Editor } from "@/components/editor/Editor";
 import { Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface MessagePreviewModalProps {
   open: boolean;

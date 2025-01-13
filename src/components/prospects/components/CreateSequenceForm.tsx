@@ -14,6 +14,11 @@ import { useState } from "react";
 import { MessagePreviewModal } from "./MessagePreviewModal";
 import { useMessageGeneration } from "../hooks/useMessageGeneration";
 
+interface CreateSequenceFormProps {
+  onSuccess: () => void;
+  selectedProspects: string[];
+}
+
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
@@ -313,3 +318,4 @@ export const CreateSequenceForm = ({ onSuccess, selectedProspects }: CreateSeque
     </Form>
   );
 };
+
