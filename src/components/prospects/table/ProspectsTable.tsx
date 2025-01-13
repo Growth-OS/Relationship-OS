@@ -16,50 +16,20 @@ interface ProspectsTableProps {
   onShowConvertedChange?: (show: boolean) => void;
   onSearch?: (term: string) => void;
   onFilter?: (filters: { source?: string }) => void;
-  onUpdate?: (id: string, data: Partial<Prospect>) => Promise<void>;
   isLoading?: boolean;
 }
 
 export const ProspectsTable = ({
   prospects,
-  onUpdate,
   isLoading,
 }: ProspectsTableProps) => {
   const [editableProspects, setEditableProspects] = useState<EditableProspect[]>([]);
-  const [editValues, setEditValues] = useState<Record<string, Partial<Prospect>>>({});
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     setEditableProspects(prospects.map(p => ({ ...p, isEditing: false })));
   }, [prospects]);
-
-  const startEditing = (prospect: EditableProspect) => {
-    setEditableProspects(prev => 
-      prev.map(p => ({
-        ...p,
-        isEditing: p.id === prospect.id
-      }))
-    );
-    setEditValues(prev => ({
-      ...prev,
-      [prospect.id]: { ...prospect }
-    }));
-  };
-
-  const cancelEditing = (prospectId: string) => {
-    setEditableProspects(prev =>
-      prev.map(p => ({
-        ...p,
-        isEditing: p.id === prospectId ? false : p.isEditing
-      }))
-    );
-    setEditValues(prev => {
-      const newValues = { ...prev };
-      delete newValues[prospectId];
-      return newValues;
-    });
-  };
 
   const handleSelectAll = () => {
     if (selectedIds.length === prospects.length) {
@@ -143,11 +113,12 @@ export const ProspectsTable = ({
               key={prospect.id}
               prospect={prospect}
               sourceLabels={sourceLabels}
-              onUpdate={onUpdate!}
-              editValues={editValues}
-              setEditValues={setEditValues}
-              startEditing={startEditing}
-              cancelEditing={cancelEditing}
+              onDelete={async () => {
+                // Handle delete
+              }}
+              onEdit={() => {
+                // Handle edit
+              }}
               isSelected={selectedIds.includes(prospect.id)}
               onSelectChange={(checked) => handleSelectChange(prospect.id, checked)}
             />

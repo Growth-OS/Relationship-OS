@@ -3,16 +3,7 @@ import { ProspectActions } from "./ProspectActions";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExternalLinks } from "../components/ExternalLinks";
-import type { Prospect } from "../types/prospect";
-
-interface ProspectRowProps {
-  prospect: Prospect;
-  sourceLabels: Record<string, string>;
-  onDelete: (id: string) => Promise<void>;
-  onEdit: (prospect: Prospect) => void;
-  isSelected: boolean;
-  onSelectChange: (checked: boolean) => void;
-}
+import type { ProspectRowProps } from "../types/prospect";
 
 export const ProspectRow = ({
   prospect,
