@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 
 interface DashboardHeaderProps {
   firstName: string;
@@ -16,65 +15,33 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
   const [greeting, setGreeting] = useState("");
   const navigate = useNavigate();
 
-  const { data: highlights, error: highlightsError } = useQuery({
+  const { data: highlights } = useQuery({
     queryKey: ['dashboard-highlights'],
     queryFn: async () => {
-      console.log('Fetching dashboard highlights...');
-      
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) {
-        console.error('Auth error:', authError);
-        throw authError;
-      }
-      
-      if (!user) {
-        console.error('No authenticated user found');
-        throw new Error("Not authenticated");
-      }
-
-      console.log('Authenticated user:', user.id);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       // Get tasks due today
       const today = format(new Date(), 'yyyy-MM-dd');
-      const { count: tasksDueToday, error: tasksError } = await supabase
+      const { count: tasksDueToday } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('completed', false)
         .eq('due_date', today);
 
-      if (tasksError) {
-        console.error('Tasks fetch error:', tasksError);
-        throw tasksError;
-      }
-
       // Get active deals
-      const { count: activeDeals, error: dealsError } = await supabase
+      const { count: activeDeals } = await supabase
         .from('deals')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .neq('stage', 'lost');
-
-      if (dealsError) {
-        console.error('Deals fetch error:', dealsError);
-        throw dealsError;
-      }
-
-      console.log('Fetched data:', { tasksDueToday, activeDeals });
 
       return {
         tasksDueToday: tasksDueToday || 0,
         activeDeals: activeDeals || 0,
       };
     },
-    retry: 1,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Query error:', error);
-        toast.error("Failed to load dashboard data. Please check your connection and try again.");
-      }
-    }
   });
 
   useEffect(() => {
@@ -89,10 +56,6 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       setGreeting("Working late");
     }
   }, []);
-
-  if (highlightsError) {
-    console.error('Highlights error:', highlightsError);
-  }
 
   const quickActions = [
     {
