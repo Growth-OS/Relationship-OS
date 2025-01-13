@@ -4,7 +4,7 @@ import Dashboard from "@/pages/Dashboard";
 import Prospects from "@/pages/Prospects";
 import Deals from "@/pages/Deals";
 import Login from "@/pages/Login";
-import Index from "@/pages/Index";
+import Landing from "@/pages/Landing";
 import Projects from "@/pages/Projects";
 import Tasks from "@/pages/Tasks";
 import Travels from "@/pages/Travels";
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Index />,
+        element: <Landing />,
       },
       {
         path: "dashboard",
