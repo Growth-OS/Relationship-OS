@@ -69,9 +69,11 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       };
     },
     retry: 1,
-    onError: (error) => {
-      console.error('Query error:', error);
-      toast.error("Failed to load dashboard data. Please check your connection and try again.");
+    meta: {
+      onError: (error: Error) => {
+        console.error('Query error:', error);
+        toast.error("Failed to load dashboard data. Please check your connection and try again.");
+      }
     }
   });
 
