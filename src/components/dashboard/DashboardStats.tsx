@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Users2, ListTodo, Building2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Users2, ListTodo, Building2, TrendingUp, TrendingDown, Minus, Receipt } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { startOfQuarter, endOfQuarter, subQuarters } from "date-fns";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
@@ -56,6 +56,13 @@ export const DashboardStats = () => {
         .gte('created_at', lastStartDate.toISOString())
         .lte('created_at', lastEndDate.toISOString());
 
+      // Get invoice metrics
+      const { data: invoiceMetrics } = await supabase
+        .from('invoice_metrics')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
       return {
         activeDeals: {
           current: activeDealsCount || 0,
@@ -66,6 +73,12 @@ export const DashboardStats = () => {
           current: pendingTasksCount || 0,
           previous: lastQuarterTasks || 0,
           trend: generateTrendData(12)
+        },
+        invoices: {
+          current: invoiceMetrics?.overdue_invoices || 0,
+          previous: 0,
+          trend: generateTrendData(12),
+          totalAmount: invoiceMetrics?.overdue_amount || 0
         }
       };
     },
@@ -115,13 +128,14 @@ export const DashboardStats = () => {
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      title: "Pending Tasks",
-      current: stats?.pendingTasks.current || 0,
-      previous: stats?.pendingTasks.previous || 0,
-      trend: stats?.pendingTasks.trend || [],
-      icon: ListTodo,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50 dark:bg-purple-900/20",
+      title: "Outstanding Invoices",
+      current: stats?.invoices.current || 0,
+      previous: stats?.invoices.previous || 0,
+      trend: stats?.invoices.trend || [],
+      subtitle: `£${(stats?.invoices.totalAmount || 0).toLocaleString()} total`,
+      icon: Receipt,
+      color: "text-orange-500",
+      bgColor: "bg-orange-50 dark:bg-orange-900/20",
     },
   ];
 
@@ -165,6 +179,11 @@ export const DashboardStats = () => {
                 <p className="text-2xl font-bold">
                   {stat.title === "Quarterly Revenue" ? `£${stat.current.toLocaleString()}` : stat.current.toLocaleString()}
                 </p>
+                {stat.subtitle && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {stat.subtitle}
+                  </p>
+                )}
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   vs {stat.title === "Quarterly Revenue" ? `£${stat.previous.toLocaleString()}` : stat.previous.toLocaleString()} last quarter
                 </div>
