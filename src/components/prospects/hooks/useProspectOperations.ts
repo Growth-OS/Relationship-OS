@@ -1,70 +1,77 @@
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Prospect } from "../types/prospect";
+import { useQueryClient } from "@tanstack/react-query";
+import type { Prospect } from "../types/prospect";
 
 export const useProspectOperations = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+
   const handleDelete = async (id: string) => {
     try {
+      setIsLoading(true);
       const { error } = await supabase
-        .from("prospects")
+        .from('prospects')
         .delete()
-        .eq("id", id);
+        .eq('id', id);
 
       if (error) throw error;
-      toast.success("Prospect deleted successfully");
+
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      toast.success('Prospect deleted successfully');
     } catch (error) {
-      console.error("Error deleting prospect:", error);
-      toast.error("Failed to delete prospect");
+      console.error('Error deleting prospect:', error);
+      toast.error('Failed to delete prospect');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleConvertToLead = async (prospect: Prospect) => {
+  const handleBulkDelete = async (ids: string[]) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
+      setIsLoading(true);
       const { error } = await supabase
-        .from("deals")
-        .insert({
-          company_name: prospect.company_name,
-          contact_email: prospect.contact_email,
-          contact_job_title: prospect.contact_job_title,
-          contact_linkedin: prospect.contact_linkedin,
-          source: prospect.source,
-          stage: "lead",
-          user_id: user.id
-        });
+        .from('prospects')
+        .delete()
+        .in('id', ids);
 
       if (error) throw error;
-      toast.success("Prospect converted to lead successfully");
+
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      toast.success('Prospects deleted successfully');
     } catch (error) {
-      console.error("Error converting prospect:", error);
-      toast.error("Failed to convert prospect to lead");
+      console.error('Error deleting prospects:', error);
+      toast.error('Failed to delete prospects');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleAssignSequence = async (sequenceId: string, selectedIds: string[]) => {
+  const handleUpdate = async (id: string, data: Partial<Prospect>) => {
     try {
+      setIsLoading(true);
       const { error } = await supabase
-        .from("sequence_assignments")
-        .insert(
-          selectedIds.map((prospectId) => ({
-            sequence_id: sequenceId,
-            prospect_id: prospectId,
-            status: "active",
-            current_step: 1,
-          }))
-        );
+        .from('prospects')
+        .update(data)
+        .eq('id', id);
 
       if (error) throw error;
-      toast.success("Sequence assigned successfully");
-      return true;
+
+      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      toast.success('Prospect updated successfully');
     } catch (error) {
-      console.error("Error assigning sequence:", error);
-      toast.error("Failed to assign sequence");
-      return false;
+      console.error('Error updating prospect:', error);
+      toast.error('Failed to update prospect');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { handleDelete, handleConvertToLead, handleAssignSequence };
+  return {
+    isLoading,
+    handleDelete,
+    handleBulkDelete,
+    handleUpdate,
+  };
 };

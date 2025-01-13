@@ -1,65 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskData, TaskSource } from "../types";
+import { TaskSource } from "@/integrations/supabase/types/tasks";
 
-interface UseTaskQueryProps {
-  sourceType?: TaskSource;
-  sourceId?: string;
-  showArchived?: boolean;
-}
-
-export const useTaskQuery = ({ sourceType, sourceId, showArchived = false }: UseTaskQueryProps) => {
+export const useTaskQuery = (source?: TaskSource, sourceId?: string) => {
   return useQuery({
-    queryKey: ["tasks", sourceType, sourceId, showArchived],
+    queryKey: ['tasks', source, sourceId],
     queryFn: async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-        let query = supabase
-          .from("tasks")
-          .select(`
-            *,
-            projects(id, name),
-            deals(id, company_name),
-            substack_posts(id, title)
-          `)
-          .eq("user_id", user.id)
-          .eq("completed", showArchived);
+      let query = supabase
+        .from('tasks')
+        .select(`
+          *,
+          projects(id, name),
+          deals(id, company_name),
+          substack_posts(id, title)
+        `)
+        .eq('user_id', user.id);
 
-        // If sourceType is provided and not in archived view, filter by source type
-        if (sourceType && !showArchived) {
-          query = query.eq("source", sourceType);
-        }
-
-        // If sourceId is provided, filter by source_id or project_id depending on the source type
-        if (sourceId) {
-          if (sourceType === "projects") {
-            query = query.eq("project_id", sourceId);
-          } else {
-            query = query.eq("source_id", sourceId);
-          }
-        }
-
-        query = query.order("due_date", { ascending: true });
-
-        const { data, error } = await query;
-
-        if (error) {
-          console.error("Error fetching tasks:", error);
-          throw error;
-        }
-
-        console.log("Fetched tasks:", data);
-
-        return {
-          tasks: data || [],
-          total: data?.length || 0
-        };
-      } catch (error) {
-        console.error("Error in task query:", error);
-        throw error;
+      if (source) {
+        query = query.eq('source', source);
       }
+
+      if (sourceId) {
+        query = query.eq('source_id', sourceId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      return data;
     },
   });
 };
