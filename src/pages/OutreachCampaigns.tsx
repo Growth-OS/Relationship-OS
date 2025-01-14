@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, UserPlus } from "lucide-react";
+import { Upload, UserPlus, Target } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateLeadForm } from "@/components/leads/CreateLeadForm";
 import { CSVUploadDialog } from "@/components/leads/components/CSVUploadDialog";
@@ -10,7 +10,7 @@ import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CampaignsList } from "@/components/campaigns/CampaignsList";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Lead } from "@/components/leads/types/lead";
+import { Lead, LeadSource } from "@/components/leads/types/lead";
 
 const ITEMS_PER_PAGE = 10;
 
