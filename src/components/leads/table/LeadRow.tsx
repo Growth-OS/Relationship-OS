@@ -31,6 +31,11 @@ export const LeadRow = ({
     setEditedLead(prev => ({ ...prev, [field]: value }));
   };
 
+  const getSourceLabel = (source: string | null | undefined) => {
+    if (!source) return 'Other';
+    return sourceLabels[source] || source;
+  };
+
   return (
     <TableRow className="hover:bg-muted/50">
       <TableCell className="w-[50px]">
@@ -51,7 +56,7 @@ export const LeadRow = ({
       </TableCell>
       <TableCell>
         <Badge variant="outline">
-          {sourceLabels[lead.source || 'other']}
+          {getSourceLabel(lead.source)}
         </Badge>
       </TableCell>
       <TableCell>
@@ -82,8 +87,7 @@ export const LeadRow = ({
       <TableCell>
         <LeadActions
           lead={lead}
-          isEditing={isEditing}
-          onEdit={handleEdit}
+          onEdit={() => handleEdit()}
           onDelete={onDelete}
         />
       </TableCell>

@@ -8,8 +8,9 @@ export interface Lead {
   company_website?: string;
   first_name?: string;
   notes?: string;
-  source?: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
+  source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
   status?: string;
+  user_id?: string;
 }
 
 export interface EditableLead extends Lead {
@@ -20,7 +21,7 @@ export interface LeadRowProps {
   lead: Lead;
   sourceLabels: Record<string, string>;
   onDelete: (id: string) => Promise<void>;
-  onEdit: () => void;
+  onEdit: (lead: Lead) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }

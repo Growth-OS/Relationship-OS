@@ -13,11 +13,11 @@ export const SourceField = ({ form }: SourceFieldProps) => {
       name="source"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Lead Source</FormLabel>
+          <FormLabel>Source</FormLabel>
           <Select onValueChange={field.onChange} defaultValue={field.value}>
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select lead source" />
+                <SelectValue placeholder="Select source" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
