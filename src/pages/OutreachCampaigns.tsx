@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateCampaignDialog } from "@/components/prospects/components/sequence-form/CreateCampaignDialog";
+import { CSVUploadDialog } from "@/components/prospects/components/sequence-form/CSVUploadDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -114,7 +115,8 @@ const OutreachCampaigns = () => {
         </TabsList>
 
         <TabsContent value="campaigns" className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <CSVUploadDialog />
             <CreateCampaignDialog />
           </div>
 
