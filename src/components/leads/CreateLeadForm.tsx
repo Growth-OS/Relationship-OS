@@ -1,176 +1,75 @@
-import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CompanyFields } from "./form-fields/CompanyFields";
+import { ContactFields } from "./form-fields/ContactFields";
+import { SourceField } from "./form-fields/SourceField";
+import { NotesField } from "./form-fields/NotesField";
+
+const formSchema = z.object({
+  company_name: z.string().min(1, "Company name is required"),
+  company_website: z.string().url().optional().or(z.literal("")),
+  contact_email: z.string().email().optional().or(z.literal("")),
+  contact_job_title: z.string().optional(),
+  contact_linkedin: z.string().url().optional().or(z.literal("")),
+  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
+  notes: z.string().optional(),
+  first_name: z.string().min(1, "First name is required"),
+});
 
 interface CreateLeadFormProps {
   onSuccess: () => void;
 }
 
 export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    company_name: "",
-    first_name: "",
-    contact_email: "",
-    contact_job_title: "",
-    contact_linkedin: "",
-    company_website: "",
-    source: "other",
-    notes: "",
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      source: 'other',
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error('You must be logged in to create leads');
+        toast.error('You must be logged in to add leads');
         return;
       }
 
       const { error } = await supabase
         .from('leads')
         .insert({
-          ...formData,
+          ...values,
           user_id: user.id,
           status: 'new'
         });
 
       if (error) throw error;
 
-      toast.success("Lead created successfully");
+      toast.success('Lead added successfully');
+      form.reset();
       onSuccess();
     } catch (error) {
-      console.error('Error creating lead:', error);
-      toast.error("Failed to create lead");
-    } finally {
-      setIsSubmitting(false);
+      console.error('Error adding lead:', error);
+      toast.error('Failed to add lead');
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSourceChange = (value: string) => {
-    setFormData(prev => ({ ...prev, source: value }));
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="company_name">Company Name *</Label>
-        <Input
-          id="company_name"
-          name="company_name"
-          value={formData.company_name}
-          onChange={handleChange}
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="first_name">Contact First Name</Label>
-        <Input
-          id="first_name"
-          name="first_name"
-          value={formData.first_name}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact_email">Contact Email</Label>
-        <Input
-          id="contact_email"
-          name="contact_email"
-          type="email"
-          value={formData.contact_email}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact_job_title">Job Title</Label>
-        <Input
-          id="contact_job_title"
-          name="contact_job_title"
-          value={formData.contact_job_title}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact_linkedin">LinkedIn Profile</Label>
-        <Input
-          id="contact_linkedin"
-          name="contact_linkedin"
-          value={formData.contact_linkedin}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="company_website">Company Website</Label>
-        <Input
-          id="company_website"
-          name="company_website"
-          value={formData.company_website}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="source">Source</Label>
-        <Select
-          value={formData.source}
-          onValueChange={handleSourceChange}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select source" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="linkedin">LinkedIn</SelectItem>
-            <SelectItem value="referral">Referral</SelectItem>
-            <SelectItem value="website">Website</SelectItem>
-            <SelectItem value="cold_outreach">Cold Outreach</SelectItem>
-            <SelectItem value="conference">Conference</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
-        <Input
-          id="notes"
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
-        />
-      </div>
-
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Creating..." : "Create Lead"}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <CompanyFields form={form} />
+        <ContactFields form={form} />
+        <SourceField form={form} />
+        <NotesField form={form} />
+        <Button type="submit" className="w-full">Add Lead</Button>
+      </form>
+    </Form>
   );
 };
