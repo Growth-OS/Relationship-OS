@@ -72,7 +72,27 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
   const handleDelete = async () => {
     try {
-      // First, delete all campaign steps
+      // First, get all leads associated with this campaign
+      const { data: leadCampaigns, error: leadsError } = await supabase
+        .from('lead_campaigns')
+        .select('lead_id')
+        .eq('campaign_id', campaign.id);
+
+      if (leadsError) throw leadsError;
+
+      // Delete tasks associated with these leads and this campaign
+      if (leadCampaigns && leadCampaigns.length > 0) {
+        const leadIds = leadCampaigns.map(lc => lc.lead_id);
+        const { error: tasksError } = await supabase
+          .from('tasks')
+          .delete()
+          .eq('source', 'other')
+          .in('source_id', leadIds);
+
+        if (tasksError) throw tasksError;
+      }
+
+      // Delete all campaign steps
       const { error: stepsError } = await supabase
         .from('campaign_steps')
         .delete()
@@ -80,13 +100,13 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
       if (stepsError) throw stepsError;
 
-      // Then, delete all lead campaign associations
-      const { error: leadsError } = await supabase
+      // Delete all lead campaign associations
+      const { error: leadCampaignsError } = await supabase
         .from('lead_campaigns')
         .delete()
         .eq('campaign_id', campaign.id);
 
-      if (leadsError) throw leadsError;
+      if (leadCampaignsError) throw leadCampaignsError;
 
       // Finally, delete the campaign itself
       const { error: campaignError } = await supabase
@@ -144,7 +164,7 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the campaign "{campaign.name}" and remove all associated leads from it. This action cannot be undone.
+                    This will permanently delete the campaign "{campaign.name}" and remove all associated leads and tasks from it. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
