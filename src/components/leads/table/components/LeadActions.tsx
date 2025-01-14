@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Send } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +15,7 @@ import { LeadActionsProps } from "../../types/lead";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditLeadDialog } from "../../components/EditLeadDialog";
+import { AddToCampaignDialog } from "../../components/AddToCampaignDialog";
 
 export const LeadActions = ({
   lead,
@@ -24,6 +25,7 @@ export const LeadActions = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -47,6 +49,14 @@ export const LeadActions = ({
         onClick={() => setShowEditDialog(true)}
       >
         <Edit className="h-4 w-4" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setShowCampaignDialog(true)}
+      >
+        <Send className="h-4 w-4" />
       </Button>
 
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -87,6 +97,12 @@ export const LeadActions = ({
           setShowEditDialog(false);
           onEdit();
         }}
+      />
+
+      <AddToCampaignDialog
+        lead={lead}
+        open={showCampaignDialog}
+        onOpenChange={setShowCampaignDialog}
       />
     </div>
   );
