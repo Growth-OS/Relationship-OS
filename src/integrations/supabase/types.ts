@@ -1641,7 +1641,7 @@ export type Database = {
         | "travels"
       project_status: "active" | "completed" | "on_hold"
       sequence_status: "active" | "paused" | "completed"
-      sequence_step_type: "email" | "linkedin"
+      sequence_step_type: "email" | "linkedin" | "email_2"
       social_platform: "linkedin" | "instagram" | "both"
       social_post_status: "draft" | "ready" | "published" | "scheduled"
       substack_post_status:
