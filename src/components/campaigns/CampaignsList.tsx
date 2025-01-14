@@ -70,6 +70,10 @@ export const CampaignsList = () => {
     setViewStepsOpen(true);
   };
 
+  const handleCampaignDeleted = async () => {
+    await refetch();
+  };
+
   if (campaignsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -81,7 +85,7 @@ export const CampaignsList = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <CreateCampaignDialog />
+        <CreateCampaignDialog onSuccess={refetch} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -91,7 +95,7 @@ export const CampaignsList = () => {
             campaign={campaign}
             onViewSteps={handleViewSteps}
             onActivationChange={refetch}
-            onDelete={refetch}
+            onDelete={handleCampaignDeleted}
           />
         ))}
       </div>
@@ -111,7 +115,7 @@ export const CampaignsList = () => {
             <p className="text-muted-foreground mb-4">
               Create your first outreach campaign to get started
             </p>
-            <CreateCampaignDialog />
+            <CreateCampaignDialog onSuccess={refetch} />
           </CardContent>
         </Card>
       )}
