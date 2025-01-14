@@ -6,7 +6,11 @@ import { CreateCampaignForm } from "./CreateCampaignForm";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const CreateCampaignDialog = () => {
+interface CreateCampaignDialogProps {
+  onSuccess?: () => void;
+}
+
+export const CreateCampaignDialog = ({ onSuccess }: CreateCampaignDialogProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
@@ -16,6 +20,9 @@ export const CreateCampaignDialog = () => {
       title: "Campaign created",
       description: "Your outreach campaign has been created successfully.",
     });
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
