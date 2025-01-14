@@ -66,9 +66,12 @@ export const LeadsTable = ({
 
   const handleEdit = async (lead: Lead) => {
     try {
+      // Create a new object without the isEditing property
+      const { isEditing, ...leadData } = lead as EditableLead;
+      
       const { error } = await supabase
         .from('leads')
-        .update(lead)
+        .update(leadData)
         .eq('id', lead.id);
 
       if (error) throw error;
