@@ -94,16 +94,14 @@ const OutreachCampaigns = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Outreach Campaigns</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your outreach campaigns and leads
-          </p>
-        </div>
+      <div className="flex flex-col space-y-2 p-8 pb-4">
+        <h1 className="text-3xl font-bold tracking-tight">Outreach Campaigns</h1>
+        <p className="text-muted-foreground">
+          Manage your outreach campaigns and leads
+        </p>
       </div>
 
-      <Tabs defaultValue="campaigns" className="space-y-4">
+      <Tabs defaultValue="campaigns" className="px-8">
         <TabsList>
           <TabsTrigger value="campaigns" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
