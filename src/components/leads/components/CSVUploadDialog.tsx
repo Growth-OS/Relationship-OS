@@ -63,15 +63,24 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         }
 
         if (!hasError) {
+          // Map the "other" column to notes if notes is not present
+          const notes = lead.notes || lead.note || lead.other || '';
+          
+          // Ensure source is one of the valid values
+          const validSources = ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'];
+          const source = lead.source && validSources.includes(lead.source.toLowerCase()) 
+            ? lead.source.toLowerCase() 
+            : 'other';
+
           leads.push({
-            company_name: lead.company || lead['company name'] || '',
+            company_name: lead['company name'] || lead.company || '',
             contact_email: lead.email,
             first_name: lead['first name'],
             company_website: lead.website || lead['company website'] || '',
             contact_linkedin: lead.linkedin || lead['linkedin profile'] || '',
-            contact_job_title: lead['job title'] || lead['position'] || '',
-            notes: lead.notes || lead.note || '',
-            source: lead.source || 'csv',
+            contact_job_title: lead['job title'] || lead.position || '',
+            notes: notes,
+            source: source,
             status: 'new'
           });
         }

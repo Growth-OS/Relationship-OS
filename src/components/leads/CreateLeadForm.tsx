@@ -16,7 +16,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
-  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'other']),
+  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other']),
   notes: z.string().optional(),
   first_name: z.string().min(1, "First name is required"),
 });
