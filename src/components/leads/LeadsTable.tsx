@@ -80,8 +80,33 @@ export const LeadsTable = ({
       )
       .subscribe();
 
+    // Also subscribe to lead_campaigns changes to update lead status
+    const campaignChannel = supabase
+      .channel('lead-campaign-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'lead_campaigns'
+        },
+        async (payload) => {
+          const { error } = await supabase
+            .from('leads')
+            .update({ status: 'in_campaign' })
+            .eq('id', payload.new.lead_id);
+
+          if (error) {
+            console.error('Error updating lead status:', error);
+            toast.error("Failed to update lead status");
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(campaignChannel);
     };
   }, []);
 
