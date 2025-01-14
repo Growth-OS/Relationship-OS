@@ -80,19 +80,18 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
       if (leadsError) throw leadsError;
 
-      // Update leads status back to "new"
-      if (leadCampaigns && leadCampaigns.length > 0) {
-        const leadIds = leadCampaigns.map(lc => lc.lead_id);
-        
-        // Update leads status to "new"
-        const { error: updateLeadsError } = await supabase
-          .from('leads')
-          .update({ status: 'new' })
-          .in('id', leadIds);
+      const leadIds = leadCampaigns?.map(lc => lc.lead_id) || [];
 
-        if (updateLeadsError) throw updateLeadsError;
+      // First delete lead campaign associations
+      const { error: leadCampaignsError } = await supabase
+        .from('lead_campaigns')
+        .delete()
+        .eq('campaign_id', campaign.id);
 
-        // Delete tasks associated with these leads
+      if (leadCampaignsError) throw leadCampaignsError;
+
+      // Then delete tasks associated with these leads
+      if (leadIds.length > 0) {
         const { error: tasksError } = await supabase
           .from('tasks')
           .delete()
@@ -110,13 +109,15 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
       if (stepsError) throw stepsError;
 
-      // Delete all lead campaign associations
-      const { error: leadCampaignsError } = await supabase
-        .from('lead_campaigns')
-        .delete()
-        .eq('campaign_id', campaign.id);
+      // Update leads status back to "new"
+      if (leadIds.length > 0) {
+        const { error: updateLeadsError } = await supabase
+          .from('leads')
+          .update({ status: 'new' })
+          .in('id', leadIds);
 
-      if (leadCampaignsError) throw leadCampaignsError;
+        if (updateLeadsError) throw updateLeadsError;
+      }
 
       // Finally, delete the campaign itself
       const { error: campaignError } = await supabase
@@ -174,7 +175,7 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the campaign "{campaign.name}" and remove all associated leads and tasks from it. This action cannot be undone.
+                    This will permanently delete the campaign "{campaign.name}", remove all associated leads and tasks from it, and reset lead statuses. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
