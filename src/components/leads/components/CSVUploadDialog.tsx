@@ -69,7 +69,7 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             contact_linkedin: lead.linkedin || lead['linkedin profile'] || '',
             contact_job_title: lead['job title'] || '',
             notes: lead.notes || '',
-            source: 'csv'
+            source: lead.source || 'csv'
           });
         }
 
@@ -189,6 +189,7 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
           <li>LinkedIn Profile</li>
           <li>Job Title</li>
           <li>Notes</li>
+          <li>Source</li>
         </ul>
       </div>
     </div>
