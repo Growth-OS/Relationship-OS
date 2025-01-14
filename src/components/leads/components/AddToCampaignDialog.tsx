@@ -47,7 +47,7 @@ export const AddToCampaignDialog = ({
 
       if (error) throw error;
 
-      toast.success("Lead added to campaign successfully");
+      toast.success(`${lead.company_name} has been added to the campaign`);
       onOpenChange(false);
     } catch (error) {
       console.error('Error adding lead to campaign:', error);
