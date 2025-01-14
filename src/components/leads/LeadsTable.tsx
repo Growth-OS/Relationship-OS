@@ -32,6 +32,35 @@ export const LeadsTable = ({
     setEditableLeads(leads.map(p => ({ ...p, isEditing: false })));
   }, [leads]);
 
+  // Subscribe to real-time changes
+  useEffect(() => {
+    const channel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads'
+        },
+        (payload) => {
+          // Update the leads list based on the change type
+          if (payload.eventType === 'DELETE') {
+            setEditableLeads(prev => prev.filter(lead => lead.id !== payload.old.id));
+          } else if (payload.eventType === 'UPDATE') {
+            setEditableLeads(prev => prev.map(lead => 
+              lead.id === payload.new.id ? { ...payload.new, isEditing: false } : lead
+            ));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const handleSelectAll = () => {
     if (selectedIds.length === leads.length) {
       setSelectedIds([]);
