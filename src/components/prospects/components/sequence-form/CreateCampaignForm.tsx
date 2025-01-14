@@ -41,12 +41,19 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
     try {
       setIsSubmitting(true);
       
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('You must be logged in to create campaigns');
+        return;
+      }
+
       const { data: campaign, error: campaignError } = await supabase
         .from("outreach_campaigns")
         .insert({
           name: data.name,
           description: data.description,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
         })
         .select()
         .single();
@@ -60,7 +67,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
           ...step,
           campaign_id: campaign.id,
           sequence_order: index,
-          step_type: step.step_type || "email", // Ensure step_type is never undefined
         }));
 
         const { error: stepsError } = await supabase
