@@ -7,6 +7,14 @@ import { toast } from "sonner";
 import Papa from "papaparse";
 import { supabase } from "@/integrations/supabase/client";
 
+interface CSVCampaignRow {
+  name: string;
+  description?: string;
+  [key: `step_${number}_type`]: string;
+  [key: `step_${number}_delay`]: string;
+  [key: `step_${number}_message`]: string;
+}
+
 export const CSVUploadDialog = () => {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -36,8 +44,8 @@ export const CSVUploadDialog = () => {
             return;
           }
 
-          // Process each row
-          for (const row of data) {
+          // Process each row with proper typing
+          for (const row of data as CSVCampaignRow[]) {
             try {
               // Create campaign
               const { data: campaign, error: campaignError } = await supabase
