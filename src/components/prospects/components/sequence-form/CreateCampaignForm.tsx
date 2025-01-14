@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormValues, formSchema } from "./types";
+import { toast } from "sonner";
 
 interface CreateCampaignFormProps {
   onSuccess: () => void;
@@ -18,6 +19,7 @@ interface CreateCampaignFormProps {
 export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
   const [expandedSteps, setExpandedSteps] = useState<number[]>([0]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
@@ -37,7 +39,9 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
 
   const onSubmit = async (data: FormValues) => {
     try {
-      const { data: campaign } = await supabase
+      setIsSubmitting(true);
+      
+      const { data: campaign, error: campaignError } = await supabase
         .from("outreach_campaigns")
         .insert({
           name: data.name,
@@ -47,20 +51,35 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
         .select()
         .single();
 
+      if (campaignError) {
+        throw campaignError;
+      }
+
       if (campaign) {
-        const stepsWithOrder = data.steps.map((step, index) => ({
+        const stepsWithCampaignId = data.steps.map((step, index) => ({
           ...step,
           campaign_id: campaign.id,
           sequence_order: index,
+          step_type: step.step_type || "email", // Ensure step_type is never undefined
         }));
 
-        await supabase.from("campaign_steps").insert(stepsWithOrder);
+        const { error: stepsError } = await supabase
+          .from("campaign_steps")
+          .insert(stepsWithCampaignId);
+
+        if (stepsError) {
+          throw stepsError;
+        }
       }
 
-      queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+      await queryClient.invalidateQueries({ queryKey: ["campaigns"] });
+      toast.success("Campaign created successfully");
       onSuccess();
     } catch (error) {
       console.error("Error creating campaign:", error);
+      toast.error("Failed to create campaign. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -155,8 +174,8 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
           Add Step
         </Button>
 
-        <Button type="submit" className="w-full">
-          Create Campaign
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Creating Campaign..." : "Create Campaign"}
         </Button>
       </form>
     </Form>
