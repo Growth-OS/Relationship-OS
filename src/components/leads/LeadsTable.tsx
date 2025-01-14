@@ -1,5 +1,5 @@
 import { Table, TableBody } from "@/components/ui/table";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Lead } from "./types/lead";
 import { EditableLead } from "./types/lead";
 import { LeadTableHeader } from "./table/LeadTableHeader";
@@ -28,9 +28,14 @@ export const LeadsTable = ({
   const [editableLeads, setEditableLeads] = useState<EditableLead[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  // Memoize the conversion of leads to editableLeads
+  const convertToEditableLeads = useCallback((leads: Lead[]): EditableLead[] => {
+    return leads.map(lead => ({ ...lead, isEditing: false }));
+  }, []);
+
   useEffect(() => {
-    setEditableLeads(leads.map(p => ({ ...p, isEditing: false })));
-  }, [leads]);
+    setEditableLeads(convertToEditableLeads(leads));
+  }, [leads, convertToEditableLeads]);
 
   // Subscribe to real-time changes
   useEffect(() => {
@@ -44,22 +49,33 @@ export const LeadsTable = ({
           table: 'leads'
         },
         (payload) => {
-          // Update the leads list based on the change type
-          if (payload.eventType === 'DELETE') {
-            setEditableLeads(prev => prev.filter(lead => lead.id !== payload.old.id));
-          } else if (payload.eventType === 'UPDATE') {
-            setEditableLeads(prev => prev.map(lead => {
-              if (lead.id === payload.new.id) {
-                // Ensure all Lead properties are included when creating the EditableLead
-                const updatedLead: EditableLead = {
-                  ...(payload.new as Lead),
-                  isEditing: false
-                };
-                return updatedLead;
-              }
-              return lead;
-            }));
-          }
+          setEditableLeads(prevLeads => {
+            if (payload.eventType === 'DELETE') {
+              return prevLeads.filter(lead => lead.id !== payload.old.id);
+            } 
+            
+            if (payload.eventType === 'UPDATE') {
+              return prevLeads.map(lead => {
+                if (lead.id === payload.new.id) {
+                  return {
+                    ...(payload.new as Lead),
+                    isEditing: false
+                  };
+                }
+                return lead;
+              });
+            }
+
+            if (payload.eventType === 'INSERT') {
+              const newLead = {
+                ...(payload.new as Lead),
+                isEditing: false
+              };
+              return [newLead, ...prevLeads];
+            }
+
+            return prevLeads;
+          });
         }
       )
       .subscribe();
@@ -69,21 +85,17 @@ export const LeadsTable = ({
     };
   }, []);
 
-  const handleSelectAll = () => {
-    if (selectedIds.length === leads.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(leads.map(p => p.id));
-    }
-  };
+  const handleSelectAll = useCallback(() => {
+    setSelectedIds(prev => 
+      prev.length === leads.length ? [] : leads.map(p => p.id)
+    );
+  }, [leads]);
 
-  const handleSelectChange = (id: string, checked: boolean) => {
-    if (checked) {
-      setSelectedIds(prev => [...prev, id]);
-    } else {
-      setSelectedIds(prev => prev.filter(prevId => prevId !== id));
-    }
-  };
+  const handleSelectChange = useCallback((id: string, checked: boolean) => {
+    setSelectedIds(prev => 
+      checked ? [...prev, id] : prev.filter(prevId => prevId !== id)
+    );
+  }, []);
 
   const handleDelete = async (id: string) => {
     try {
@@ -103,7 +115,6 @@ export const LeadsTable = ({
 
   const handleEdit = async (lead: Lead) => {
     try {
-      // Create a new object without the isEditing property
       const { isEditing, ...leadData } = lead as EditableLead;
       
       const { error } = await supabase
