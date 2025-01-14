@@ -12,6 +12,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { LeadActionsProps } from "../../types/lead";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const LeadActions = ({
   lead,
@@ -19,6 +21,23 @@ export const LeadActions = ({
   onEdit,
   onDelete,
 }: LeadActionsProps) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await onDelete(lead.id);
+      toast.success("Lead deleted successfully");
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      toast.error("Failed to delete lead");
+    } finally {
+      setIsDeleting(false);
+      setIsDialogOpen(false);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Button
@@ -28,7 +47,7 @@ export const LeadActions = ({
       >
         <Edit className="h-4 w-4" />
       </Button>
-      <AlertDialog>
+      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogTrigger asChild>
           <Button
             variant="ghost"
@@ -48,10 +67,11 @@ export const LeadActions = ({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => onDelete(lead.id)}
+              onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
