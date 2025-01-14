@@ -72,12 +72,29 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
   const handleDelete = async () => {
     try {
-      const { error } = await supabase
+      // First, delete all campaign steps
+      const { error: stepsError } = await supabase
+        .from('campaign_steps')
+        .delete()
+        .eq('campaign_id', campaign.id);
+
+      if (stepsError) throw stepsError;
+
+      // Then, delete all lead campaign associations
+      const { error: leadsError } = await supabase
+        .from('lead_campaigns')
+        .delete()
+        .eq('campaign_id', campaign.id);
+
+      if (leadsError) throw leadsError;
+
+      // Finally, delete the campaign itself
+      const { error: campaignError } = await supabase
         .from('outreach_campaigns')
         .delete()
         .eq('id', campaign.id);
 
-      if (error) throw error;
+      if (campaignError) throw campaignError;
 
       toast.success('Campaign deleted successfully');
       if (onDelete) {
