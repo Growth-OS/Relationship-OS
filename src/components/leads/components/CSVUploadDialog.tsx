@@ -47,7 +47,9 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         let hasError = false;
 
         headers.forEach((header, index) => {
-          lead[header] = row[index].trim();
+          // Trim whitespace and handle empty values
+          const value = row[index].trim();
+          lead[header] = value || null;
         });
 
         if (!validateEmail(lead.email)) {
@@ -67,9 +69,10 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             first_name: lead['first name'],
             company_website: lead.website || lead['company website'] || '',
             contact_linkedin: lead.linkedin || lead['linkedin profile'] || '',
-            contact_job_title: lead['job title'] || '',
-            notes: lead.notes || '',
-            source: lead.source || 'csv'
+            contact_job_title: lead['job title'] || lead['position'] || '',
+            notes: lead.notes || lead.note || '',
+            source: lead.source || 'csv',
+            status: 'new'
           });
         }
 
@@ -87,8 +90,8 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
 
         const batchSize = 100;
         for (let i = 0; i < leads.length; i += batchSize) {
-          const batch = leads.slice(i, i + batchSize).map(p => ({
-            ...p,
+          const batch = leads.slice(i, i + batchSize).map(lead => ({
+            ...lead,
             user_id: user.id
           }));
 
