@@ -13,6 +13,7 @@ import { CreateLeadForm } from "@/components/leads/CreateLeadForm";
 import { CSVUploadDialog } from "@/components/leads/components/CSVUploadDialog";
 import { toast } from "sonner";
 import { Lead, LeadSource } from "@/components/leads/types/lead";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,10 +25,20 @@ interface Campaign {
   created_at: string;
 }
 
+interface CampaignStep {
+  id: string;
+  step_type: string;
+  delay_days: number;
+  message_template: string | null;
+  sequence_order: number;
+}
+
 const OutreachCampaigns = () => {
   const [createLeadDialogOpen, setCreateLeadDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const [viewStepsOpen, setViewStepsOpen] = useState(false);
   
   const { data: campaigns, isLoading: campaignsLoading } = useQuery({
     queryKey: ['campaigns'],
@@ -43,6 +54,25 @@ const OutreachCampaigns = () => {
       }
       
       return data as Campaign[];
+    },
+  });
+
+  const { data: campaignSteps, isLoading: stepsLoading } = useQuery({
+    queryKey: ['campaign_steps', selectedCampaignId],
+    enabled: !!selectedCampaignId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaign_steps')
+        .select('*')
+        .eq('campaign_id', selectedCampaignId)
+        .order('sequence_order', { ascending: true });
+      
+      if (error) {
+        toast.error("Error fetching campaign steps");
+        throw error;
+      }
+      
+      return data as CampaignStep[];
     },
   });
 
@@ -89,6 +119,11 @@ const OutreachCampaigns = () => {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
+  };
+
+  const handleViewSteps = (campaignId: string) => {
+    setSelectedCampaignId(campaignId);
+    setViewStepsOpen(true);
   };
 
   if (campaignsLoading) {
@@ -146,7 +181,11 @@ const OutreachCampaigns = () => {
                     <span className="text-sm">
                       {new Date(campaign.created_at).toLocaleDateString()}
                     </span>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewSteps(campaign.id)}
+                    >
                       <List className="h-4 w-4 mr-2" />
                       View Steps
                     </Button>
@@ -155,6 +194,37 @@ const OutreachCampaigns = () => {
               </Card>
             ))}
           </div>
+
+          <Dialog open={viewStepsOpen} onOpenChange={setViewStepsOpen}>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Campaign Steps</DialogTitle>
+              </DialogHeader>
+              {stepsLoading ? (
+                <div className="flex justify-center p-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <Accordion type="single" collapsible className="w-full">
+                  {campaignSteps?.map((step, index) => (
+                    <AccordionItem key={step.id} value={step.id}>
+                      <AccordionTrigger>
+                        Step {index + 1} - {step.step_type} ({step.delay_days} days)
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium">Message Template:</p>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {step.message_template || "No message template"}
+                          </p>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </DialogContent>
+          </Dialog>
 
           {campaigns?.length === 0 && (
             <Card>
