@@ -22,6 +22,21 @@ export const CampaignStepsDialog = ({
   steps, 
   isLoading 
 }: CampaignStepsDialogProps) => {
+  const getStepTypeDisplay = (type: string) => {
+    switch (type) {
+      case 'email':
+        return 'Email 1';
+      case 'email_2':
+        return 'Email 2';
+      case 'linkedin_connection':
+        return 'LinkedIn Connection';
+      case 'linkedin_message':
+        return 'LinkedIn Message';
+      default:
+        return type;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -37,7 +52,7 @@ export const CampaignStepsDialog = ({
             {steps?.map((step, index) => (
               <AccordionItem key={step.id} value={step.id}>
                 <AccordionTrigger>
-                  Step {index + 1} - {step.step_type} ({step.delay_days} days)
+                  Step {index + 1} - {getStepTypeDisplay(step.step_type)} ({step.delay_days} days)
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2">

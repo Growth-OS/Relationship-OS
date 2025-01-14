@@ -74,7 +74,8 @@ export const SequenceStep = ({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="email">Email 1</SelectItem>
+                  <SelectItem value="email_2">Email 2</SelectItem>
                   <SelectItem value="linkedin_connection">LinkedIn Connection</SelectItem>
                   <SelectItem value="linkedin_message">LinkedIn Message</SelectItem>
                 </SelectContent>
