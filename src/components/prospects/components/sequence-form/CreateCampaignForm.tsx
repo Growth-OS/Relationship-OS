@@ -67,6 +67,7 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
           ...step,
           campaign_id: campaign.id,
           sequence_order: index,
+          step_type: step.step_type, // step_type is now guaranteed to be defined
         }));
 
         const { error: stepsError } = await supabase
