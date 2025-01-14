@@ -8,19 +8,11 @@ import { SequenceStep } from "./SequenceStep";
 import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FormValues, formSchema } from "./types";
 
 interface CreateCampaignFormProps {
   onSuccess: () => void;
-}
-
-interface FormValues {
-  name: string;
-  description: string;
-  steps: {
-    step_type: "email" | "linkedin_connection" | "linkedin_message";
-    delay_days: number;
-    message_template?: string;
-  }[];
 }
 
 export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
@@ -29,6 +21,7 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
   const queryClient = useQueryClient();
 
   const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
