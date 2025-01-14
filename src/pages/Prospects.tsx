@@ -57,8 +57,8 @@ const Prospects = () => {
         throw dataError;
       }
 
-      console.log('Fetched prospects:', prospectsData); // Debug log
-      console.log('Total count:', count); // Debug log
+      console.log('Fetched prospects:', prospectsData);
+      console.log('Total count:', count);
       
       return {
         prospects: prospectsData || [],

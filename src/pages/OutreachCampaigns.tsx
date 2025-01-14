@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { List, Target, UserPlus } from "lucide-react";
+import { List, Target, Upload, UserPlus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateLeadForm } from "@/components/leads/CreateLeadForm";
+import { CSVUploadDialog } from "@/components/leads/components/CSVUploadDialog";
 import { toast } from "sonner";
 
 const ITEMS_PER_PAGE = 10;
@@ -24,6 +25,7 @@ interface Campaign {
 
 const OutreachCampaigns = () => {
   const [createLeadDialogOpen, setCreateLeadDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   
   const { data: campaigns, isLoading: campaignsLoading } = useQuery({
@@ -162,6 +164,24 @@ const OutreachCampaigns = () => {
         <TabsContent value="leads">
           <div className="space-y-4">
             <div className="flex justify-end gap-4">
+              <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload CSV
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle>Upload Leads CSV</DialogTitle>
+                  </DialogHeader>
+                  <CSVUploadDialog onSuccess={() => {
+                    setUploadDialogOpen(false);
+                    toast.success("Leads uploaded successfully");
+                  }} />
+                </DialogContent>
+              </Dialog>
+
               <Dialog open={createLeadDialogOpen} onOpenChange={setCreateLeadDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-black hover:bg-black/90 text-white">
