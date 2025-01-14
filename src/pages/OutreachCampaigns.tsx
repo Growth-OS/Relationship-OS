@@ -66,8 +66,8 @@ export const OutreachCampaigns = () => {
   return (
     <div className="space-y-6">
       <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Outreach Campaigns</h1>
+        <div className="flex flex-col space-y-2 text-left">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Outreach Campaigns</h1>
           <p className="text-muted-foreground">
             Manage your outreach campaigns and leads
           </p>
