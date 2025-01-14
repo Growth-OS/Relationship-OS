@@ -49,7 +49,9 @@ export const LeadsTable = ({
             setEditableLeads(prev => prev.filter(lead => lead.id !== payload.old.id));
           } else if (payload.eventType === 'UPDATE') {
             setEditableLeads(prev => prev.map(lead => 
-              lead.id === payload.new.id ? { ...payload.new, isEditing: false } as EditableLead : lead
+              lead.id === payload.new.id 
+                ? { ...payload.new, isEditing: false } as EditableLead 
+                : lead
             ));
           }
         }
@@ -128,7 +130,10 @@ export const LeadsTable = ({
   return (
     <div className="space-y-4">
       <Table>
-        <LeadTableHeader />
+        <LeadTableHeader 
+          isAllSelected={selectedIds.length === leads.length}
+          onSelectAll={handleSelectAll}
+        />
         <TableBody>
           {editableLeads.map((lead) => (
             <LeadRow
