@@ -26,6 +26,7 @@ export const SourceField = ({ form }: SourceFieldProps) => {
               <SelectItem value="linkedin">LinkedIn</SelectItem>
               <SelectItem value="cold_outreach">Cold Outreach</SelectItem>
               <SelectItem value="conference">Conference</SelectItem>
+              <SelectItem value="accelerator">Accelerator</SelectItem>
               <SelectItem value="other">Other</SelectItem>
             </SelectContent>
           </Select>
