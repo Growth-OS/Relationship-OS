@@ -176,6 +176,44 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_steps: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          delay_days: number
+          id: string
+          message_template: string | null
+          sequence_order: number
+          step_type: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          message_template?: string | null
+          sequence_order: number
+          step_type: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          delay_days?: number
+          id?: string
+          message_template?: string | null
+          sequence_order?: number
+          step_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_steps_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           attachment_url: string | null
@@ -575,6 +613,96 @@ export type Database = {
           },
         ]
       }
+      lead_campaigns: {
+        Row: {
+          campaign_id: string
+          completed_at: string | null
+          current_step: number | null
+          id: string
+          lead_id: string
+          started_at: string
+          status: string | null
+        }
+        Insert: {
+          campaign_id: string
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          lead_id: string
+          started_at?: string
+          status?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          completed_at?: string | null
+          current_step?: number | null
+          id?: string
+          lead_id?: string
+          started_at?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_campaigns_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "outreach_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_campaigns_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          company_name: string
+          company_website: string | null
+          contact_email: string | null
+          contact_job_title: string | null
+          contact_linkedin: string | null
+          created_at: string
+          first_name: string | null
+          id: string
+          notes: string | null
+          source: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          company_name: string
+          company_website?: string | null
+          contact_email?: string | null
+          contact_job_title?: string | null
+          contact_linkedin?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          notes?: string | null
+          source?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          company_name?: string
+          company_website?: string | null
+          contact_email?: string | null
+          contact_job_title?: string | null
+          contact_linkedin?: string | null
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          notes?: string | null
+          source?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       linkedin_messages: {
         Row: {
           content: string
@@ -682,6 +810,33 @@ export type Database = {
           provider?: Database["public"]["Enums"]["auth_provider"]
           refresh_token?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      outreach_campaigns: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string | null
           user_id?: string
         }
         Relationships: []
