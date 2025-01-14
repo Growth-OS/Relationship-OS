@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { List, Target } from "lucide-react";
+import { List, Target, Power } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Campaign {
   id: string;
@@ -8,20 +11,51 @@ interface Campaign {
   description: string | null;
   status: string;
   created_at: string;
+  is_active: boolean;
 }
 
 interface CampaignCardProps {
   campaign: Campaign;
   onViewSteps: (campaignId: string) => void;
+  onActivationChange?: () => void;
 }
 
-export const CampaignCard = ({ campaign, onViewSteps }: CampaignCardProps) => {
+export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: CampaignCardProps) => {
+  const handleActivationToggle = async () => {
+    try {
+      const { error } = await supabase
+        .from('outreach_campaigns')
+        .update({ is_active: !campaign.is_active })
+        .eq('id', campaign.id);
+
+      if (error) throw error;
+
+      toast.success(campaign.is_active ? 'Campaign deactivated' : 'Campaign activated');
+      if (onActivationChange) {
+        onActivationChange();
+      }
+    } catch (error) {
+      console.error('Error toggling campaign:', error);
+      toast.error('Failed to update campaign status');
+    }
+  };
+
   return (
     <Card key={campaign.id}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Target className="h-5 w-5 text-primary" />
-          {campaign.name}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-primary" />
+            {campaign.name}
+          </div>
+          <div className="flex items-center gap-2">
+            <Power className="h-4 w-4 text-muted-foreground" />
+            <Switch
+              checked={campaign.is_active}
+              onCheckedChange={handleActivationToggle}
+              aria-label="Toggle campaign activation"
+            />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>

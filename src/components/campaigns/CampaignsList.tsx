@@ -14,6 +14,7 @@ interface Campaign {
   description: string | null;
   status: string;
   created_at: string;
+  is_active: boolean;
 }
 
 interface CampaignStep {
@@ -28,7 +29,7 @@ export const CampaignsList = () => {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [viewStepsOpen, setViewStepsOpen] = useState(false);
 
-  const { data: campaigns, isLoading: campaignsLoading } = useQuery({
+  const { data: campaigns, isLoading: campaignsLoading, refetch } = useQuery({
     queryKey: ['campaigns'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -89,6 +90,7 @@ export const CampaignsList = () => {
             key={campaign.id}
             campaign={campaign}
             onViewSteps={handleViewSteps}
+            onActivationChange={refetch}
           />
         ))}
       </div>
