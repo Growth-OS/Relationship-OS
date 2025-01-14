@@ -14,7 +14,7 @@ import {
 import { LeadActionsProps } from "../../types/lead";
 import { useState } from "react";
 import { toast } from "sonner";
-import { EditLeadDialog } from "../components/EditLeadDialog";
+import { EditLeadDialog } from "../../components/EditLeadDialog";
 
 export const LeadActions = ({
   lead,
@@ -84,7 +84,7 @@ export const LeadActions = ({
         onOpenChange={setShowEditDialog}
         onSuccess={() => {
           setShowEditDialog(false);
-          onEdit(lead);
+          onEdit();
         }}
       />
     </div>
