@@ -48,6 +48,7 @@ export const LeadActions = ({
       >
         <Edit className="h-4 w-4" />
       </Button>
+
       <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <AlertDialogTrigger asChild>
           <Button

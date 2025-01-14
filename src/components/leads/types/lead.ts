@@ -8,7 +8,7 @@ export interface Lead {
   company_website?: string;
   first_name?: string;
   notes?: string;
-  source?: string;
+  source?: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
   status?: string;
 }
 
@@ -23,6 +23,20 @@ export interface LeadRowProps {
   onEdit: () => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
+}
+
+export interface LeadCompanyInfoProps {
+  lead: Lead;
+  isEditing: boolean;
+  editedLead: Lead;
+  onEditChange: (field: keyof Lead, value: string) => void;
+}
+
+export interface LeadContactInfoProps {
+  lead: Lead;
+  isEditing: boolean;
+  editedLead: Lead;
+  onEditChange: (field: keyof Lead, value: string) => void;
 }
 
 export interface LeadActionsProps {

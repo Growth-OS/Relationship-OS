@@ -36,7 +36,7 @@ export const EditLeadForm = ({ lead, onSuccess }: EditLeadFormProps) => {
       contact_email: lead.contact_email || "",
       contact_job_title: lead.contact_job_title || "",
       contact_linkedin: lead.contact_linkedin || "",
-      source: (lead.source as any) || "other",
+      source: lead.source || "other",
       notes: lead.notes || "",
       first_name: lead.first_name || "",
     },
