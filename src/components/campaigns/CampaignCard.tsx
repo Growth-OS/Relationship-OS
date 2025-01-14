@@ -1,9 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { List, Target, Power } from "lucide-react";
+import { List, Target, Power, Users } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 interface Campaign {
   id: string;
@@ -21,6 +22,23 @@ interface CampaignCardProps {
 }
 
 export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: CampaignCardProps) => {
+  const { data: leadsCount } = useQuery({
+    queryKey: ['campaign-leads-count', campaign.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('lead_campaigns')
+        .select('*', { count: 'exact', head: true })
+        .eq('campaign_id', campaign.id);
+      
+      if (error) {
+        console.error('Error fetching leads count:', error);
+        return 0;
+      }
+      
+      return count || 0;
+    },
+  });
+
   const handleActivationToggle = async () => {
     try {
       const { error } = await supabase
@@ -63,9 +81,10 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: Camp
           {campaign.description || "No description provided"}
         </p>
         <div className="flex justify-between items-center">
-          <span className="text-sm">
-            {new Date(campaign.created_at).toLocaleDateString()}
-          </span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-4 w-4" />
+            <span>{leadsCount} {leadsCount === 1 ? 'lead' : 'leads'}</span>
+          </div>
           <Button 
             variant="outline" 
             size="sm"
