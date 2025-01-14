@@ -14,15 +14,16 @@ import {
 import { LeadActionsProps } from "../../types/lead";
 import { useState } from "react";
 import { toast } from "sonner";
+import { EditLeadDialog } from "../components/EditLeadDialog";
 
 export const LeadActions = ({
   lead,
-  isEditing,
-  onEdit,
   onDelete,
+  onEdit,
 }: LeadActionsProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -43,7 +44,7 @@ export const LeadActions = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={onEdit}
+        onClick={() => setShowEditDialog(true)}
       >
         <Edit className="h-4 w-4" />
       </Button>
@@ -76,6 +77,16 @@ export const LeadActions = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditLeadDialog
+        lead={lead}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        onSuccess={() => {
+          setShowEditDialog(false);
+          onEdit(lead);
+        }}
+      />
     </div>
   );
 };
