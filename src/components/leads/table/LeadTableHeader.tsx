@@ -18,12 +18,12 @@ export const LeadTableHeader = ({ isAllSelected, onSelectAll }: LeadTableHeaderP
             />
           </div>
         </TableHead>
-        <TableHead className="text-left">Company</TableHead>
-        <TableHead className="text-left">Source</TableHead>
-        <TableHead className="text-left">Contact</TableHead>
-        <TableHead className="text-left">LinkedIn</TableHead>
-        <TableHead className="text-left">Status</TableHead>
-        <TableHead className="text-left">Actions</TableHead>
+        <TableHead className="text-left font-medium">Company</TableHead>
+        <TableHead className="text-left font-medium">Source</TableHead>
+        <TableHead className="text-left font-medium">Contact</TableHead>
+        <TableHead className="text-left font-medium">LinkedIn</TableHead>
+        <TableHead className="text-left font-medium">Status</TableHead>
+        <TableHead className="text-left font-medium">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );
