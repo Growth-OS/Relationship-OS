@@ -1,10 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { List, Target, Power, Users } from "lucide-react";
+import { List, Target, Power, Users, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Campaign {
   id: string;
@@ -19,9 +30,10 @@ interface CampaignCardProps {
   campaign: Campaign;
   onViewSteps: (campaignId: string) => void;
   onActivationChange?: () => void;
+  onDelete?: () => void;
 }
 
-export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: CampaignCardProps) => {
+export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDelete }: CampaignCardProps) => {
   const { data: leadsCount } = useQuery({
     queryKey: ['campaign-leads-count', campaign.id],
     queryFn: async () => {
@@ -58,6 +70,25 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: Camp
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('outreach_campaigns')
+        .delete()
+        .eq('id', campaign.id);
+
+      if (error) throw error;
+
+      toast.success('Campaign deleted successfully');
+      if (onDelete) {
+        onDelete();
+      }
+    } catch (error) {
+      console.error('Error deleting campaign:', error);
+      toast.error('Failed to delete campaign');
+    }
+  };
+
   return (
     <Card key={campaign.id}>
       <CardHeader>
@@ -85,14 +116,37 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange }: Camp
             <Users className="h-4 w-4" />
             <span>{leadsCount} {leadsCount === 1 ? 'lead' : 'leads'}</span>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => onViewSteps(campaign.id)}
-          >
-            <List className="h-4 w-4 mr-2" />
-            View Steps
-          </Button>
+          <div className="flex items-center gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the campaign "{campaign.name}" and remove all associated leads from it. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onViewSteps(campaign.id)}
+            >
+              <List className="h-4 w-4 mr-2" />
+              View Steps
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

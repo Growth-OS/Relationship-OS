@@ -91,6 +91,7 @@ export const CampaignsList = () => {
             campaign={campaign}
             onViewSteps={handleViewSteps}
             onActivationChange={refetch}
+            onDelete={refetch}
           />
         ))}
       </div>
