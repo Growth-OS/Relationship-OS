@@ -48,11 +48,17 @@ export const LeadsTable = ({
           if (payload.eventType === 'DELETE') {
             setEditableLeads(prev => prev.filter(lead => lead.id !== payload.old.id));
           } else if (payload.eventType === 'UPDATE') {
-            setEditableLeads(prev => prev.map(lead => 
-              lead.id === payload.new.id 
-                ? { ...payload.new, isEditing: false } as EditableLead 
-                : lead
-            ));
+            setEditableLeads(prev => prev.map(lead => {
+              if (lead.id === payload.new.id) {
+                // Ensure all Lead properties are included when creating the EditableLead
+                const updatedLead: EditableLead = {
+                  ...(payload.new as Lead),
+                  isEditing: false
+                };
+                return updatedLead;
+              }
+              return lead;
+            }));
           }
         }
       )
