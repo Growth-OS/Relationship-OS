@@ -80,9 +80,19 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
 
       if (leadsError) throw leadsError;
 
-      // Delete tasks associated with these leads and this campaign
+      // Update leads status back to "new"
       if (leadCampaigns && leadCampaigns.length > 0) {
         const leadIds = leadCampaigns.map(lc => lc.lead_id);
+        
+        // Update leads status to "new"
+        const { error: updateLeadsError } = await supabase
+          .from('leads')
+          .update({ status: 'new' })
+          .in('id', leadIds);
+
+        if (updateLeadsError) throw updateLeadsError;
+
+        // Delete tasks associated with these leads
         const { error: tasksError } = await supabase
           .from('tasks')
           .delete()
