@@ -14,7 +14,7 @@ interface CreateCampaignFormProps {
 }
 
 export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
-  const [expandedSteps, setExpandedSteps] = useState<number[]>([0]);
+  const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const { createCampaign, isSubmitting } = useCampaignCreation(onSuccess);
 
@@ -43,7 +43,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
         message_template: "",
       },
     ]);
-    setExpandedSteps([...expandedSteps, steps.length]);
   };
 
   const removeStep = (index: number) => {
