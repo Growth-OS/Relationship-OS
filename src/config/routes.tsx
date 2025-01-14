@@ -20,6 +20,7 @@ import BackupSettings from "@/pages/BackupSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
 import Calendar from "@/pages/Calendar";
+import OutreachCampaigns from "@/pages/OutreachCampaigns";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
@@ -193,6 +194,14 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute>
                 <Development />
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: "outreach-campaigns",
+            element: (
+              <ProtectedRoute>
+                <OutreachCampaigns />
               </ProtectedRoute>
             ),
           },
