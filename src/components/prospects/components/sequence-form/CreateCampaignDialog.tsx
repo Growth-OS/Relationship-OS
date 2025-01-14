@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CreateCampaignForm } from "./CreateCampaignForm";
 import { useToast } from "@/components/ui/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const CreateCampaignDialog = () => {
   const [open, setOpen] = useState(false);
@@ -25,11 +26,13 @@ export const CreateCampaignDialog = () => {
           New Campaign
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Create New Campaign</DialogTitle>
         </DialogHeader>
-        <CreateCampaignForm onSuccess={handleSuccess} />
+        <ScrollArea className="h-full max-h-[calc(90vh-8rem)] pr-4">
+          <CreateCampaignForm onSuccess={handleSuccess} />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
