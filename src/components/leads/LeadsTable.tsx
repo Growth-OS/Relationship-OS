@@ -7,6 +7,10 @@ import { LeadRow } from "./table/LeadRow";
 import { TablePagination } from "@/components/prospects/components/TablePagination";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { CSVUploadDialog } from "./components/CSVUploadDialog";
 
 interface LeadsTableProps {
   leads: Lead[];
@@ -27,6 +31,7 @@ export const LeadsTable = ({
 }: LeadsTableProps) => {
   const [editableLeads, setEditableLeads] = useState<EditableLead[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   useEffect(() => {
     setEditableLeads(leads.map(p => ({ ...p, isEditing: false })));
@@ -95,6 +100,26 @@ export const LeadsTable = ({
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end mb-4">
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <Upload className="w-4 h-4 mr-2" />
+              Import CSV
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Upload Leads CSV</DialogTitle>
+            </DialogHeader>
+            <CSVUploadDialog onSuccess={() => {
+              setUploadDialogOpen(false);
+              toast.success("Leads uploaded successfully");
+            }} />
+          </DialogContent>
+        </Dialog>
+      </div>
+
       <Table>
         <LeadTableHeader />
         <TableBody>
