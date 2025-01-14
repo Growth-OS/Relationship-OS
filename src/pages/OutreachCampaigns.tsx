@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { CreateLeadForm } from "@/components/leads/CreateLeadForm";
 import { CSVUploadDialog } from "@/components/leads/components/CSVUploadDialog";
 import { toast } from "sonner";
+import { Lead, LeadSource } from "@/components/leads/types/lead";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -70,8 +71,14 @@ const OutreachCampaigns = () => {
         throw dataError;
       }
 
+      // Cast the source field to LeadSource type
+      const typedLeads = leadsData?.map(lead => ({
+        ...lead,
+        source: (lead.source || 'other') as LeadSource
+      })) || [];
+
       return {
-        leads: leadsData || [],
+        leads: typedLeads,
         totalCount: count || 0,
       };
     },

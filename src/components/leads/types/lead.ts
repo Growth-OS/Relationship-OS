@@ -8,10 +8,12 @@ export interface Lead {
   company_website?: string;
   first_name?: string;
   notes?: string;
-  source: 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
+  source: LeadSource;
   status?: string;
   user_id?: string;
 }
+
+export type LeadSource = 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
 
 export interface EditableLead extends Lead {
   isEditing: boolean;
