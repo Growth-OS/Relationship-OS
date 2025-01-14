@@ -21,19 +21,21 @@ const formSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 interface CreateLeadFormProps {
   onSuccess: () => void;
 }
 
 export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       source: 'other',
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: FormValues) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -42,13 +44,17 @@ export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
         return;
       }
 
+      // Ensure all required fields are present in the insert
+      const leadData = {
+        ...values,
+        user_id: user.id,
+        status: 'new' as const,
+        company_name: values.company_name, // Explicitly include required field
+      };
+
       const { error } = await supabase
         .from('leads')
-        .insert({
-          ...values,
-          user_id: user.id,
-          status: 'new'
-        });
+        .insert(leadData);
 
       if (error) throw error;
 
