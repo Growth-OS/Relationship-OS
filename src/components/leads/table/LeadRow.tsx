@@ -14,6 +14,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 export const LeadRow = ({
   lead,
@@ -23,6 +25,22 @@ export const LeadRow = ({
   isSelected,
   onSelectChange,
 }: LeadRowProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedLead, setEditedLead] = useState(lead);
+
+  const handleEdit = () => {
+    if (isEditing) {
+      onEdit(editedLead);
+      setIsEditing(false);
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const handleChange = (field: keyof typeof editedLead, value: string) => {
+    setEditedLead(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <TableRow>
       <TableCell>
@@ -33,29 +51,72 @@ export const LeadRow = ({
       </TableCell>
       <TableCell>
         <div>
-          <p className="font-medium">{lead.company_name}</p>
-          {lead.company_website && (
-            <a
-              href={lead.company_website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-muted-foreground hover:underline"
-            >
-              {lead.company_website}
-            </a>
+          {isEditing ? (
+            <div className="space-y-2">
+              <Input
+                value={editedLead.company_name}
+                onChange={(e) => handleChange('company_name', e.target.value)}
+                className="w-full"
+              />
+              <Input
+                value={editedLead.company_website || ''}
+                onChange={(e) => handleChange('company_website', e.target.value)}
+                placeholder="Website"
+                className="w-full"
+              />
+            </div>
+          ) : (
+            <>
+              <p className="font-medium">{lead.company_name}</p>
+              {lead.company_website && (
+                <a
+                  href={lead.company_website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:underline"
+                >
+                  {lead.company_website}
+                </a>
+              )}
+            </>
           )}
         </div>
       </TableCell>
       <TableCell>
         <div>
-          {lead.first_name && (
-            <p className="font-medium">{lead.first_name}</p>
-          )}
-          {lead.contact_email && (
-            <p className="text-sm text-muted-foreground">{lead.contact_email}</p>
-          )}
-          {lead.contact_job_title && (
-            <p className="text-sm text-muted-foreground">{lead.contact_job_title}</p>
+          {isEditing ? (
+            <div className="space-y-2">
+              <Input
+                value={editedLead.first_name || ''}
+                onChange={(e) => handleChange('first_name', e.target.value)}
+                placeholder="First Name"
+                className="w-full"
+              />
+              <Input
+                value={editedLead.contact_email || ''}
+                onChange={(e) => handleChange('contact_email', e.target.value)}
+                placeholder="Email"
+                className="w-full"
+              />
+              <Input
+                value={editedLead.contact_job_title || ''}
+                onChange={(e) => handleChange('contact_job_title', e.target.value)}
+                placeholder="Job Title"
+                className="w-full"
+              />
+            </div>
+          ) : (
+            <>
+              {lead.first_name && (
+                <p className="font-medium">{lead.first_name}</p>
+              )}
+              {lead.contact_email && (
+                <p className="text-sm text-muted-foreground">{lead.contact_email}</p>
+              )}
+              {lead.contact_job_title && (
+                <p className="text-sm text-muted-foreground">{lead.contact_job_title}</p>
+              )}
+            </>
           )}
         </div>
       </TableCell>
@@ -70,7 +131,7 @@ export const LeadRow = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onEdit(lead)}
+            onClick={handleEdit}
           >
             <Edit className="h-4 w-4" />
           </Button>
