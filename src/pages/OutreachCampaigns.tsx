@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, List, Target } from "lucide-react";
+import { List, Target } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CreateCampaignDialog } from "@/components/prospects/components/sequence-form/CreateCampaignDialog";
 
 interface Campaign {
   id: string;
@@ -55,10 +56,7 @@ const OutreachCampaigns = () => {
             Manage your outreach campaigns and sequences
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Campaign
-        </Button>
+        <CreateCampaignDialog />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -96,10 +94,7 @@ const OutreachCampaigns = () => {
             <p className="text-muted-foreground mb-4">
               Create your first outreach campaign to get started
             </p>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Campaign
-            </Button>
+            <CreateCampaignDialog />
           </CardContent>
         </Card>
       )}
