@@ -1,7 +1,6 @@
-import { TableRow, TableCell } from "@/components/ui/table";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { LeadRowProps } from "../types/lead";
 import { Edit, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 
 export const LeadRow = ({
   lead,
@@ -42,14 +42,16 @@ export const LeadRow = ({
   };
 
   return (
-    <TableRow>
-      <TableCell>
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={onSelectChange}
-        />
+    <TableRow className="hover:bg-muted/50">
+      <TableCell className="w-[50px]">
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={onSelectChange}
+          />
+        </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="font-medium">
         <div>
           {isEditing ? (
             <div className="space-y-2">
@@ -73,14 +75,19 @@ export const LeadRow = ({
                   href={lead.company_website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:underline"
+                  className="text-purple-600 hover:text-purple-700 hover:underline"
                 >
-                  {lead.company_website}
+                  Visit Website
                 </a>
               )}
             </>
           )}
         </div>
+      </TableCell>
+      <TableCell>
+        <Badge variant="outline">
+          {sourceLabels[lead.source]}
+        </Badge>
       </TableCell>
       <TableCell>
         <div>
@@ -121,13 +128,24 @@ export const LeadRow = ({
         </div>
       </TableCell>
       <TableCell>
-        {sourceLabels[lead.source] || lead.source}
+        {lead.contact_linkedin ? (
+          <a 
+            href={lead.contact_linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-700 hover:underline"
+          >
+            View Profile
+          </a>
+        ) : '-'}
       </TableCell>
       <TableCell>
-        <span className="capitalize">{lead.status}</span>
+        <Badge variant={lead.status === 'new' ? 'outline' : 'secondary'}>
+          {lead.status}
+        </Badge>
       </TableCell>
-      <TableCell className="text-right">
-        <div className="flex justify-end gap-2">
+      <TableCell>
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
