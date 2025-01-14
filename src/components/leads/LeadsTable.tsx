@@ -49,7 +49,7 @@ export const LeadsTable = ({
             setEditableLeads(prev => prev.filter(lead => lead.id !== payload.old.id));
           } else if (payload.eventType === 'UPDATE') {
             setEditableLeads(prev => prev.map(lead => 
-              lead.id === payload.new.id ? { ...payload.new, isEditing: false } : lead
+              lead.id === payload.new.id ? { ...payload.new, isEditing: false } as EditableLead : lead
             ));
           }
         }
