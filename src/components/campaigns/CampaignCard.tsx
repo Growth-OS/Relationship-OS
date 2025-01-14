@@ -1,21 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { List, Target, Power, Users, Trash2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { List, Target, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { DeleteCampaignDialog } from "./components/DeleteCampaignDialog";
+import { CampaignActivationToggle } from "./components/CampaignActivationToggle";
+import { useCampaignDelete } from "./hooks/useCampaignDelete";
 
 interface Campaign {
   id: string;
@@ -33,7 +23,12 @@ interface CampaignCardProps {
   onDelete?: () => void;
 }
 
-export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDelete }: CampaignCardProps) => {
+export const CampaignCard = ({ 
+  campaign, 
+  onViewSteps, 
+  onActivationChange, 
+  onDelete 
+}: CampaignCardProps) => {
   const { data: leadsCount } = useQuery({
     queryKey: ['campaign-leads-count', campaign.id],
     queryFn: async () => {
@@ -51,91 +46,7 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
     },
   });
 
-  const handleActivationToggle = async () => {
-    try {
-      const { error } = await supabase
-        .from('outreach_campaigns')
-        .update({ is_active: !campaign.is_active })
-        .eq('id', campaign.id);
-
-      if (error) throw error;
-
-      toast.success(campaign.is_active ? 'Campaign deactivated' : 'Campaign activated');
-      if (onActivationChange) {
-        onActivationChange();
-      }
-    } catch (error) {
-      console.error('Error toggling campaign:', error);
-      toast.error('Failed to update campaign status');
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      // First, get all leads associated with this campaign
-      const { data: leadCampaigns, error: leadsError } = await supabase
-        .from('lead_campaigns')
-        .select('lead_id')
-        .eq('campaign_id', campaign.id);
-
-      if (leadsError) throw leadsError;
-
-      const leadIds = leadCampaigns?.map(lc => lc.lead_id) || [];
-
-      // First delete lead campaign associations
-      const { error: leadCampaignsError } = await supabase
-        .from('lead_campaigns')
-        .delete()
-        .eq('campaign_id', campaign.id);
-
-      if (leadCampaignsError) throw leadCampaignsError;
-
-      // Then delete tasks associated with these leads
-      if (leadIds.length > 0) {
-        const { error: tasksError } = await supabase
-          .from('tasks')
-          .delete()
-          .eq('source', 'other')
-          .in('source_id', leadIds);
-
-        if (tasksError) throw tasksError;
-      }
-
-      // Delete all campaign steps
-      const { error: stepsError } = await supabase
-        .from('campaign_steps')
-        .delete()
-        .eq('campaign_id', campaign.id);
-
-      if (stepsError) throw stepsError;
-
-      // Update leads status back to "new"
-      if (leadIds.length > 0) {
-        const { error: updateLeadsError } = await supabase
-          .from('leads')
-          .update({ status: 'new' })
-          .in('id', leadIds);
-
-        if (updateLeadsError) throw updateLeadsError;
-      }
-
-      // Finally, delete the campaign itself
-      const { error: campaignError } = await supabase
-        .from('outreach_campaigns')
-        .delete()
-        .eq('id', campaign.id);
-
-      if (campaignError) throw campaignError;
-
-      toast.success('Campaign deleted successfully');
-      if (onDelete) {
-        onDelete();
-      }
-    } catch (error) {
-      console.error('Error deleting campaign:', error);
-      toast.error('Failed to delete campaign');
-    }
-  };
+  const { handleDelete } = useCampaignDelete(onDelete);
 
   return (
     <Card key={campaign.id}>
@@ -145,14 +56,11 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
             <Target className="h-5 w-5 text-primary" />
             {campaign.name}
           </div>
-          <div className="flex items-center gap-2">
-            <Power className="h-4 w-4 text-muted-foreground" />
-            <Switch
-              checked={campaign.is_active}
-              onCheckedChange={handleActivationToggle}
-              aria-label="Toggle campaign activation"
-            />
-          </div>
+          <CampaignActivationToggle
+            campaignId={campaign.id}
+            isActive={campaign.is_active}
+            onActivationChange={onActivationChange}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -165,27 +73,10 @@ export const CampaignCard = ({ campaign, onViewSteps, onActivationChange, onDele
             <span>{leadsCount} {leadsCount === 1 ? 'lead' : 'leads'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" size="sm" className="text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete the campaign "{campaign.name}", remove all associated leads and tasks from it, and reset lead statuses. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteCampaignDialog
+              campaignName={campaign.name}
+              onDelete={() => handleDelete(campaign.id, campaign.name)}
+            />
             <Button 
               variant="outline" 
               size="sm"
