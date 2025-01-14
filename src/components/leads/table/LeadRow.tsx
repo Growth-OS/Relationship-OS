@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Lead, LeadRowProps } from "../types/lead";
 
 export const LeadRow = ({
   lead,
