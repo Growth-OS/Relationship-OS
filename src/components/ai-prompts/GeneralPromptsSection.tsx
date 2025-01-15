@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { CreatePromptForm } from "./components/CreatePromptForm";
 import { PromptsTable } from "./components/PromptsTable";
 import { AIPrompt } from "./types";
+import { useEffect } from "react";
 
 export const GeneralPromptsSection = () => {
   const { toast } = useToast();
@@ -24,6 +25,34 @@ export const GeneralPromptsSection = () => {
       return data || [];
     },
   });
+
+  useEffect(() => {
+    const initializeTemplates = async () => {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        console.error('Auth error:', authError);
+        return;
+      }
+
+      const { error } = await supabase.rpc('insert_prompt_templates_for_user', {
+        user_id: user.id
+      });
+
+      if (error) {
+        console.error('Error initializing templates:', error);
+        toast({
+          title: "Error",
+          description: "Failed to initialize prompt templates",
+          variant: "destructive",
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["aiPrompts"] });
+      }
+    };
+
+    initializeTemplates();
+  }, [toast, queryClient]);
 
   const deletePromptMutation = useMutation({
     mutationFn: async (promptId: string) => {

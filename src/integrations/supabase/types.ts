@@ -1471,6 +1471,24 @@ export type Database = {
         }
         Relationships: []
       }
+      temp_prompt_templates: {
+        Row: {
+          category: string | null
+          system_prompt: string
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          system_prompt: string
+          title: string
+        }
+        Update: {
+          category?: string | null
+          system_prompt?: string
+          title?: string
+        }
+        Relationships: []
+      }
       transaction_attachments: {
         Row: {
           created_at: string
@@ -1624,7 +1642,12 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      insert_prompt_templates_for_user: {
+        Args: {
+          user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       auth_provider: "google"
