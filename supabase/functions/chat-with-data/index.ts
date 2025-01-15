@@ -61,26 +61,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     console.log('Making request to Firecrawl API');
 
-    const extractSchema = {
-      type: "object",
-      properties: {
-        company_name: { type: "string" },
-        company_description: { type: "string" },
-        main_products_or_services: { type: "array", items: { type: "string" } },
-        company_size: { type: "string" },
-        industry: { type: "string" },
-        technologies_used: { type: "array", items: { type: "string" } },
-        contact_information: {
-          type: "object",
-          properties: {
-            email: { type: "string" },
-            phone: { type: "string" },
-            address: { type: "string" }
-          }
-        }
-      }
-    };
-
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -89,16 +69,24 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       },
       body: JSON.stringify({
         url: websiteUrl,
-        formats: ['markdown', 'extract'],
-        extract: {
-          schema: extractSchema
-        }
+        formats: ['markdown']
       })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Firecrawl API error response:', errorText);
+      
+      // Update lead with error status
+      await supabase
+        .from('leads')
+        .update({
+          scraping_status: 'failed',
+          scraping_error: `Website analysis failed: ${errorText}`,
+          last_scrape_attempt: new Date().toISOString()
+        })
+        .eq('id', leadId);
+
       throw new Error(`Firecrawl API error: ${response.status} - ${errorText}`);
     }
 
@@ -109,24 +97,10 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       throw new Error('Failed to analyze website: Invalid response format');
     }
 
-    const extractedInfo = result.data?.extract || {};
     const websiteContent = result.data?.markdown || '';
     
-    // Format the summary in a standardized structure
-    const summary = `${extractedInfo.company_name || 'Company'} Overview
-${extractedInfo.company_description || 'A company'} operating in the ${extractedInfo.industry || 'technology'} sector.
-
-Industry: ${extractedInfo.industry || 'Not specified'}
-
-Key Offerings:${extractedInfo.main_products_or_services ? 
-  '\n' + extractedInfo.main_products_or_services.map(service => `• ${service}`).join('\n')
-  : '\nNo specific offerings listed'}
-
-${extractedInfo.technologies_used?.length ? 
-  `Technology Stack: ${extractedInfo.technologies_used.join(', ')}.`
-  : 'Technology Stack: Not specified'}
-
-Company Size: ${extractedInfo.company_size || 'Not specified'}`;
+    // Create a simple summary from the content
+    const summary = `Website Content Analysis\n\n${websiteContent.slice(0, 500)}...`;
 
     const { error: updateError } = await supabase
       .from('leads')
@@ -154,6 +128,7 @@ Company Size: ${extractedInfo.company_size || 'Not specified'}`;
   } catch (error) {
     console.error('Error in analyze-company:', error);
     
+    // Update lead with error status
     await supabase
       .from('leads')
       .update({
