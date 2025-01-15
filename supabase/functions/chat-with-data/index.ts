@@ -93,7 +93,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         extract: {
           schema: extractSchema
         },
-        preferred_language: "en" // Using correct parameter name with underscore
+        language: "en"  // Using the correct parameter for language preference
       })
     });
 
