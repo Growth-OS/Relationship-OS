@@ -41,6 +41,19 @@ export const AddToCampaignDialog = ({
       setIsSubmitting(true);
       setProcessingCampaignId(campaignId);
 
+      // First, check if the lead is already in the campaign
+      const { data: existingAssignment } = await supabase
+        .from('lead_campaigns')
+        .select('*')
+        .eq('lead_id', lead.id)
+        .eq('campaign_id', campaignId)
+        .single();
+
+      if (existingAssignment) {
+        toast.error("Lead is already in this campaign");
+        return;
+      }
+
       const { error } = await supabase
         .from('lead_campaigns')
         .insert({
