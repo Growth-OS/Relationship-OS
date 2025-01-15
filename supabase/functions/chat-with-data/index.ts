@@ -17,7 +17,6 @@ serve(async (req) => {
     switch (action) {
       case 'analyze_company':
         return await handleCompanyAnalysis(data);
-      // Handle other chat actions here
       default:
         throw new Error(`Unknown action: ${action}`);
     }
@@ -55,7 +54,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       })
       .eq('id', leadId);
 
-    // Scrape website using Firecrawl
+    // Validate Firecrawl API key
     const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!firecrawlKey) {
       throw new Error('FIRECRAWL_API_KEY is not configured');
@@ -87,7 +86,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     const websiteContent = scrapedData.data.join('\n\n');
     console.log('Successfully scraped website content');
 
-    // Generate summary using Perplexity
+    // Validate Perplexity API key
     const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
     if (!perplexityKey) {
       throw new Error('PERPLEXITY_API_KEY is not configured');
