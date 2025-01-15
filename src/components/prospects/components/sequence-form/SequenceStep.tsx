@@ -11,7 +11,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
-import { useMessageGeneration } from "./hooks/useMessageGeneration";
 
 interface SequenceStepProps {
   index: number;
@@ -104,7 +103,13 @@ export const SequenceStep = ({
             <FormItem>
               <FormLabel>Delay (Days)</FormLabel>
               <FormControl>
-                <Input type="number" min="0" {...field} />
+                <Input 
+                  type="number" 
+                  min="0" 
+                  {...field}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
