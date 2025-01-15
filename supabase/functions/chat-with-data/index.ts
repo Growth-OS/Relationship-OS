@@ -78,7 +78,11 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     if (!firecrawlResponse.ok) {
       const errorText = await firecrawlResponse.text();
-      console.error('Firecrawl API error:', errorText);
+      console.error('Firecrawl API error response:', {
+        status: firecrawlResponse.status,
+        statusText: firecrawlResponse.statusText,
+        body: errorText
+      });
       throw new Error(`Failed to scrape website: ${errorText}`);
     }
 
@@ -118,7 +122,11 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     if (!perplexityResponse.ok) {
       const errorText = await perplexityResponse.text();
-      console.error('Perplexity API error:', errorText);
+      console.error('Perplexity API error:', {
+        status: perplexityResponse.status,
+        statusText: perplexityResponse.statusText,
+        body: errorText
+      });
       throw new Error(`Failed to generate summary: ${errorText}`);
     }
 
@@ -162,7 +170,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       })
       .eq('id', leadId);
 
-    // Re-throw the error to be caught by the main error handler
     throw error;
   }
 }
