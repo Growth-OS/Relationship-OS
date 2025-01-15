@@ -27,6 +27,18 @@ interface CreateLeadFormProps {
   onSuccess: () => void;
 }
 
+const formatUrl = (url: string): string => {
+  if (!url) return '';
+  
+  // Add https:// if no protocol is specified
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  
+  // Remove trailing slashes
+  return url.replace(/\/+$/, '');
+};
+
 export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,14 +61,36 @@ export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
         ...values,
         user_id: user.id,
         status: 'new' as const,
-        company_name: values.company_name, // Explicitly include required field
+        company_name: values.company_name,
       };
 
-      const { error } = await supabase
+      const { data: newLead, error } = await supabase
         .from('leads')
-        .insert(leadData);
+        .insert(leadData)
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // If website URL is provided, trigger the analysis
+      if (values.company_website) {
+        const formattedUrl = formatUrl(values.company_website);
+        if (formattedUrl) {
+          try {
+            await supabase.functions.invoke('chat-with-data', {
+              body: {
+                action: 'analyze_company',
+                leadId: newLead.id,
+                websiteUrl: formattedUrl,
+              },
+            });
+          } catch (analysisError) {
+            console.error('Error analyzing website:', analysisError);
+            // Don't throw here - we still want to show success for lead creation
+            toast.error('Website analysis started but encountered an error');
+          }
+        }
+      }
 
       toast.success('Lead added successfully');
       form.reset();

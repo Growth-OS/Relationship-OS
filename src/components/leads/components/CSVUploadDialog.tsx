@@ -10,6 +10,18 @@ interface CSVUploadDialogProps {
   onSuccess: () => void;
 }
 
+const formatUrl = (url: string): string => {
+  if (!url) return '';
+  
+  // Add https:// if no protocol is specified
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  
+  // Remove trailing slashes
+  return url.replace(/\/+$/, '');
+};
+
 export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -47,7 +59,6 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         let hasError = false;
 
         headers.forEach((header, index) => {
-          // Trim whitespace and handle empty values
           const value = row[index].trim();
           lead[header] = value || null;
         });
@@ -63,10 +74,7 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         }
 
         if (!hasError) {
-          // Map the "other" column to notes if notes is not present
           const notes = lead.notes || lead.note || lead.other || '';
-          
-          // Ensure source is one of the valid values
           const validSources = ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'];
           const source = lead.source && validSources.includes(lead.source.toLowerCase()) 
             ? lead.source.toLowerCase() 
@@ -104,11 +112,33 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             user_id: user.id
           }));
 
-          const { error } = await supabase
+          const { data: insertedLeads, error } = await supabase
             .from('leads')
-            .insert(batch);
+            .insert(batch)
+            .select();
 
           if (error) throw error;
+
+          // Trigger website analysis for each lead with a website
+          for (const lead of insertedLeads || []) {
+            if (lead.company_website) {
+              const formattedUrl = formatUrl(lead.company_website);
+              if (formattedUrl) {
+                try {
+                  await supabase.functions.invoke('chat-with-data', {
+                    body: {
+                      action: 'analyze_company',
+                      leadId: lead.id,
+                      websiteUrl: formattedUrl,
+                    },
+                  });
+                } catch (analysisError) {
+                  console.error('Error analyzing website for lead:', lead.id, analysisError);
+                  newErrors.push(`Failed to analyze website for ${lead.company_name}`);
+                }
+              }
+            }
+          }
         }
 
         toast.success(`Successfully uploaded ${leads.length} leads`);
