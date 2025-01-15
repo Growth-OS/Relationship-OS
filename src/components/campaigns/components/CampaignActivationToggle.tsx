@@ -24,9 +24,7 @@ export const CampaignActivationToggle = ({
       const { error } = await supabase
         .from('outreach_campaigns')
         .update({ is_active: !isActive })
-        .eq('id', campaignId)
-        .select()
-        .single();
+        .eq('id', campaignId);
 
       if (error) throw error;
 
