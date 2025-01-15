@@ -3,10 +3,12 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
-import { ChevronDown, ChevronUp, Trash2, Wand2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Wand2, Loader2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
 
 interface SequenceStepProps {
   index: number;
@@ -27,6 +29,13 @@ export const SequenceStep = ({
   onGenerateMessage,
   isGenerating,
 }: SequenceStepProps) => {
+  const [isAiEnabled, setIsAiEnabled] = useState(false);
+
+  const handleAiToggle = (checked: boolean) => {
+    setIsAiEnabled(checked);
+    form.setValue(`steps.${index}.is_ai_enabled`, checked);
+  };
+
   return (
     <div className="p-4 border rounded-lg space-y-4">
       <div className="flex items-center justify-between">
@@ -101,34 +110,71 @@ export const SequenceStep = ({
       </div>
 
       {expanded && (
-        <FormField
-          control={form.control}
-          name={`steps.${index}.message_template`}
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Message Template</FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={onGenerateMessage}
-                  disabled={isGenerating}
-                >
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  Generate Message
-                </Button>
-              </div>
-              <FormControl>
-                <RichTextEditor
-                  content={field.value || ""}
-                  onChange={field.onChange}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={isAiEnabled}
+              onCheckedChange={handleAiToggle}
+              id={`ai-toggle-${index}`}
+            />
+            <Label htmlFor={`ai-toggle-${index}`}>Enable AI message generation</Label>
+          </div>
+
+          {isAiEnabled && (
+            <FormField
+              control={form.control}
+              name={`steps.${index}.message_prompt`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>AI Message Prompt</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter instructions for AI message generation..."
+                      className="min-h-[100px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           )}
-        />
+
+          <FormField
+            control={form.control}
+            name={`steps.${index}.message_template_or_prompt`}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Message Template</FormLabel>
+                  {isAiEnabled && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={onGenerateMessage}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Wand2 className="h-4 w-4 mr-2" />
+                      )}
+                      Generate Message
+                    </Button>
+                  )}
+                </div>
+                <FormControl>
+                  <RichTextEditor
+                    content={field.value || ""}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
       )}
     </div>
   );

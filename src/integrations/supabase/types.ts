@@ -182,7 +182,9 @@ export type Database = {
           created_at: string
           delay_days: number
           id: string
-          message_template: string | null
+          is_ai_enabled: boolean | null
+          message_prompt: string | null
+          message_template_or_prompt: string | null
           sequence_order: number
           step_type: string
         }
@@ -191,7 +193,9 @@ export type Database = {
           created_at?: string
           delay_days?: number
           id?: string
-          message_template?: string | null
+          is_ai_enabled?: boolean | null
+          message_prompt?: string | null
+          message_template_or_prompt?: string | null
           sequence_order: number
           step_type: string
         }
@@ -200,7 +204,9 @@ export type Database = {
           created_at?: string
           delay_days?: number
           id?: string
-          message_template?: string | null
+          is_ai_enabled?: boolean | null
+          message_prompt?: string | null
+          message_template_or_prompt?: string | null
           sequence_order?: number
           step_type?: string
         }
@@ -660,6 +666,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          ai_summary: string | null
           company_name: string
           company_website: string | null
           contact_email: string | null
@@ -668,12 +675,15 @@ export type Database = {
           created_at: string
           first_name: string | null
           id: string
+          last_ai_analysis_date: string | null
           notes: string | null
           source: string | null
           status: string | null
           user_id: string
+          website_content: string | null
         }
         Insert: {
+          ai_summary?: string | null
           company_name: string
           company_website?: string | null
           contact_email?: string | null
@@ -682,12 +692,15 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          last_ai_analysis_date?: string | null
           notes?: string | null
           source?: string | null
           status?: string | null
           user_id: string
+          website_content?: string | null
         }
         Update: {
+          ai_summary?: string | null
           company_name?: string
           company_website?: string | null
           contact_email?: string | null
@@ -696,10 +709,12 @@ export type Database = {
           created_at?: string
           first_name?: string | null
           id?: string
+          last_ai_analysis_date?: string | null
           notes?: string | null
           source?: string | null
           status?: string | null
           user_id?: string
+          website_content?: string | null
         }
         Relationships: []
       }
@@ -1225,12 +1240,15 @@ export type Database = {
       }
       tasks: {
         Row: {
+          ai_generated_message: string | null
           completed: boolean | null
           created_at: string
           deal_id: string | null
           description: string | null
           due_date: string | null
+          generation_prompt: string | null
           id: string
+          last_generation_date: string | null
           priority: string | null
           project_id: string | null
           source: Database["public"]["Enums"]["task_source"] | null
@@ -1240,12 +1258,15 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_generated_message?: string | null
           completed?: boolean | null
           created_at?: string
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
+          generation_prompt?: string | null
           id?: string
+          last_generation_date?: string | null
           priority?: string | null
           project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
@@ -1255,12 +1276,15 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_generated_message?: string | null
           completed?: boolean | null
           created_at?: string
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
+          generation_prompt?: string | null
           id?: string
+          last_generation_date?: string | null
           priority?: string | null
           project_id?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
