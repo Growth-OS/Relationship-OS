@@ -8,6 +8,8 @@ import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
 interface SequenceStepProps {
