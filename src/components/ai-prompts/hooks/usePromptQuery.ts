@@ -25,7 +25,7 @@ export const usePromptQuery = (category: string) => {
 
       if (error) throw error;
 
-      return data as AIPrompt;
+      return data as AIPrompt | null;
     },
   });
 };
