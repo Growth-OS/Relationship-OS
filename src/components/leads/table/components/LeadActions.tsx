@@ -30,25 +30,26 @@ export const LeadActions = ({
         return;
       }
 
-      const response = await fetch('/functions/v1/analyze-company', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      // First update the lead status to pending
+      await supabase
+        .from('leads')
+        .update({ 
+          scraping_status: 'pending',
+          last_scrape_attempt: new Date().toISOString()
+        })
+        .eq('id', lead.id);
+
+      const { data, error } = await supabase.functions.invoke('chat-with-data', {
+        body: {
+          action: 'analyze_company',
           leadId: lead.id,
           websiteUrl: lead.company_website,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze company');
-      }
-
-      const result = await response.json();
+      if (error) throw error;
       
-      if (result.success) {
+      if (data?.success) {
         toast.success("Company analysis completed successfully");
       } else {
         toast.error("Failed to analyze company");

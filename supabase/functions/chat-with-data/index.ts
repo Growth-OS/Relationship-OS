@@ -44,7 +44,9 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    // Update scraping status
+    console.log(`Starting analysis for lead ${leadId} with URL ${websiteUrl}`);
+
+    // Update scraping status to in_progress
     await supabase
       .from('leads')
       .update({ 
@@ -55,6 +57,11 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     // Scrape website using Firecrawl
     const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlKey) {
+      throw new Error('FIRECRAWL_API_KEY is not configured');
+    }
+
+    console.log('Making request to Firecrawl API');
     const firecrawlResponse = await fetch('https://api.firecrawl.io/scrape', {
       method: 'POST',
       headers: {
@@ -76,9 +83,15 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     const scrapedData = await firecrawlResponse.json();
     const websiteContent = scrapedData.data.join('\n\n');
+    console.log('Successfully scraped website content');
 
     // Generate summary using Perplexity
     const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
+    if (!perplexityKey) {
+      throw new Error('PERPLEXITY_API_KEY is not configured');
+    }
+
+    console.log('Making request to Perplexity API');
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
@@ -108,6 +121,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     const aiResponse = await perplexityResponse.json();
     const summary = aiResponse.choices[0].message.content;
+    console.log('Successfully generated AI summary');
 
     // Update lead with scraped content and summary
     await supabase
@@ -116,9 +130,12 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         website_content: websiteContent,
         ai_summary: summary,
         scraping_status: 'completed',
-        last_scrape_attempt: new Date().toISOString()
+        last_scrape_attempt: new Date().toISOString(),
+        last_ai_analysis_date: new Date().toISOString()
       })
       .eq('id', leadId);
+
+    console.log('Successfully updated lead with analysis results');
 
     return new Response(
       JSON.stringify({ success: true, summary }),
