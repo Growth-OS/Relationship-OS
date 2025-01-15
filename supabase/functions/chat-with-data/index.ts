@@ -72,21 +72,28 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         limit: 5,
         scrapeOptions: {
           formats: ['markdown'],
+          timeout: 30000, // 30 seconds timeout
+          waitUntil: 'networkidle0'
         }
       }),
     });
 
     if (!firecrawlResponse.ok) {
       const errorText = await firecrawlResponse.text();
-      console.error('Firecrawl API error response:', {
+      console.error('Firecrawl API error:', {
         status: firecrawlResponse.status,
         statusText: firecrawlResponse.statusText,
-        body: errorText
+        body: errorText,
+        headers: Object.fromEntries(firecrawlResponse.headers.entries())
       });
       throw new Error(`Failed to scrape website: ${errorText}`);
     }
 
     const scrapedData = await firecrawlResponse.json();
+    if (!scrapedData.data || !Array.isArray(scrapedData.data)) {
+      throw new Error('Invalid response format from Firecrawl API');
+    }
+
     const websiteContent = scrapedData.data.join('\n\n');
     console.log('Successfully scraped website content');
 
@@ -125,7 +132,8 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       console.error('Perplexity API error:', {
         status: perplexityResponse.status,
         statusText: perplexityResponse.statusText,
-        body: errorText
+        body: errorText,
+        headers: Object.fromEntries(perplexityResponse.headers.entries())
       });
       throw new Error(`Failed to generate summary: ${errorText}`);
     }
