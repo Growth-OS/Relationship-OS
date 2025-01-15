@@ -62,8 +62,8 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     console.log('Making request to Firecrawl API');
 
-    // Define company information schema
-    const extractionSchema = {
+    // Define extraction schema for company information
+    const extractSchema = {
       type: "object",
       properties: {
         company_name: { type: "string" },
@@ -83,25 +83,23 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       }
     };
 
-    // Make request to Firecrawl API
-    const response = await fetch('https://api.firecrawl.io/v1/scrape', {
+    // Make request to Firecrawl API using their SDK approach
+    const response = await fetch('https://api.firecrawl.dev/v1/crawl', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlKey}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'Lovable-App/1.0'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         url: websiteUrl,
-        formats: ['markdown', 'extract'],
-        extract: {
-          schema: extractionSchema
-        },
-        scrapeOptions: {
-          formats: ['markdown'],
-          timeout: 60000,
-          waitUntil: 'networkidle0',
-          maxConcurrency: 1
+        params: {
+          limit: 5,
+          scrapeOptions: {
+            formats: ['markdown', 'extract'],
+            extract: {
+              schema: extractSchema
+            }
+          }
         }
       })
     });
@@ -112,18 +110,44 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       throw new Error(`Firecrawl API error: ${response.status} - ${errorText}`);
     }
 
-    const scrapedData = await response.json();
-    console.log('Firecrawl response:', scrapedData);
+    const crawlJob = await response.json();
+    console.log('Crawl job created:', crawlJob);
 
-    if (!scrapedData.success) {
-      throw new Error('Failed to scrape website: Invalid response format');
+    // Poll for results
+    let attempts = 0;
+    const maxAttempts = 10;
+    let crawlResult;
+
+    while (attempts < maxAttempts) {
+      const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${crawlJob.id}`, {
+        headers: {
+          'Authorization': `Bearer ${firecrawlKey}`
+        }
+      });
+
+      if (!statusResponse.ok) {
+        throw new Error(`Failed to check crawl status: ${statusResponse.status}`);
+      }
+
+      crawlResult = await statusResponse.json();
+      console.log('Crawl status:', crawlResult);
+
+      if (crawlResult.status === 'completed') {
+        break;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds between checks
+      attempts++;
     }
 
-    // Extract the relevant data
-    const websiteContent = scrapedData.data.markdown || '';
-    const extractedInfo = scrapedData.data.extract || {};
+    if (!crawlResult || crawlResult.status !== 'completed') {
+      throw new Error('Crawl did not complete in time');
+    }
+
+    // Create a summary from the extracted data
+    const extractedInfo = crawlResult.data[0]?.extract || {};
+    const websiteContent = crawlResult.data[0]?.markdown || '';
     
-    // Create a summary combining extracted information
     const summary = `
 Company Analysis Summary:
 ${extractedInfo.company_name ? `Company Name: ${extractedInfo.company_name}\n` : ''}
