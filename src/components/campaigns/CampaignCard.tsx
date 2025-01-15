@@ -47,8 +47,11 @@ export const CampaignCard = ({
               View Steps
             </DropdownMenuItem>
             <DeleteCampaignDialog
+              campaignId={campaign.id}
               campaignName={campaign.name}
-              onDelete={onDelete}
+              onDelete={() => {
+                onDelete();
+              }}
               trigger={
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   <Trash2 className="h-4 w-4 mr-2" />

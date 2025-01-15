@@ -4,15 +4,21 @@ import { toast } from "sonner";
 export const useCampaignDelete = (onDelete?: () => void) => {
   const handleDelete = async (campaignId: string, campaignName: string) => {
     try {
+      console.log('Starting campaign deletion process for:', campaignId);
+      
       // First, get all leads associated with this campaign
       const { data: leadCampaigns, error: leadsError } = await supabase
         .from('lead_campaigns')
         .select('lead_id')
         .eq('campaign_id', campaignId);
 
-      if (leadsError) throw leadsError;
+      if (leadsError) {
+        console.error('Error fetching lead campaigns:', leadsError);
+        throw leadsError;
+      }
 
       const leadIds = leadCampaigns?.map(lc => lc.lead_id) || [];
+      console.log('Found lead IDs:', leadIds);
 
       // First delete lead campaign associations
       const { error: leadCampaignsError } = await supabase
@@ -20,7 +26,10 @@ export const useCampaignDelete = (onDelete?: () => void) => {
         .delete()
         .eq('campaign_id', campaignId);
 
-      if (leadCampaignsError) throw leadCampaignsError;
+      if (leadCampaignsError) {
+        console.error('Error deleting lead campaigns:', leadCampaignsError);
+        throw leadCampaignsError;
+      }
 
       // Then delete tasks associated with these leads
       if (leadIds.length > 0) {
@@ -30,7 +39,10 @@ export const useCampaignDelete = (onDelete?: () => void) => {
           .eq('source', 'other')
           .in('source_id', leadIds);
 
-        if (tasksError) throw tasksError;
+        if (tasksError) {
+          console.error('Error deleting tasks:', tasksError);
+          throw tasksError;
+        }
       }
 
       // Delete all campaign steps
@@ -39,7 +51,10 @@ export const useCampaignDelete = (onDelete?: () => void) => {
         .delete()
         .eq('campaign_id', campaignId);
 
-      if (stepsError) throw stepsError;
+      if (stepsError) {
+        console.error('Error deleting campaign steps:', stepsError);
+        throw stepsError;
+      }
 
       // Update leads status back to "new"
       if (leadIds.length > 0) {
@@ -48,7 +63,10 @@ export const useCampaignDelete = (onDelete?: () => void) => {
           .update({ status: 'new' })
           .in('id', leadIds);
 
-        if (updateLeadsError) throw updateLeadsError;
+        if (updateLeadsError) {
+          console.error('Error updating leads:', updateLeadsError);
+          throw updateLeadsError;
+        }
       }
 
       // Finally, delete the campaign itself
@@ -57,9 +75,14 @@ export const useCampaignDelete = (onDelete?: () => void) => {
         .delete()
         .eq('id', campaignId);
 
-      if (campaignError) throw campaignError;
+      if (campaignError) {
+        console.error('Error deleting campaign:', campaignError);
+        throw campaignError;
+      }
 
+      console.log('Campaign deletion completed successfully');
       toast.success('Campaign deleted successfully');
+      
       if (onDelete) {
         onDelete();
       }

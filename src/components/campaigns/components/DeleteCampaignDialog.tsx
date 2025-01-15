@@ -9,18 +9,23 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useCampaignDelete } from "../hooks/useCampaignDelete";
 
 interface DeleteCampaignDialogProps {
+  campaignId: string;
   campaignName: string;
   onDelete: () => void;
   trigger: React.ReactNode;
 }
 
 export const DeleteCampaignDialog = ({ 
+  campaignId,
   campaignName, 
   onDelete, 
   trigger 
 }: DeleteCampaignDialogProps) => {
+  const { handleDelete } = useCampaignDelete(onDelete);
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -36,7 +41,7 @@ export const DeleteCampaignDialog = ({
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction 
-            onClick={onDelete}
+            onClick={() => handleDelete(campaignId, campaignName)}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
