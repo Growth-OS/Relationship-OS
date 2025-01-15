@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Wand2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface CampaignStep {
   id: string;
@@ -41,9 +42,14 @@ export const CampaignStepsDialog = ({
     }
   };
 
+  const handleCopyTemplate = (template: string) => {
+    navigator.clipboard.writeText(template);
+    toast.success("Template copied to clipboard");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Campaign Steps</DialogTitle>
         </DialogHeader>
@@ -78,8 +84,14 @@ export const CampaignStepsDialog = ({
                     )}
                     <div>
                       <p className="text-sm font-medium mb-1">Message Template:</p>
-                      <div className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md whitespace-pre-wrap">
+                      <div 
+                        className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md whitespace-pre-wrap relative group cursor-pointer"
+                        onClick={() => step.message_template_or_prompt && handleCopyTemplate(step.message_template_or_prompt)}
+                      >
                         {step.message_template_or_prompt || "No message template"}
+                        <span className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-xs text-muted-foreground transition-opacity">
+                          Click to copy
+                        </span>
                       </div>
                     </div>
                   </div>
