@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UploadForm } from "./csv-upload/UploadForm";
@@ -69,12 +69,6 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         }
 
         if (!hasError) {
-          const notes = lead.notes || lead.note || lead.other || '';
-          const validSources = ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'];
-          const source = lead.source && validSources.includes(lead.source.toLowerCase()) 
-            ? lead.source.toLowerCase() 
-            : 'other';
-
           leads.push({
             company_name: lead['company name'] || lead.company || '',
             contact_email: lead.email,
@@ -82,8 +76,10 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             company_website: lead.website || lead['company website'] || '',
             contact_linkedin: lead.linkedin || lead['linkedin profile'] || '',
             contact_job_title: lead['job title'] || lead.position || '',
-            notes: notes,
-            source: source,
+            notes: lead.notes || lead.note || lead.other || '',
+            source: lead.source && ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'].includes(lead.source.toLowerCase()) 
+              ? lead.source.toLowerCase() 
+              : 'other',
             status: 'new'
           });
         }
@@ -107,45 +103,21 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             user_id: user.id
           }));
 
-          const { data: insertedLeads, error } = await supabase
+          const { error: insertError } = await supabase
             .from('leads')
-            .insert(batch)
-            .select();
+            .insert(batch);
 
-          if (error) throw error;
-
-          // Trigger website analysis for each lead with a website
-          for (const lead of insertedLeads || []) {
-            if (lead.company_website) {
-              const formattedUrl = formatUrl(lead.company_website);
-              if (formattedUrl) {
-                try {
-                  await supabase.functions.invoke('chat-with-data', {
-                    body: {
-                      action: 'analyze_company',
-                      leadId: lead.id,
-                      websiteUrl: formattedUrl,
-                    },
-                  });
-                } catch (analysisError) {
-                  console.error('Error analyzing website for lead:', lead.id, analysisError);
-                  newErrors.push(`Failed to analyze website for ${lead.company_name}`);
-                }
-              }
-            }
-          }
+          if (insertError) throw insertError;
         }
 
         toast.success(`Successfully uploaded ${leads.length} leads`);
-        // Call onSuccess and return early to close the dialog
+        setUploading(false);
         onSuccess();
-        return;
       }
     } catch (error) {
       console.error('Error processing CSV:', error);
       toast.error('Failed to process CSV file');
       setErrors(prev => [...prev, error.message]);
-    } finally {
       setUploading(false);
     }
   };
