@@ -60,7 +60,7 @@ export const AddToCampaignDialog = ({
         return;
       }
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('lead_campaigns')
         .insert({
           lead_id: lead.id,
@@ -69,7 +69,13 @@ export const AddToCampaignDialog = ({
           status: 'pending'
         });
 
-      if (error) throw error;
+      if (insertError) {
+        console.error('Error adding lead to campaign:', insertError);
+        throw insertError;
+      }
+
+      // Wait a moment for the trigger to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast.success(`${lead.company_name} has been added to the campaign`);
       onOpenChange(false);
@@ -83,7 +89,11 @@ export const AddToCampaignDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!isSubmitting) {
+        onOpenChange(newOpen);
+      }
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Lead to Campaign</DialogTitle>
