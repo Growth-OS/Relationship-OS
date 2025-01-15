@@ -2,6 +2,7 @@ import { Switch } from "@/components/ui/switch";
 import { Power } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
 
 interface CampaignActivationToggleProps {
   campaignId: string;
@@ -14,12 +15,18 @@ export const CampaignActivationToggle = ({
   isActive, 
   onActivationChange 
 }: CampaignActivationToggleProps) => {
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const handleActivationToggle = async () => {
     try {
+      setIsUpdating(true);
+      
       const { error } = await supabase
         .from('outreach_campaigns')
         .update({ is_active: !isActive })
-        .eq('id', campaignId);
+        .eq('id', campaignId)
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -28,6 +35,8 @@ export const CampaignActivationToggle = ({
     } catch (error) {
       console.error('Error toggling campaign:', error);
       toast.error('Failed to update campaign status');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -37,6 +46,7 @@ export const CampaignActivationToggle = ({
       <Switch
         checked={isActive}
         onCheckedChange={handleActivationToggle}
+        disabled={isUpdating}
         aria-label="Toggle campaign activation"
       />
     </div>
