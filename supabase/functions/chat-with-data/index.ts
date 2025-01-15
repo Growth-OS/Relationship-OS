@@ -72,24 +72,40 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         limit: 5,
         scrapeOptions: {
           formats: ['markdown'],
-          timeout: 30000, // 30 seconds timeout
-          waitUntil: 'networkidle0'
+          timeout: 60000, // Increased timeout to 60 seconds
+          waitUntil: 'networkidle0',
+          maxConcurrency: 1, // Limit concurrent requests
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' // Add user agent
         }
       }),
     });
 
     if (!firecrawlResponse.ok) {
       const errorText = await firecrawlResponse.text();
-      console.error('Firecrawl API error:', {
+      const errorDetails = {
         status: firecrawlResponse.status,
         statusText: firecrawlResponse.statusText,
         body: errorText,
         headers: Object.fromEntries(firecrawlResponse.headers.entries())
-      });
+      };
+      console.error('Firecrawl API error:', errorDetails);
+      
+      // Update lead with error status
+      await supabase
+        .from('leads')
+        .update({
+          scraping_status: 'failed',
+          scraping_error: `Firecrawl API error: ${firecrawlResponse.status} - ${errorText}`,
+          last_scrape_attempt: new Date().toISOString()
+        })
+        .eq('id', leadId);
+        
       throw new Error(`Failed to scrape website: ${errorText}`);
     }
 
     const scrapedData = await firecrawlResponse.json();
+    console.log('Firecrawl response:', scrapedData);
+
     if (!scrapedData.data || !Array.isArray(scrapedData.data)) {
       throw new Error('Invalid response format from Firecrawl API');
     }
@@ -150,7 +166,8 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         ai_summary: summary,
         scraping_status: 'completed',
         last_scrape_attempt: new Date().toISOString(),
-        last_ai_analysis_date: new Date().toISOString()
+        last_ai_analysis_date: new Date().toISOString(),
+        scraping_error: null // Clear any previous errors
       })
       .eq('id', leadId);
 
