@@ -69,6 +69,27 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       throw new Error(`Invalid website URL: ${websiteUrl}`);
     }
 
+    // Define company information schema
+    const extractionSchema = {
+      type: "object",
+      properties: {
+        company_name: { type: "string" },
+        company_description: { type: "string" },
+        main_products_or_services: { type: "array", items: { type: "string" } },
+        company_size: { type: "string" },
+        industry: { type: "string" },
+        technologies_used: { type: "array", items: { type: "string" } },
+        contact_information: {
+          type: "object",
+          properties: {
+            email: { type: "string" },
+            phone: { type: "string" },
+            address: { type: "string" }
+          }
+        }
+      }
+    };
+
     const firecrawlResponse = await fetch('https://api.firecrawl.io/v1/scrape', {
       method: 'POST',
       headers: {
@@ -78,7 +99,10 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       },
       body: JSON.stringify({
         url: websiteUrl,
-        limit: 5,
+        formats: ['markdown', 'extract'],
+        extract: {
+          schema: extractionSchema
+        },
         scrapeOptions: {
           formats: ['markdown'],
           timeout: 60000,
@@ -90,80 +114,31 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     if (!firecrawlResponse.ok) {
       const errorText = await firecrawlResponse.text();
-      const errorDetails = {
-        status: firecrawlResponse.status,
-        statusText: firecrawlResponse.statusText,
-        body: errorText,
-        headers: Object.fromEntries(firecrawlResponse.headers.entries())
-      };
-      console.error('Firecrawl API error:', errorDetails);
-      
-      await supabase
-        .from('leads')
-        .update({
-          scraping_status: 'failed',
-          scraping_error: `Firecrawl API error: ${firecrawlResponse.status} - ${errorText}`,
-          last_scrape_attempt: new Date().toISOString()
-        })
-        .eq('id', leadId);
-        
-      throw new Error(`Failed to scrape website: ${errorText}`);
+      console.error('Firecrawl API error response:', errorText);
+      throw new Error(`Firecrawl API error: ${firecrawlResponse.status} - ${errorText}`);
     }
 
     const scrapedData = await firecrawlResponse.json();
     console.log('Firecrawl response:', scrapedData);
 
-    if (!scrapedData.data || !Array.isArray(scrapedData.data)) {
-      throw new Error('Invalid response format from Firecrawl API');
+    if (!scrapedData.success) {
+      throw new Error('Failed to scrape website: Invalid response format');
     }
 
-    const websiteContent = scrapedData.data.join('\n\n');
-    console.log('Successfully scraped website content');
-
-    // Validate Perplexity API key
-    const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
-    if (!perplexityKey) {
-      throw new Error('PERPLEXITY_API_KEY is not configured');
-    }
-
-    console.log('Making request to Perplexity API');
-    const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${perplexityKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-sonar-small-128k-online',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a business analyst. Create a concise summary of this company based on their website content. Focus on their main business, products/services, and any notable achievements or unique selling points.'
-          },
-          {
-            role: 'user',
-            content: websiteContent
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
-
-    if (!perplexityResponse.ok) {
-      const errorText = await perplexityResponse.text();
-      console.error('Perplexity API error:', {
-        status: perplexityResponse.status,
-        statusText: perplexityResponse.statusText,
-        body: errorText,
-        headers: Object.fromEntries(perplexityResponse.headers.entries())
-      });
-      throw new Error(`Failed to generate summary: ${errorText}`);
-    }
-
-    const aiResponse = await perplexityResponse.json();
-    const summary = aiResponse.choices[0].message.content;
-    console.log('Successfully generated AI summary');
+    // Extract the relevant data
+    const websiteContent = scrapedData.data.markdown || '';
+    const extractedInfo = scrapedData.data.extract || {};
+    
+    // Create a summary combining extracted information
+    const summary = `
+Company Analysis Summary:
+${extractedInfo.company_name ? `Company Name: ${extractedInfo.company_name}\n` : ''}
+${extractedInfo.company_description ? `Description: ${extractedInfo.company_description}\n` : ''}
+${extractedInfo.industry ? `Industry: ${extractedInfo.industry}\n` : ''}
+${extractedInfo.company_size ? `Company Size: ${extractedInfo.company_size}\n` : ''}
+${extractedInfo.main_products_or_services ? `Products/Services: ${extractedInfo.main_products_or_services.join(', ')}\n` : ''}
+${extractedInfo.technologies_used ? `Technologies: ${extractedInfo.technologies_used.join(', ')}\n` : ''}
+    `.trim();
 
     // Update lead with scraped content and summary
     const { error: updateError } = await supabase
