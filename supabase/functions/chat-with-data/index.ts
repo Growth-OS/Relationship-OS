@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.1';
 
@@ -116,15 +117,20 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     const extractedInfo = result.data?.extract || {};
     const websiteContent = result.data?.markdown || '';
     
-    const summary = `
-Company Analysis Summary:
-${extractedInfo.company_name ? `Company Name: ${extractedInfo.company_name}\n` : ''}
-${extractedInfo.company_description ? `Description: ${extractedInfo.company_description}\n` : ''}
-${extractedInfo.industry ? `Industry: ${extractedInfo.industry}\n` : ''}
-${extractedInfo.company_size ? `Company Size: ${extractedInfo.company_size}\n` : ''}
-${extractedInfo.main_products_or_services ? `Products/Services: ${extractedInfo.main_products_or_services.join(', ')}\n` : ''}
-${extractedInfo.technologies_used ? `Technologies: ${extractedInfo.technologies_used.join(', ')}\n` : ''}
-    `.trim();
+    // Format the summary in a more readable way
+    const summary = `📊 Company Overview
+
+${extractedInfo.company_name ? `${extractedInfo.company_name} is ${extractedInfo.company_description}` : ''}
+
+🎯 Core Focus:
+${extractedInfo.industry ? `Industry: ${extractedInfo.industry}` : 'Industry not specified'}
+${extractedInfo.company_size ? `Size: ${extractedInfo.company_size}` : ''}
+
+💡 Key Offerings:
+${extractedInfo.main_products_or_services ? extractedInfo.main_products_or_services.join('\n• ') : 'Not specified'}
+
+🛠️ Technology Stack:
+${extractedInfo.technologies_used ? extractedInfo.technologies_used.join(', ') : 'Not specified'}`;
 
     // Update lead with scraped content and summary
     const { error: updateError } = await supabase
