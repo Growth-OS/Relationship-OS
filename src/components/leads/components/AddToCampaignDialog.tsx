@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Lead } from "../types/lead";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AddToCampaignDialogProps {
   lead: Lead;
@@ -18,6 +19,7 @@ export const AddToCampaignDialog = ({
   onOpenChange,
 }: AddToCampaignDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [processingCampaignId, setProcessingCampaignId] = useState<string | null>(null);
 
   const { data: campaigns, isLoading } = useQuery({
     queryKey: ['outreach-campaigns'],
@@ -33,8 +35,11 @@ export const AddToCampaignDialog = ({
   });
 
   const handleAddToCampaign = async (campaignId: string) => {
+    if (isSubmitting || processingCampaignId) return;
+    
     try {
       setIsSubmitting(true);
+      setProcessingCampaignId(campaignId);
 
       const { error } = await supabase
         .from('lead_campaigns')
@@ -54,6 +59,7 @@ export const AddToCampaignDialog = ({
       toast.error("Failed to add lead to campaign");
     } finally {
       setIsSubmitting(false);
+      setProcessingCampaignId(null);
     }
   };
 
@@ -65,19 +71,24 @@ export const AddToCampaignDialog = ({
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {isLoading ? (
-            <p>Loading campaigns...</p>
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
           ) : campaigns?.length === 0 ? (
-            <p>No active campaigns found</p>
+            <p className="text-center text-muted-foreground">No active campaigns found</p>
           ) : (
             <div className="grid gap-2">
               {campaigns?.map((campaign) => (
                 <Button
                   key={campaign.id}
                   variant="outline"
-                  className="justify-start"
-                  disabled={isSubmitting}
+                  className="justify-start relative"
+                  disabled={isSubmitting || processingCampaignId === campaign.id}
                   onClick={() => handleAddToCampaign(campaign.id)}
                 >
+                  {processingCampaignId === campaign.id ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : null}
                   {campaign.name}
                 </Button>
               ))}
