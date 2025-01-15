@@ -1,109 +1,97 @@
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Send } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, RefreshCw } from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LeadActionsProps } from "../../types/lead";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { EditLeadDialog } from "../../components/EditLeadDialog";
-import { AddToCampaignDialog } from "../../components/AddToCampaignDialog";
 
 export const LeadActions = ({
   lead,
-  onDelete,
   onEdit,
+  onDelete,
 }: LeadActionsProps) => {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
+  const analyzeCompany = async () => {
+    if (!lead.company_website) {
+      toast.error("No website URL available for analysis");
+      return;
+    }
 
-  const handleDelete = async () => {
     try {
-      setIsDeleting(true);
-      await onDelete(lead.id);
-      toast.success("Lead deleted successfully");
+      toast.info("Starting company analysis...");
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to analyze companies");
+        return;
+      }
+
+      const response = await fetch('/functions/v1/analyze-company', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          leadId: lead.id,
+          websiteUrl: lead.company_website,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to analyze company');
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success("Company analysis completed successfully");
+      } else {
+        toast.error("Failed to analyze company");
+      }
     } catch (error) {
-      console.error("Error deleting lead:", error);
-      toast.error("Failed to delete lead");
-    } finally {
-      setIsDeleting(false);
-      setIsDialogOpen(false);
+      console.error('Error analyzing company:', error);
+      toast.error("Failed to analyze company");
     }
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setShowEditDialog(true)}
-      >
-        <Edit className="h-4 w-4" />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setShowCampaignDialog(true)}
-      >
-        <Send className="h-4 w-4" />
-      </Button>
-
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <AlertDialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onClick={() => onEdit()}
+          className="cursor-pointer"
+        >
+          <Pencil className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onDelete(lead.id)}
+          className="cursor-pointer text-destructive"
+        >
+          <Trash2 className="mr-2 h-4 w-4" />
+          Delete
+        </DropdownMenuItem>
+        {lead.company_website && (
+          <DropdownMenuItem
+            onClick={analyzeCompany}
+            className="cursor-pointer"
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lead</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this lead? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={isDeleting}
-            >
-              {isDeleting ? "Deleting..." : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <EditLeadDialog
-        lead={lead}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-        onSuccess={() => {
-          setShowEditDialog(false);
-          onEdit();
-        }}
-      />
-
-      <AddToCampaignDialog
-        lead={lead}
-        open={showCampaignDialog}
-        onOpenChange={setShowCampaignDialog}
-      />
-    </div>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Analyze Company
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

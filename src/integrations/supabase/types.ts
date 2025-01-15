@@ -676,7 +676,10 @@ export type Database = {
           first_name: string | null
           id: string
           last_ai_analysis_date: string | null
+          last_scrape_attempt: string | null
           notes: string | null
+          scraping_error: string | null
+          scraping_status: string | null
           source: string | null
           status: string | null
           user_id: string
@@ -693,7 +696,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_ai_analysis_date?: string | null
+          last_scrape_attempt?: string | null
           notes?: string | null
+          scraping_error?: string | null
+          scraping_status?: string | null
           source?: string | null
           status?: string | null
           user_id: string
@@ -710,7 +716,10 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_ai_analysis_date?: string | null
+          last_scrape_attempt?: string | null
           notes?: string | null
+          scraping_error?: string | null
+          scraping_status?: string | null
           source?: string | null
           status?: string | null
           user_id?: string
