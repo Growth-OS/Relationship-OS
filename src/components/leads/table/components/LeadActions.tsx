@@ -60,6 +60,52 @@ export const LeadActions = ({
     }
   };
 
+  const reanalyzeAllLeads = async () => {
+    try {
+      // Get all leads with websites
+      const { data: leads, error: fetchError } = await supabase
+        .from('leads')
+        .select('id, company_website')
+        .not('company_website', 'is', null);
+
+      if (fetchError) throw fetchError;
+
+      if (!leads || leads.length === 0) {
+        toast.info("No leads with websites found");
+        return;
+      }
+
+      toast.info(`Starting analysis for ${leads.length} leads...`);
+
+      // Update all leads to pending status
+      await supabase
+        .from('leads')
+        .update({
+          scraping_status: 'pending',
+          last_scrape_attempt: new Date().toISOString()
+        })
+        .not('company_website', 'is', null);
+
+      // Process each lead
+      for (const lead of leads) {
+        if (lead.company_website) {
+          await supabase.functions.invoke('chat-with-data', {
+            body: {
+              action: 'analyze_company',
+              leadId: lead.id,
+              websiteUrl: lead.company_website,
+            },
+          });
+        }
+      }
+
+      toast.success(`Analysis started for ${leads.length} leads`);
+    } catch (error) {
+      console.error('Error reanalyzing leads:', error);
+      toast.error("Failed to start reanalysis");
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -92,6 +138,13 @@ export const LeadActions = ({
             Analyze Company
           </DropdownMenuItem>
         )}
+        <DropdownMenuItem
+          onClick={reanalyzeAllLeads}
+          className="cursor-pointer"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reanalyze All Leads
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
