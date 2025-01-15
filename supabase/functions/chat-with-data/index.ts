@@ -83,8 +83,8 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       }
     };
 
-    // Make request to Firecrawl API using their SDK approach
-    const response = await fetch('https://api.firecrawl.dev/v1/crawl', {
+    // Make request to Firecrawl API using their scrape endpoint
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlKey}`,
@@ -92,14 +92,9 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       },
       body: JSON.stringify({
         url: websiteUrl,
-        params: {
-          limit: 5,
-          scrapeOptions: {
-            formats: ['markdown', 'extract'],
-            extract: {
-              schema: extractSchema
-            }
-          }
+        formats: ['markdown', 'extract'],
+        extract: {
+          schema: extractSchema
         }
       })
     });
@@ -110,43 +105,16 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       throw new Error(`Firecrawl API error: ${response.status} - ${errorText}`);
     }
 
-    const crawlJob = await response.json();
-    console.log('Crawl job created:', crawlJob);
+    const result = await response.json();
+    console.log('Firecrawl response:', result);
 
-    // Poll for results
-    let attempts = 0;
-    const maxAttempts = 10;
-    let crawlResult;
-
-    while (attempts < maxAttempts) {
-      const statusResponse = await fetch(`https://api.firecrawl.dev/v1/crawl/${crawlJob.id}`, {
-        headers: {
-          'Authorization': `Bearer ${firecrawlKey}`
-        }
-      });
-
-      if (!statusResponse.ok) {
-        throw new Error(`Failed to check crawl status: ${statusResponse.status}`);
-      }
-
-      crawlResult = await statusResponse.json();
-      console.log('Crawl status:', crawlResult);
-
-      if (crawlResult.status === 'completed') {
-        break;
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds between checks
-      attempts++;
+    if (!result.success) {
+      throw new Error('Failed to analyze website: Invalid response format');
     }
 
-    if (!crawlResult || crawlResult.status !== 'completed') {
-      throw new Error('Crawl did not complete in time');
-    }
-
-    // Create a summary from the extracted data
-    const extractedInfo = crawlResult.data[0]?.extract || {};
-    const websiteContent = crawlResult.data[0]?.markdown || '';
+    // Extract the relevant data
+    const extractedInfo = result.data?.extract || {};
+    const websiteContent = result.data?.markdown || '';
     
     const summary = `
 Company Analysis Summary:
