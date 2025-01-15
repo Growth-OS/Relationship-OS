@@ -8,9 +8,9 @@ export const useMessageGeneration = () => {
   const generateMessage = async (prompt: string, stepType: string) => {
     try {
       setIsGenerating(true);
-      console.log("Generating message with prompt:", prompt);
+      console.log('Generating message with prompt:', prompt);
 
-      const { data, error } = await supabase.functions.invoke("generate-sequence-message", {
+      const { data, error } = await supabase.functions.invoke('generate-sequence-message', {
         body: {
           prompt,
           stepType,
@@ -18,15 +18,15 @@ export const useMessageGeneration = () => {
       });
 
       if (error) {
-        console.error("Error generating message:", error);
+        console.error('Error generating message:', error);
         throw error;
       }
 
-      console.log("Generated message:", data);
+      console.log('Generated message:', data);
       return data.generatedMessage;
     } catch (error) {
-      console.error("Error in message generation:", error);
-      toast.error("Failed to generate message. Please try again.");
+      console.error('Error in message generation:', error);
+      toast.error('Failed to generate message. Please try again.');
       throw error;
     } finally {
       setIsGenerating(false);

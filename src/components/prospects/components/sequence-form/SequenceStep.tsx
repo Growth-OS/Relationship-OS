@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { useMessageGeneration } from "./hooks/useMessageGeneration";
 
 interface SequenceStepProps {
   index: number;
