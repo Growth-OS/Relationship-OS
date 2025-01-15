@@ -7,69 +7,82 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { message, files, projectId } = await req.json();
-    console.log('Received request:', { message, files, projectId });
+    const { action, ...data } = await req.json();
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get the user ID from the authorization header
-    const authHeader = req.headers.get('Authorization')?.split('Bearer ')[1];
-    if (!authHeader) {
-      throw new Error('No authorization header');
+    switch (action) {
+      case 'analyze_company':
+        return await handleCompanyAnalysis(data);
+      // Handle other chat actions here
+      default:
+        throw new Error(`Unknown action: ${action}`);
     }
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader);
-    if (userError) {
-      console.error('User auth error:', userError);
-      throw userError;
-    }
-
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    // Process files if any
-    let fileContent = '';
-    if (files && files.length > 0) {
-      console.log('Processing files:', files);
-      
-      // Download and analyze each file
-      for (const file of files) {
-        try {
-          const response = await fetch(file.url);
-          if (!response.ok) {
-            console.error('Failed to fetch file:', file.url);
-            continue;
-          }
-          
-          const content = await response.text();
-          fileContent += `\nFile ${file.name} content:\n${content}\n`;
-        } catch (error) {
-          console.error('Error processing file:', file.name, error);
-        }
+  } catch (error) {
+    console.error('Error in chat-with-data function:', error);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
+    );
+  }
+});
+
+async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; websiteUrl: string }) {
+  if (!leadId || !websiteUrl) {
+    throw new Error('Lead ID and website URL are required');
+  }
+
+  // Initialize Supabase client
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  try {
+    // Update scraping status
+    await supabase
+      .from('leads')
+      .update({ 
+        scraping_status: 'in_progress',
+        last_scrape_attempt: new Date().toISOString()
+      })
+      .eq('id', leadId);
+
+    // Scrape website using Firecrawl
+    const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
+    const firecrawlResponse = await fetch('https://api.firecrawl.io/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${firecrawlKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: websiteUrl,
+        limit: 5,
+        scrapeOptions: {
+          formats: ['markdown'],
+        }
+      }),
+    });
+
+    if (!firecrawlResponse.ok) {
+      throw new Error('Failed to scrape website');
     }
 
-    // Use Perplexity API for chat completion
-    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
-    if (!perplexityApiKey) {
-      throw new Error('Perplexity API key not configured');
-    }
+    const scrapedData = await firecrawlResponse.json();
+    const websiteContent = scrapedData.data.join('\n\n');
 
-    console.log('Calling Perplexity API...');
+    // Generate summary using Perplexity
+    const perplexityKey = Deno.env.get('PERPLEXITY_API_KEY');
     const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${perplexityApiKey}`,
+        'Authorization': `Bearer ${perplexityKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -77,87 +90,54 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are a helpful AI assistant. ${fileContent ? 'Please analyze the following file content and incorporate it into your response:' + fileContent : ''}`
+            content: 'You are a business analyst. Create a concise summary of this company based on their website content. Focus on their main business, products/services, and any notable achievements or unique selling points.'
           },
           {
             role: 'user',
-            content: message
+            content: websiteContent
           }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 500,
       }),
     });
 
     if (!perplexityResponse.ok) {
-      const errorText = await perplexityResponse.text();
-      console.error('Perplexity API error:', errorText);
-      throw new Error(`Perplexity API error: ${errorText}`);
+      throw new Error('Failed to generate summary');
     }
 
     const aiResponse = await perplexityResponse.json();
-    const responseContent = aiResponse.choices[0].message.content;
+    const summary = aiResponse.choices[0].message.content;
 
-    console.log('Storing conversation in database...');
-    
-    // Determine project_id and deal_id based on projectId parameter
-    let project_id = null;
-    let deal_id = null;
-    
-    if (projectId) {
-      if (projectId.startsWith('deal-')) {
-        deal_id = projectId.replace('deal-', '');
-      } else {
-        project_id = projectId;
-      }
-    }
-
-    // Store the conversation in the database
-    const { error: chatError } = await supabase
-      .from('project_chat_history')
-      .insert([
-        {
-          project_id,
-          deal_id,
-          user_id: user.id,
-          message: message,
-          role: 'user'
-        },
-        {
-          project_id,
-          deal_id,
-          user_id: user.id,
-          message: responseContent,
-          role: 'assistant'
-        }
-      ]);
-
-    if (chatError) {
-      console.error('Database error:', chatError);
-      throw chatError;
-    }
+    // Update lead with scraped content and summary
+    await supabase
+      .from('leads')
+      .update({
+        website_content: websiteContent,
+        ai_summary: summary,
+        scraping_status: 'completed',
+        last_scrape_attempt: new Date().toISOString()
+      })
+      .eq('id', leadId);
 
     return new Response(
-      JSON.stringify({ response: responseContent }),
-      { 
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      }
+      JSON.stringify({ success: true, summary }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in chat-with-data function:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { 
-        status: 500,
-        headers: { 
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    console.error('Error in analyze-company:', error);
+    
+    // Update lead with error status
+    await supabase
+      .from('leads')
+      .update({
+        scraping_status: 'failed',
+        scraping_error: error.message,
+        last_scrape_attempt: new Date().toISOString()
+      })
+      .eq('id', leadId);
+
+    throw error;
   }
-});
+}
