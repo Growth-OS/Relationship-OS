@@ -23,7 +23,10 @@ export const usePromptQuery = (category: string) => {
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching prompt:", error);
+        throw error;
+      }
 
       return data as AIPrompt | null;
     },
