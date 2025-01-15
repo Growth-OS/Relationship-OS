@@ -5,8 +5,10 @@ interface CampaignStep {
   id: string;
   step_type: string;
   delay_days: number;
-  message_template: string | null;
+  message_template_or_prompt: string | null;
   sequence_order: number;
+  is_ai_enabled?: boolean;
+  message_prompt?: string;
 }
 
 interface CampaignStepsDialogProps {
@@ -58,7 +60,7 @@ export const CampaignStepsDialog = ({
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Message Template:</p>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                      {step.message_template || "No message template"}
+                      {step.message_template_or_prompt || "No message template"}
                     </p>
                   </div>
                 </AccordionContent>

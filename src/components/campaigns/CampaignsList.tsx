@@ -7,6 +7,7 @@ import { CreateCampaignDialog } from "@/components/prospects/components/sequence
 import { CampaignCard } from "./CampaignCard";
 import { CampaignStepsDialog } from "./CampaignStepsDialog";
 import { useState } from "react";
+import { CampaignStep } from "@/components/prospects/components/sequence-form/types/campaignStep";
 
 interface Campaign {
   id: string;
@@ -15,16 +16,6 @@ interface Campaign {
   status: string;
   created_at: string;
   is_active: boolean;
-}
-
-interface CampaignStep {
-  id: string;
-  step_type: string;
-  delay_days: number;
-  message_template_or_prompt: string | null;
-  sequence_order: number;
-  is_ai_enabled?: boolean;
-  message_prompt?: string;
 }
 
 export const CampaignsList = () => {
@@ -63,7 +54,7 @@ export const CampaignsList = () => {
         throw error;
       }
       
-      return data as CampaignStep[];
+      return data as unknown as CampaignStep[];
     },
   });
 
