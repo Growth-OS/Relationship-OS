@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { TaskSource } from "./types";
+import { DateInput } from "@/components/affiliates/form-fields/DateInput";
 
 const taskCategories: { label: string; value: TaskSource }[] = [
   { label: "Projects", value: "projects" },
@@ -16,6 +17,12 @@ const taskCategories: { label: string; value: TaskSource }[] = [
   { label: "Ideas", value: "ideas" },
   { label: "Substack", value: "substack" },
   { label: "Other", value: "other" },
+];
+
+const priorityLevels = [
+  { label: "High", value: "high" },
+  { label: "Medium", value: "medium" },
+  { label: "Low", value: "low" },
 ];
 
 export interface CreateTaskFormProps {
@@ -100,6 +107,34 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
           )}
         />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DateInput form={form} />
+
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {priorityLevels.map((priority) => (
+                      <SelectItem key={priority.value} value={priority.value}>
+                        {priority.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="source"
@@ -109,7 +144,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
               <Select 
                 onValueChange={field.onChange} 
                 defaultValue={field.value}
-                disabled={!!source} // Disable if source is provided as prop
+                disabled={!!source}
               >
                 <FormControl>
                   <SelectTrigger>
