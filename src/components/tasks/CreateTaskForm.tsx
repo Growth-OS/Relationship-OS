@@ -42,7 +42,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
     defaultValues: {
       title: defaultValues?.title || "",
       description: defaultValues?.description || "",
-      due_date: "",
+      due_date: new Date().toISOString().split('T')[0], // Set default to today's date
       priority: "medium",
       source: source || "other",
     },
@@ -53,18 +53,23 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Only include due_date if it's not empty
+      const taskData = {
+        title: values.title,
+        description: values.description,
+        source: values.source,
+        source_id: sourceId,
+        user_id: user.id,
+        priority: values.priority,
+        project_id: projectId,
+        due_date: values.due_date || null, // Send null if no date is selected
+      };
+
+      console.log('Submitting task with data:', taskData);
+
       const { error } = await supabase
         .from('tasks')
-        .insert({
-          title: values.title,
-          description: values.description,
-          source: values.source,
-          source_id: sourceId,
-          user_id: user.id,
-          due_date: values.due_date,
-          priority: values.priority,
-          project_id: projectId,
-        });
+        .insert(taskData);
 
       if (error) throw error;
 
