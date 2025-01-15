@@ -8,4 +8,12 @@ export const campaignStepSchema = z.object({
   message_prompt: z.string().optional(),
 });
 
-export type CampaignStep = z.infer<typeof campaignStepSchema>;
+export type CampaignStep = {
+  id: string;
+  step_type: "email" | "email_2" | "linkedin_connection" | "linkedin_message";
+  delay_days: number;
+  message_template_or_prompt: string | null;
+  sequence_order: number;
+  is_ai_enabled?: boolean;
+  message_prompt?: string;
+};

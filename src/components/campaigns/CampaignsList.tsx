@@ -54,7 +54,7 @@ export const CampaignsList = () => {
         throw error;
       }
       
-      return data as unknown as CampaignStep[];
+      return data as CampaignStep[];
     },
   });
 
