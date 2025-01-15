@@ -10,6 +10,18 @@ import { LeadActionsProps } from "../../types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const formatUrl = (url: string): string => {
+  if (!url) return '';
+  
+  // Add https:// if no protocol is specified
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  
+  // Remove trailing slashes
+  return url.replace(/\/+$/, '');
+};
+
 export const LeadActions = ({
   lead,
   onEdit,
@@ -30,6 +42,12 @@ export const LeadActions = ({
         return;
       }
 
+      const formattedUrl = formatUrl(lead.company_website);
+      if (!formattedUrl) {
+        toast.error("Invalid website URL");
+        return;
+      }
+
       // First update the lead status to pending
       await supabase
         .from('leads')
@@ -43,7 +61,7 @@ export const LeadActions = ({
         body: {
           action: 'analyze_company',
           leadId: lead.id,
-          websiteUrl: lead.company_website,
+          websiteUrl: formattedUrl,
         },
       });
 

@@ -7,6 +7,18 @@ interface BulkAnalyzeButtonProps {
   selectedIds: string[];
 }
 
+const formatUrl = (url: string): string => {
+  if (!url) return '';
+  
+  // Add https:// if no protocol is specified
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  
+  // Remove trailing slashes
+  return url.replace(/\/+$/, '');
+};
+
 export const BulkAnalyzeButton = ({ selectedIds }: BulkAnalyzeButtonProps) => {
   const analyzeLeads = async () => {
     try {
@@ -43,11 +55,17 @@ export const BulkAnalyzeButton = ({ selectedIds }: BulkAnalyzeButtonProps) => {
       // Process each lead
       for (const lead of leads) {
         if (lead.company_website) {
+          const formattedUrl = formatUrl(lead.company_website);
+          if (!formattedUrl) {
+            console.error(`Invalid URL for lead ${lead.id}: ${lead.company_website}`);
+            continue;
+          }
+
           await supabase.functions.invoke('chat-with-data', {
             body: {
               action: 'analyze_company',
               leadId: lead.id,
-              websiteUrl: lead.company_website,
+              websiteUrl: formattedUrl,
             },
           });
         }
