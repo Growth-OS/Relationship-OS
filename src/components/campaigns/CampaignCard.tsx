@@ -47,7 +47,7 @@ export const CampaignCard = ({
               View Steps
             </DropdownMenuItem>
             <DeleteCampaignDialog
-              campaignId={campaign.id}
+              campaignName={campaign.name}
               onDelete={onDelete}
               trigger={
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -79,7 +79,7 @@ export const CampaignCard = ({
         <CampaignActivationToggle
           campaignId={campaign.id}
           isActive={campaign.is_active}
-          onSuccess={onActivationChange}
+          onActivationChange={onActivationChange}
         />
       </CardFooter>
     </Card>

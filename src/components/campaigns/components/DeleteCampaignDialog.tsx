@@ -9,21 +9,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 
 interface DeleteCampaignDialogProps {
   campaignName: string;
   onDelete: () => void;
+  trigger: React.ReactNode;
 }
 
-export const DeleteCampaignDialog = ({ campaignName, onDelete }: DeleteCampaignDialogProps) => {
+export const DeleteCampaignDialog = ({ 
+  campaignName, 
+  onDelete, 
+  trigger 
+}: DeleteCampaignDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm" className="text-destructive">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        {trigger}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

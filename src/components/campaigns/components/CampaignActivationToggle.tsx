@@ -6,7 +6,7 @@ import { toast } from "sonner";
 interface CampaignActivationToggleProps {
   campaignId: string;
   isActive: boolean;
-  onActivationChange?: () => void;
+  onActivationChange: () => void;
 }
 
 export const CampaignActivationToggle = ({ 
@@ -24,9 +24,7 @@ export const CampaignActivationToggle = ({
       if (error) throw error;
 
       toast.success(isActive ? 'Campaign deactivated' : 'Campaign activated');
-      if (onActivationChange) {
-        onActivationChange();
-      }
+      onActivationChange();
     } catch (error) {
       console.error('Error toggling campaign:', error);
       toast.error('Failed to update campaign status');
