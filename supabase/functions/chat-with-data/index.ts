@@ -92,8 +92,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         formats: ['markdown', 'extract'],
         extract: {
           schema: extractSchema
-        },
-        language: "en"  // Using the correct parameter for language preference
+        }
       })
     });
 
@@ -113,7 +112,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     const extractedInfo = result.data?.extract || {};
     const websiteContent = result.data?.markdown || '';
     
-    // Format the summary in the new standardized structure
+    // Format the summary in a standardized structure
     const summary = `${extractedInfo.company_name || 'Company'} Overview
 ${extractedInfo.company_description || 'A company'} operating in the ${extractedInfo.industry || 'technology'} sector.
 
