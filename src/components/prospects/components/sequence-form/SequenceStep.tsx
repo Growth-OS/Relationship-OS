@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SequenceStepProps {
   index: number;
@@ -32,6 +33,29 @@ export const SequenceStep = ({
   isGenerating,
 }: SequenceStepProps) => {
   const [isAiEnabled, setIsAiEnabled] = useState(false);
+  const [defaultPrompt, setDefaultPrompt] = useState<string>("");
+
+  useEffect(() => {
+    const fetchDefaultPrompt = async () => {
+      const stepType = form.getValues(`steps.${index}.step_type`);
+      const { data: promptTemplate } = await supabase
+        .from('ai_prompts')
+        .select('system_prompt')
+        .eq('category', stepType)
+        .single();
+
+      if (promptTemplate?.system_prompt) {
+        setDefaultPrompt(promptTemplate.system_prompt);
+        if (!form.getValues(`steps.${index}.message_prompt`)) {
+          form.setValue(`steps.${index}.message_prompt`, promptTemplate.system_prompt);
+        }
+      }
+    };
+
+    if (isAiEnabled) {
+      fetchDefaultPrompt();
+    }
+  }, [isAiEnabled, form, index]);
 
   const handleAiToggle = (checked: boolean) => {
     setIsAiEnabled(checked);
@@ -140,6 +164,7 @@ export const SequenceStep = ({
                       placeholder="Enter instructions for AI message generation..."
                       className="min-h-[100px]"
                       {...field}
+                      value={field.value || defaultPrompt}
                     />
                   </FormControl>
                   <FormMessage />
