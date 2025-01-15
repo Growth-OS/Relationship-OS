@@ -78,7 +78,9 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     });
 
     if (!firecrawlResponse.ok) {
-      throw new Error('Failed to scrape website');
+      const errorText = await firecrawlResponse.text();
+      console.error('Firecrawl API error:', errorText);
+      throw new Error(`Failed to scrape website: ${errorText}`);
     }
 
     const scrapedData = await firecrawlResponse.json();
@@ -116,7 +118,9 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     });
 
     if (!perplexityResponse.ok) {
-      throw new Error('Failed to generate summary');
+      const errorText = await perplexityResponse.text();
+      console.error('Perplexity API error:', errorText);
+      throw new Error(`Failed to generate summary: ${errorText}`);
     }
 
     const aiResponse = await perplexityResponse.json();
@@ -124,7 +128,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     console.log('Successfully generated AI summary');
 
     // Update lead with scraped content and summary
-    await supabase
+    const { error: updateError } = await supabase
       .from('leads')
       .update({
         website_content: websiteContent,
@@ -134,6 +138,10 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         last_ai_analysis_date: new Date().toISOString()
       })
       .eq('id', leadId);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     console.log('Successfully updated lead with analysis results');
 
@@ -155,6 +163,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       })
       .eq('id', leadId);
 
+    // Re-throw the error to be caught by the main error handler
     throw error;
   }
 }
