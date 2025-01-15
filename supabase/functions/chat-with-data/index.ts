@@ -61,13 +61,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     }
 
     console.log('Making request to Firecrawl API');
-    
-    // First try to validate the website URL
-    try {
-      new URL(websiteUrl);
-    } catch (e) {
-      throw new Error(`Invalid website URL: ${websiteUrl}`);
-    }
 
     // Define company information schema
     const extractionSchema = {
@@ -90,12 +83,13 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       }
     };
 
-    const firecrawlResponse = await fetch('https://api.firecrawl.io/v1/scrape', {
+    // Make request to Firecrawl API
+    const response = await fetch('https://api.firecrawl.io/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlKey}`,
         'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Lovable-App/1.0'
       },
       body: JSON.stringify({
         url: websiteUrl,
@@ -109,16 +103,16 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
           waitUntil: 'networkidle0',
           maxConcurrency: 1
         }
-      }),
+      })
     });
 
-    if (!firecrawlResponse.ok) {
-      const errorText = await firecrawlResponse.text();
+    if (!response.ok) {
+      const errorText = await response.text();
       console.error('Firecrawl API error response:', errorText);
-      throw new Error(`Firecrawl API error: ${firecrawlResponse.status} - ${errorText}`);
+      throw new Error(`Firecrawl API error: ${response.status} - ${errorText}`);
     }
 
-    const scrapedData = await firecrawlResponse.json();
+    const scrapedData = await response.json();
     console.log('Firecrawl response:', scrapedData);
 
     if (!scrapedData.success) {
