@@ -61,21 +61,29 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     }
 
     console.log('Making request to Firecrawl API');
-    const firecrawlResponse = await fetch('https://api.firecrawl.io/scrape', {
+    
+    // First try to validate the website URL
+    try {
+      new URL(websiteUrl);
+    } catch (e) {
+      throw new Error(`Invalid website URL: ${websiteUrl}`);
+    }
+
+    const firecrawlResponse = await fetch('https://api.firecrawl.io/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlKey}`,
         'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       },
       body: JSON.stringify({
         url: websiteUrl,
         limit: 5,
         scrapeOptions: {
           formats: ['markdown'],
-          timeout: 60000, // Increased timeout to 60 seconds
+          timeout: 60000,
           waitUntil: 'networkidle0',
-          maxConcurrency: 1, // Limit concurrent requests
-          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' // Add user agent
+          maxConcurrency: 1
         }
       }),
     });
@@ -90,7 +98,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       };
       console.error('Firecrawl API error:', errorDetails);
       
-      // Update lead with error status
       await supabase
         .from('leads')
         .update({
@@ -167,7 +174,7 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         scraping_status: 'completed',
         last_scrape_attempt: new Date().toISOString(),
         last_ai_analysis_date: new Date().toISOString(),
-        scraping_error: null // Clear any previous errors
+        scraping_error: null
       })
       .eq('id', leadId);
 
