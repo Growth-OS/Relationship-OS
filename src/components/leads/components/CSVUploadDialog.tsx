@@ -137,7 +137,9 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
         }
 
         toast.success(`Successfully uploaded ${leads.length} leads`);
+        // Call onSuccess and return early to close the dialog
         onSuccess();
+        return;
       }
     } catch (error) {
       console.error('Error processing CSV:', error);
