@@ -46,7 +46,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
   try {
     console.log(`Starting analysis for lead ${leadId} with URL ${websiteUrl}`);
 
-    // Update scraping status to in_progress
     await supabase
       .from('leads')
       .update({ 
@@ -55,7 +54,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       })
       .eq('id', leadId);
 
-    // Validate Firecrawl API key
     const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!firecrawlKey) {
       throw new Error('FIRECRAWL_API_KEY is not configured');
@@ -63,7 +61,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
 
     console.log('Making request to Firecrawl API');
 
-    // Define extraction schema for company information
     const extractSchema = {
       type: "object",
       properties: {
@@ -84,7 +81,6 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       }
     };
 
-    // Make request to Firecrawl API using their scrape endpoint
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
@@ -113,26 +109,29 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
       throw new Error('Failed to analyze website: Invalid response format');
     }
 
-    // Extract the relevant data
     const extractedInfo = result.data?.extract || {};
     const websiteContent = result.data?.markdown || '';
     
-    // Format the summary in a more readable way
-    const summary = `📊 Company Overview
+    // Format the summary in a more professional, narrative style
+    const summary = `${extractedInfo.company_name} Overview
+${extractedInfo.company_name} is ${extractedInfo.company_description || 'a company'} ${
+  extractedInfo.industry ? `operating in the ${extractedInfo.industry} industry` : ''
+}.
 
-${extractedInfo.company_name ? `${extractedInfo.company_name} is ${extractedInfo.company_description}` : ''}
+Industry: ${extractedInfo.industry || 'Not specified'}${
+  extractedInfo.company_size ? `\nSize: ${extractedInfo.company_size}` : ''
+}
 
-🎯 Core Focus:
-${extractedInfo.industry ? `Industry: ${extractedInfo.industry}` : 'Industry not specified'}
-${extractedInfo.company_size ? `Size: ${extractedInfo.company_size}` : ''}
+Key Offerings:${extractedInfo.main_products_or_services ? 
+  '\n' + extractedInfo.main_products_or_services.map(service => `• ${service}`).join('\n')
+  : '\nNo specific offerings listed'
+}
 
-💡 Key Offerings:
-${extractedInfo.main_products_or_services ? extractedInfo.main_products_or_services.join('\n• ') : 'Not specified'}
+${extractedInfo.technologies_used ? 
+  `Technology Used: ${extractedInfo.technologies_used.join(', ')}.`
+  : 'Technology stack not specified.'
+}`;
 
-🛠️ Technology Stack:
-${extractedInfo.technologies_used ? extractedInfo.technologies_used.join(', ') : 'Not specified'}`;
-
-    // Update lead with scraped content and summary
     const { error: updateError } = await supabase
       .from('leads')
       .update({
@@ -159,7 +158,6 @@ ${extractedInfo.technologies_used ? extractedInfo.technologies_used.join(', ') :
   } catch (error) {
     console.error('Error in analyze-company:', error);
     
-    // Update lead with error status
     await supabase
       .from('leads')
       .update({
