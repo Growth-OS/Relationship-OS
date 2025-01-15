@@ -92,7 +92,8 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
         formats: ['markdown', 'extract'],
         extract: {
           schema: extractSchema
-        }
+        },
+        preferredLanguage: "en" // Request English content when available
       })
     });
 
@@ -112,25 +113,21 @@ async function handleCompanyAnalysis({ leadId, websiteUrl }: { leadId: string; w
     const extractedInfo = result.data?.extract || {};
     const websiteContent = result.data?.markdown || '';
     
-    // Format the summary in a more professional, narrative style
-    const summary = `${extractedInfo.company_name} Overview
-${extractedInfo.company_name} is ${extractedInfo.company_description || 'a company'} ${
-  extractedInfo.industry ? `operating in the ${extractedInfo.industry} industry` : ''
-}.
+    // Format the summary in the new standardized structure
+    const summary = `${extractedInfo.company_name || 'Company'} Overview
+${extractedInfo.company_description || 'A company'} operating in the ${extractedInfo.industry || 'technology'} sector.
 
-Industry: ${extractedInfo.industry || 'Not specified'}${
-  extractedInfo.company_size ? `\nSize: ${extractedInfo.company_size}` : ''
-}
+Industry: ${extractedInfo.industry || 'Not specified'}
 
 Key Offerings:${extractedInfo.main_products_or_services ? 
   '\n' + extractedInfo.main_products_or_services.map(service => `• ${service}`).join('\n')
-  : '\nNo specific offerings listed'
-}
+  : '\nNo specific offerings listed'}
 
-${extractedInfo.technologies_used ? 
-  `Technology Used: ${extractedInfo.technologies_used.join(', ')}.`
-  : 'Technology stack not specified.'
-}`;
+${extractedInfo.technologies_used?.length ? 
+  `Technology Stack: ${extractedInfo.technologies_used.join(', ')}.`
+  : 'Technology Stack: Not specified'}
+
+Company Size: ${extractedInfo.company_size || 'Not specified'}`;
 
     const { error: updateError } = await supabase
       .from('leads')
