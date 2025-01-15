@@ -16,6 +16,8 @@ interface LeadsTableProps {
   onSearch?: (term: string) => void;
   onFilter?: (filters: { source?: string }) => void;
   isLoading?: boolean;
+  selectedIds?: string[];
+  onSelectChange?: (ids: string[]) => void;
 }
 
 export const LeadsTable = ({
@@ -24,9 +26,10 @@ export const LeadsTable = ({
   totalPages,
   onPageChange,
   isLoading,
+  selectedIds = [],
+  onSelectChange,
 }: LeadsTableProps) => {
   const [editableLeads, setEditableLeads] = useState<EditableLead[]>([]);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Memoize the conversion of leads to editableLeads
   const convertToEditableLeads = useCallback((leads: Lead[]): EditableLead[] => {
@@ -110,18 +113,6 @@ export const LeadsTable = ({
     };
   }, []);
 
-  const handleSelectAll = useCallback(() => {
-    setSelectedIds(prev => 
-      prev.length === leads.length ? [] : leads.map(p => p.id)
-    );
-  }, [leads]);
-
-  const handleSelectChange = useCallback((id: string, checked: boolean) => {
-    setSelectedIds(prev => 
-      checked ? [...prev, id] : prev.filter(prevId => prevId !== id)
-    );
-  }, []);
-
   const handleDelete = async (id: string) => {
     try {
       const { error } = await supabase
@@ -174,7 +165,7 @@ export const LeadsTable = ({
       <Table>
         <LeadTableHeader 
           isAllSelected={selectedIds.length === leads.length}
-          onSelectAll={handleSelectAll}
+          onSelectAll={() => onSelectChange?.(selectedIds.length === leads.length ? [] : leads.map(l => l.id))}
         />
         <TableBody>
           {editableLeads.map((lead) => (
@@ -185,7 +176,15 @@ export const LeadsTable = ({
               onDelete={handleDelete}
               onEdit={handleEdit}
               isSelected={selectedIds.includes(lead.id)}
-              onSelectChange={(checked) => handleSelectChange(lead.id, checked)}
+              onSelectChange={(checked) => {
+                if (onSelectChange) {
+                  onSelectChange(
+                    checked 
+                      ? [...selectedIds, lead.id]
+                      : selectedIds.filter(id => id !== lead.id)
+                  );
+                }
+              }}
             />
           ))}
         </TableBody>

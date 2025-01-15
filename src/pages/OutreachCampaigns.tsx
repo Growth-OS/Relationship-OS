@@ -1,25 +1,28 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, UserPlus, Target } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CreateLeadForm } from "@/components/leads/CreateLeadForm";
 import { CSVUploadDialog } from "@/components/leads/components/CSVUploadDialog";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LeadsTable } from "@/components/leads/LeadsTable";
 import { CampaignsList } from "@/components/campaigns/CampaignsList";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Lead, LeadSource } from "@/components/leads/types/lead";
+import { BulkActions } from "@/components/leads/components/BulkActions";
 
 const ITEMS_PER_PAGE = 10;
 
-export const OutreachCampaigns = () => {
-  const [createLeadDialogOpen, setCreateLeadDialogOpen] = useState(false);
+const OutreachCampaigns = () => {
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
 
-  const { data: leadsData, isLoading: leadsLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['leads', currentPage],
     queryFn: async () => {
       const countQuery = supabase
@@ -57,18 +60,26 @@ export const OutreachCampaigns = () => {
     staleTime: 5000,
   });
 
-  const totalPages = Math.ceil((leadsData?.totalCount || 0) / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
 
+  const handleSelectAll = () => {
+    if (data?.leads) {
+      setSelectedLeadIds(prev => 
+        prev.length === data.leads.length ? [] : data.leads.map(lead => lead.id)
+      );
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col space-y-2 text-left">
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="text-left">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Outreach Campaigns</h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Manage your outreach campaigns and leads
           </p>
         </div>
@@ -110,15 +121,16 @@ export const OutreachCampaigns = () => {
                   </DialogHeader>
                   <CSVUploadDialog onSuccess={() => {
                     setUploadDialogOpen(false);
+                    refetch();
                     toast.success("Leads uploaded successfully");
                   }} />
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={createLeadDialogOpen} onOpenChange={setCreateLeadDialogOpen}>
+              <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-black hover:bg-black/90 text-white">
-                    <UserPlus className="w-4 h-4 mr-2" />
+                    <Plus className="w-4 h-4 mr-2" />
                     Add Lead
                   </Button>
                 </DialogTrigger>
@@ -127,7 +139,8 @@ export const OutreachCampaigns = () => {
                     <DialogTitle>Add New Lead</DialogTitle>
                   </DialogHeader>
                   <CreateLeadForm onSuccess={() => {
-                    setCreateLeadDialogOpen(false);
+                    setCreateDialogOpen(false);
+                    refetch();
                     toast.success("Lead added successfully");
                   }} />
                 </DialogContent>
@@ -135,12 +148,18 @@ export const OutreachCampaigns = () => {
             </div>
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+              <BulkActions 
+                selectedIds={selectedLeadIds}
+                onSelectAll={handleSelectAll}
+              />
               <LeadsTable 
-                leads={leadsData?.leads || []}
+                leads={data?.leads || []}
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
-                isLoading={leadsLoading}
+                isLoading={isLoading}
+                selectedIds={selectedLeadIds}
+                onSelectChange={setSelectedLeadIds}
               />
             </div>
           </div>
