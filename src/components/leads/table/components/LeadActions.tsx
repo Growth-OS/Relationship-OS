@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2, RefreshCw } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, RefreshCw, ArrowRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,8 @@ import {
 import { LeadActionsProps } from "../../types/lead";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useState } from "react";
+import { AddToCampaignDialog } from "../../components/AddToCampaignDialog";
 
 const formatUrl = (url: string): string => {
   if (!url) return '';
@@ -27,6 +29,8 @@ export const LeadActions = ({
   onEdit,
   onDelete,
 }: LeadActionsProps) => {
+  const [showAddToCampaign, setShowAddToCampaign] = useState(false);
+
   const analyzeCompany = async () => {
     if (!lead.company_website) {
       toast.error("No website URL available for analysis");
@@ -79,38 +83,53 @@ export const LeadActions = ({
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={() => onEdit()}
-          className="cursor-pointer"
-        >
-          <Pencil className="mr-2 h-4 w-4" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => onDelete(lead.id)}
-          className="cursor-pointer text-destructive"
-        >
-          <Trash2 className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
-        {lead.company_website && (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
           <DropdownMenuItem
-            onClick={analyzeCompany}
+            onClick={() => onEdit()}
             className="cursor-pointer"
           >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Analyze Company
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
           </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem
+            onClick={() => onDelete(lead.id)}
+            className="cursor-pointer text-destructive"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+          {lead.company_website && (
+            <DropdownMenuItem
+              onClick={analyzeCompany}
+              className="cursor-pointer"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Analyze Company
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem
+            onClick={() => setShowAddToCampaign(true)}
+            className="cursor-pointer"
+          >
+            <ArrowRight className="mr-2 h-4 w-4" />
+            Add to Campaign
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AddToCampaignDialog
+        lead={lead}
+        open={showAddToCampaign}
+        onOpenChange={setShowAddToCampaign}
+      />
+    </>
   );
 };
