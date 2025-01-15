@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { List, Target, Users } from "lucide-react";
+import { List, Target, Users, Wand2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DeleteCampaignDialog } from "./components/DeleteCampaignDialog";
 import { CampaignActivationToggle } from "./components/CampaignActivationToggle";
 import { useCampaignDelete } from "./hooks/useCampaignDelete";
+import { Badge } from "@/components/ui/badge";
 
 interface Campaign {
   id: string;
@@ -46,6 +47,25 @@ export const CampaignCard = ({
     },
   });
 
+  const { data: hasAiSteps } = useQuery({
+    queryKey: ['campaign-ai-steps', campaign.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('campaign_steps')
+        .select('is_ai_enabled')
+        .eq('campaign_id', campaign.id)
+        .eq('is_ai_enabled', true)
+        .limit(1);
+      
+      if (error) {
+        console.error('Error checking AI steps:', error);
+        return false;
+      }
+      
+      return data && data.length > 0;
+    },
+  });
+
   const { handleDelete } = useCampaignDelete(onDelete);
 
   return (
@@ -55,6 +75,12 @@ export const CampaignCard = ({
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-primary" />
             {campaign.name}
+            {hasAiSteps && (
+              <Badge variant="secondary" className="ml-2">
+                <Wand2 className="h-3 w-3 mr-1" />
+                AI Enabled
+              </Badge>
+            )}
           </div>
           <CampaignActivationToggle
             campaignId={campaign.id}

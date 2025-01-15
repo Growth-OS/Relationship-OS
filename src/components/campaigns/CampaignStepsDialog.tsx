@@ -1,5 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Wand2 } from "lucide-react";
 
 interface CampaignStep {
   id: string;
@@ -54,14 +56,32 @@ export const CampaignStepsDialog = ({
             {steps?.map((step, index) => (
               <AccordionItem key={step.id} value={step.id}>
                 <AccordionTrigger>
-                  Step {index + 1} - {getStepTypeDisplay(step.step_type)} ({step.delay_days} days)
+                  <div className="flex items-center gap-2">
+                    <span>Step {index + 1} - {getStepTypeDisplay(step.step_type)} ({step.delay_days} days)</span>
+                    {step.is_ai_enabled && (
+                      <Badge variant="secondary" className="ml-2">
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        AI Enabled
+                      </Badge>
+                    )}
+                  </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium">Message Template:</p>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                      {step.message_template_or_prompt || "No message template"}
-                    </p>
+                  <div className="space-y-4">
+                    {step.is_ai_enabled && step.message_prompt && (
+                      <div>
+                        <p className="text-sm font-medium mb-1">AI Prompt:</p>
+                        <p className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md">
+                          {step.message_prompt}
+                        </p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium mb-1">Message Template:</p>
+                      <div className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md whitespace-pre-wrap">
+                        {step.message_template_or_prompt || "No message template"}
+                      </div>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
