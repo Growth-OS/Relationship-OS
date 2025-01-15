@@ -66,8 +66,10 @@ export const ConvertToDealDialog = ({
         return;
       }
 
+      console.log('Creating deal with values:', values);
+
       // Create the deal
-      const { error: dealError } = await supabase
+      const { data: dealData, error: dealError } = await supabase
         .from('deals')
         .insert({
           user_id: user.id,
@@ -80,9 +82,16 @@ export const ConvertToDealDialog = ({
           contact_job_title: prospects[0]?.contact_job_title,
           company_website: prospects[0]?.company_website,
           source: prospects[0]?.source,
-        });
+        })
+        .select()
+        .single();
 
-      if (dealError) throw dealError;
+      if (dealError) {
+        console.error('Error creating deal:', dealError);
+        throw dealError;
+      }
+
+      console.log('Deal created successfully:', dealData);
 
       // Update prospects status
       const { error: prospectsError } = await supabase
@@ -93,7 +102,10 @@ export const ConvertToDealDialog = ({
         })
         .in('id', prospects.map(p => p.id));
 
-      if (prospectsError) throw prospectsError;
+      if (prospectsError) {
+        console.error('Error updating prospects:', prospectsError);
+        throw prospectsError;
+      }
 
       await queryClient.invalidateQueries({ queryKey: ['prospects'] });
       await queryClient.invalidateQueries({ queryKey: ['deals'] });
