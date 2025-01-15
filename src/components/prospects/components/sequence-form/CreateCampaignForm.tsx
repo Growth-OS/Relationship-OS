@@ -8,7 +8,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormValues, formSchema } from "./types";
 import { CampaignDetails } from "./components/CampaignDetails";
 import { useCampaignCreation } from "./hooks/useCampaignCreation";
-import { useMessageGeneration } from "./hooks/useMessageGeneration";
 import { toast } from "sonner";
 
 interface CreateCampaignFormProps {
@@ -18,7 +17,6 @@ interface CreateCampaignFormProps {
 export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
   const [expandedSteps, setExpandedSteps] = useState<number[]>([]);
   const { createCampaign, isSubmitting } = useCampaignCreation(onSuccess);
-  const { generateMessage, isGenerating } = useMessageGeneration();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -29,9 +27,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
         {
           step_type: "email",
           delay_days: 0,
-          message_template_or_prompt: "",
-          is_ai_enabled: false,
-          message_prompt: "",
         },
       ],
     },
@@ -44,9 +39,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
       {
         step_type: "email",
         delay_days: 0,
-        message_template_or_prompt: "",
-        is_ai_enabled: false,
-        message_prompt: "",
       },
     ]);
   };
@@ -68,26 +60,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
     );
   };
 
-  const handleGenerateMessage = async (index: number) => {
-    try {
-      const step = form.getValues(`steps.${index}`);
-      if (!step.message_prompt) {
-        toast.error("Please provide a message prompt for AI generation");
-        return;
-      }
-
-      const generatedMessage = await generateMessage(
-        step.message_prompt,
-        step.step_type
-      );
-
-      form.setValue(`steps.${index}.message_template_or_prompt`, generatedMessage);
-      toast.success("Message generated successfully");
-    } catch (error) {
-      console.error("Error generating message:", error);
-    }
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(createCampaign)} className="space-y-4">
@@ -102,8 +74,6 @@ export const CreateCampaignForm = ({ onSuccess }: CreateCampaignFormProps) => {
               expanded={expandedSteps.includes(index)}
               onToggle={() => toggleStep(index)}
               onDelete={() => removeStep(index)}
-              onGenerateMessage={() => handleGenerateMessage(index)}
-              isGenerating={isGenerating}
             />
           ))}
         </div>

@@ -2,16 +2,10 @@ import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RichTextEditor } from "@/components/content/RichTextEditor";
-import { ChevronDown, ChevronUp, Trash2, Wand2, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { FormValues } from "./types";
 import { cn } from "@/lib/utils";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useState, useEffect } from "react";
-import { usePromptQuery } from "@/components/ai-prompts/hooks/usePromptQuery";
 
 interface SequenceStepProps {
   index: number;
@@ -19,8 +13,6 @@ interface SequenceStepProps {
   expanded: boolean;
   onToggle: () => void;
   onDelete: () => void;
-  onGenerateMessage: () => void;
-  isGenerating: boolean;
 }
 
 export const SequenceStep = ({
@@ -29,26 +21,7 @@ export const SequenceStep = ({
   expanded,
   onToggle,
   onDelete,
-  onGenerateMessage,
-  isGenerating,
 }: SequenceStepProps) => {
-  const [isAiEnabled, setIsAiEnabled] = useState(false);
-  const stepType = form.watch(`steps.${index}.step_type`);
-  const { data: promptTemplate } = usePromptQuery(stepType);
-
-  useEffect(() => {
-    if (isAiEnabled && promptTemplate?.system_prompt) {
-      if (!form.getValues(`steps.${index}.message_prompt`)) {
-        form.setValue(`steps.${index}.message_prompt`, promptTemplate.system_prompt);
-      }
-    }
-  }, [isAiEnabled, promptTemplate, form, index]);
-
-  const handleAiToggle = (checked: boolean) => {
-    setIsAiEnabled(checked);
-    form.setValue(`steps.${index}.is_ai_enabled`, checked);
-  };
-
   return (
     <div className="p-4 border rounded-lg space-y-4">
       <div className="flex items-center justify-between">
@@ -127,75 +100,6 @@ export const SequenceStep = ({
           )}
         />
       </div>
-
-      {expanded && (
-        <>
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={isAiEnabled}
-              onCheckedChange={handleAiToggle}
-              id={`ai-toggle-${index}`}
-            />
-            <Label htmlFor={`ai-toggle-${index}`}>Enable AI message generation</Label>
-          </div>
-
-          {isAiEnabled && (
-            <FormField
-              control={form.control}
-              name={`steps.${index}.message_prompt`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>AI Message Prompt</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter instructions for AI message generation..."
-                      className="min-h-[100px]"
-                      {...field}
-                      value={field.value || (promptTemplate?.system_prompt || '')}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-
-          <FormField
-            control={form.control}
-            name={`steps.${index}.message_template_or_prompt`}
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel>Message Template</FormLabel>
-                  {isAiEnabled && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={onGenerateMessage}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Wand2 className="h-4 w-4 mr-2" />
-                      )}
-                      Generate Message
-                    </Button>
-                  )}
-                </div>
-                <FormControl>
-                  <RichTextEditor
-                    content={field.value || ""}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </>
-      )}
     </div>
   );
 };

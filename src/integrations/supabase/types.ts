@@ -182,9 +182,6 @@ export type Database = {
           created_at: string
           delay_days: number
           id: string
-          is_ai_enabled: boolean | null
-          message_prompt: string | null
-          message_template_or_prompt: string | null
           sequence_order: number
           step_type: string
         }
@@ -193,9 +190,6 @@ export type Database = {
           created_at?: string
           delay_days?: number
           id?: string
-          is_ai_enabled?: boolean | null
-          message_prompt?: string | null
-          message_template_or_prompt?: string | null
           sequence_order: number
           step_type: string
         }
@@ -204,9 +198,6 @@ export type Database = {
           created_at?: string
           delay_days?: number
           id?: string
-          is_ai_enabled?: boolean | null
-          message_prompt?: string | null
-          message_template_or_prompt?: string | null
           sequence_order?: number
           step_type?: string
         }

@@ -1,17 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Wand2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface CampaignStep {
   id: string;
   step_type: string;
   delay_days: number;
-  message_template_or_prompt: string | null;
   sequence_order: number;
-  is_ai_enabled?: boolean;
-  message_prompt?: string;
 }
 
 interface CampaignStepsDialogProps {
@@ -42,11 +36,6 @@ export const CampaignStepsDialog = ({
     }
   };
 
-  const handleCopyTemplate = (template: string) => {
-    navigator.clipboard.writeText(template);
-    toast.success("Template copied to clipboard");
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -64,36 +53,11 @@ export const CampaignStepsDialog = ({
                 <AccordionTrigger>
                   <div className="flex items-center gap-2">
                     <span>Step {index + 1} - {getStepTypeDisplay(step.step_type)} ({step.delay_days} days)</span>
-                    {step.is_ai_enabled && (
-                      <Badge variant="secondary" className="ml-2">
-                        <Wand2 className="h-3 w-3 mr-1" />
-                        AI Enabled
-                      </Badge>
-                    )}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="space-y-4">
-                    {step.is_ai_enabled && step.message_prompt && (
-                      <div>
-                        <p className="text-sm font-medium mb-1">AI Prompt:</p>
-                        <p className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md">
-                          {step.message_prompt}
-                        </p>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-medium mb-1">Message Template:</p>
-                      <div 
-                        className="text-sm text-muted-foreground bg-secondary/50 p-2 rounded-md whitespace-pre-wrap relative group cursor-pointer"
-                        onClick={() => step.message_template_or_prompt && handleCopyTemplate(step.message_template_or_prompt)}
-                      >
-                        {step.message_template_or_prompt || "No message template"}
-                        <span className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 text-xs text-muted-foreground transition-opacity">
-                          Click to copy
-                        </span>
-                      </div>
-                    </div>
+                  <div className="text-sm text-muted-foreground">
+                    This step will create a task after {step.delay_days} days.
                   </div>
                 </AccordionContent>
               </AccordionItem>
