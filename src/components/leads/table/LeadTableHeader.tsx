@@ -1,29 +1,30 @@
-import { TableHeader, TableRow, TableHead } from "@/components/ui/table";
+import { TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 
 interface LeadTableHeaderProps {
-  isAllSelected?: boolean;
-  onSelectAll?: (checked: boolean) => void;
+  isAllSelected: boolean;
+  onSelectAll: () => void;
 }
 
-export const LeadTableHeader = ({ isAllSelected, onSelectAll }: LeadTableHeaderProps) => {
+export const LeadTableHeader = ({
+  isAllSelected,
+  onSelectAll,
+}: LeadTableHeaderProps) => {
   return (
     <TableHeader>
       <TableRow>
         <TableHead className="w-[50px]">
-          <div className="flex items-center justify-center">
-            <Checkbox
-              checked={isAllSelected}
-              onCheckedChange={onSelectAll}
-            />
-          </div>
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={onSelectAll}
+          />
         </TableHead>
-        <TableHead className="text-left font-medium">Company</TableHead>
-        <TableHead className="text-left font-medium">Contact</TableHead>
-        <TableHead className="text-left font-medium">Source</TableHead>
-        <TableHead className="text-left font-medium">LinkedIn</TableHead>
-        <TableHead className="text-left font-medium">Status</TableHead>
-        <TableHead className="text-right font-medium">Actions</TableHead>
+        <TableHead>Company</TableHead>
+        <TableHead>Contact</TableHead>
+        <TableHead>Source</TableHead>
+        <TableHead>LinkedIn</TableHead>
+        <TableHead>Status</TableHead>
+        <TableHead className="text-right">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );
