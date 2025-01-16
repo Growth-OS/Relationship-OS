@@ -10,6 +10,7 @@ import { TaskData, TaskSource } from "@/components/tasks/types";
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
   const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const queryClient = useQueryClient();
   const { handleTaskComplete, handleTaskUpdate } = useTaskOperations();
 
   const { data: tasks, isLoading } = useQuery({
@@ -43,6 +44,16 @@ export const DashboardWeeklyTasks = () => {
       return data as TaskData[];
     },
   });
+
+  const handleTaskCompleteWithRefresh = async (taskId: string, completed: boolean, tasks: TaskData[]) => {
+    try {
+      await handleTaskComplete(taskId, completed, tasks);
+      // Invalidate and refetch the weekly tasks query
+      await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+    } catch (error) {
+      console.error("Error completing task:", error);
+    }
+  };
 
   // Group tasks by source
   const groupedTasks = tasks?.reduce((acc, task) => {
@@ -78,7 +89,7 @@ export const DashboardWeeklyTasks = () => {
             key={source}
             source={source as TaskSource}
             tasks={sourceTasks || []}
-            onComplete={(taskId, completed) => handleTaskComplete(taskId, completed, tasks || [])}
+            onComplete={(taskId, completed) => handleTaskCompleteWithRefresh(taskId, completed, tasks || [])}
             onUpdate={handleTaskUpdate}
           />
         ))}
