@@ -8,7 +8,7 @@ export interface Lead {
   company_website?: string;
   first_name?: string;
   notes?: string;
-  source: string;
+  source: LeadSource;
   status?: string;
   user_id?: string;
   ai_summary?: string;
@@ -18,6 +18,8 @@ export interface Lead {
   last_scrape_attempt?: string;
   scraping_error?: string;
 }
+
+export type LeadSource = 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
 
 export interface EditableLead extends Lead {
   isEditing: boolean;
@@ -38,9 +40,4 @@ export interface LeadCompanyInfoProps {
 
 export interface LeadContactInfoProps {
   lead: Lead;
-}
-
-export interface LeadActionsProps {
-  lead: Lead;
-  onEdit: () => void;
 }
