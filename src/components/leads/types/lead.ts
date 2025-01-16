@@ -25,15 +25,6 @@ export interface EditableLead extends Lead {
   isEditing: boolean;
 }
 
-export interface LeadRowProps {
-  lead: Lead;
-  sourceLabels: Record<string, string>;
-  onDelete: (id: string) => Promise<void>;
-  onEdit: (lead: Lead) => void;
-  isSelected: boolean;
-  onSelectChange: (checked: boolean) => void;
-}
-
 export interface LeadCompanyInfoProps {
   lead: Lead;
 }
