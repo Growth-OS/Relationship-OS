@@ -11,6 +11,8 @@ export const LeadRow = ({
   lead,
   isSelected,
   onSelectChange,
+  onEdit,
+  onDelete,
 }: LeadRowProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
@@ -43,6 +45,7 @@ export const LeadRow = ({
         onOpenChange={setEditDialogOpen}
         onSuccess={() => {
           setEditDialogOpen(false);
+          onEdit(lead);
         }}
       />
     </>

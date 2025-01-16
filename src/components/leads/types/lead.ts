@@ -8,7 +8,7 @@ export interface Lead {
   company_website?: string;
   first_name?: string;
   notes?: string;
-  source: LeadSource;
+  source: string;
   status?: string;
   user_id?: string;
   ai_summary?: string;
@@ -19,14 +19,15 @@ export interface Lead {
   scraping_error?: string;
 }
 
-export type LeadSource = 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';
-
 export interface EditableLead extends Lead {
   isEditing: boolean;
 }
 
 export interface LeadRowProps {
   lead: Lead;
+  sourceLabels: Record<string, string>;
+  onDelete: (id: string) => Promise<void>;
+  onEdit: (lead: Lead) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }
