@@ -1,7 +1,7 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,26 +31,6 @@ export const LeadRow = ({
 }: LeadRowProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  const getLinkedInStatus = () => {
-    if (!lead.contact_linkedin) return 'missing';
-    if (lead.status === 'connected') return 'connected';
-    return 'pending';
-  };
-
-  const renderLinkedInStatusIcon = () => {
-    const status = getLinkedInStatus();
-    switch (status) {
-      case 'connected':
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case 'pending':
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case 'missing':
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <>
       <TableRow>
@@ -70,10 +50,25 @@ export const LeadRow = ({
           <span className="capitalize">{lead.source}</span>
         </TableCell>
         <TableCell>
-          <div className="flex items-center gap-2">
-            {renderLinkedInStatusIcon()}
-            <span className="capitalize">{getLinkedInStatus()}</span>
-          </div>
+          {lead.contact_linkedin ? (
+            <a
+              href={lead.contact_linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-600 hover:text-purple-700 hover:underline"
+            >
+              View Profile
+            </a>
+          ) : (
+            <span className="text-gray-400">No profile</span>
+          )}
+        </TableCell>
+        <TableCell>
+          <span className={`capitalize ${
+            lead.status === 'in_campaign' ? 'text-green-600' : 'text-gray-600'
+          }`}>
+            {lead.status || 'new'}
+          </span>
         </TableCell>
         <TableCell className="text-right">
           <DropdownMenu>

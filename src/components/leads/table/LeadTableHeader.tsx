@@ -21,7 +21,8 @@ export const LeadTableHeader = ({ isAllSelected, onSelectAll }: LeadTableHeaderP
         <TableHead className="text-left font-medium">Company</TableHead>
         <TableHead className="text-left font-medium">Contact</TableHead>
         <TableHead className="text-left font-medium">Source</TableHead>
-        <TableHead className="text-left font-medium">LinkedIn Status</TableHead>
+        <TableHead className="text-left font-medium">LinkedIn</TableHead>
+        <TableHead className="text-left font-medium">Status</TableHead>
         <TableHead className="text-right font-medium">Actions</TableHead>
       </TableRow>
     </TableHeader>
