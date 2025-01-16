@@ -147,15 +147,6 @@ export const LeadsTable = ({
     }
   };
 
-  const sourceLabels: Record<string, string> = {
-    linkedin: "LinkedIn",
-    referral: "Referral",
-    website: "Website",
-    cold_outreach: "Cold Outreach",
-    conference: "Conference",
-    other: "Other"
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -172,7 +163,6 @@ export const LeadsTable = ({
             <LeadRow
               key={lead.id}
               lead={lead}
-              sourceLabels={sourceLabels}
               onDelete={handleDelete}
               onEdit={handleEdit}
               isSelected={selectedIds.includes(lead.id)}
