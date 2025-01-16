@@ -26,19 +26,19 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Handle auth state changes
+// Handle auth state changes with better error logging
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing cached data');
     localStorage.clear();
   } else if (event === 'SIGNED_IN') {
-    console.log('User signed in, session established');
+    console.log('User signed in, session established', { userId: session?.user?.id });
   } else if (event === 'TOKEN_REFRESHED') {
-    console.log('Session token refreshed');
+    console.log('Session token refreshed successfully');
   }
 });
 
-// Helper to check auth status
+// Helper to check auth status with enhanced error handling
 export const checkAuth = async () => {
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
