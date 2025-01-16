@@ -5,13 +5,7 @@ import { LeadContactInfo } from "./components/LeadContactInfo";
 import { LeadActions } from "./components/LeadActions";
 import { useState } from "react";
 import { EditLeadDialog } from "../components/EditLeadDialog";
-import type { Lead } from "../types/lead";
-
-interface LeadRowProps {
-  lead: Lead;
-  isSelected?: boolean;
-  onSelectChange?: (checked: boolean) => void;
-}
+import type { LeadRowProps } from "../types/lead";
 
 export const LeadRow = ({
   lead,
@@ -24,12 +18,10 @@ export const LeadRow = ({
     <>
       <TableRow>
         <TableCell>
-          {onSelectChange && (
-            <Checkbox
-              checked={isSelected}
-              onCheckedChange={onSelectChange}
-            />
-          )}
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={onSelectChange}
+          />
         </TableCell>
         <TableCell>
           <LeadCompanyInfo lead={lead} />

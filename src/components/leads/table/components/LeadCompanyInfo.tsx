@@ -1,4 +1,3 @@
-import { Input } from "@/components/ui/input";
 import { LeadCompanyInfoProps } from "../../types/lead";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,30 +7,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Info } from "lucide-react";
 
-export const LeadCompanyInfo = ({
-  lead,
-  isEditing,
-  editedLead,
-  onEditChange,
-}: LeadCompanyInfoProps) => {
-  if (isEditing) {
-    return (
-      <div className="space-y-2">
-        <Input
-          value={editedLead.company_name}
-          onChange={(e) => onEditChange('company_name', e.target.value)}
-          className="w-full"
-        />
-        <Input
-          value={editedLead.company_website || ''}
-          onChange={(e) => onEditChange('company_website', e.target.value)}
-          placeholder="Website"
-          className="w-full"
-        />
-      </div>
-    );
-  }
-
+export const LeadCompanyInfo = ({ lead }: LeadCompanyInfoProps) => {
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">

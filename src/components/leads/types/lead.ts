@@ -11,7 +11,6 @@ export interface Lead {
   source: LeadSource;
   status?: string;
   user_id?: string;
-  // Add new fields for website scraping and AI analysis
   ai_summary?: string;
   website_content?: string;
   last_ai_analysis_date?: string;
@@ -28,29 +27,19 @@ export interface EditableLead extends Lead {
 
 export interface LeadRowProps {
   lead: Lead;
-  sourceLabels: Record<string, string>;
-  onDelete: (id: string) => Promise<void>;
-  onEdit: (lead: Lead) => void;
   isSelected: boolean;
   onSelectChange: (checked: boolean) => void;
 }
 
 export interface LeadCompanyInfoProps {
   lead: Lead;
-  isEditing: boolean;
-  editedLead: Lead;
-  onEditChange: (field: keyof Lead, value: string) => void;
 }
 
 export interface LeadContactInfoProps {
   lead: Lead;
-  isEditing: boolean;
-  editedLead: Lead;
-  onEditChange: (field: keyof Lead, value: string) => void;
 }
 
 export interface LeadActionsProps {
   lead: Lead;
-  onDelete: (id: string) => Promise<void>;
   onEdit: () => void;
 }
