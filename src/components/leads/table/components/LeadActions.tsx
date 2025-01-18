@@ -43,7 +43,7 @@ export const LeadActions = ({ lead, onEdit }: LeadActionsProps) => {
       </DropdownMenu>
 
       <AddToCampaignDialog
-        lead={lead}
+        leads={[lead]}
         open={campaignDialogOpen}
         onOpenChange={setCampaignDialogOpen}
       />
