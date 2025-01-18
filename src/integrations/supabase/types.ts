@@ -1704,6 +1704,7 @@ export type Database = {
         | "substack"
         | "projects"
         | "other"
+        | "outreach"
       team_role: "owner" | "admin" | "member"
       transaction_type: "income" | "expense"
       travel_status: "upcoming" | "completed" | "cancelled"
