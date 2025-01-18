@@ -1,8 +1,10 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2, Users } from "lucide-react";
 import { CampaignActivationToggle } from "./components/CampaignActivationToggle";
 import { DeleteCampaignDialog } from "./components/DeleteCampaignDialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +34,29 @@ export const CampaignCard = ({
   onActivationChange,
   onDelete,
 }: CampaignCardProps) => {
+  // Query to get the count of leads in this campaign
+  const { data: leadsCount = 0, isLoading: isLoadingLeads } = useQuery({
+    queryKey: ['campaign-leads-count', campaign.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'in_campaign')
+        .in('id', supabase
+          .from('lead_campaigns')
+          .select('lead_id')
+          .eq('campaign_id', campaign.id)
+        );
+      
+      if (error) {
+        console.error('Error fetching leads count:', error);
+        return 0;
+      }
+      
+      return count || 0;
+    },
+  });
+
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -75,6 +100,16 @@ export const CampaignCard = ({
           </span>
           <span className={`text-sm ${campaign.is_active ? 'text-green-600' : 'text-gray-500'}`}>
             {campaign.is_active ? 'Active' : 'Inactive'}
+          </span>
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Users className="h-4 w-4" />
+          <span>
+            {isLoadingLeads ? (
+              "Loading leads..."
+            ) : (
+              `${leadsCount} ${leadsCount === 1 ? 'lead' : 'leads'}`
+            )}
           </span>
         </div>
       </CardContent>
