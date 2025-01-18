@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { EditTaskDialog } from "./EditTaskDialog";
 import { useNavigate } from "react-router-dom";
 import { memo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface TaskCardProps {
   task: any;
@@ -16,6 +17,7 @@ interface TaskCardProps {
 
 export const TaskCard = memo(({ task, onComplete, onUpdate }: TaskCardProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const handleTaskClick = (task: any) => {
     if (task.source === 'projects' && task.projects) {
@@ -29,6 +31,23 @@ export const TaskCard = memo(({ task, onComplete, onUpdate }: TaskCardProps) => 
     } else if (task.source === 'ideas') {
       navigate('/dashboard/development');
     }
+  };
+
+  const handleComplete = async (checked: boolean) => {
+    // Optimistically update the UI
+    queryClient.setQueryData(['weekly-tasks'], (oldData: any) => {
+      if (!oldData) return oldData;
+      return oldData.map((t: any) => 
+        t.id === task.id ? { ...t, completed: checked } : t
+      );
+    });
+
+    // Make the API call
+    await onComplete(task.id, checked);
+    
+    // Invalidate relevant queries to ensure data consistency
+    queryClient.invalidateQueries({ queryKey: ['weekly-tasks'] });
+    queryClient.invalidateQueries({ queryKey: ['tasks'] });
   };
 
   const getPriorityColor = (priority: string) => {
@@ -59,9 +78,7 @@ export const TaskCard = memo(({ task, onComplete, onUpdate }: TaskCardProps) => 
         >
           <Checkbox
             checked={task.completed || false}
-            onCheckedChange={(checked) => {
-              onComplete(task.id, checked as boolean);
-            }}
+            onCheckedChange={handleComplete}
           />
         </div>
 
