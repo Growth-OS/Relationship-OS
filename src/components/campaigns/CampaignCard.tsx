@@ -38,15 +38,29 @@ export const CampaignCard = ({
   const { data: leadsCount = 0, isLoading: isLoadingLeads } = useQuery({
     queryKey: ['campaign-leads-count', campaign.id],
     queryFn: async () => {
+      // First get the lead IDs for this campaign
+      const { data: campaignLeads, error: leadsError } = await supabase
+        .from('lead_campaigns')
+        .select('lead_id')
+        .eq('campaign_id', campaign.id);
+      
+      if (leadsError) {
+        console.error('Error fetching campaign leads:', leadsError);
+        return 0;
+      }
+
+      // If no leads are found, return 0
+      if (!campaignLeads || campaignLeads.length === 0) {
+        return 0;
+      }
+
+      // Get the count of leads with status 'in_campaign'
+      const leadIds = campaignLeads.map(cl => cl.lead_id);
       const { count, error } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'in_campaign')
-        .in('id', supabase
-          .from('lead_campaigns')
-          .select('lead_id')
-          .eq('campaign_id', campaign.id)
-        );
+        .in('id', leadIds);
       
       if (error) {
         console.error('Error fetching leads count:', error);
