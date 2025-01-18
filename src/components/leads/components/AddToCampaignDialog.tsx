@@ -8,13 +8,13 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 interface AddToCampaignDialogProps {
-  lead: Lead;
+  leads: Lead[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const AddToCampaignDialog = ({
-  lead,
+  leads,
   open,
   onOpenChange,
 }: AddToCampaignDialogProps) => {
@@ -41,47 +41,28 @@ export const AddToCampaignDialog = ({
       setIsSubmitting(true);
       setProcessingCampaignId(campaignId);
 
-      // Check if the lead is already in the campaign using maybeSingle()
-      const { data: existingAssignment, error: checkError } = await supabase
-        .from('lead_campaigns')
-        .select('*')
-        .eq('lead_id', lead.id)
-        .eq('campaign_id', campaignId)
-        .maybeSingle();
-
-      if (checkError) {
-        console.error('Error checking campaign assignment:', checkError);
-        toast.error("Failed to check campaign assignment");
-        return;
-      }
-
-      if (existingAssignment) {
-        toast.error("Lead is already in this campaign");
-        return;
-      }
+      // Create lead_campaigns entries for all selected leads
+      const leadCampaigns = leads.map(lead => ({
+        lead_id: lead.id,
+        campaign_id: campaignId,
+        current_step: 0,
+        status: 'pending'
+      }));
 
       const { error: insertError } = await supabase
         .from('lead_campaigns')
-        .insert({
-          lead_id: lead.id,
-          campaign_id: campaignId,
-          current_step: 0,
-          status: 'pending'
-        });
+        .insert(leadCampaigns);
 
-      if (insertError) {
-        console.error('Error adding lead to campaign:', insertError);
-        throw insertError;
-      }
+      if (insertError) throw insertError;
 
       // Wait a moment for the trigger to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      toast.success(`${lead.company_name} has been added to the campaign`);
+      toast.success(`${leads.length} leads have been added to the campaign`);
       onOpenChange(false);
     } catch (error) {
-      console.error('Error adding lead to campaign:', error);
-      toast.error("Failed to add lead to campaign");
+      console.error('Error adding leads to campaign:', error);
+      toast.error("Failed to add leads to campaign");
     } finally {
       setIsSubmitting(false);
       setProcessingCampaignId(null);
@@ -96,7 +77,7 @@ export const AddToCampaignDialog = ({
     }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Lead to Campaign</DialogTitle>
+          <DialogTitle>Add Leads to Campaign</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           {isLoading ? (

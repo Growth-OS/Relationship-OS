@@ -1,18 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Trash2, CheckSquare } from "lucide-react";
-import { BulkAnalyzeButton } from "./BulkAnalyzeButton";
+import { UserPlus, CheckSquare } from "lucide-react";
+import { useState } from "react";
+import { AddToCampaignDialog } from "../components/AddToCampaignDialog";
+import type { Lead } from "../types/lead";
 
 interface BulkActionsProps {
   selectedIds: string[];
   onSelectAll: () => void;
-  onDelete?: (ids: string[]) => void;
+  leads?: Lead[];
 }
 
 export const BulkActions = ({
   selectedIds,
   onSelectAll,
-  onDelete,
+  leads = [],
 }: BulkActionsProps) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const selectedLeads = leads.filter(lead => selectedIds.includes(lead.id));
+
   return (
     <div className="flex items-center gap-2 mb-4">
       <Button
@@ -25,19 +30,23 @@ export const BulkActions = ({
         {selectedIds.length > 0 ? 'Deselect All' : 'Select All'}
       </Button>
 
-      <BulkAnalyzeButton selectedIds={selectedIds} />
-
-      {selectedIds.length > 0 && onDelete && (
+      {selectedIds.length > 0 && (
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 text-destructive"
-          onClick={() => onDelete(selectedIds)}
+          className="gap-2"
+          onClick={() => setDialogOpen(true)}
         >
-          <Trash2 className="h-4 w-4" />
-          Delete Selected
+          <UserPlus className="h-4 w-4" />
+          Add to Campaign ({selectedIds.length})
         </Button>
       )}
+
+      <AddToCampaignDialog
+        leads={selectedLeads}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 };

@@ -151,6 +151,7 @@ const OutreachCampaigns = () => {
               <BulkActions 
                 selectedIds={selectedLeadIds}
                 onSelectAll={handleSelectAll}
+                leads={data?.leads}
               />
               <LeadsTable 
                 leads={data?.leads || []}
