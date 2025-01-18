@@ -1,25 +1,18 @@
-import { 
-  Briefcase, 
-  Building2, 
-  FileText, 
-  Lightbulb, 
-  ListTodo, 
-  LucideIcon, 
-  Newspaper 
-} from "lucide-react";
+import { LucideIcon, FileText, Briefcase, BookOpen, Lightbulb, Users } from "lucide-react";
+import { TaskSource } from "./types";
 
-export const getSourceIcon = (source: string): LucideIcon => {
-  switch (source.toLowerCase()) {
-    case 'projects':
+export const getSourceIcon = (source: TaskSource): LucideIcon => {
+  switch (source) {
+    case "content":
+      return FileText;
+    case "deals":
       return Briefcase;
-    case 'deals':
-      return Building2;
-    case 'sequences':
-      return ListTodo;
-    case 'substack':
-      return Newspaper;
-    case 'ideas':
+    case "substack":
+      return BookOpen;
+    case "ideas":
       return Lightbulb;
+    case "outreach":
+      return Users;
     default:
       return FileText;
   }

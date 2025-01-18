@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { getSourceIcon } from "@/components/tasks/utils";
 import { TaskData, TaskSource } from "@/components/tasks/types";
+import { Users } from "lucide-react";
 
 export interface TaskGroupProps {
   source: TaskSource;
@@ -11,8 +12,8 @@ export interface TaskGroupProps {
 }
 
 export const TaskGroup = ({ source, tasks, onComplete, onUpdate }: TaskGroupProps) => {
-  const Icon = getSourceIcon(source);
-  const sourceTitle = source.charAt(0).toUpperCase() + source.slice(1);
+  const Icon = source === 'outreach' ? Users : getSourceIcon(source);
+  const sourceTitle = source === 'outreach' ? 'Outreach Tasks' : source.charAt(0).toUpperCase() + source.slice(1);
 
   return (
     <Card className="p-4">

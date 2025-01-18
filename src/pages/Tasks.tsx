@@ -26,6 +26,7 @@ const Tasks = () => {
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="ideas">Ideas</TabsTrigger>
             <TabsTrigger value="substack">Substack</TabsTrigger>
+            <TabsTrigger value="outreach">Outreach</TabsTrigger>
             <TabsTrigger value="archived">Archived</TabsTrigger>
           </TabsList>
 
@@ -43,6 +44,9 @@ const Tasks = () => {
           </TabsContent>
           <TabsContent value="substack">
             <TaskList sourceType="substack" />
+          </TabsContent>
+          <TabsContent value="outreach">
+            <TaskList sourceType="outreach" />
           </TabsContent>
           <TabsContent value="archived">
             <TaskList showArchived={true} />
