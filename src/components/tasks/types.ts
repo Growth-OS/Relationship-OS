@@ -1,4 +1,4 @@
-export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'outreach' | 'other';
+export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'outreach' | 'sequences' | 'other';
 
 export interface TaskListProps {
   sourceType?: TaskSource;
@@ -20,6 +20,7 @@ export interface TaskData {
   project_id?: string;
   deal_id?: string;
   substack_post_id?: string;
+  sequence_id?: string;
   created_at: string;
   user_id: string;
   projects?: {
