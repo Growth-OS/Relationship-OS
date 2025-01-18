@@ -4,7 +4,6 @@ import Dashboard from "@/pages/Dashboard";
 import Prospects from "@/pages/Prospects";
 import Deals from "@/pages/Deals";
 import Login from "@/pages/Login";
-import Index from "@/pages/Index";
 import Projects from "@/pages/Projects";
 import Tasks from "@/pages/Tasks";
 import Travels from "@/pages/Travels";
@@ -23,6 +22,7 @@ import Calendar from "@/pages/Calendar";
 import OutreachCampaigns from "@/pages/OutreachCampaigns";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { Navigate } from "react-router-dom";
 
 export const router = createBrowserRouter([
   {
@@ -32,7 +32,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Index />,
+        element: <Navigate to="/dashboard" replace />,
       },
       {
         path: "dashboard",
