@@ -20,7 +20,6 @@ export interface TaskData {
   project_id?: string;
   deal_id?: string;
   substack_post_id?: string;
-  sequence_id?: string;
   created_at: string;
   user_id: string;
   projects?: {
@@ -35,4 +34,5 @@ export interface TaskData {
     id: string;
     title: string;
   };
+  sequence_id?: string;
 }
