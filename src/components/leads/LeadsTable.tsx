@@ -42,6 +42,7 @@ export const LeadsTable = ({
 
   // Subscribe to real-time changes
   useEffect(() => {
+    console.log('Setting up real-time subscription for leads');
     const channel = supabase
       .channel('leads-changes')
       .on(
@@ -61,9 +62,10 @@ export const LeadsTable = ({
             if (payload.eventType === 'UPDATE') {
               return prevLeads.map(lead => {
                 if (lead.id === payload.new.id) {
+                  // Ensure we preserve the isEditing state while updating other fields
                   return {
                     ...(payload.new as Lead),
-                    isEditing: false
+                    isEditing: lead.isEditing
                   };
                 }
                 return lead;
@@ -82,9 +84,12 @@ export const LeadsTable = ({
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up real-time subscription');
       supabase.removeChannel(channel);
     };
   }, []);
