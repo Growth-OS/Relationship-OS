@@ -35,11 +35,7 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Ensure we're working with the start of day to avoid timezone issues
     const formattedDate = dueDate ? format(startOfDay(dueDate), 'yyyy-MM-dd') : null;
-    
-    console.log('Original due date:', dueDate);
-    console.log('Formatted date being sent:', formattedDate);
     
     const { error } = await supabase
       .from("tasks")
@@ -59,11 +55,9 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
     toast.success("Task updated successfully");
     setOpen(false);
     
-    // Invalidate all task-related queries to trigger a refresh
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
     queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
     
-    // Call the onUpdate callback if provided
     if (onUpdate) {
       onUpdate();
     }
@@ -97,7 +91,7 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
               rows={3}
             />
           </div>
-          <div>
+          <div className="relative">
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -116,12 +110,11 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
-                  initialFocus
                   disabled={(date) =>
                     date < new Date("1900-01-01") ||
                     date > new Date("2100-01-01")
                   }
-                  className="rounded-md border"
+                  className="rounded-md border shadow-md"
                 />
               </PopoverContent>
             </Popover>
