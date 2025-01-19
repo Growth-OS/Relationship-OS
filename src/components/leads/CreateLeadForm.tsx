@@ -16,7 +16,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
-  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other']),
+  source: z.string().min(1, "Source is required"),
   notes: z.string().optional(),
   first_name: z.string().min(1, "First name is required"),
 });
@@ -43,7 +43,7 @@ export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      source: 'other',
+      source: '',
     },
   });
 
@@ -86,7 +86,6 @@ export const CreateLeadForm = ({ onSuccess }: CreateLeadFormProps) => {
             });
           } catch (analysisError) {
             console.error('Error analyzing website:', analysisError);
-            // Don't throw here - we still want to show success for lead creation
             toast.error('Website analysis started but encountered an error');
           }
         }
