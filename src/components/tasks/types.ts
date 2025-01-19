@@ -1,4 +1,4 @@
-export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'outreach' | 'sequences' | 'other';
+export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'other' | 'outreach' | 'sequences';
 
 export interface TaskListProps {
   sourceType?: TaskSource;
