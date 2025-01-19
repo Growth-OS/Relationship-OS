@@ -3,14 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, parseISO, startOfDay } from "date-fns";
-import { CalendarIcon, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { format, parseISO, startOfDay } from "date-fns";
 
 interface EditTaskDialogProps {
   task: {
@@ -26,24 +23,21 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
-  const [dueDate, setDueDate] = useState<Date | undefined>(
-    task.due_date ? startOfDay(parseISO(task.due_date)) : undefined
+  const [dueDate, setDueDate] = useState<string>(
+    task.due_date || ""
   );
-  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const formattedDate = dueDate ? format(startOfDay(dueDate), 'yyyy-MM-dd') : null;
-    
     const { error } = await supabase
       .from("tasks")
       .update({
         title,
         description: description || null,
-        due_date: formattedDate,
+        due_date: dueDate || null,
       })
       .eq("id", task.id);
 
@@ -92,36 +86,12 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
               rows={3}
             />
           </div>
-          <div className="relative">
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dueDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : "Pick a due date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={(date) => {
-                    setDueDate(date);
-                    setCalendarOpen(false);
-                  }}
-                  disabled={(date) =>
-                    date < new Date("1900-01-01") ||
-                    date > new Date("2100-01-01")
-                  }
-                  className="rounded-md border shadow-md"
-                />
-              </PopoverContent>
-            </Popover>
+          <div>
+            <Input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
           <Button type="submit" className="w-full">
             Update Task
