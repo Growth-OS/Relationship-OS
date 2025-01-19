@@ -29,6 +29,7 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
   const [dueDate, setDueDate] = useState<Date | undefined>(
     task.due_date ? startOfDay(parseISO(task.due_date)) : undefined
   );
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -92,7 +93,7 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
             />
           </div>
           <div className="relative">
-            <Popover>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -109,7 +110,10 @@ export const EditTaskDialog = ({ task, onUpdate }: EditTaskDialogProps) => {
                 <Calendar
                   mode="single"
                   selected={dueDate}
-                  onSelect={setDueDate}
+                  onSelect={(date) => {
+                    setDueDate(date);
+                    setCalendarOpen(false);
+                  }}
                   disabled={(date) =>
                     date < new Date("1900-01-01") ||
                     date > new Date("2100-01-01")
