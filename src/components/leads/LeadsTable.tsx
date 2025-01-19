@@ -52,6 +52,7 @@ export const LeadsTable = ({
           table: 'leads'
         },
         (payload) => {
+          console.log('Received real-time update:', payload);
           setEditableLeads(prevLeads => {
             if (payload.eventType === 'DELETE') {
               return prevLeads.filter(lead => lead.id !== payload.old.id);
