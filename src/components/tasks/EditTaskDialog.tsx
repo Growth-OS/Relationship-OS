@@ -7,14 +7,13 @@ import { Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { format, parseISO, startOfDay } from "date-fns";
 
 interface EditTaskDialogProps {
   task: {
     id: string;
     title: string;
-    description: string | null;
-    due_date: string | null;
+    description?: string | null;
+    due_date?: string | null;
   };
   onUpdate?: () => void;
 }
