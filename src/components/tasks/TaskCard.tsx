@@ -27,8 +27,8 @@ export const TaskCard = memo(({ task, onComplete, onUpdate }: TaskCardProps) => 
       navigate(`/dashboard/deals?id=${task.deals.id}`);
     } else if (task.source === 'substack' && task.substack_posts) {
       navigate(`/dashboard/substack?id=${task.substack_posts.id}`);
-    } else if (task.source === 'sequences' && task.sequence_id) {
-      navigate(`/dashboard/sequences/${task.sequence_id}/edit`);
+    } else if (task.source === 'outreach') {
+      navigate('/dashboard/outreach');
     } else if (task.source === 'ideas') {
       navigate('/dashboard/development');
     }

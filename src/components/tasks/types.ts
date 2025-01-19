@@ -1,4 +1,4 @@
-export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'other' | 'outreach' | 'sequences';
+export type TaskSource = 'deals' | 'content' | 'ideas' | 'substack' | 'projects' | 'other' | 'outreach';
 
 export interface TaskListProps {
   sourceType?: TaskSource;
@@ -34,5 +34,4 @@ export interface TaskData {
     id: string;
     title: string;
   };
-  sequence_id?: string;
 }
