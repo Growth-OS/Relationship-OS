@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Target, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -14,7 +13,7 @@ import { CampaignsList } from "@/components/campaigns/CampaignsList";
 import { Lead, LeadSource } from "@/components/leads/types/lead";
 import { BulkActions } from "@/components/leads/components/BulkActions";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 100;
 
 const OutreachCampaigns = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -23,13 +22,11 @@ const OutreachCampaigns = () => {
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
 
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['leads', currentPage],
+    queryKey: ['leads'],
     queryFn: async () => {
-      const countQuery = supabase
+      const { count, error: countError } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true });
-
-      const { count, error: countError } = await countQuery;
       
       if (countError) {
         console.error('Error fetching count:', countError);
@@ -39,8 +36,7 @@ const OutreachCampaigns = () => {
       const { data: leadsData, error: dataError } = await supabase
         .from('leads')
         .select('*')
-        .order('created_at', { ascending: false })
-        .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
+        .order('created_at', { ascending: false });
       
       if (dataError) {
         console.error('Error fetching leads:', dataError);
@@ -52,15 +48,17 @@ const OutreachCampaigns = () => {
         source: (lead.source || 'other') as LeadSource
       })) || [];
 
+      // Only calculate pages if we have more than ITEMS_PER_PAGE
+      const totalPages = count ? Math.max(1, Math.ceil(count / ITEMS_PER_PAGE)) : 1;
+
       return {
         leads: typedLeads,
         totalCount: count || 0,
+        totalPages: count && count > ITEMS_PER_PAGE ? totalPages : 1
       };
     },
     staleTime: 5000,
   });
-
-  const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -150,13 +148,19 @@ const OutreachCampaigns = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
               <BulkActions 
                 selectedIds={selectedLeadIds}
-                onSelectAll={handleSelectAll}
+                onSelectAll={() => {
+                  if (data?.leads) {
+                    setSelectedLeadIds(prev => 
+                      prev.length === data.leads.length ? [] : data.leads.map(lead => lead.id)
+                    );
+                  }
+                }}
                 leads={data?.leads}
               />
               <LeadsTable 
                 leads={data?.leads || []}
                 currentPage={currentPage}
-                totalPages={totalPages}
+                totalPages={data?.totalPages || 1}
                 onPageChange={handlePageChange}
                 isLoading={isLoading}
                 selectedIds={selectedLeadIds}
