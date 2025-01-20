@@ -20,25 +20,50 @@ export const DashboardStats = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
 
-      // Get invoice metrics
-      const { data: invoiceMetrics } = await supabase
-        .from('invoice_metrics')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        // Get invoice metrics with better error handling
+        const { data: invoiceMetrics, error } = await supabase
+          .from('invoice_metrics')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      return {
-        invoices: {
-          current: invoiceMetrics?.overdue_invoices || 6739,
-          previous: 0,
-          trend: generateTrendData(12),
-          totalAmount: invoiceMetrics?.overdue_amount || 6739
+        if (error) {
+          console.error('Error fetching invoice metrics:', error);
+          return {
+            invoices: {
+              current: 0,
+              previous: 0,
+              trend: generateTrendData(12),
+              totalAmount: 0
+            }
+          };
         }
-      };
+
+        return {
+          invoices: {
+            current: invoiceMetrics?.overdue_invoices || 0,
+            previous: 0,
+            trend: generateTrendData(12),
+            totalAmount: invoiceMetrics?.overdue_amount || 0
+          }
+        };
+      } catch (error) {
+        console.error('Error in dashboard stats query:', error);
+        return {
+          invoices: {
+            current: 0,
+            previous: 0,
+            trend: generateTrendData(12),
+            totalAmount: 0
+          }
+        };
+      }
     },
+    retry: 1, // Only retry once if there's an error
   });
 
   if (isLoading || isLoadingRevenue || isLoadingTasks) {
