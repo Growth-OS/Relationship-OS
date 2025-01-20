@@ -24,8 +24,8 @@ export const DashboardStats = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
-        // Get invoice metrics with better error handling
-        const { data: invoiceMetrics, error } = await supabase
+        // Query the view directly with user_id filter
+        const { data: metrics, error } = await supabase
           .from('invoice_metrics')
           .select('*')
           .eq('user_id', user.id)
@@ -33,6 +33,19 @@ export const DashboardStats = () => {
 
         if (error) {
           console.error('Error fetching invoice metrics:', error);
+          // Return default values if there's an error
+          return {
+            invoices: {
+              current: 0,
+              previous: 0,
+              trend: generateTrendData(12),
+              totalAmount: 0
+            }
+          };
+        }
+
+        // If no metrics found, return default values
+        if (!metrics) {
           return {
             invoices: {
               current: 0,
@@ -45,10 +58,10 @@ export const DashboardStats = () => {
 
         return {
           invoices: {
-            current: invoiceMetrics?.overdue_invoices || 0,
+            current: metrics.overdue_invoices || 0,
             previous: 0,
             trend: generateTrendData(12),
-            totalAmount: invoiceMetrics?.overdue_amount || 0
+            totalAmount: metrics.overdue_amount || 0
           }
         };
       } catch (error) {
@@ -63,7 +76,7 @@ export const DashboardStats = () => {
         };
       }
     },
-    retry: 1, // Only retry once if there's an error
+    retry: 1
   });
 
   if (isLoading || isLoadingRevenue || isLoadingTasks) {
