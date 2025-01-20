@@ -9,7 +9,7 @@ import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 
 const Projects = () => {
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("active");
 
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects", statusFilter],
