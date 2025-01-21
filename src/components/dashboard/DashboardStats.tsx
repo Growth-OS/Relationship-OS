@@ -17,51 +17,50 @@ export const DashboardStats = () => {
   const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
   const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats', 'invoice-metrics'],
+  const { data: invoiceStats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats', 'invoices'],
     queryFn: async () => {
       try {
-        console.log('Fetching invoice metrics...');
+        console.log('Fetching invoice data...');
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
-        const { data: metrics, error } = await supabase
-          .from('invoice_metrics')
+        const { data: invoices, error } = await supabase
+          .from('invoices')
           .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
+          .eq('user_id', user.id);
 
         if (error) {
-          console.error('Error fetching invoice metrics:', error);
+          console.error('Error fetching invoices:', error);
           return {
-            invoices: {
-              current: 0,
-              previous: 0,
-              trend: generateTrendData(12),
-              totalAmount: 0
-            }
-          };
-        }
-
-        console.log('Fetched metrics:', metrics);
-
-        return {
-          invoices: {
-            current: metrics?.overdue_invoices || 0,
-            previous: 0,
-            trend: generateTrendData(12),
-            totalAmount: metrics?.overdue_amount || 0
-          }
-        };
-      } catch (error) {
-        console.error('Error in dashboard stats query:', error);
-        return {
-          invoices: {
             current: 0,
             previous: 0,
             trend: generateTrendData(12),
             totalAmount: 0
-          }
+          };
+        }
+
+        // Calculate outstanding invoices (not paid)
+        const outstandingInvoices = invoices?.filter(invoice => 
+          invoice.status !== 'paid' && invoice.status !== 'cancelled'
+        ) || [];
+
+        // Calculate previous period's outstanding invoices (simplified for now)
+        const previousOutstanding = 0; // This could be enhanced to show last month's data
+
+        return {
+          current: outstandingInvoices.length,
+          previous: previousOutstanding,
+          trend: generateTrendData(12),
+          totalAmount: outstandingInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+        };
+      } catch (error) {
+        console.error('Error in dashboard stats query:', error);
+        return {
+          current: 0,
+          previous: 0,
+          trend: generateTrendData(12),
+          totalAmount: 0
         };
       }
     },
@@ -104,10 +103,10 @@ export const DashboardStats = () => {
     },
     {
       title: "Outstanding Invoices",
-      value: stats?.invoices.current || 0,
-      subtitle: `€${(stats?.invoices.totalAmount || 0).toLocaleString()} total`,
-      previousValue: stats?.invoices.previous || 0,
-      trend: stats?.invoices.trend || [],
+      value: invoiceStats?.current || 0,
+      subtitle: `€${(invoiceStats?.totalAmount || 0).toLocaleString()} total`,
+      previousValue: invoiceStats?.previous || 0,
+      trend: invoiceStats?.trend || [],
       icon: Receipt,
       color: "text-orange-500",
       bgColor: "bg-orange-50 dark:bg-orange-900/20",
