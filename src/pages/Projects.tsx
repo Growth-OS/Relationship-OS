@@ -7,6 +7,7 @@ import { ProjectsKanban } from "@/components/projects/ProjectsKanban";
 import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
+import { toast } from "sonner";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("active");
@@ -16,16 +17,25 @@ const Projects = () => {
     queryFn: async () => {
       let query = supabase
         .from("projects")
-        .select("*")
-        .order("last_activity_date", { ascending: false });
+        .select("*");
 
+      // Add status filter if not "all"
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
 
+      // Add ordering
+      query = query.order("last_activity_date", { ascending: false });
+
       const { data, error } = await query;
-      if (error) throw error;
-      return data;
+
+      if (error) {
+        console.error("Error fetching projects:", error);
+        toast.error("Failed to fetch projects");
+        throw error;
+      }
+
+      return data || [];
     },
   });
 
