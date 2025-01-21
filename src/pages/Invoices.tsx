@@ -7,26 +7,44 @@ import { CreateInvoiceDialog } from "@/components/invoices/CreateInvoiceDialog";
 import { InvoicesTable } from "@/components/invoices/InvoicesTable";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
 
 const Invoices = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: invoices, isLoading } = useQuery({
+  const { data: invoices, isLoading, error } = useQuery({
     queryKey: ['invoices'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('invoices')
-        .select(`
-          *,
-          invoice_items (*)
-        `)
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .select(`
+            *,
+            invoice_items (*)
+          `)
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+        if (error) {
+          console.error('Error fetching invoices:', error);
+          toast.error("Failed to fetch invoices");
+          throw error;
+        }
+
+        return data || [];
+      } catch (err) {
+        console.error('Error in query:', err);
+        toast.error("Failed to fetch invoices");
+        throw err;
+      }
     },
+    retry: 2,
+    retryDelay: 1000,
   });
+
+  if (error) {
+    toast.error("Error loading invoices. Please try again.");
+  }
 
   const filteredInvoices = invoices?.filter(invoice => 
     invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -90,7 +108,13 @@ const Invoices = () => {
       </div>
 
       {isLoading ? (
-        <div>Loading...</div>
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center p-8 text-red-600">
+          Failed to load invoices. Please try refreshing the page.
+        </div>
       ) : (
         <InvoicesTable invoices={filteredInvoices} />
       )}
