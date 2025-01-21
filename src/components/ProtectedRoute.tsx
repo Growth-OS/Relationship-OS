@@ -20,24 +20,35 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (error) {
           console.error("Auth check error:", error);
-          toast.error("Authentication error. Please try logging in again.");
           if (mounted) {
             setIsAuthenticated(false);
             setIsLoading(false);
+            toast.error("Authentication error. Please try logging in again.");
           }
           return;
         }
 
+        if (!session) {
+          console.log("No active session found");
+          if (mounted) {
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            toast.error("Please log in to continue");
+          }
+          return;
+        }
+
+        console.log("Active session found for user:", session.user.id);
         if (mounted) {
-          setIsAuthenticated(!!session);
+          setIsAuthenticated(true);
           setIsLoading(false);
         }
       } catch (error) {
         console.error("Auth check error:", error);
-        toast.error("Authentication error. Please try logging in again.");
         if (mounted) {
           setIsAuthenticated(false);
           setIsLoading(false);
+          toast.error("Authentication error. Please try logging in again.");
         }
       }
     };
@@ -50,10 +61,16 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       if (!mounted) return;
       
       console.log("Auth state change:", event, !!session);
-      setIsAuthenticated(!!session);
       
-      if (!session) {
-        toast.error("Your session has expired. Please log in again.");
+      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        setIsAuthenticated(false);
+        toast.error("Your session has ended. Please log in again.");
+        return;
+      }
+      
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        setIsAuthenticated(true);
+        return;
       }
     });
 
@@ -72,6 +89,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!isAuthenticated) {
+    // Save the current path before redirecting
+    const returnPath = window.location.pathname;
+    localStorage.setItem('return_path', returnPath);
     return <Navigate to="/login" replace />;
   }
 
