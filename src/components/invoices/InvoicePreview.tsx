@@ -29,6 +29,14 @@ interface InvoicePreviewProps {
 }
 
 export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
+  if (!invoice) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px] bg-white p-8 rounded-lg">
+        <p className="text-gray-500">No invoice data available</p>
+      </div>
+    );
+  }
+
   const formatDate = (dateString: string) => {
     try {
       const date = parseISO(dateString);
@@ -96,7 +104,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           </tr>
         </thead>
         <tbody>
-          {invoice.items.map((item, index) => (
+          {(invoice.items || []).map((item, index) => (
             <tr key={index} className="border-b border-gray-200">
               <td className="py-2 text-gray-800">{item.description}</td>
               <td className="text-right py-2 text-gray-800">{item.quantity}</td>

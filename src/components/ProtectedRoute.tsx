@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         
         if (error) {
           console.error("Auth check error:", error);
+          toast.error("Authentication error. Please try logging in again.");
           if (mounted) {
             setIsAuthenticated(false);
             setIsLoading(false);
@@ -32,6 +34,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         }
       } catch (error) {
         console.error("Auth check error:", error);
+        toast.error("Authentication error. Please try logging in again.");
         if (mounted) {
           setIsAuthenticated(false);
           setIsLoading(false);
@@ -39,10 +42,24 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
     };
 
+    // Initial auth check
     checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      
+      console.log("Auth state change:", event, !!session);
+      setIsAuthenticated(!!session);
+      
+      if (!session) {
+        toast.error("Your session has expired. Please log in again.");
+      }
+    });
 
     return () => {
       mounted = false;
+      subscription.unsubscribe();
     };
   }, []);
 
