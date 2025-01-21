@@ -104,7 +104,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           </tr>
         </thead>
         <tbody>
-          {(invoice.items || []).map((item, index) => (
+          {Array.isArray(invoice.items) && invoice.items.map((item, index) => (
             <tr key={index} className="border-b border-gray-200">
               <td className="py-2 text-gray-800">{item.description}</td>
               <td className="text-right py-2 text-gray-800">{item.quantity}</td>
