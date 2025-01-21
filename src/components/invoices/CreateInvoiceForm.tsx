@@ -1,10 +1,10 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { InvoiceFormFields } from "./form/InvoiceFormFields";
 
 interface InvoiceFormData {
@@ -57,6 +57,37 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       payment_terms: "Bank: Revolut\nBank Address: 09108, Verkiu 31B2, Laisves Namai, Vilnius, Lithuania\nAccount Holder: UAB Prospect Labs\nIBAN Number: LT81 3250 0549 4897 7554\nSwift / BIC: REVOLT21\nIntermediary BIC: BARCGB22"
     },
   });
+
+  useEffect(() => {
+    const generateInvoiceNumber = async () => {
+      const currentYear = new Date().getFullYear().toString().slice(-2);
+      
+      // Get the latest invoice number for the current year
+      const { data: latestInvoice, error } = await supabase
+        .from('invoices')
+        .select('invoice_number')
+        .ilike('invoice_number', `${currentYear}-%`)
+        .order('invoice_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching latest invoice number:', error);
+        return;
+      }
+
+      let nextNumber = 1;
+      if (latestInvoice) {
+        const lastNumber = parseInt(latestInvoice.invoice_number.split('-')[1]);
+        nextNumber = lastNumber + 1;
+      }
+
+      const newInvoiceNumber = `${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
+      form.setValue('invoice_number', newInvoiceNumber);
+    };
+
+    generateInvoiceNumber();
+  }, [form]);
 
   useEffect(() => {
     const subscription = form.watch((data) => {
