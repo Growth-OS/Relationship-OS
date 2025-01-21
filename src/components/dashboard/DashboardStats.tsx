@@ -24,7 +24,7 @@ export const DashboardStats = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
-        // Query the view directly with user_id filter
+        // Query the invoice_metrics view for the current user
         const { data: metrics, error } = await supabase
           .from('invoice_metrics')
           .select('*')
@@ -33,7 +33,6 @@ export const DashboardStats = () => {
 
         if (error) {
           console.error('Error fetching invoice metrics:', error);
-          // Return default values if there's an error
           return {
             invoices: {
               current: 0,
