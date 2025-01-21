@@ -28,39 +28,32 @@ export const DashboardStats = () => {
         const { data: invoices, error } = await supabase
           .from('invoices')
           .select('*')
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .in('status', ['draft', 'sent', 'overdue']);
 
         if (error) {
           console.error('Error fetching invoices:', error);
           return {
-            current: 0,
-            previous: 0,
-            trend: generateTrendData(12),
-            totalAmount: 0
+            totalAmount: 0,
+            previousAmount: 0,
+            trend: generateTrendData(12)
           };
         }
 
-        // Calculate outstanding invoices (not paid)
-        const outstandingInvoices = invoices?.filter(invoice => 
-          invoice.status !== 'paid' && invoice.status !== 'cancelled'
-        ) || [];
-
-        // Calculate previous period's outstanding invoices (simplified for now)
-        const previousOutstanding = 0; // This could be enhanced to show last month's data
+        // Calculate total amount of outstanding invoices
+        const totalAmount = invoices?.reduce((sum, invoice) => sum + (invoice.total || 0), 0) || 0;
 
         return {
-          current: outstandingInvoices.length,
-          previous: previousOutstanding,
-          trend: generateTrendData(12),
-          totalAmount: outstandingInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+          totalAmount,
+          previousAmount: 0, // This could be enhanced to show last month's data
+          trend: generateTrendData(12)
         };
       } catch (error) {
         console.error('Error in dashboard stats query:', error);
         return {
-          current: 0,
-          previous: 0,
-          trend: generateTrendData(12),
-          totalAmount: 0
+          totalAmount: 0,
+          previousAmount: 0,
+          trend: generateTrendData(12)
         };
       }
     },
@@ -103,9 +96,8 @@ export const DashboardStats = () => {
     },
     {
       title: "Outstanding Invoices",
-      value: invoiceStats?.current || 0,
-      subtitle: `€${(invoiceStats?.totalAmount || 0).toLocaleString()} total`,
-      previousValue: invoiceStats?.previous || 0,
+      value: `€${(invoiceStats?.totalAmount || 0).toLocaleString()}`,
+      previousValue: invoiceStats?.previousAmount || 0,
       trend: invoiceStats?.trend || [],
       icon: Receipt,
       color: "text-orange-500",
