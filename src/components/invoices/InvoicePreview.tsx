@@ -51,14 +51,10 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   };
 
   const formatCurrency = (amount: number | undefined | null) => {
-    // Convert to number and check if it's valid
     const numAmount = amount !== undefined && amount !== null ? Number(amount) : 0;
-    
-    // Check if the conversion resulted in a valid number
     if (isNaN(numAmount)) {
       return '€0.00';
     }
-    
     return `€${numAmount.toFixed(2)}`;
   };
 
@@ -80,6 +76,12 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             {invoice.client_email && (
               <p className="text-gray-600 text-sm">{invoice.client_email}</p>
             )}
+            {invoice.company_vat_code && (
+              <p className="text-gray-600 text-sm">VAT Code: {invoice.company_vat_code}</p>
+            )}
+            {invoice.company_code && (
+              <p className="text-gray-600 text-sm">Company Code: {invoice.company_code}</p>
+            )}
           </div>
         </div>
         <div className="space-y-2">
@@ -95,12 +97,6 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             )}
             {invoice.company_email && (
               <p className="text-gray-600 text-sm">{invoice.company_email}</p>
-            )}
-            {invoice.company_vat_code && (
-              <p className="text-gray-600 text-sm">VAT Code: {invoice.company_vat_code}</p>
-            )}
-            {invoice.company_code && (
-              <p className="text-gray-600 text-sm">Company Code: {invoice.company_code}</p>
             )}
           </div>
         </div>
