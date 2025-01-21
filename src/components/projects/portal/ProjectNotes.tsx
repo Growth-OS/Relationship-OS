@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ProjectNotesProps {
   projectId: string;
@@ -24,6 +26,8 @@ interface ProjectNotesProps {
 
 export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   const [newNote, setNewNote] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const notesPerPage = 5;
   const { toast } = useToast();
 
   const { data: notes = [], refetch } = useQuery({
@@ -39,6 +43,12 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
       return data;
     },
   });
+
+  const totalPages = Math.ceil(notes.length / notesPerPage);
+  const paginatedNotes = notes.slice(
+    (currentPage - 1) * notesPerPage,
+    currentPage * notesPerPage
+  );
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
@@ -114,45 +124,73 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {notes.map((note) => (
-          <div
-            key={note.id}
-            className="bg-white dark:bg-gray-800 p-4 rounded-lg border space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {format(new Date(note.created_at), "PPp")}
-              </span>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Note</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this note? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+      <Separator className="my-6" />
+
+      <ScrollArea className="h-[500px] rounded-md border p-4">
+        <div className="space-y-6">
+          {paginatedNotes.map((note) => (
             <div
-              className="prose dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: note.message }}
-            />
-          </div>
-        ))}
-      </div>
+              key={note.id}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg border shadow-sm space-y-3 transition-all hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground font-medium">
+                  {format(new Date(note.created_at), "MMMM d, yyyy 'at' h:mm a")}
+                </span>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete this note? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <div
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: note.message }}
+              />
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
