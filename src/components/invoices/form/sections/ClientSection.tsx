@@ -1,70 +1,14 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 interface ClientSectionProps {
   form: UseFormReturn<any>;
 }
 
 export const ClientSection = ({ form }: ClientSectionProps) => {
-  const { data: deals = [] } = useQuery({
-    queryKey: ['deals-to-invoice'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('deals')
-        .select('*')
-        .eq('stage', 'to_invoice');
-      
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  const handleDealSelect = (dealId: string) => {
-    const selectedDeal = deals.find(deal => deal.id === dealId);
-    if (selectedDeal) {
-      form.setValue('client_name', selectedDeal.company_name);
-      form.setValue('client_email', selectedDeal.contact_email || '');
-      form.setValue('deal_id', selectedDeal.id);
-    }
-  };
-
   return (
-    <>
-      <FormField
-        control={form.control}
-        name="deal_id"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Select Deal</FormLabel>
-            <Select onValueChange={handleDealSelect} value={field.value}>
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a deal to invoice" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {deals.map((deal) => (
-                  <SelectItem key={deal.id} value={deal.id}>
-                    {deal.company_name} (${deal.deal_value.toLocaleString()})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="client_name"
@@ -72,9 +16,8 @@ export const ClientSection = ({ form }: ClientSectionProps) => {
           <FormItem>
             <FormLabel>Client Name</FormLabel>
             <FormControl>
-              <Input placeholder="Client Company" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
@@ -86,9 +29,8 @@ export const ClientSection = ({ form }: ClientSectionProps) => {
           <FormItem>
             <FormLabel>Client Address</FormLabel>
             <FormControl>
-              <Input placeholder="456 Client Ave" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
@@ -100,12 +42,37 @@ export const ClientSection = ({ form }: ClientSectionProps) => {
           <FormItem>
             <FormLabel>Client Email</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="client@example.com" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
-    </>
+
+      <FormField
+        control={form.control}
+        name="company_vat_code"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>VAT Code</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="company_code"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Company Code</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    </div>
   );
 };

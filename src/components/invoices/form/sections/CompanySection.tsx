@@ -1,10 +1,4 @@
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 
@@ -14,7 +8,7 @@ interface CompanySectionProps {
 
 export const CompanySection = ({ form }: CompanySectionProps) => {
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="company_name"
@@ -22,9 +16,8 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Name</FormLabel>
             <FormControl>
-              <Input placeholder="Your Company" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
@@ -36,9 +29,8 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Address</FormLabel>
             <FormControl>
-              <Input placeholder="123 Business St" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
@@ -50,40 +42,11 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Email</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="company@example.com" {...field} />
+              <Input {...field} />
             </FormControl>
-            <FormMessage />
           </FormItem>
         )}
       />
-
-      <FormField
-        control={form.control}
-        name="company_vat_code"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>VAT Code</FormLabel>
-            <FormControl>
-              <Input placeholder="VAT123456789" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="company_code"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Company Code</FormLabel>
-            <FormControl>
-              <Input placeholder="123456789" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </>
+    </div>
   );
 };
