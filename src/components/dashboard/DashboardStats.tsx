@@ -18,13 +18,13 @@ export const DashboardStats = () => {
   const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   
   const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats'],
+    queryKey: ['dashboard-stats', 'invoice-metrics'],
     queryFn: async () => {
       try {
+        console.log('Fetching invoice metrics...');
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
-        // Query the invoice_metrics view for the current user
         const { data: metrics, error } = await supabase
           .from('invoice_metrics')
           .select('*')
@@ -43,24 +43,14 @@ export const DashboardStats = () => {
           };
         }
 
-        // If no metrics found, return default values
-        if (!metrics) {
-          return {
-            invoices: {
-              current: 0,
-              previous: 0,
-              trend: generateTrendData(12),
-              totalAmount: 0
-            }
-          };
-        }
+        console.log('Fetched metrics:', metrics);
 
         return {
           invoices: {
-            current: metrics.overdue_invoices || 0,
+            current: metrics?.overdue_invoices || 0,
             previous: 0,
             trend: generateTrendData(12),
-            totalAmount: metrics.overdue_amount || 0
+            totalAmount: metrics?.overdue_amount || 0
           }
         };
       } catch (error) {
@@ -75,6 +65,8 @@ export const DashboardStats = () => {
         };
       }
     },
+    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 15000, // Consider data stale after 15 seconds
     retry: 1
   });
 
