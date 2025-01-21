@@ -6,6 +6,8 @@ interface InvoicePreviewProps {
     company_name: string;
     company_address?: string;
     company_email?: string;
+    company_vat_code?: string;
+    company_code?: string;
     client_name: string;
     client_address?: string;
     client_email?: string;
@@ -72,6 +74,12 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             )}
             {invoice.company_email && (
               <p className="text-gray-600 text-sm">{invoice.company_email}</p>
+            )}
+            {invoice.company_vat_code && (
+              <p className="text-gray-600 text-sm">VAT Code: {invoice.company_vat_code}</p>
+            )}
+            {invoice.company_code && (
+              <p className="text-gray-600 text-sm">Company Code: {invoice.company_code}</p>
             )}
           </div>
         </div>

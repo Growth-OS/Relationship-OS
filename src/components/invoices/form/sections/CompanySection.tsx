@@ -56,6 +56,34 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="company_vat_code"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>VAT Code</FormLabel>
+            <FormControl>
+              <Input placeholder="VAT123456789" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="company_code"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Company Code</FormLabel>
+            <FormControl>
+              <Input placeholder="123456789" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 };
