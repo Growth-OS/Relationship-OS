@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { CompanySection } from "./sections/CompanySection";
 import { ClientSection } from "./sections/ClientSection";
 import { InvoiceDetailsSection } from "./sections/InvoiceDetailsSection";
-import { InvoiceItemsField } from "./InvoiceItemsField";
+import { InvoiceItemsField } from "../InvoiceItemsField";
 
 interface InvoiceFormFieldsProps {
   form: UseFormReturn<any>;
