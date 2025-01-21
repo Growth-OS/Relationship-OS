@@ -51,8 +51,10 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   };
 
   const formatCurrency = (amount: number | undefined | null) => {
-    if (typeof amount !== 'number' || isNaN(amount)) return '€0.00';
-    return `€${amount.toFixed(2)}`;
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return '€0.00';
+    }
+    return `€${Number(amount).toFixed(2)}`;
   };
 
   return (

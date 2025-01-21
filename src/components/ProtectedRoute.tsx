@@ -62,7 +62,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       
       console.log("Auth state change:", event, !!session);
       
-      if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+      if (event === 'SIGNED_OUT') {
         setIsAuthenticated(false);
         toast.error("Your session has ended. Please log in again.");
         return;
