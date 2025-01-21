@@ -38,6 +38,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   }
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'Invalid date';
     try {
       const date = parseISO(dateString);
       if (!isValid(date)) {
@@ -47,6 +48,11 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
     } catch (error) {
       return 'Invalid date';
     }
+  };
+
+  const formatCurrency = (amount: number | undefined) => {
+    if (typeof amount !== 'number') return '€0.00';
+    return `€${amount.toFixed(2)}`;
   };
 
   return (
@@ -108,8 +114,8 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             <tr key={index} className="border-b border-gray-200">
               <td className="py-2 text-gray-800">{item.description}</td>
               <td className="text-right py-2 text-gray-800">{item.quantity}</td>
-              <td className="text-right py-2 text-gray-800">€{item.unit_price.toFixed(2)}</td>
-              <td className="text-right py-2 text-gray-800">€{item.amount.toFixed(2)}</td>
+              <td className="text-right py-2 text-gray-800">{formatCurrency(item.unit_price)}</td>
+              <td className="text-right py-2 text-gray-800">{formatCurrency(item.amount)}</td>
             </tr>
           ))}
         </tbody>
@@ -120,17 +126,17 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
         <div className="w-64">
           <div className="flex justify-between py-1">
             <span className="text-gray-600">Subtotal:</span>
-            <span className="text-gray-800">€{invoice.subtotal.toFixed(2)}</span>
+            <span className="text-gray-800">{formatCurrency(invoice.subtotal)}</span>
           </div>
           {invoice.tax_rate && invoice.tax_amount && (
             <div className="flex justify-between py-1">
               <span className="text-gray-600">Tax ({invoice.tax_rate}%):</span>
-              <span className="text-gray-800">€{invoice.tax_amount.toFixed(2)}</span>
+              <span className="text-gray-800">{formatCurrency(invoice.tax_amount)}</span>
             </div>
           )}
           <div className="flex justify-between py-1 border-t border-gray-200 font-medium">
             <span>Total:</span>
-            <span>€{invoice.total.toFixed(2)}</span>
+            <span>{formatCurrency(invoice.total)}</span>
           </div>
         </div>
       </div>
