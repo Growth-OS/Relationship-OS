@@ -26,6 +26,11 @@ interface InvoiceFormData {
   notes?: string;
   payment_terms?: string;
   deal_id?: string;
+  items: Array<{
+    description: string;
+    quantity: number;
+    unit_price: number;
+  }>;
 }
 
 interface CreateInvoiceFormProps {
@@ -34,15 +39,19 @@ interface CreateInvoiceFormProps {
 }
 
 const calculateTotals = (data: InvoiceFormData): InvoiceFormData => {
-  const subtotal = data.subtotal || 0;
+  const subtotal = data.items?.reduce((sum, item) => {
+    return sum + (item.quantity * item.unit_price);
+  }, 0) || 0;
+  
   const taxRate = data.tax_rate || 0;
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + taxAmount;
 
   return {
     ...data,
+    subtotal,
     tax_amount: taxAmount,
-    total: total
+    total
   };
 };
 
@@ -54,7 +63,8 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
       company_address: "Verkiu g. 31B2\nLT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
       company_vat_code: "",
       company_code: "",
-      payment_terms: "Bank: Revolut\nBank Address: 09108, Verkiu 31B2, Laisves Namai, Vilnius, Lithuania\nAccount Holder: UAB Prospect Labs\nIBAN Number: LT81 3250 0549 4897 7554\nSwift / BIC: REVOLT21\nIntermediary BIC: BARCGB22"
+      payment_terms: "Bank: Revolut\nBank Address: 09108, Verkiu 31B2, Laisves Namai, Vilnius, Lithuania\nAccount Holder: UAB Prospect Labs\nIBAN Number: LT81 3250 0549 4897 7554\nSwift / BIC: REVOLT21\nIntermediary BIC: BARCGB22",
+      items: [{ description: "", quantity: 1, unit_price: 0 }]
     },
   });
 
