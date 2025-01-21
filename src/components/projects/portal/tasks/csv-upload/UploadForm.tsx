@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface UploadFormProps {
   uploading: boolean;
