@@ -4,21 +4,53 @@ import { Form } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { ProjectFormFields } from "./form/ProjectFormFields";
-import { ProjectDateFields } from "./form/ProjectDateFields";
-import { ProjectBudgetField } from "./form/ProjectBudgetField";
-import { ProjectFormData } from "./form/types";
+import { useEffect } from "react";
+import { InvoiceFormFields } from "./form/InvoiceFormFields";
+
+interface InvoiceFormData {
+  company_name: string;
+  company_address?: string;
+  company_email?: string;
+  company_vat_code?: string;
+  company_code?: string;
+  client_name: string;
+  client_address?: string;
+  client_email?: string;
+  invoice_number: string;
+  issue_date: string;
+  due_date: string;
+  subtotal: number;
+  tax_rate?: number;
+  tax_amount?: number;
+  total: number;
+  notes?: string;
+  payment_terms?: string;
+  deal_id?: string;
+}
 
 interface CreateInvoiceFormProps {
   onSuccess?: () => void;
-  onDataChange?: (data: any) => void;
+  onDataChange?: (data: InvoiceFormData) => void;
 }
+
+const calculateTotals = (data: InvoiceFormData): InvoiceFormData => {
+  const subtotal = data.subtotal || 0;
+  const taxRate = data.tax_rate || 0;
+  const taxAmount = (subtotal * taxRate) / 100;
+  const total = subtotal + taxAmount;
+
+  return {
+    ...data,
+    tax_amount: taxAmount,
+    total: total
+  };
+};
 
 export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceFormProps) => {
   const queryClient = useQueryClient();
-  const form = useForm<ProjectFormData>({
+  const form = useForm<InvoiceFormData>({
     defaultValues: {
-      status: 'active',
+      status: 'draft',
       company_name: "Prospect Labs UAB",
       company_address: "Verkiu g. 31B2\nLT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
       company_vat_code: "",
@@ -37,45 +69,39 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
     return () => subscription.unsubscribe();
   }, [form.watch, onDataChange]);
 
-  const onSubmit = async (data: ProjectFormData) => {
+  const onSubmit = async (data: InvoiceFormData) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error('You must be logged in to create a project');
+        toast.error('You must be logged in to create an invoice');
         return;
       }
 
       const { error } = await supabase
-        .from('projects')
+        .from('invoices')
         .insert({
           ...data,
           user_id: user.id,
-          start_date: data.start_date?.toISOString().split('T')[0],
-          end_date: data.end_date?.toISOString().split('T')[0],
-          deal_id: data.deal_id || null,
         });
 
       if (error) throw error;
       
-      toast.success('Project created successfully');
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['chat-history'] });
+      toast.success('Invoice created successfully');
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating project:', error);
-      toast.error('Error creating project');
+      console.error('Error creating invoice:', error);
+      toast.error('Error creating invoice');
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <ProjectFormFields form={form} />
-        <ProjectDateFields form={form} />
-        <ProjectBudgetField form={form} />
+        <InvoiceFormFields form={form} />
         <Button type="submit" className="w-full">
-          Create Project
+          Create Invoice
         </Button>
       </form>
     </Form>
