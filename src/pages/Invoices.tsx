@@ -17,21 +17,32 @@ const Invoices = () => {
     queryKey: ['invoices'],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        // First fetch invoices
+        const { data: invoicesData, error: invoicesError } = await supabase
           .from('invoices')
-          .select(`
-            *,
-            invoice_items (*)
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error fetching invoices:', error);
-          toast.error("Failed to fetch invoices");
-          throw error;
-        }
+        if (invoicesError) throw invoicesError;
 
-        return data || [];
+        // Then fetch invoice items for each invoice
+        const invoicesWithItems = await Promise.all(
+          invoicesData.map(async (invoice) => {
+            const { data: items, error: itemsError } = await supabase
+              .from('invoice_items')
+              .select('*')
+              .eq('invoice_id', invoice.id);
+
+            if (itemsError) throw itemsError;
+
+            return {
+              ...invoice,
+              invoice_items: items || []
+            };
+          })
+        );
+
+        return invoicesWithItems || [];
       } catch (err) {
         console.error('Error in query:', err);
         toast.error("Failed to fetch invoices");
