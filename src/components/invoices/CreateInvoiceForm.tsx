@@ -60,30 +60,51 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
 
   useEffect(() => {
     const generateInvoiceNumber = async () => {
-      const currentYear = new Date().getFullYear().toString().slice(-2);
-      
-      // Get the latest invoice number for the current year
-      const { data: latestInvoice, error } = await supabase
-        .from('invoices')
-        .select('invoice_number')
-        .ilike('invoice_number', `${currentYear}-%`)
-        .order('invoice_number', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      try {
+        // First check if we have an authenticated session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Auth session error:', sessionError);
+          toast.error('Authentication error. Please try logging in again.');
+          return;
+        }
 
-      if (error) {
-        console.error('Error fetching latest invoice number:', error);
-        return;
+        if (!session) {
+          console.error('No active session');
+          toast.error('Please log in to create invoices');
+          return;
+        }
+
+        const currentYear = new Date().getFullYear().toString().slice(-2);
+        
+        // Get the latest invoice number for the current year
+        const { data: latestInvoice, error } = await supabase
+          .from('invoices')
+          .select('invoice_number')
+          .ilike('invoice_number', `${currentYear}-%`)
+          .order('invoice_number', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching latest invoice number:', error);
+          toast.error('Error generating invoice number');
+          return;
+        }
+
+        let nextNumber = 1;
+        if (latestInvoice) {
+          const lastNumber = parseInt(latestInvoice.invoice_number.split('-')[1]);
+          nextNumber = lastNumber + 1;
+        }
+
+        const newInvoiceNumber = `${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
+        form.setValue('invoice_number', newInvoiceNumber);
+      } catch (error) {
+        console.error('Error in generateInvoiceNumber:', error);
+        toast.error('Error generating invoice number');
       }
-
-      let nextNumber = 1;
-      if (latestInvoice) {
-        const lastNumber = parseInt(latestInvoice.invoice_number.split('-')[1]);
-        nextNumber = lastNumber + 1;
-      }
-
-      const newInvoiceNumber = `${currentYear}-${nextNumber.toString().padStart(3, '0')}`;
-      form.setValue('invoice_number', newInvoiceNumber);
     };
 
     generateInvoiceNumber();
