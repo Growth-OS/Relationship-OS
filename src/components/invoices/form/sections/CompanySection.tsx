@@ -1,4 +1,10 @@
-import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 
@@ -8,7 +14,7 @@ interface CompanySectionProps {
 
 export const CompanySection = ({ form }: CompanySectionProps) => {
   return (
-    <div className="space-y-4">
+    <>
       <FormField
         control={form.control}
         name="company_name"
@@ -16,8 +22,9 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Name</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input placeholder="Your Company" {...field} />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -29,8 +36,9 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Address</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input placeholder="123 Business St" {...field} />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
@@ -42,11 +50,12 @@ export const CompanySection = ({ form }: CompanySectionProps) => {
           <FormItem>
             <FormLabel>Company Email</FormLabel>
             <FormControl>
-              <Input {...field} />
+              <Input type="email" placeholder="company@example.com" {...field} />
             </FormControl>
+            <FormMessage />
           </FormItem>
         )}
       />
-    </div>
+    </>
   );
 };

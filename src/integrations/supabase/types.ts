@@ -539,10 +539,8 @@ export type Database = {
           client_email: string | null
           client_name: string
           company_address: string | null
-          company_code: string | null
           company_email: string | null
           company_name: string
-          company_vat_code: string | null
           created_at: string
           deal_id: string | null
           due_date: string
@@ -563,10 +561,8 @@ export type Database = {
           client_email?: string | null
           client_name: string
           company_address?: string | null
-          company_code?: string | null
           company_email?: string | null
           company_name: string
-          company_vat_code?: string | null
           created_at?: string
           deal_id?: string | null
           due_date: string
@@ -587,10 +583,8 @@ export type Database = {
           client_email?: string | null
           client_name?: string
           company_address?: string | null
-          company_code?: string | null
           company_email?: string | null
           company_name?: string
-          company_vat_code?: string | null
           created_at?: string
           deal_id?: string | null
           due_date?: string

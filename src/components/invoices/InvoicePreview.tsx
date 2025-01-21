@@ -6,8 +6,6 @@ interface InvoicePreviewProps {
     company_name: string;
     company_address?: string;
     company_email?: string;
-    company_vat_code?: string;
-    company_code?: string;
     client_name: string;
     client_address?: string;
     client_email?: string;
@@ -29,16 +27,7 @@ interface InvoicePreviewProps {
 }
 
 export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
-  if (!invoice) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px] bg-white p-8 rounded-lg">
-        <p className="text-gray-500">No invoice data available</p>
-      </div>
-    );
-  }
-
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'Invalid date';
     try {
       const date = parseISO(dateString);
       if (!isValid(date)) {
@@ -48,14 +37,6 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
     } catch (error) {
       return 'Invalid date';
     }
-  };
-
-  const formatCurrency = (amount: number | undefined | null) => {
-    const numAmount = amount !== undefined && amount !== null ? Number(amount) : 0;
-    if (isNaN(numAmount)) {
-      return '€0.00';
-    }
-    return `€${numAmount.toFixed(2)}`;
   };
 
   return (
@@ -75,12 +56,6 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             )}
             {invoice.client_email && (
               <p className="text-gray-600 text-sm">{invoice.client_email}</p>
-            )}
-            {invoice.company_vat_code && (
-              <p className="text-gray-600 text-sm">VAT Code: {invoice.company_vat_code}</p>
-            )}
-            {invoice.company_code && (
-              <p className="text-gray-600 text-sm">Company Code: {invoice.company_code}</p>
             )}
           </div>
         </div>
@@ -113,12 +88,12 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
           </tr>
         </thead>
         <tbody>
-          {Array.isArray(invoice.items) && invoice.items.map((item, index) => (
+          {invoice.items.map((item, index) => (
             <tr key={index} className="border-b border-gray-200">
               <td className="py-2 text-gray-800">{item.description}</td>
               <td className="text-right py-2 text-gray-800">{item.quantity}</td>
-              <td className="text-right py-2 text-gray-800">{formatCurrency(item.unit_price)}</td>
-              <td className="text-right py-2 text-gray-800">{formatCurrency(item.amount)}</td>
+              <td className="text-right py-2 text-gray-800">€{item.unit_price.toFixed(2)}</td>
+              <td className="text-right py-2 text-gray-800">€{item.amount.toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
@@ -129,17 +104,17 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
         <div className="w-64">
           <div className="flex justify-between py-1">
             <span className="text-gray-600">Subtotal:</span>
-            <span className="text-gray-800">{formatCurrency(invoice.subtotal)}</span>
+            <span className="text-gray-800">€{invoice.subtotal.toFixed(2)}</span>
           </div>
-          {invoice.tax_rate !== undefined && invoice.tax_amount !== undefined && (
+          {invoice.tax_rate && invoice.tax_amount && (
             <div className="flex justify-between py-1">
               <span className="text-gray-600">Tax ({invoice.tax_rate}%):</span>
-              <span className="text-gray-800">{formatCurrency(invoice.tax_amount)}</span>
+              <span className="text-gray-800">€{invoice.tax_amount.toFixed(2)}</span>
             </div>
           )}
           <div className="flex justify-between py-1 border-t border-gray-200 font-medium">
             <span>Total:</span>
-            <span>{formatCurrency(invoice.total)}</span>
+            <span>€{invoice.total.toFixed(2)}</span>
           </div>
         </div>
       </div>
