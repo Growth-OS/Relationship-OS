@@ -51,10 +51,15 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
   };
 
   const formatCurrency = (amount: number | undefined | null) => {
-    if (amount === undefined || amount === null || isNaN(Number(amount))) {
+    // Convert to number and check if it's valid
+    const numAmount = amount !== undefined && amount !== null ? Number(amount) : 0;
+    
+    // Check if the conversion resulted in a valid number
+    if (isNaN(numAmount)) {
       return '€0.00';
     }
-    return `€${Number(amount).toFixed(2)}`;
+    
+    return `€${numAmount.toFixed(2)}`;
   };
 
   return (
@@ -130,7 +135,7 @@ export const InvoicePreview = ({ invoice }: InvoicePreviewProps) => {
             <span className="text-gray-600">Subtotal:</span>
             <span className="text-gray-800">{formatCurrency(invoice.subtotal)}</span>
           </div>
-          {invoice.tax_rate && invoice.tax_amount && (
+          {invoice.tax_rate !== undefined && invoice.tax_amount !== undefined && (
             <div className="flex justify-between py-1">
               <span className="text-gray-600">Tax ({invoice.tax_rate}%):</span>
               <span className="text-gray-800">{formatCurrency(invoice.tax_amount)}</span>
