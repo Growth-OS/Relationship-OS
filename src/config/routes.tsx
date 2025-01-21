@@ -11,6 +11,7 @@ import { financeRoutes } from "./routes/financeRoutes";
 import { settingsRoutes } from "./routes/settingsRoutes";
 import { taskRoutes } from "./routes/taskRoutes";
 import { miscRoutes } from "./routes/miscRoutes";
+import Landing from "@/pages/Landing";
 
 export const router = createBrowserRouter([
   {
@@ -33,7 +34,15 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: "/landing",
+    element: <Landing />,
+  },
+  {
     path: "login",
     element: <Login />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/dashboard" replace />,
   },
 ]);
