@@ -47,7 +47,7 @@ export const CreateInvoiceDialog = ({ open, onOpenChange }: CreateInvoiceDialogP
             </div>
           )}
           <CreateInvoiceForm 
-            onSuccess={() => onOpenChange(false)} 
+            onSuccess={() => onOpenChange(false)}
             onDataChange={setPreviewData}
           />
         </div>

@@ -33,11 +33,12 @@ interface InvoiceFormData {
   }>;
 }
 
-interface CreateInvoiceFormProps {
+export interface CreateInvoiceFormProps {
   onSuccess?: () => void;
+  onDataChange?: (data: InvoiceFormData) => void;
 }
 
-export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
+export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceFormProps) => {
   const queryClient = useQueryClient();
   const form = useForm<InvoiceFormData>();
 
@@ -51,9 +52,9 @@ export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
         .ilike('invoice_number', `${currentYear}-%`)
         .order('invoice_number', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching latest invoice number:', error);
         return;
       }
@@ -70,6 +71,14 @@ export const CreateInvoiceForm = ({ onSuccess }: CreateInvoiceFormProps) => {
 
     generateInvoiceNumber();
   }, [form]);
+
+  // Watch form values for preview
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      onDataChange?.(value as InvoiceFormData);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, onDataChange]);
 
   const onSubmit = async (data: InvoiceFormData) => {
     try {
