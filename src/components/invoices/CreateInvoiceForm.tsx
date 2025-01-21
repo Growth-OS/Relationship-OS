@@ -50,7 +50,6 @@ export const CreateInvoiceForm = ({ onSuccess, onDataChange }: CreateInvoiceForm
   const queryClient = useQueryClient();
   const form = useForm<InvoiceFormData>({
     defaultValues: {
-      status: 'draft',
       company_name: "Prospect Labs UAB",
       company_address: "Verkiu g. 31B2\nLT09108 Vilnius\nLithuania\nCompany Number: LT100012926716",
       company_vat_code: "",
