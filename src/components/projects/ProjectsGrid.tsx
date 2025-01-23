@@ -53,23 +53,23 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
       case "active":
         return {
           icon: Circle,
-          color: "text-emerald-500",
-          bgColor: "bg-emerald-50 dark:bg-emerald-950",
-          badge: "bg-gradient-to-r from-emerald-500/10 to-emerald-500/20 text-emerald-700 border-emerald-200/50 dark:text-emerald-400"
+          color: "text-emerald-600",
+          bgColor: "bg-emerald-50",
+          badge: "bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border-emerald-200"
         };
       case "completed":
         return {
           icon: CheckCircle2,
-          color: "text-purple-500",
-          bgColor: "bg-purple-50 dark:bg-purple-950",
-          badge: "bg-gradient-to-r from-purple-500/10 to-purple-500/20 text-purple-700 border-purple-200/50 dark:text-purple-400"
+          color: "text-purple-600",
+          bgColor: "bg-purple-50",
+          badge: "bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 border-purple-200"
         };
       default:
         return {
           icon: Circle,
-          color: "text-gray-500",
-          bgColor: "bg-gray-50 dark:bg-gray-800",
-          badge: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300"
+          color: "text-gray-600",
+          bgColor: "bg-gray-50",
+          badge: "bg-gray-100 text-gray-700 border-gray-200"
         };
     }
   };
@@ -86,14 +86,11 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
               key={project.id}
               className={cn(
                 "group relative p-6 transition-all duration-300",
-                "hover:shadow-lg dark:hover:shadow-purple-900/10",
-                "border-[1.5px] border-gray-200/80 dark:border-gray-800/80",
-                "bg-white/50 dark:bg-gray-900/50 backdrop-blur",
-                "supports-[backdrop-filter]:bg-white/80",
-                "dark:supports-[backdrop-filter]:bg-gray-900/80",
-                "hover:bg-gradient-to-br hover:from-white hover:to-gray-50/50",
-                "dark:hover:bg-gradient-to-br dark:hover:from-gray-900 dark:hover:to-gray-800/50",
-                "hover:border-gray-300 dark:hover:border-gray-700",
+                "hover:shadow-lg hover:shadow-gray-200/50",
+                "border border-gray-100",
+                "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80",
+                "hover:bg-gradient-to-br hover:from-white hover:to-gray-50/80",
+                "hover:border-gray-200",
                 "hover:scale-[1.02] hover:-translate-y-1",
                 "cursor-pointer"
               )}
@@ -111,11 +108,11 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                     {project.status}
                   </Badge>
                   
-                  <h3 className="font-semibold text-lg mt-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  <h3 className="font-semibold text-lg mt-2 text-gray-800 group-hover:text-purple-600 transition-colors">
                     {project.name}
                   </h3>
                   
-                  <div className="flex items-center mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center mt-2 text-sm text-gray-600">
                     <div className={cn("p-1.5 rounded-full mr-2", statusDetails.bgColor)}>
                       <Users className={cn("w-4 h-4", statusDetails.color)} />
                     </div>
@@ -123,11 +120,11 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
+                <div className="pt-4 border-t border-gray-100 space-y-3">
                   {project.budget && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <div className="p-1.5 rounded-full mr-2 bg-amber-50 dark:bg-amber-950">
-                        <DollarSign className="w-4 h-4 text-amber-500" />
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="p-1.5 rounded-full mr-2 bg-amber-50">
+                        <DollarSign className="w-4 h-4 text-amber-600" />
                       </div>
                       <span className="font-medium font-mono">
                         €{project.budget.toLocaleString()}
@@ -136,9 +133,9 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                   )}
                   
                   {project.start_date && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <div className="p-1.5 rounded-full mr-2 bg-blue-50 dark:bg-blue-950">
-                        <Calendar className="w-4 h-4 text-blue-500" />
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="p-1.5 rounded-full mr-2 bg-blue-50">
+                        <Calendar className="w-4 h-4 text-blue-600" />
                       </div>
                       <span>
                         {new Date(project.start_date).toLocaleDateString()}
@@ -148,9 +145,9 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                     </div>
                   )}
                   
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <div className="p-1.5 rounded-full mr-2 bg-pink-50 dark:bg-pink-950">
-                      <Clock className="w-4 h-4 text-pink-500" />
+                  <div className="flex items-center text-sm text-gray-600">
+                    <div className="p-1.5 rounded-full mr-2 bg-pink-50">
+                      <Clock className="w-4 h-4 text-pink-600" />
                     </div>
                     <span>
                       Updated {formatDistanceToNow(new Date(project.last_activity_date), {
