@@ -8,9 +8,8 @@ import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Briefcase, CheckCircle2, Clock, PauseCircle, Grid, List, Kanban, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Briefcase, CheckCircle2, Clock, PauseCircle, Grid, List, Kanban } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Projects = () => {
@@ -110,8 +109,8 @@ const Projects = () => {
       </div>
 
       <Card className="p-6">
-        <div className="flex flex-col lg:flex-row justify-between items-stretch gap-6 mb-6">
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg">
               <Button
                 variant="ghost"
@@ -162,36 +161,36 @@ const Projects = () => {
                 On Hold
               </Button>
             </div>
+
+            <Tabs defaultValue="grid" className="w-auto">
+              <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
+                <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                  <Grid className="w-4 h-4 mr-2" />
+                  Grid
+                </TabsTrigger>
+                <TabsTrigger value="list" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                  <List className="w-4 h-4 mr-2" />
+                  List
+                </TabsTrigger>
+                <TabsTrigger value="kanban" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                  <Kanban className="w-4 h-4 mr-2" />
+                  Kanban
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="grid" className="mt-6">
+                <ProjectsGrid projects={projects} isLoading={isLoading} />
+              </TabsContent>
+
+              <TabsContent value="list" className="mt-6">
+                <ProjectsList projects={projects} isLoading={isLoading} />
+              </TabsContent>
+
+              <TabsContent value="kanban" className="mt-6">
+                <ProjectsKanban projects={projects} isLoading={isLoading} />
+              </TabsContent>
+            </Tabs>
           </div>
-
-          <Tabs defaultValue="grid" className="shrink-0">
-            <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
-              <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                <Grid className="w-4 h-4 mr-2" />
-                Grid
-              </TabsTrigger>
-              <TabsTrigger value="list" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                <List className="w-4 h-4 mr-2" />
-                List
-              </TabsTrigger>
-              <TabsTrigger value="kanban" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                <Kanban className="w-4 h-4 mr-2" />
-                Kanban
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="grid" className="mt-6">
-              <ProjectsGrid projects={projects} isLoading={isLoading} />
-            </TabsContent>
-
-            <TabsContent value="list" className="mt-6">
-              <ProjectsList projects={projects} isLoading={isLoading} />
-            </TabsContent>
-
-            <TabsContent value="kanban" className="mt-6">
-              <ProjectsKanban projects={projects} isLoading={isLoading} />
-            </TabsContent>
-          </Tabs>
         </div>
       </Card>
     </div>
