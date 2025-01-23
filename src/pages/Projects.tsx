@@ -52,7 +52,9 @@ const Projects = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-muted-foreground mt-1">Manage and track your client projects</p>
+          <p className="text-muted-foreground mt-1">
+            Manage and track your client projects
+          </p>
         </div>
         <CreateProjectButton />
       </div>
@@ -109,9 +111,9 @@ const Projects = () => {
       </div>
 
       {/* Controls Section */}
-      <div className="flex flex-col md:flex-row justify-between gap-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+      <div className="space-y-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
         {/* Status Filter */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           <Button
             variant={statusFilter === "all" ? "default" : "ghost"}
             size="sm"
@@ -151,34 +153,36 @@ const Projects = () => {
         </div>
 
         {/* View Switcher */}
-        <Tabs defaultValue="grid" className="w-auto">
-          <TabsList className="h-9 bg-background border">
-            <TabsTrigger value="grid" className="flex items-center gap-2">
-              <Grid className="w-4 h-4" />
-              Grid
-            </TabsTrigger>
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <List className="w-4 h-4" />
-              List
-            </TabsTrigger>
-            <TabsTrigger value="kanban" className="flex items-center gap-2">
-              <Kanban className="w-4 h-4" />
-              Kanban
-            </TabsTrigger>
-          </TabsList>
+        <div className="flex justify-end">
+          <Tabs defaultValue="grid" className="w-auto">
+            <TabsList className="h-9 bg-background border">
+              <TabsTrigger value="grid" className="flex items-center gap-2">
+                <Grid className="w-4 h-4" />
+                Grid
+              </TabsTrigger>
+              <TabsTrigger value="list" className="flex items-center gap-2">
+                <List className="w-4 h-4" />
+                List
+              </TabsTrigger>
+              <TabsTrigger value="kanban" className="flex items-center gap-2">
+                <Kanban className="w-4 h-4" />
+                Kanban
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="grid" className="mt-6">
-            <ProjectsGrid projects={projects} isLoading={isLoading} />
-          </TabsContent>
+            <TabsContent value="grid" className="mt-6">
+              <ProjectsGrid projects={projects} isLoading={isLoading} />
+            </TabsContent>
 
-          <TabsContent value="list" className="mt-6">
-            <ProjectsList projects={projects} isLoading={isLoading} />
-          </TabsContent>
+            <TabsContent value="list" className="mt-6">
+              <ProjectsList projects={projects} isLoading={isLoading} />
+            </TabsContent>
 
-          <TabsContent value="kanban" className="mt-6">
-            <ProjectsKanban projects={projects} isLoading={isLoading} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="kanban" className="mt-6">
+              <ProjectsKanban projects={projects} isLoading={isLoading} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
