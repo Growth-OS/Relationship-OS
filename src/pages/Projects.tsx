@@ -113,58 +113,57 @@ const Projects = () => {
         <div className="flex flex-col lg:flex-row justify-between items-stretch gap-6 mb-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStatusFilter("all")}
-              className={cn(
-                "rounded-md transition-colors",
-                statusFilter === "all" && "bg-white dark:bg-gray-700 shadow-sm"
-              )}
-            >
-              <Briefcase className="w-4 h-4 mr-2" />
-              All
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStatusFilter("active")}
-              className={cn(
-                "rounded-md transition-colors",
-                statusFilter === "active" && "bg-white dark:bg-gray-700 shadow-sm"
-              )}
-            >
-              <Clock className="w-4 h-4 mr-2" />
-              Active
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStatusFilter("completed")}
-              className={cn(
-                "rounded-md transition-colors",
-                statusFilter === "completed" && "bg-white dark:bg-gray-700 shadow-sm"
-              )}
-            >
-              <CheckCircle2 className="w-4 h-4 mr-2" />
-              Completed
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStatusFilter("on_hold")}
-              className={cn(
-                "rounded-md transition-colors",
-                statusFilter === "on_hold" && "bg-white dark:bg-gray-700 shadow-sm"
-              )}
-            >
-              <PauseCircle className="w-4 h-4 mr-2" />
-              On Hold
-            </Button>
-          </div>
-
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter("all")}
+                className={cn(
+                  "rounded-md transition-colors",
+                  statusFilter === "all" && "bg-white dark:bg-gray-700 shadow-sm"
+                )}
+              >
+                <Briefcase className="w-4 h-4 mr-2" />
+                All
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter("active")}
+                className={cn(
+                  "rounded-md transition-colors",
+                  statusFilter === "active" && "bg-white dark:bg-gray-700 shadow-sm"
+                )}
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                Active
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter("completed")}
+                className={cn(
+                  "rounded-md transition-colors",
+                  statusFilter === "completed" && "bg-white dark:bg-gray-700 shadow-sm"
+                )}
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Completed
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter("on_hold")}
+                className={cn(
+                  "rounded-md transition-colors",
+                  statusFilter === "on_hold" && "bg-white dark:bg-gray-700 shadow-sm"
+                )}
+              >
+                <PauseCircle className="w-4 h-4 mr-2" />
+                On Hold
+              </Button>
             </div>
           </div>
+
           <Tabs defaultValue="grid" className="shrink-0">
             <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
               <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
