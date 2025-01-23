@@ -47,7 +47,8 @@ const Projects = () => {
   const onHoldProjects = projects.filter(p => p.status === "on_hold").length;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
+      {/* Header Section with Gradient */}
       <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col gap-6">
@@ -108,9 +109,12 @@ const Projects = () => {
         </div>
       </div>
 
+      {/* Main Content Section */}
       <Card className="p-6">
-        <div className="space-y-6">
+        <div className="flex flex-col space-y-6">
+          {/* Controls Row */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            {/* Status Filter */}
             <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg">
               <Button
                 variant="ghost"
@@ -162,6 +166,7 @@ const Projects = () => {
               </Button>
             </div>
 
+            {/* View Switcher */}
             <Tabs defaultValue="grid" className="w-auto">
               <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
                 <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
