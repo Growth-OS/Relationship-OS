@@ -47,157 +47,139 @@ const Projects = () => {
   const onHoldProjects = projects.filter(p => p.status === "on_hold").length;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header Section with Gradient */}
-      <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Projects
-                </h1>
-                <p className="text-muted-foreground">
-                  Manage and track your client projects
-                </p>
-              </div>
-              <CreateProjectButton />
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <Briefcase className="w-5 h-5 text-blue-500" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Projects</p>
-                    <p className="text-2xl font-bold">{totalProjects}</p>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card className="p-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-emerald-500" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Active</p>
-                    <p className="text-2xl font-bold">{activeProjects}</p>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card className="p-4 border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-purple-500" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Completed</p>
-                    <p className="text-2xl font-bold">{completedProjects}</p>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card className="p-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3">
-                  <PauseCircle className="w-5 h-5 text-amber-500" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">On Hold</p>
-                    <p className="text-2xl font-bold">{onHoldProjects}</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </div>
+    <div className="container mx-auto p-6 space-y-6 animate-fade-in">
+      {/* Header Section */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Projects</h1>
+          <p className="text-muted-foreground mt-1">Manage and track your client projects</p>
         </div>
+        <CreateProjectButton />
       </div>
 
-      {/* Main Content Section */}
-      <Card className="p-6">
-        <div className="flex flex-col space-y-6">
-          {/* Controls Row */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* Status Filter */}
-            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter("all")}
-                className={cn(
-                  "rounded-md transition-colors",
-                  statusFilter === "all" && "bg-white dark:bg-gray-700 shadow-sm"
-                )}
-              >
-                <Briefcase className="w-4 h-4 mr-2" />
-                All
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter("active")}
-                className={cn(
-                  "rounded-md transition-colors",
-                  statusFilter === "active" && "bg-white dark:bg-gray-700 shadow-sm"
-                )}
-              >
-                <Clock className="w-4 h-4 mr-2" />
-                Active
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter("completed")}
-                className={cn(
-                  "rounded-md transition-colors",
-                  statusFilter === "completed" && "bg-white dark:bg-gray-700 shadow-sm"
-                )}
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Completed
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter("on_hold")}
-                className={cn(
-                  "rounded-md transition-colors",
-                  statusFilter === "on_hold" && "bg-white dark:bg-gray-700 shadow-sm"
-                )}
-              >
-                <PauseCircle className="w-4 h-4 mr-2" />
-                On Hold
-              </Button>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <Briefcase className="w-5 h-5 text-blue-500" />
             </div>
-
-            {/* View Switcher */}
-            <Tabs defaultValue="grid" className="w-auto">
-              <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
-                <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                  <Grid className="w-4 h-4 mr-2" />
-                  Grid
-                </TabsTrigger>
-                <TabsTrigger value="list" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                  <List className="w-4 h-4 mr-2" />
-                  List
-                </TabsTrigger>
-                <TabsTrigger value="kanban" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
-                  <Kanban className="w-4 h-4 mr-2" />
-                  Kanban
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="grid" className="mt-6">
-                <ProjectsGrid projects={projects} isLoading={isLoading} />
-              </TabsContent>
-
-              <TabsContent value="list" className="mt-6">
-                <ProjectsList projects={projects} isLoading={isLoading} />
-              </TabsContent>
-
-              <TabsContent value="kanban" className="mt-6">
-                <ProjectsKanban projects={projects} isLoading={isLoading} />
-              </TabsContent>
-            </Tabs>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Projects</p>
+              <p className="text-2xl font-bold">{totalProjects}</p>
+            </div>
           </div>
+        </Card>
+        
+        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-emerald-500">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+              <Clock className="w-5 h-5 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Active</p>
+              <p className="text-2xl font-bold">{activeProjects}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <CheckCircle2 className="w-5 h-5 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Completed</p>
+              <p className="text-2xl font-bold">{completedProjects}</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-amber-500">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <PauseCircle className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">On Hold</p>
+              <p className="text-2xl font-bold">{onHoldProjects}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Controls Section */}
+      <div className="flex flex-col md:flex-row justify-between gap-4 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+        {/* Status Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant={statusFilter === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setStatusFilter("all")}
+            className="flex items-center gap-2"
+          >
+            <Briefcase className="w-4 h-4" />
+            All
+          </Button>
+          <Button
+            variant={statusFilter === "active" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setStatusFilter("active")}
+            className="flex items-center gap-2"
+          >
+            <Clock className="w-4 h-4 text-emerald-500" />
+            Active
+          </Button>
+          <Button
+            variant={statusFilter === "completed" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setStatusFilter("completed")}
+            className="flex items-center gap-2"
+          >
+            <CheckCircle2 className="w-4 h-4 text-purple-500" />
+            Completed
+          </Button>
+          <Button
+            variant={statusFilter === "on_hold" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setStatusFilter("on_hold")}
+            className="flex items-center gap-2"
+          >
+            <PauseCircle className="w-4 h-4 text-amber-500" />
+            On Hold
+          </Button>
         </div>
-      </Card>
+
+        {/* View Switcher */}
+        <Tabs defaultValue="grid" className="w-auto">
+          <TabsList className="h-9 bg-background border">
+            <TabsTrigger value="grid" className="flex items-center gap-2">
+              <Grid className="w-4 h-4" />
+              Grid
+            </TabsTrigger>
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <List className="w-4 h-4" />
+              List
+            </TabsTrigger>
+            <TabsTrigger value="kanban" className="flex items-center gap-2">
+              <Kanban className="w-4 h-4" />
+              Kanban
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="grid" className="mt-6">
+            <ProjectsGrid projects={projects} isLoading={isLoading} />
+          </TabsContent>
+
+          <TabsContent value="list" className="mt-6">
+            <ProjectsList projects={projects} isLoading={isLoading} />
+          </TabsContent>
+
+          <TabsContent value="kanban" className="mt-6">
+            <ProjectsKanban projects={projects} isLoading={isLoading} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
