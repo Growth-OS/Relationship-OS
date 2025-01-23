@@ -9,7 +9,9 @@ import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, CheckCircle2, Clock, PauseCircle } from "lucide-react";
+import { Briefcase, CheckCircle2, Clock, PauseCircle, Grid, List, Kanban, Filter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("active");
@@ -108,38 +110,87 @@ const Projects = () => {
       </div>
 
       <Card className="p-6">
-        <Tabs defaultValue="grid" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <TabsList>
-              <TabsTrigger value="grid">Grid</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
-              <TabsTrigger value="kanban">Kanban</TabsTrigger>
-            </TabsList>
-
-            <select
-              className="border rounded-md p-2"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStatusFilter("all")}
+              className={cn(
+                "rounded-md transition-colors",
+                statusFilter === "all" && "bg-white dark:bg-gray-700 shadow-sm"
+              )}
             >
-              <option value="all">All Projects</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="on_hold">On Hold</option>
-            </select>
+              <Briefcase className="w-4 h-4 mr-2" />
+              All
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStatusFilter("active")}
+              className={cn(
+                "rounded-md transition-colors",
+                statusFilter === "active" && "bg-white dark:bg-gray-700 shadow-sm"
+              )}
+            >
+              <Clock className="w-4 h-4 mr-2" />
+              Active
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStatusFilter("completed")}
+              className={cn(
+                "rounded-md transition-colors",
+                statusFilter === "completed" && "bg-white dark:bg-gray-700 shadow-sm"
+              )}
+            >
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Completed
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setStatusFilter("on_hold")}
+              className={cn(
+                "rounded-md transition-colors",
+                statusFilter === "on_hold" && "bg-white dark:bg-gray-700 shadow-sm"
+              )}
+            >
+              <PauseCircle className="w-4 h-4 mr-2" />
+              On Hold
+            </Button>
           </div>
 
-          <TabsContent value="grid" className="mt-0">
-            <ProjectsGrid projects={projects} isLoading={isLoading} />
-          </TabsContent>
+          <Tabs defaultValue="grid" className="w-full md:w-auto">
+            <TabsList className="grid w-full md:w-auto grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                <Grid className="w-4 h-4 mr-2" />
+                Grid
+              </TabsTrigger>
+              <TabsTrigger value="list" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                <List className="w-4 h-4 mr-2" />
+                List
+              </TabsTrigger>
+              <TabsTrigger value="kanban" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
+                <Kanban className="w-4 h-4 mr-2" />
+                Kanban
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="list" className="mt-0">
-            <ProjectsList projects={projects} isLoading={isLoading} />
-          </TabsContent>
+            <TabsContent value="grid" className="mt-6">
+              <ProjectsGrid projects={projects} isLoading={isLoading} />
+            </TabsContent>
 
-          <TabsContent value="kanban" className="mt-0">
-            <ProjectsKanban projects={projects} isLoading={isLoading} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="list" className="mt-6">
+              <ProjectsList projects={projects} isLoading={isLoading} />
+            </TabsContent>
+
+            <TabsContent value="kanban" className="mt-6">
+              <ProjectsKanban projects={projects} isLoading={isLoading} />
+            </TabsContent>
+          </Tabs>
+        </div>
       </Card>
     </div>
   );
