@@ -123,8 +123,8 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                 <div className="pt-4 border-t border-gray-100 space-y-3">
                   {project.budget && (
                     <div className="flex items-center text-sm text-gray-600">
-                      <div className="p-1.5 rounded-full mr-2 bg-amber-50">
-                        <DollarSign className="w-4 h-4 text-amber-600" />
+                      <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                        <DollarSign className="w-4 h-4 text-gray-600" />
                       </div>
                       <span className="font-medium font-mono">
                         €{project.budget.toLocaleString()}
@@ -134,8 +134,8 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                   
                   {project.start_date && (
                     <div className="flex items-center text-sm text-gray-600">
-                      <div className="p-1.5 rounded-full mr-2 bg-blue-50">
-                        <Calendar className="w-4 h-4 text-blue-600" />
+                      <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                        <Calendar className="w-4 h-4 text-gray-600" />
                       </div>
                       <span>
                         {new Date(project.start_date).toLocaleDateString()}
@@ -146,8 +146,8 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
                   )}
                   
                   <div className="flex items-center text-sm text-gray-600">
-                    <div className="p-1.5 rounded-full mr-2 bg-pink-50">
-                      <Clock className="w-4 h-4 text-pink-600" />
+                    <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                      <Clock className="w-4 h-4 text-gray-600" />
                     </div>
                     <span>
                       Updated {formatDistanceToNow(new Date(project.last_activity_date), {
