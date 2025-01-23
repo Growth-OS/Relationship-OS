@@ -110,8 +110,9 @@ const Projects = () => {
       </div>
 
       <Card className="p-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+        <div className="flex flex-col lg:flex-row justify-between items-stretch gap-6 mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-lg">
             <Button
               variant="ghost"
               size="sm"
@@ -162,8 +163,10 @@ const Projects = () => {
             </Button>
           </div>
 
-          <Tabs defaultValue="grid" className="w-full md:w-auto">
-            <TabsList className="grid w-full md:w-auto grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+            </div>
+          </div>
+          <Tabs defaultValue="grid" className="shrink-0">
+            <TabsList className="grid grid-cols-3 h-9 items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 min-w-[200px]">
               <TabsTrigger value="grid" className="rounded-md data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-sm">
                 <Grid className="w-4 h-4 mr-2" />
                 Grid
