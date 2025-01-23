@@ -8,6 +8,8 @@ import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { ProjectsList } from "@/components/projects/ProjectsList";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Briefcase, CheckCircle2, Clock, PauseCircle } from "lucide-react";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed" | "on_hold">("active");
@@ -19,12 +21,10 @@ const Projects = () => {
         .from("projects")
         .select("*");
 
-      // Add status filter if not "all"
       if (statusFilter !== "all") {
         query = query.eq("status", statusFilter);
       }
 
-      // Add ordering
       query = query.order("last_activity_date", { ascending: false });
 
       const { data, error } = await query;
@@ -39,16 +39,70 @@ const Projects = () => {
     },
   });
 
+  // Calculate project statistics
+  const totalProjects = projects.length;
+  const activeProjects = projects.filter(p => p.status === "active").length;
+  const completedProjects = projects.filter(p => p.status === "completed").length;
+  const onHoldProjects = projects.filter(p => p.status === "on_hold").length;
+
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="text-left">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Projects</h1>
-            <p className="text-muted-foreground">Manage and track your client projects</p>
-          </div>
-          <div className="flex gap-2">
-            <CreateProjectButton />
+      <div className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 p-8 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Projects
+                </h1>
+                <p className="text-muted-foreground">
+                  Manage and track your client projects
+                </p>
+              </div>
+              <CreateProjectButton />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <Briefcase className="w-5 h-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Projects</p>
+                    <p className="text-2xl font-bold">{totalProjects}</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-emerald-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active</p>
+                    <p className="text-2xl font-bold">{activeProjects}</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-purple-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Completed</p>
+                    <p className="text-2xl font-bold">{completedProjects}</p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
+                <div className="flex items-center gap-3">
+                  <PauseCircle className="w-5 h-5 text-amber-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">On Hold</p>
+                    <p className="text-2xl font-bold">{onHoldProjects}</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
