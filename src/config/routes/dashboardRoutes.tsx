@@ -5,7 +5,7 @@ import Projects from "@/pages/Projects";
 import Deals from "@/pages/Deals";
 import Prospects from "@/pages/Prospects";
 import OutreachCampaigns from "@/pages/OutreachCampaigns";
-import Timeline from "@/pages/Timeline";
+import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import Calendar from "@/pages/Calendar";
 import Reporting from "@/pages/Reporting";
 import Finances from "@/pages/Finances";
@@ -42,7 +42,7 @@ export const dashboardRoutes: RouteObject = {
     },
     {
       path: "quarterly-timeline",
-      element: <Timeline />,
+      element: <ProjectsQuarterlyTimeline />,
     },
     {
       path: "calendar",
