@@ -36,11 +36,6 @@ const Projects = () => {
     },
   });
 
-  // Calculate project statistics
-  const totalProjects = projects.length;
-  const activeProjects = projects.filter(p => p.status === "active").length;
-  const completedProjects = projects.filter(p => p.status === "completed").length;
-
   return (
     <div className="container mx-auto p-6 space-y-6 animate-fade-in">
       {/* Header Section */}
@@ -52,45 +47,6 @@ const Projects = () => {
           </p>
         </div>
         <CreateProjectButton />
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-blue-500">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <Briefcase className="w-5 h-5 text-blue-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Projects</p>
-              <p className="text-2xl font-bold">{totalProjects}</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-emerald-500">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-              <Clock className="w-5 h-5 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Active</p>
-              <p className="text-2xl font-bold">{activeProjects}</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-4 hover:shadow-md transition-shadow border-l-4 border-l-purple-500">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-              <CheckCircle2 className="w-5 h-5 text-purple-500" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Completed</p>
-              <p className="text-2xl font-bold">{completedProjects}</p>
-            </div>
-          </div>
-        </Card>
       </div>
 
       {/* Controls Section */}
