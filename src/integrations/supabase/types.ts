@@ -1013,6 +1013,45 @@ export type Database = {
           },
         ]
       }
+      project_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          file_path: string
+          file_type: string
+          id: string
+          is_favorite: boolean | null
+          last_used_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          file_path: string
+          file_type: string
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          file_path?: string
+          file_type?: string
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           budget: number | null
