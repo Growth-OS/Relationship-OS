@@ -34,6 +34,9 @@ type Earning = {
   date: string;
   amount: number;
   notes: string | null;
+  partner_id: string;
+  user_id: string;
+  created_at: string;
   affiliate_partners: {
     name: string;
   };
@@ -95,8 +98,8 @@ const Affiliates = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
+        <div className="flex justify-between items-center">
+          <div className="text-left">
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
               Affiliate Partners
             </h1>
@@ -119,7 +122,9 @@ const Affiliates = () => {
             </DialogContent>
           </Dialog>
         </div>
+      </Card>
 
+      <Card className="p-6">
         <StatsCards 
           totalPartners={partners?.length ?? 0}
           monthlyEarnings={monthlyEarnings}
