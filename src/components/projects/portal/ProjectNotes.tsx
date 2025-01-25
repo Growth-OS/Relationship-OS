@@ -149,9 +149,9 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
             )}
           </div>
 
-          <div className="space-y-4 max-w-2xl">
+          <div className="w-full">
             <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
-            <div className="flex justify-end">
+            <div className="flex justify-end mt-4">
               <Button onClick={handleAddNote} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Add Note
