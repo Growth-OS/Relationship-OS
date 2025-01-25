@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Grid, List } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateTemplateForm } from "@/components/templates/CreateTemplateForm";
@@ -37,42 +37,44 @@ const Templates = () => {
   }
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Templates</h1>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode('grid')}
-            className={viewMode === 'grid' ? 'bg-primary text-white' : ''}
-          >
-            <Grid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setViewMode('list')}
-            className={viewMode === 'list' ? 'bg-primary text-white' : ''}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Template
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Template</DialogTitle>
-              </DialogHeader>
-              <CreateTemplateForm onSuccess={handleSuccess} />
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+    <div className="space-y-6 p-6">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardTitle className="text-2xl font-bold">Templates</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              className={viewMode === 'grid' ? 'bg-primary text-white' : ''}
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className={viewMode === 'list' ? 'bg-primary text-white' : ''}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Template
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Template</DialogTitle>
+                </DialogHeader>
+                <CreateTemplateForm onSuccess={handleSuccess} />
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardHeader>
+      </Card>
 
       <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
         {templates?.map((template) => (
