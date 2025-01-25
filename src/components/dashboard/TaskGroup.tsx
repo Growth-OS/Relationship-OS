@@ -3,6 +3,7 @@ import { TaskCard } from "@/components/tasks/TaskCard";
 import { getSourceIcon } from "@/components/tasks/utils";
 import { TaskData, TaskSource } from "@/components/tasks/types";
 import { Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export interface TaskGroupProps {
   source: TaskSource;
@@ -17,22 +18,26 @@ export const TaskGroup = ({ source, tasks, onComplete, onUpdate }: TaskGroupProp
 
   // Sort tasks by due date (null dates at the end)
   const sortedTasks = [...tasks].sort((a, b) => {
-    // If either task doesn't have a due date, put it at the end
     if (!a.due_date) return 1;
     if (!b.due_date) return -1;
-    
-    // Compare dates
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Icon className="h-5 w-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold">{sourceTitle}</h3>
-        <span className="text-sm text-muted-foreground">({tasks.length})</span>
+    <Card className="p-6 bg-card">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold">{sourceTitle}</h3>
+          <Badge variant="secondary" className="ml-2">
+            {tasks.length}
+          </Badge>
+        </div>
       </div>
-      <div className="space-y-2">
+      
+      <div className="grid gap-4">
         {sortedTasks.map((task) => (
           <TaskCard
             key={task.id}
