@@ -1,9 +1,9 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProjectCredentials } from "./portal/ProjectCredentials";
-import { ProjectFiles } from "./portal/ProjectFiles";
-import { ProjectNotes } from "./portal/ProjectNotes";
-import { ProjectTasks } from "./portal/ProjectTasks";
+import { ProjectCredentials } from "./ProjectCredentials";
+import { ProjectFiles } from "./ProjectFiles";
+import { ProjectNotes } from "./ProjectNotes";
+import { ProjectTasks } from "./ProjectTasks";
 import { cn } from "@/lib/utils";
 
 interface Project {
