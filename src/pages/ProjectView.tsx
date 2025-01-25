@@ -8,7 +8,7 @@ import { ProjectCredentials } from "@/components/projects/portal/ProjectCredenti
 import { ProjectFiles } from "@/components/projects/portal/ProjectFiles";
 import { ProjectNotes } from "@/components/projects/portal/ProjectNotes";
 import { ProjectTasks } from "@/components/projects/portal/ProjectTasks";
-import { ArrowLeft, Table, LayoutDashboard, Timeline, Users, Plus, Filter, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Table, LayoutDashboard, CalendarRange, Users, Plus, Filter, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
@@ -128,7 +128,7 @@ const ProjectView = () => {
             Board
           </Button>
           <Button variant="ghost" size="sm">
-            <Timeline className="w-4 h-4 mr-2" />
+            <CalendarRange className="w-4 h-4 mr-2" />
             Timeline
           </Button>
         </div>
