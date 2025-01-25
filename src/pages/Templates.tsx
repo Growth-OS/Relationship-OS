@@ -155,7 +155,7 @@ const Templates = () => {
                         : 'Never used'}
                     </span>
                   </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="flex gap-2">
                     <Button 
                       variant="outline" 
                       size="sm"
