@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid, List, Download, Calendar } from "lucide-react";
+import { Plus, Grid, List, Download, Calendar, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -77,41 +77,53 @@ const Templates = () => {
         </CardHeader>
       </Card>
 
-      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
+      <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
         {templates?.map((template) => (
-          <Card key={template.id} className="group hover:shadow-md transition-all duration-200">
-            <CardContent className="p-5">
-              <div className="flex justify-between items-start mb-4">
-                <div className="space-y-1.5">
-                  <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">
-                    {template.title}
-                  </h3>
-                  {template.description && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-                      {template.description}
-                    </p>
+          <Card 
+            key={template.id} 
+            className="group hover:shadow-lg transition-all duration-200 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+          >
+            <CardContent className="p-6">
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1 flex-1">
+                    <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                      {template.title}
+                    </h3>
+                    {template.description && (
+                      <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                        {template.description}
+                      </p>
+                    )}
+                  </div>
+                  {template.category && (
+                    <div className="ml-4 flex-shrink-0">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Tag className="h-3 w-3" />
+                        {template.category}
+                      </Badge>
+                    </div>
                   )}
                 </div>
-                {template.category && (
-                  <Badge variant="secondary" className="ml-2 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                    {template.category}
-                  </Badge>
-                )}
-              </div>
-              
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-                <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {template.last_used_at 
-                      ? `Last used ${format(new Date(template.last_used_at), 'dd MMM yyyy')}`
-                      : 'Never used'}
-                  </span>
+
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                    <Calendar className="h-4 w-4 mr-2 opacity-70" />
+                    <span>
+                      {template.last_used_at 
+                        ? format(new Date(template.last_used_at), 'dd MMM yyyy')
+                        : 'Never used'}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  >
+                    <Download className="h-4 w-4 mr-1.5" />
+                    Download
+                  </Button>
                 </div>
-                <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download
-                </Button>
               </div>
             </CardContent>
           </Card>
