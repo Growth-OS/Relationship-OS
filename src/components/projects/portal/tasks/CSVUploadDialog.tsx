@@ -11,9 +11,11 @@ import { FormatGuidelines } from "./csv-upload/FormatGuidelines";
 interface CSVUploadDialogProps {
   projectId: string;
   onSuccess?: () => void;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export const CSVUploadDialog = ({ projectId, onSuccess }: CSVUploadDialogProps) => {
+export const CSVUploadDialog = ({ projectId, onSuccess, className, children }: CSVUploadDialogProps) => {
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -109,9 +111,13 @@ export const CSVUploadDialog = ({ projectId, onSuccess }: CSVUploadDialogProps) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Upload className="h-4 w-4 mr-2" />
-          Import Tasks
+        <Button variant="outline" size="sm" className={className}>
+          {children || (
+            <>
+              <Upload className="h-4 w-4 mr-2" />
+              Import Tasks
+            </>
+          )}
         </Button>
       </DialogTrigger>
       <DialogContent>
