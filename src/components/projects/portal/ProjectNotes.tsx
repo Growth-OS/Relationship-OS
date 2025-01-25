@@ -116,7 +116,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   );
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="w-full">
       <Card className="p-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -166,7 +166,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                 <p className="text-center">No notes yet. Add your first note above.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-4 p-2">
+              <div className="grid grid-cols-1 gap-4 p-2">
                 {paginatedNotes.map((note) => (
                   <Card
                     key={note.id}
@@ -206,7 +206,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                       </AlertDialog>
                     </div>
                     <div
-                      className="prose dark:prose-invert text-sm max-w-none line-clamp-4"
+                      className="prose dark:prose-invert text-sm max-w-none"
                       dangerouslySetInnerHTML={{ __html: note.message }}
                     />
                   </Card>

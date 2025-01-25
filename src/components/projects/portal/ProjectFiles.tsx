@@ -14,7 +14,7 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
   } = useProjectFiles(projectId);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="w-full space-y-6">
       <FileUploadZone 
         uploading={uploading} 
         onFileSelect={handleFileUpload}
