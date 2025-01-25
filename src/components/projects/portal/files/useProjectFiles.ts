@@ -35,16 +35,16 @@ export const useProjectFiles = (projectId: string) => {
       // Create a channel for upload progress
       const channel = supabase.channel('upload-progress');
       
-      channel.subscribe((status) => {
+      channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          const { error: uploadError } = supabase.storage
+          const uploadResult = await supabase.storage
             .from("project_files")
             .upload(filePath, file, {
               cacheControl: "3600",
               upsert: false
             });
 
-          if (uploadError) throw uploadError;
+          if (uploadResult.error) throw uploadResult.error;
         }
       });
 
