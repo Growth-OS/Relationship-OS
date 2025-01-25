@@ -38,9 +38,9 @@ export const useProjectFiles = (projectId: string) => {
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          onUploadProgress: (progress) => {
-            if (progress.totalBytes > 0) {
-              const percent = (progress.loaded / progress.totalBytes) * 100;
+          onUpload: (event) => {
+            if (event.totalBytes > 0) {
+              const percent = (event.bytesUploaded / event.totalBytes) * 100;
               setUploadProgress(Math.round(percent));
             }
           },
@@ -53,7 +53,7 @@ export const useProjectFiles = (projectId: string) => {
         project_id: projectId,
         title: file.name,
         file_path: filePath,
-        file_type: fileExt,
+        file_type: file.type,
         user_id: (await supabase.auth.getUser()).data.user?.id,
       });
 
