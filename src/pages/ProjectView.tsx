@@ -2,16 +2,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectDetails } from "@/components/projects/portal/ProjectDetails";
 import { ProjectCredentials } from "@/components/projects/portal/ProjectCredentials";
 import { ProjectFiles } from "@/components/projects/portal/ProjectFiles";
 import { ProjectNotes } from "@/components/projects/portal/ProjectNotes";
 import { ProjectTasks } from "@/components/projects/portal/ProjectTasks";
-import { ArrowLeft, Table, LayoutDashboard, CalendarRange, Users, Plus, Filter, SlidersHorizontal } from "lucide-react";
+import { ProjectStats } from "@/components/projects/ProjectStats";
+import { ArrowLeft, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
 
 const ProjectView = () => {
   const { projectId } = useParams();
@@ -70,94 +70,50 @@ const ProjectView = () => {
 
   const totalTasks = project.tasks?.length || 0;
   const completedTasks = project.tasks?.filter(task => task.completed)?.length || 0;
-  const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+  const totalDocuments = project.project_documents?.length || 0;
 
   return (
-    <div className="container mx-auto p-6 max-w-[1400px]">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
+    <div className="container mx-auto p-6 space-y-6 max-w-7xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate("/dashboard/projects")}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Back to Projects
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">{project.name}</h1>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span>{project.client_name}</span>
-              <span>•</span>
-              <div className="flex items-center gap-1">
-                <Progress value={progress} className="w-20 h-2" />
-                <span>{Math.round(progress)}% Complete</span>
-              </div>
+          <Separator orientation="vertical" className="h-6" />
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-gray-100">
+              <Briefcase className="w-4 h-4 text-gray-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold">{project.name}</h1>
+              <p className="text-sm text-gray-600">{project.client_name}</p>
             </div>
           </div>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="flex -space-x-2">
-            <Avatar className="border-2 border-white">
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <Avatar className="border-2 border-white">
-              <AvatarFallback>AB</AvatarFallback>
-            </Avatar>
-            <Avatar className="border-2 border-white">
-              <AvatarFallback>YZ</AvatarFallback>
-            </Avatar>
-            <Button size="sm" variant="outline" className="ml-2">
-              <Plus className="w-4 h-4 mr-1" /> Add Member
-            </Button>
-          </div>
-        </div>
       </div>
 
-      {/* View Controls */}
-      <div className="flex items-center justify-between mb-6 bg-gray-50/50 p-2 rounded-lg">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <Table className="w-4 h-4 mr-2" />
-            Table
-          </Button>
-          <Button variant="ghost" size="sm">
-            <LayoutDashboard className="w-4 h-4 mr-2" />
-            Board
-          </Button>
-          <Button variant="ghost" size="sm">
-            <CalendarRange className="w-4 h-4 mr-2" />
-            Timeline
-          </Button>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <SlidersHorizontal className="w-4 h-4 mr-2" />
-            Sort
-          </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Task
-          </Button>
-        </div>
-      </div>
+      <ProjectStats 
+        project={{
+          ...project,
+          totalTasks,
+          completedTasks,
+          totalDocuments
+        }} 
+      />
 
-      {/* Main Content */}
-      <Tabs defaultValue="tasks" className="flex-1">
-        <TabsList className="w-full justify-start gap-2 h-auto p-1 bg-gray-100/50 rounded-lg mb-6">
+      <Tabs defaultValue="details" className="flex-1">
+        <TabsList className="w-full justify-start gap-2 h-auto p-1 bg-gray-100/50 rounded-lg">
           {[
-            { value: "tasks", label: "Tasks" },
             { value: "details", label: "Details" },
             { value: "credentials", label: "Credentials" },
             { value: "files", label: "Files" },
-            { value: "notes", label: "Notes" }
+            { value: "notes", label: "Notes" },
+            { value: "tasks", label: "Tasks" }
           ].map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -174,21 +130,21 @@ const ProjectView = () => {
           ))}
         </TabsList>
 
-        <div className="bg-white rounded-lg border">
-          <TabsContent value="tasks" className="m-0">
-            <ProjectTasks projectId={project.id} />
-          </TabsContent>
-          <TabsContent value="details" className="m-0">
+        <div className="mt-6">
+          <TabsContent value="details">
             <ProjectDetails project={project} onClose={() => navigate("/dashboard/projects")} />
           </TabsContent>
-          <TabsContent value="credentials" className="m-0">
+          <TabsContent value="credentials">
             <ProjectCredentials projectId={project.id} />
           </TabsContent>
-          <TabsContent value="files" className="m-0">
+          <TabsContent value="files">
             <ProjectFiles projectId={project.id} />
           </TabsContent>
-          <TabsContent value="notes" className="m-0">
+          <TabsContent value="notes">
             <ProjectNotes projectId={project.id} />
+          </TabsContent>
+          <TabsContent value="tasks">
+            <ProjectTasks projectId={project.id} />
           </TabsContent>
         </div>
       </Tabs>

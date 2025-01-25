@@ -2,9 +2,7 @@ import { Card } from "@/components/ui/card";
 import { TaskCard } from "@/components/tasks/TaskCard";
 import { getSourceIcon } from "@/components/tasks/utils";
 import { TaskData, TaskSource } from "@/components/tasks/types";
-import { Users, ChevronDown, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Users } from "lucide-react";
 
 export interface TaskGroupProps {
   source: TaskSource;
@@ -19,28 +17,21 @@ export const TaskGroup = ({ source, tasks, onComplete, onUpdate }: TaskGroupProp
 
   // Sort tasks by due date (null dates at the end)
   const sortedTasks = [...tasks].sort((a, b) => {
+    // If either task doesn't have a due date, put it at the end
     if (!a.due_date) return 1;
     if (!b.due_date) return -1;
+    
+    // Compare dates
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
 
   return (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" className="text-gray-600">
-            <ChevronDown className="w-4 h-4 mr-2" />
-            {sourceTitle}
-            <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-              {tasks.length}
-            </span>
-          </Button>
-        </div>
-        <Button size="sm" variant="ghost">
-          <Plus className="w-4 h-4" />
-        </Button>
+    <Card className="p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+        <h3 className="text-lg font-semibold">{sourceTitle}</h3>
+        <span className="text-sm text-muted-foreground">({tasks.length})</span>
       </div>
-      
       <div className="space-y-2">
         {sortedTasks.map((task) => (
           <TaskCard
@@ -51,6 +42,6 @@ export const TaskGroup = ({ source, tasks, onComplete, onUpdate }: TaskGroupProp
           />
         ))}
       </div>
-    </div>
+    </Card>
   );
 };
