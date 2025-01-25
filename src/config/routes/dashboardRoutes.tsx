@@ -2,6 +2,7 @@ import { RouteObject } from "react-router-dom";
 import Dashboard from "@/pages/Dashboard";
 import Templates from "@/pages/Templates";
 import Projects from "@/pages/Projects";
+import ProjectView from "@/pages/ProjectView";
 import Deals from "@/pages/Deals";
 import Prospects from "@/pages/Prospects";
 import OutreachCampaigns from "@/pages/OutreachCampaigns";
@@ -27,6 +28,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "projects",
       element: <Projects />,
+    },
+    {
+      path: "projects/:projectId",
+      element: <ProjectView />,
     },
     {
       path: "deals",
