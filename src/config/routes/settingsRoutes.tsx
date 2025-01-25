@@ -14,16 +14,16 @@ export const settingsRoutes: RouteObject = {
   ),
   children: [
     {
-      path: "backup",
-      element: <BackupSettings />,
+      path: "profile",
+      element: <ProfileSettings />,
     },
     {
       path: "branding",
       element: <BrandingSettings />,
     },
     {
-      path: "profile",
-      element: <ProfileSettings />,
+      path: "backup",
+      element: <BackupSettings />,
     },
   ],
 };

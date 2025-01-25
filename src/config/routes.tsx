@@ -2,11 +2,16 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { dashboardRoutes } from "./routes/dashboardRoutes";
 import { settingsRoutes } from "./routes/settingsRoutes";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: (
+      <AuthProvider>
+        <Layout />
+      </AuthProvider>
+    ),
     children: [
       {
         index: true,
