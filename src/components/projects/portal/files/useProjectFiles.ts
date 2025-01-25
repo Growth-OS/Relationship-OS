@@ -38,10 +38,9 @@ export const useProjectFiles = (projectId: string) => {
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          // Use a progress callback to track upload progress
-          onUpload: (progress) => {
+          onProgress: (progress) => {
             if (progress.totalBytes > 0) {
-              const percent = (progress.bytesUploaded / progress.totalBytes) * 100;
+              const percent = (progress.loaded / progress.totalBytes) * 100;
               setUploadProgress(Math.round(percent));
             }
           },
@@ -55,6 +54,7 @@ export const useProjectFiles = (projectId: string) => {
         title: file.name,
         file_path: filePath,
         file_type: fileExt,
+        user_id: (await supabase.auth.getUser()).data.user?.id,
       });
 
       if (dbError) throw dbError;
@@ -78,18 +78,18 @@ export const useProjectFiles = (projectId: string) => {
     }
   };
 
-  const handleDownload = async (filePath: string, fileName: string) => {
+  const handleDownload = async (file: any) => {
     try {
       const { data, error } = await supabase.storage
         .from("project_files")
-        .download(filePath);
+        .download(file.file_path);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName;
+      a.download = file.title;
       a.click();
       URL.revokeObjectURL(url);
     } catch (error: any) {
