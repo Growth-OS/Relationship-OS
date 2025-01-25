@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 export const useProjectFiles = (projectId: string) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const { data: files = [], refetch } = useQuery({
+  const { data: files = [] } = useQuery({
     queryKey: ["project-files", projectId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -23,121 +25,113 @@ export const useProjectFiles = (projectId: string) => {
 
   const handleFileUpload = async (file: File) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user");
-
       setUploading(true);
       setUploadProgress(0);
 
-      const { data: document, error: dbError } = await supabase
-        .from("project_documents")
-        .insert({
-          project_id: projectId,
-          user_id: user.id,
-          title: file.name,
-          file_path: '',
-          file_type: file.type,
-        })
-        .select()
-        .single();
-
-      if (dbError) {
-        throw new Error(`Database record creation failed: ${dbError.message}`);
-      }
-
-      const timestamp = new Date().getTime();
-      const randomString = Math.random().toString(36).substring(2);
       const fileExt = file.name.split(".").pop();
-      const filePath = `${projectId}/${timestamp}-${randomString}.${fileExt}`;
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${projectId}/${fileName}`;
 
+      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from("project_files")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          onProgress: (progress) => {
-            const percentage = (progress.loaded / progress.total) * 100;
-            setUploadProgress(Math.round(percentage));
+          // Use a progress callback to track upload progress
+          onUpload: (progress) => {
+            if (progress.totalBytes > 0) {
+              const percent = (progress.bytesUploaded / progress.totalBytes) * 100;
+              setUploadProgress(Math.round(percent));
+            }
           },
         });
 
-      if (uploadError) {
-        await supabase
-          .from("project_documents")
-          .delete()
-          .eq("id", document.id);
-        throw new Error(`Storage upload failed: ${uploadError.message}`);
-      }
+      if (uploadError) throw uploadError;
 
-      const { error: updateError } = await supabase
-        .from("project_documents")
-        .update({ file_path: filePath })
-        .eq("id", document.id);
+      // Create document record in database
+      const { error: dbError } = await supabase.from("project_documents").insert({
+        project_id: projectId,
+        title: file.name,
+        file_path: filePath,
+        file_type: fileExt,
+      });
 
-      if (updateError) {
-        await supabase.storage
-          .from("project_files")
-          .remove([filePath]);
-        await supabase
-          .from("project_documents")
-          .delete()
-          .eq("id", document.id);
-        throw new Error(`Database update failed: ${updateError.message}`);
-      }
+      if (dbError) throw dbError;
 
-      toast.success("File uploaded successfully");
-      refetch();
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ["project-files"] });
+
+      toast({
+        title: "Success",
+        description: "File uploaded successfully",
+      });
+    } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to upload file");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload file",
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
       setUploadProgress(0);
     }
   };
 
-  const handleDownload = async (file: any) => {
+  const handleDownload = async (filePath: string, fileName: string) => {
     try {
       const { data, error } = await supabase.storage
         .from("project_files")
-        .download(file.file_path);
+        .download(filePath);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
       const a = document.createElement("a");
       a.href = url;
-      a.download = file.title;
-      document.body.appendChild(a);
+      a.download = fileName;
       a.click();
-      document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error downloading file:", error);
-      toast.error("Failed to download file");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to download file",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleDelete = async (fileId: string, filePath: string) => {
+  const handleDelete = async (id: string, filePath: string) => {
     try {
-      const { error: dbError } = await supabase
-        .from("project_documents")
-        .delete()
-        .eq("id", fileId);
-
-      if (dbError) throw dbError;
-
+      // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from("project_files")
         .remove([filePath]);
 
       if (storageError) throw storageError;
 
-      toast.success("File deleted successfully");
-      refetch();
-    } catch (error) {
+      // Delete record from database
+      const { error: dbError } = await supabase
+        .from("project_documents")
+        .delete()
+        .eq("id", id);
+
+      if (dbError) throw dbError;
+
+      queryClient.invalidateQueries({ queryKey: ["project-files"] });
+
+      toast({
+        title: "Success",
+        description: "File deleted successfully",
+      });
+    } catch (error: any) {
       console.error("Error deleting file:", error);
-      toast.error("Failed to delete file");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete file",
+        variant: "destructive",
+      });
     }
   };
 

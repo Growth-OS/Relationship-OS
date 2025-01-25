@@ -19,7 +19,6 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Header Section */}
       <Card className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -46,7 +45,6 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
 
         <Separator className="my-6" />
 
-        {/* Tasks List Section */}
         <div className="space-y-6">
           <TaskList 
             sourceId={projectId} 
