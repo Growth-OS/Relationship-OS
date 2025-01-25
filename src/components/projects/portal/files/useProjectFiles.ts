@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 export const useProjectFiles = (projectId: string) => {
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const { data: files = [], refetch } = useQuery({
     queryKey: ["project-files", projectId],
@@ -20,15 +21,13 @@ export const useProjectFiles = (projectId: string) => {
     },
   });
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (file: File) => {
     try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user");
 
       setUploading(true);
+      setUploadProgress(0);
 
       const { data: document, error: dbError } = await supabase
         .from("project_documents")
@@ -55,7 +54,11 @@ export const useProjectFiles = (projectId: string) => {
         .from("project_files")
         .upload(filePath, file, {
           cacheControl: "3600",
-          upsert: false
+          upsert: false,
+          onUploadProgress: (progress) => {
+            const percentage = (progress.loaded / progress.total) * 100;
+            setUploadProgress(Math.round(percentage));
+          },
         });
 
       if (uploadError) {
@@ -89,9 +92,7 @@ export const useProjectFiles = (projectId: string) => {
       toast.error(error instanceof Error ? error.message : "Failed to upload file");
     } finally {
       setUploading(false);
-      if (event.target) {
-        event.target.value = '';
-      }
+      setUploadProgress(0);
     }
   };
 
@@ -143,6 +144,7 @@ export const useProjectFiles = (projectId: string) => {
   return {
     files,
     uploading,
+    uploadProgress,
     handleFileUpload,
     handleDownload,
     handleDelete,
