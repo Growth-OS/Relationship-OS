@@ -32,14 +32,32 @@ export const useProjectFiles = (projectId: string) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${projectId}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("project_files")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false
-        });
+      // Create a channel for upload progress
+      const channel = supabase.channel('upload-progress');
+      
+      channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          const { error: uploadError } = supabase.storage
+            .from("project_files")
+            .upload(filePath, file, {
+              cacheControl: "3600",
+              upsert: false
+            });
 
-      if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
+        }
+      });
+
+      // Simulate progress since we can't get real progress
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 10;
+        });
+      }, 500);
 
       const { error: dbError } = await supabase.from("project_documents").insert({
         project_id: projectId,
@@ -51,6 +69,10 @@ export const useProjectFiles = (projectId: string) => {
 
       if (dbError) throw dbError;
 
+      // Clean up
+      clearInterval(interval);
+      setUploadProgress(100);
+      
       queryClient.invalidateQueries({ queryKey: ["project-files"] });
 
       toast({
