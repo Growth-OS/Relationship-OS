@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Plus, Grid, List } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { CreateTemplateForm } from "@/components/templates/CreateTemplateForm";
+import { toast } from "sonner";
 
 const Templates = () => {
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
+  const [open, setOpen] = React.useState(false);
 
-  const { data: templates, isLoading } = useQuery({
+  const { data: templates, isLoading, refetch } = useQuery({
     queryKey: ['templates'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -21,6 +25,12 @@ const Templates = () => {
       return data;
     },
   });
+
+  const handleSuccess = () => {
+    setOpen(false);
+    refetch();
+    toast.success("Template created successfully");
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -47,10 +57,20 @@ const Templates = () => {
           >
             <List className="h-4 w-4" />
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Template
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Template
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Template</DialogTitle>
+              </DialogHeader>
+              <CreateTemplateForm onSuccess={handleSuccess} />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
