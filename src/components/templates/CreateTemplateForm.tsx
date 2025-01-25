@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Upload } from "lucide-react";
 
 interface CreateTemplateFormData {
   title: string;
@@ -21,7 +22,6 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
 
   const onSubmit = async (data: CreateTemplateFormData) => {
     try {
-      // Get the current user's session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
@@ -55,7 +55,7 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
           description: data.description,
           file_path: fileName,
           file_type: file.type,
-          user_id: session.user.id // Add the user_id from the session
+          user_id: session.user.id
         });
 
       if (dbError) throw dbError;
@@ -106,11 +106,29 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
             <FormItem>
               <FormLabel>Template File</FormLabel>
               <FormControl>
-                <Input
-                  type="file"
-                  onChange={(e) => onChange(e.target.files)}
-                  {...field}
-                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="relative"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Choose File
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => onChange(e.target.files)}
+                      {...field}
+                    />
+                  </Button>
+                  {value && value[0] && (
+                    <span className="text-sm text-muted-foreground">
+                      {value[0].name}
+                    </span>
+                  )}
+                </div>
               </FormControl>
             </FormItem>
           )}
