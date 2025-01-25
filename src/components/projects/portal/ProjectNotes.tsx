@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2, ChevronLeft, ChevronRight, StickyNote } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight, StickyNote, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 
@@ -118,108 +117,105 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <Card className="p-6 shadow-md">
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
-            <StickyNote className="h-5 w-5 text-primary" />
-            Add New Note
-          </h3>
-          <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
-          <div className="flex justify-end">
-            <Button onClick={handleAddNote} className="px-6">
-              Add Note
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
-            <StickyNote className="h-5 w-5 text-primary" />
-            Project Notes
-          </h3>
-          {totalPages > 1 && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <ScrollArea className="h-[600px] rounded-md border bg-card">
-          <div className="space-y-4 p-4">
-            {paginatedNotes.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <StickyNote className="h-12 w-12 mb-4 text-muted-foreground/50" />
-                <p className="text-center">No notes yet. Add your first note above.</p>
-              </div>
-            ) : (
-              paginatedNotes.map((note) => (
-                <Card
-                  key={note.id}
-                  className="p-6 space-y-3 transition-all hover:shadow-md"
+      <Card className="p-6">
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
+              <StickyNote className="h-5 w-5 text-primary" />
+              Project Notes
+            </h3>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground font-medium">
-                      {format(new Date(note.created_at), "MMMM d, yyyy 'at' h:mm a")}
-                    </span>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="hover:bg-destructive/10 h-8 w-8 p-0"
-                        >
-                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Note</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this note? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteNote(note.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                  <div
-                    className="prose dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: note.message }}
-                  />
-                </Card>
-              ))
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             )}
           </div>
-        </ScrollArea>
-      </div>
+
+          <div className="space-y-4">
+            <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
+            <div className="flex justify-end">
+              <Button onClick={handleAddNote} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Note
+              </Button>
+            </div>
+          </div>
+
+          <ScrollArea className="h-[500px] rounded-md">
+            <div className="space-y-4">
+              {paginatedNotes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <StickyNote className="h-12 w-12 mb-4 text-muted-foreground/50" />
+                  <p className="text-center">No notes yet. Add your first note above.</p>
+                </div>
+              ) : (
+                paginatedNotes.map((note) => (
+                  <Card
+                    key={note.id}
+                    className="p-6 space-y-3 transition-all hover:shadow-md"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground font-medium">
+                        {format(new Date(note.created_at), "MMMM d, yyyy 'at' h:mm a")}
+                      </span>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="hover:bg-destructive/10 h-8 w-8 p-0"
+                          >
+                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this note? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                    <div
+                      className="prose dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: note.message }}
+                    />
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+      </Card>
     </div>
   );
 };
