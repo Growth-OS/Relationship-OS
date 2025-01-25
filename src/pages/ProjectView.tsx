@@ -9,6 +9,7 @@ import { ProjectCredentials } from "@/components/projects/portal/ProjectCredenti
 import { ProjectFiles } from "@/components/projects/portal/ProjectFiles";
 import { ProjectNotes } from "@/components/projects/portal/ProjectNotes";
 import { ProjectTasks } from "@/components/projects/portal/ProjectTasks";
+import { ProjectStats } from "@/components/projects/ProjectStats";
 import { ArrowLeft, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,17 @@ const ProjectView = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
-        .select("*")
+        .select(`
+          *,
+          tasks (
+            id,
+            title,
+            completed
+          ),
+          project_documents (
+            id
+          )
+        `)
         .eq("id", projectId)
         .single();
 
@@ -57,6 +68,10 @@ const ProjectView = () => {
     );
   }
 
+  const totalTasks = project.tasks?.length || 0;
+  const completedTasks = project.tasks?.filter(task => task.completed)?.length || 0;
+  const totalDocuments = project.project_documents?.length || 0;
+
   return (
     <div className="container mx-auto p-6 space-y-6 max-w-7xl">
       <div className="flex items-center justify-between">
@@ -81,6 +96,15 @@ const ProjectView = () => {
           </div>
         </div>
       </div>
+
+      <ProjectStats 
+        project={{
+          ...project,
+          totalTasks,
+          completedTasks,
+          totalDocuments
+        }} 
+      />
 
       <Tabs defaultValue="details" className="flex-1">
         <TabsList className="w-full justify-start gap-2 h-auto p-1 bg-gray-100/50 rounded-lg">

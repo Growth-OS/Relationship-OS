@@ -1,71 +1,76 @@
 import { Card } from "@/components/ui/card";
-import { Clock, CheckCircle, AlertCircle, DollarSign } from "lucide-react";
-
-interface Project {
-  id: string;
-  status: string;
-  budget?: number;
-}
+import { Building2, ListTodo, Receipt, Clock } from "lucide-react";
 
 interface ProjectStatsProps {
-  projects: Project[];
+  project: {
+    id: string;
+    name: string;
+    status: string;
+    budget?: number;
+    start_date?: string;
+    end_date?: string;
+    totalTasks: number;
+    completedTasks: number;
+    totalDocuments: number;
+  };
 }
 
-export const ProjectStats = ({ projects }: ProjectStatsProps) => {
-  const activeProjects = projects.filter((p) => p.status === "active").length;
-  const completedProjects = projects.filter((p) => p.status === "completed").length;
-  const onHoldProjects = projects.filter((p) => p.status === "on_hold").length;
-  const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
+export const ProjectStats = ({ project }: ProjectStatsProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20";
+      case "completed":
+        return "text-blue-500 bg-blue-50 dark:bg-blue-900/20";
+      case "on_hold":
+        return "text-amber-500 bg-amber-50 dark:bg-amber-900/20";
+      default:
+        return "text-gray-500 bg-gray-50 dark:bg-gray-900/20";
+    }
+  };
+
+  const stats = [
+    {
+      title: "Project Status",
+      value: project.status?.charAt(0).toUpperCase() + project.status?.slice(1) || "Not Set",
+      icon: Clock,
+      color: getStatusColor(project.status),
+    },
+    {
+      title: "Budget",
+      value: project.budget ? `€${project.budget.toLocaleString()}` : "Not Set",
+      icon: Building2,
+      color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20",
+    },
+    {
+      title: "Tasks Progress",
+      value: `${project.completedTasks}/${project.totalTasks}`,
+      icon: ListTodo,
+      color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
+    },
+    {
+      title: "Documents",
+      value: project.totalDocuments.toString(),
+      icon: Receipt,
+      color: "text-orange-500 bg-orange-50 dark:bg-orange-900/20",
+    },
+  ];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <Card className="p-6 hover:shadow-md transition-shadow">
-        <div className="flex items-center space-x-4">
-          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-            <Clock className="h-6 w-6 text-blue-500 dark:text-blue-400" />
+      {stats.map((stat, index) => (
+        <Card key={index} className="p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center space-x-4">
+            <div className={`p-2 rounded-full ${stat.color}`}>
+              <stat.icon className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+              <h3 className="text-2xl font-bold">{stat.value}</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
-            <h3 className="text-2xl font-bold">{activeProjects}</h3>
-          </div>
-        </div>
-      </Card>
-      
-      <Card className="p-6 hover:shadow-md transition-shadow">
-        <div className="flex items-center space-x-4">
-          <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-full">
-            <CheckCircle className="h-6 w-6 text-green-500 dark:text-green-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Completed</p>
-            <h3 className="text-2xl font-bold">{completedProjects}</h3>
-          </div>
-        </div>
-      </Card>
-      
-      <Card className="p-6 hover:shadow-md transition-shadow">
-        <div className="flex items-center space-x-4">
-          <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-full">
-            <AlertCircle className="h-6 w-6 text-yellow-500 dark:text-yellow-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">On Hold</p>
-            <h3 className="text-2xl font-bold">{onHoldProjects}</h3>
-          </div>
-        </div>
-      </Card>
-      
-      <Card className="p-6 hover:shadow-md transition-shadow">
-        <div className="flex items-center space-x-4">
-          <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-full">
-            <DollarSign className="h-6 w-6 text-purple-500 dark:text-purple-400" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Total Budget</p>
-            <h3 className="text-2xl font-bold">€{totalBudget.toLocaleString()}</h3>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      ))}
     </div>
   );
 };
