@@ -6,7 +6,7 @@ import BrandingSettings from "@/pages/BrandingSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
 
 export const settingsRoutes: RouteObject = {
-  path: "dashboard/settings",
+  path: "settings",
   element: (
     <ProtectedRoute>
       <SettingsLayout />
