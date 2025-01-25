@@ -2,12 +2,13 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid, List } from "lucide-react";
+import { Plus, Grid, List, Download, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateTemplateForm } from "@/components/templates/CreateTemplateForm";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const Templates = () => {
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
@@ -78,24 +79,41 @@ const Templates = () => {
 
       <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
         {templates?.map((template) => (
-          <Card key={template.id} className="p-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold">{template.title}</h3>
-                {template.description && (
-                  <p className="text-sm text-gray-500 mt-1">{template.description}</p>
+          <Card key={template.id} className="group hover:shadow-md transition-all duration-200">
+            <CardContent className="p-5">
+              <div className="flex justify-between items-start mb-4">
+                <div className="space-y-1.5">
+                  <h3 className="font-semibold text-lg text-slate-900 dark:text-slate-100">
+                    {template.title}
+                  </h3>
+                  {template.description && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
+                      {template.description}
+                    </p>
+                  )}
+                </div>
+                {template.category && (
+                  <Badge variant="secondary" className="ml-2 bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    {template.category}
+                  </Badge>
                 )}
               </div>
-              {template.category && (
-                <Badge variant="secondary">{template.category}</Badge>
-              )}
-            </div>
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-sm text-gray-500">
-                Last used: {template.last_used_at ? new Date(template.last_used_at).toLocaleDateString() : 'Never'}
-              </span>
-              <Button variant="outline" size="sm">Download</Button>
-            </div>
+              
+              <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
+                  <Calendar className="h-4 w-4" />
+                  <span>
+                    {template.last_used_at 
+                      ? `Last used ${format(new Date(template.last_used_at), 'dd MMM yyyy')}`
+                      : 'Never used'}
+                  </span>
+                </div>
+                <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         ))}
       </div>
