@@ -32,15 +32,14 @@ export const useProjectFiles = (projectId: string) => {
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${projectId}/${fileName}`;
 
-      // Upload file to storage
       const { error: uploadError } = await supabase.storage
         .from("project_files")
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          onUpload: (event) => {
-            if (event.totalBytes > 0) {
-              const percent = (event.bytesUploaded / event.totalBytes) * 100;
+          onProgress: (progress) => {
+            if (progress.totalBytes > 0) {
+              const percent = (progress.bytesUploaded / progress.totalBytes) * 100;
               setUploadProgress(Math.round(percent));
             }
           },
@@ -48,7 +47,6 @@ export const useProjectFiles = (projectId: string) => {
 
       if (uploadError) throw uploadError;
 
-      // Create document record in database
       const { error: dbError } = await supabase.from("project_documents").insert({
         project_id: projectId,
         title: file.name,
@@ -104,14 +102,12 @@ export const useProjectFiles = (projectId: string) => {
 
   const handleDelete = async (id: string, filePath: string) => {
     try {
-      // Delete file from storage
       const { error: storageError } = await supabase.storage
         .from("project_files")
         .remove([filePath]);
 
       if (storageError) throw storageError;
 
-      // Delete record from database
       const { error: dbError } = await supabase
         .from("project_documents")
         .delete()
