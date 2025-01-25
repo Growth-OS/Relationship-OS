@@ -2,17 +2,19 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid, List, ExternalLink, Calendar, Tag } from "lucide-react";
+import { Plus, Grid, List, ExternalLink, Calendar, Tag, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateTemplateForm } from "@/components/templates/CreateTemplateForm";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const Templates = () => {
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [open, setOpen] = React.useState(false);
+  const [editingTemplate, setEditingTemplate] = React.useState<any>(null);
 
   const { data: templates, isLoading, refetch } = useQuery({
     queryKey: ['templates'],
@@ -29,8 +31,9 @@ const Templates = () => {
 
   const handleSuccess = () => {
     setOpen(false);
+    setEditingTemplate(null);
     refetch();
-    toast.success("Template created successfully");
+    toast.success("Template updated successfully");
   };
 
   const handleOpenDoc = async (template: any) => {
@@ -50,6 +53,23 @@ const Templates = () => {
     } catch (error) {
       console.error('Error opening template:', error);
       toast.error("Failed to open template");
+    }
+  };
+
+  const handleDelete = async (templateId: string) => {
+    try {
+      const { error } = await supabase
+        .from('project_templates')
+        .delete()
+        .eq('id', templateId);
+
+      if (error) throw error;
+
+      toast.success("Template deleted successfully");
+      refetch();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      toast.error("Failed to delete template");
     }
   };
 
@@ -88,9 +108,9 @@ const Templates = () => {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Create New Template</DialogTitle>
+                  <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
                 </DialogHeader>
-                <CreateTemplateForm onSuccess={handleSuccess} />
+                <CreateTemplateForm onSuccess={handleSuccess} initialData={editingTemplate} />
               </DialogContent>
             </Dialog>
           </div>
@@ -135,15 +155,50 @@ const Templates = () => {
                         : 'Never used'}
                     </span>
                   </div>
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    onClick={() => handleOpenDoc(template)}
-                  >
-                    <ExternalLink className="h-4 w-4 mr-1.5" />
-                    Open Doc
-                  </Button>
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setEditingTemplate(template);
+                        setOpen(true);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Template</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this template? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(template.id)}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    <Button 
+                      variant="secondary" 
+                      size="sm"
+                      onClick={() => handleOpenDoc(template)}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1.5" />
+                      Open Doc
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

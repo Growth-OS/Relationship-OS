@@ -14,10 +14,17 @@ interface CreateTemplateFormData {
 
 interface CreateTemplateFormProps {
   onSuccess: () => void;
+  initialData?: CreateTemplateFormData & { id: string } | null;
 }
 
-export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
-  const form = useForm<CreateTemplateFormData>();
+export const CreateTemplateForm = ({ onSuccess, initialData }: CreateTemplateFormProps) => {
+  const form = useForm<CreateTemplateFormData>({
+    defaultValues: initialData || {
+      title: '',
+      description: '',
+      google_docs_url: '',
+    },
+  });
 
   const onSubmit = async (data: CreateTemplateFormData) => {
     try {
@@ -28,22 +35,37 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
         return;
       }
 
-      const { error: dbError } = await supabase
-        .from('project_templates')
-        .insert({
-          title: data.title,
-          description: data.description,
-          google_docs_url: data.google_docs_url,
-          user_id: session.user.id
-        });
+      if (initialData?.id) {
+        // Update existing template
+        const { error: dbError } = await supabase
+          .from('project_templates')
+          .update({
+            title: data.title,
+            description: data.description,
+            google_docs_url: data.google_docs_url,
+          })
+          .eq('id', initialData.id);
 
-      if (dbError) throw dbError;
+        if (dbError) throw dbError;
+      } else {
+        // Create new template
+        const { error: dbError } = await supabase
+          .from('project_templates')
+          .insert({
+            title: data.title,
+            description: data.description,
+            google_docs_url: data.google_docs_url,
+            user_id: session.user.id
+          });
 
-      toast.success("Template created successfully");
+        if (dbError) throw dbError;
+      }
+
+      toast.success(initialData ? "Template updated successfully" : "Template created successfully");
       onSuccess();
     } catch (error) {
-      console.error('Error creating template:', error);
-      toast.error("Failed to create template");
+      console.error('Error saving template:', error);
+      toast.error("Failed to save template");
     }
   };
 
@@ -95,7 +117,7 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
           )}
         />
         <Button type="submit" className="w-full">
-          Create Template
+          {initialData ? 'Update Template' : 'Create Template'}
         </Button>
       </form>
     </Form>
