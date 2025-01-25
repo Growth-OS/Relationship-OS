@@ -1018,8 +1018,7 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
-          file_path: string
-          file_type: string
+          google_docs_url: string | null
           id: string
           is_favorite: boolean | null
           last_used_at: string | null
@@ -1030,8 +1029,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
-          file_path: string
-          file_type: string
+          google_docs_url?: string | null
           id?: string
           is_favorite?: boolean | null
           last_used_at?: string | null
@@ -1042,8 +1040,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
-          file_path?: string
-          file_type?: string
+          google_docs_url?: string | null
           id?: string
           is_favorite?: boolean | null
           last_used_at?: string | null

@@ -5,12 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
 
 interface CreateTemplateFormData {
   title: string;
   description: string;
-  file: FileList;
+  google_docs_url: string;
 }
 
 interface CreateTemplateFormProps {
@@ -29,32 +28,12 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
         return;
       }
 
-      const file = data.file[0];
-      if (!file) {
-        toast.error("Please select a file");
-        return;
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('templates')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('templates')
-        .getPublicUrl(fileName);
-
       const { error: dbError } = await supabase
         .from('project_templates')
         .insert({
           title: data.title,
           description: data.description,
-          file_path: fileName,
-          file_type: file.type,
+          google_docs_url: data.google_docs_url,
           user_id: session.user.id
         });
 
@@ -101,34 +80,16 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
         />
         <FormField
           control={form.control}
-          name="file"
-          render={({ field: { onChange, value, ...field } }) => (
+          name="google_docs_url"
+          render={({ field }) => (
             <FormItem>
-              <FormLabel>Template File</FormLabel>
+              <FormLabel>Google Docs URL</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="relative"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose File
-                    <input
-                      id="file-upload"
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => onChange(e.target.files)}
-                      {...field}
-                    />
-                  </Button>
-                  {value && value[0] && (
-                    <span className="text-sm text-muted-foreground">
-                      {value[0].name}
-                    </span>
-                  )}
-                </div>
+                <Input 
+                  placeholder="Enter Google Docs URL" 
+                  type="url"
+                  {...field}
+                />
               </FormControl>
             </FormItem>
           )}

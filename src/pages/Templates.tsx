@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Plus, Grid, List, Download, Calendar, Tag } from "lucide-react";
+import { Plus, Grid, List, ExternalLink, Calendar, Tag } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -33,28 +33,9 @@ const Templates = () => {
     toast.success("Template created successfully");
   };
 
-  const handleDownload = async (template: any) => {
+  const handleOpenDoc = async (template: any) => {
     try {
-      const { data, error } = await supabase
-        .storage
-        .from('templates')
-        .download(template.file_path);
-
-      if (error) {
-        throw error;
-      }
-
-      // Create a download link and trigger it
-      const url = window.URL.createObjectURL(data);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = template.title + '.' + template.file_type;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      // Update last_used_at
+      // Update last_used_at timestamp
       const { error: updateError } = await supabase
         .from('project_templates')
         .update({ last_used_at: new Date().toISOString() })
@@ -64,10 +45,11 @@ const Templates = () => {
         console.error('Error updating last_used_at:', updateError);
       }
 
-      toast.success("Template downloaded successfully");
+      // Open Google Docs URL in new tab
+      window.open(template.google_docs_url, '_blank');
     } catch (error) {
-      console.error('Error downloading template:', error);
-      toast.error("Failed to download template");
+      console.error('Error opening template:', error);
+      toast.error("Failed to open template");
     }
   };
 
@@ -157,10 +139,10 @@ const Templates = () => {
                     variant="secondary" 
                     size="sm" 
                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                    onClick={() => handleDownload(template)}
+                    onClick={() => handleOpenDoc(template)}
                   >
-                    <Download className="h-4 w-4 mr-1.5" />
-                    Download
+                    <ExternalLink className="h-4 w-4 mr-1.5" />
+                    Open Doc
                   </Button>
                 </div>
               </div>
