@@ -27,7 +27,7 @@ interface ProjectNotesProps {
 export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   const [newNote, setNewNote] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const notesPerPage = 8; // Increased from 5 to 8 for grid layout
+  const notesPerPage = 8;
   const { toast } = useToast();
 
   const { data: notes = [], refetch } = useQuery({
@@ -116,7 +116,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   );
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <Card className="p-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">

@@ -18,15 +18,15 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* Header Section */}
-      <div className="flex flex-col space-y-4">
+      <Card className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-primary/10 rounded-lg">
               <ListTodo className="w-5 h-5 text-primary" />
             </div>
-            <h2 className="text-xl font-semibold">Project Tasks</h2>
+            <h2 className="text-lg font-semibold">Project Tasks</h2>
           </div>
           <div className="flex items-center gap-4">
             <CSVUploadDialog 
@@ -43,19 +43,19 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
         <Card className="p-4 bg-muted/50">
           <CreateTaskForm projectId={projectId} source="projects" />
         </Card>
-      </div>
 
-      <Separator className="my-6" />
+        <Separator className="my-6" />
 
-      {/* Tasks List Section */}
-      <div className="space-y-6">
-        <TaskList 
-          sourceId={projectId} 
-          sourceType="projects" 
-          showPagination={false} 
-          groupBySource={false} 
-        />
-      </div>
+        {/* Tasks List Section */}
+        <div className="space-y-6">
+          <TaskList 
+            sourceId={projectId} 
+            sourceType="projects" 
+            showPagination={false} 
+            groupBySource={false} 
+          />
+        </div>
+      </Card>
     </div>
   );
 };
