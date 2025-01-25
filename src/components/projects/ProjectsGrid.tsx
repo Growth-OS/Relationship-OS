@@ -3,8 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, DollarSign, Clock, Users, CheckCircle2, Circle } from "lucide-react";
-import { useState } from "react";
-import { ProjectPortal } from "./ProjectPortal";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface Project {
@@ -24,7 +23,7 @@ interface ProjectsGridProps {
 }
 
 export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
   if (isLoading) {
     return (
@@ -75,98 +74,90 @@ export const ProjectsGrid = ({ projects, isLoading }: ProjectsGridProps) => {
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project) => {
-          const statusDetails = getStatusDetails(project.status);
-          const StatusIcon = statusDetails.icon;
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {projects.map((project) => {
+        const statusDetails = getStatusDetails(project.status);
+        const StatusIcon = statusDetails.icon;
 
-          return (
-            <Card
-              key={project.id}
-              className={cn(
-                "group relative p-6 transition-all duration-300",
-                "hover:shadow-lg hover:shadow-gray-200/50",
-                "border border-gray-100",
-                "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80",
-                "hover:bg-gradient-to-br hover:from-white hover:to-gray-50/80",
-                "hover:border-gray-200",
-                "hover:scale-[1.02] hover:-translate-y-1",
-                "cursor-pointer"
-              )}
-              onClick={() => setSelectedProject(project)}
-            >
-              <div className="space-y-4">
-                <div>
-                  <Badge 
-                    className={cn(
-                      "mb-3 border transition-colors duration-300",
-                      statusDetails.badge
-                    )}
-                  >
-                    <StatusIcon className={cn("w-3.5 h-3.5 mr-1", statusDetails.color)} />
-                    {project.status}
-                  </Badge>
-                  
-                  <h3 className="font-semibold text-lg mt-2 text-gray-800 group-hover:text-purple-600 transition-colors">
-                    {project.name}
-                  </h3>
-                  
-                  <div className="flex items-center mt-2 text-sm text-gray-600">
-                    <div className={cn("p-1.5 rounded-full mr-2", statusDetails.bgColor)}>
-                      <Users className={cn("w-4 h-4", statusDetails.color)} />
-                    </div>
-                    <span>{project.client_name}</span>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100 space-y-3">
-                  {project.budget && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <div className="p-1.5 rounded-full mr-2 bg-gray-50">
-                        <DollarSign className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <span className="font-medium font-mono">
-                        €{project.budget.toLocaleString()}
-                      </span>
-                    </div>
+        return (
+          <Card
+            key={project.id}
+            className={cn(
+              "group relative p-6 transition-all duration-300",
+              "hover:shadow-lg hover:shadow-gray-200/50",
+              "border border-gray-100",
+              "bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/80",
+              "hover:bg-gradient-to-br hover:from-white hover:to-gray-50/80",
+              "hover:border-gray-200",
+              "hover:scale-[1.02] hover:-translate-y-1",
+              "cursor-pointer"
+            )}
+            onClick={() => navigate(`/dashboard/projects/${project.id}`)}
+          >
+            <div className="space-y-4">
+              <div>
+                <Badge 
+                  className={cn(
+                    "mb-3 border transition-colors duration-300",
+                    statusDetails.badge
                   )}
-                  
-                  {project.start_date && (
-                    <div className="flex items-center text-sm text-gray-600">
-                      <div className="p-1.5 rounded-full mr-2 bg-gray-50">
-                        <Calendar className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <span>
-                        {new Date(project.start_date).toLocaleDateString()}
-                        {project.end_date &&
-                          ` - ${new Date(project.end_date).toLocaleDateString()}`}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center text-sm text-gray-600">
-                    <div className="p-1.5 rounded-full mr-2 bg-gray-50">
-                      <Clock className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <span>
-                      Updated {formatDistanceToNow(new Date(project.last_activity_date), {
-                        addSuffix: true,
-                      })}
-                    </span>
+                >
+                  <StatusIcon className={cn("w-3.5 h-3.5 mr-1", statusDetails.color)} />
+                  {project.status}
+                </Badge>
+                
+                <h3 className="font-semibold text-lg mt-2 text-gray-800 group-hover:text-purple-600 transition-colors">
+                  {project.name}
+                </h3>
+                
+                <div className="flex items-center mt-2 text-sm text-gray-600">
+                  <div className={cn("p-1.5 rounded-full mr-2", statusDetails.bgColor)}>
+                    <Users className={cn("w-4 h-4", statusDetails.color)} />
                   </div>
+                  <span>{project.client_name}</span>
                 </div>
               </div>
-            </Card>
-          );
-        })}
-      </div>
 
-      <ProjectPortal
-        project={selectedProject}
-        isOpen={!!selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
-    </>
+              <div className="pt-4 border-t border-gray-100 space-y-3">
+                {project.budget && (
+                  <div className="flex items-center text-sm text-gray-600">
+                    <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                      <DollarSign className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <span className="font-medium font-mono">
+                      €{project.budget.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                
+                {project.start_date && (
+                  <div className="flex items-center text-sm text-gray-600">
+                    <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                      <Calendar className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <span>
+                      {new Date(project.start_date).toLocaleDateString()}
+                      {project.end_date &&
+                        ` - ${new Date(project.end_date).toLocaleDateString()}`}
+                    </span>
+                  </div>
+                )}
+                
+                <div className="flex items-center text-sm text-gray-600">
+                  <div className="p-1.5 rounded-full mr-2 bg-gray-50">
+                    <Clock className="w-4 h-4 text-gray-600" />
+                  </div>
+                  <span>
+                    Updated {formatDistanceToNow(new Date(project.last_activity_date), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+    </div>
   );
 };
