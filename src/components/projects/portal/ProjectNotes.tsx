@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight, StickyNote } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
 
 interface ProjectNotesProps {
   projectId: string;
@@ -43,12 +44,6 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
       return data;
     },
   });
-
-  const totalPages = Math.ceil(notes.length / notesPerPage);
-  const paginatedNotes = notes.slice(
-    (currentPage - 1) * notesPerPage,
-    currentPage * notesPerPage
-  );
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
@@ -115,31 +110,72 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
     }
   };
 
+  const totalPages = Math.ceil(notes.length / notesPerPage);
+  const paginatedNotes = notes.slice(
+    (currentPage - 1) * notesPerPage,
+    currentPage * notesPerPage
+  );
+
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="space-y-4 bg-card p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-card-foreground">Add New Note</h3>
-        <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
-        <div className="flex justify-end">
-          <Button onClick={handleAddNote}>Add Note</Button>
+    <div className="space-y-8 max-w-5xl mx-auto">
+      <Card className="p-6 shadow-md">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
+            <StickyNote className="h-5 w-5 text-primary" />
+            Add New Note
+          </h3>
+          <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
+          <div className="flex justify-end">
+            <Button onClick={handleAddNote} className="px-6">
+              Add Note
+            </Button>
+          </div>
         </div>
-      </div>
+      </Card>
 
-      <Separator className="my-6" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
+            <StickyNote className="h-5 w-5 text-primary" />
+            Project Notes
+          </h3>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
 
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-card-foreground">Project Notes</h3>
-        <ScrollArea className="h-[600px] rounded-md border">
+        <ScrollArea className="h-[600px] rounded-md border bg-card">
           <div className="space-y-4 p-4">
             {paginatedNotes.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No notes yet. Add your first note above.
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <StickyNote className="h-12 w-12 mb-4 text-muted-foreground/50" />
+                <p className="text-center">No notes yet. Add your first note above.</p>
               </div>
             ) : (
               paginatedNotes.map((note) => (
-                <div
+                <Card
                   key={note.id}
-                  className="bg-card p-6 rounded-lg border shadow-sm space-y-3 transition-all hover:shadow-md"
+                  className="p-6 space-y-3 transition-all hover:shadow-md"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground font-medium">
@@ -147,7 +183,11 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                     </span>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="sm" className="hover:bg-destructive/10">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="hover:bg-destructive/10 h-8 w-8 p-0"
+                        >
                           <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                         </Button>
                       </AlertDialogTrigger>
@@ -174,35 +214,11 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                     className="prose dark:prose-invert max-w-none"
                     dangerouslySetInnerHTML={{ __html: note.message }}
                   />
-                </div>
+                </Card>
               ))
             )}
           </div>
         </ScrollArea>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
