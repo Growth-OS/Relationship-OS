@@ -21,6 +21,14 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
 
   const onSubmit = async (data: CreateTemplateFormData) => {
     try {
+      // Get the current user's session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        toast.error("You must be logged in to create templates");
+        return;
+      }
+
       const file = data.file[0];
       if (!file) {
         toast.error("Please select a file");
@@ -47,10 +55,12 @@ export const CreateTemplateForm = ({ onSuccess }: CreateTemplateFormProps) => {
           description: data.description,
           file_path: fileName,
           file_type: file.type,
+          user_id: session.user.id // Add the user_id from the session
         });
 
       if (dbError) throw dbError;
 
+      toast.success("Template created successfully");
       onSuccess();
     } catch (error) {
       console.error('Error creating template:', error);
