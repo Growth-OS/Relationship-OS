@@ -33,6 +33,44 @@ const Templates = () => {
     toast.success("Template created successfully");
   };
 
+  const handleDownload = async (template: any) => {
+    try {
+      const { data, error } = await supabase
+        .storage
+        .from('templates')
+        .download(template.file_path);
+
+      if (error) {
+        throw error;
+      }
+
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = template.title + '.' + template.file_type;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      // Update last_used_at
+      const { error: updateError } = await supabase
+        .from('project_templates')
+        .update({ last_used_at: new Date().toISOString() })
+        .eq('id', template.id);
+
+      if (updateError) {
+        console.error('Error updating last_used_at:', updateError);
+      }
+
+      toast.success("Template downloaded successfully");
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      toast.error("Failed to download template");
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -119,6 +157,7 @@ const Templates = () => {
                     variant="secondary" 
                     size="sm" 
                     className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    onClick={() => handleDownload(template)}
                   >
                     <Download className="h-4 w-4 mr-1.5" />
                     Download
