@@ -55,7 +55,7 @@ export const useProjectFiles = (projectId: string) => {
         .upload(filePath, file, {
           cacheControl: "3600",
           upsert: false,
-          onUploadProgress: (progress) => {
+          onProgress: (progress) => {
             const percentage = (progress.loaded / progress.total) * 100;
             setUploadProgress(Math.round(percentage));
           },
