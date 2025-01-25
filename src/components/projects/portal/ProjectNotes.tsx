@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RichTextEditor } from "@/components/content/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { Trash2, ChevronLeft, ChevronRight, StickyNote, Plus } from "lucide-react";
+import { Trash2, StickyNote, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +27,7 @@ interface ProjectNotesProps {
 export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
   const [newNote, setNewNote] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const notesPerPage = 5;
+  const notesPerPage = 8; // Increased from 5 to 8 for grid layout
   const { toast } = useToast();
 
   const { data: notes = [], refetch } = useQuery({
@@ -132,7 +132,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  Previous
                 </Button>
                 <span className="text-sm text-muted-foreground">
                   Page {currentPage} of {totalPages}
@@ -143,13 +143,13 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  Next
                 </Button>
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-2xl">
             <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
             <div className="flex justify-end">
               <Button onClick={handleAddNote} className="gap-2">
@@ -160,30 +160,30 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
           </div>
 
           <ScrollArea className="h-[500px] rounded-md">
-            <div className="space-y-4">
-              {paginatedNotes.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                  <StickyNote className="h-12 w-12 mb-4 text-muted-foreground/50" />
-                  <p className="text-center">No notes yet. Add your first note above.</p>
-                </div>
-              ) : (
-                paginatedNotes.map((note) => (
+            {paginatedNotes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <StickyNote className="h-12 w-12 mb-4 text-muted-foreground/50" />
+                <p className="text-center">No notes yet. Add your first note above.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 p-2">
+                {paginatedNotes.map((note) => (
                   <Card
                     key={note.id}
-                    className="p-6 space-y-3 transition-all hover:shadow-md"
+                    className="p-4 space-y-3 transition-all hover:shadow-md"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground font-medium">
-                        {format(new Date(note.created_at), "MMMM d, yyyy 'at' h:mm a")}
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(note.created_at), "MMM d, yyyy 'at' h:mm a")}
                       </span>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="hover:bg-destructive/10 h-8 w-8 p-0"
+                            className="h-6 w-6 p-0 hover:bg-destructive/10"
                           >
-                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                            <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -206,13 +206,13 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                       </AlertDialog>
                     </div>
                     <div
-                      className="prose dark:prose-invert max-w-none"
+                      className="prose dark:prose-invert text-sm max-w-none line-clamp-4"
                       dangerouslySetInnerHTML={{ __html: note.message }}
                     />
                   </Card>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </ScrollArea>
         </div>
       </Card>
