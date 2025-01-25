@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/Layout";
 import Index from "@/pages/Index";
 import { dashboardRoutes } from "./routes/dashboardRoutes";
+import { settingsRoutes } from "./routes/settingsRoutes";
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
         element: <Index />,
       },
       dashboardRoutes,
+      settingsRoutes,
     ],
   },
 ]);

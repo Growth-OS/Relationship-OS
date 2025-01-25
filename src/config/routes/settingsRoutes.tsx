@@ -1,35 +1,29 @@
 import { RouteObject } from "react-router-dom";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import SettingsLayout from "@/components/settings/SettingsLayout";
 import BackupSettings from "@/pages/BackupSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const settingsRoutes: RouteObject = {
   path: "dashboard/settings",
+  element: (
+    <ProtectedRoute>
+      <SettingsLayout />
+    </ProtectedRoute>
+  ),
   children: [
     {
       path: "backup",
-      element: (
-        <ProtectedRoute>
-          <BackupSettings />
-        </ProtectedRoute>
-      ),
+      element: <BackupSettings />,
     },
     {
       path: "branding",
-      element: (
-        <ProtectedRoute>
-          <BrandingSettings />
-        </ProtectedRoute>
-      ),
+      element: <BrandingSettings />,
     },
     {
       path: "profile",
-      element: (
-        <ProtectedRoute>
-          <ProfileSettings />
-        </ProtectedRoute>
-      ),
+      element: <ProfileSettings />,
     },
   ],
 };
