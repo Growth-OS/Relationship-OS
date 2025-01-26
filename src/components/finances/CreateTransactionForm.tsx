@@ -15,6 +15,7 @@ import { AttachmentField } from "./form-fields/AttachmentField";
 import { FinancialTransaction } from "@/integrations/supabase/types/finances";
 import { useQuery } from "@tanstack/react-query";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -32,6 +33,8 @@ interface CreateTransactionFormProps {
 }
 
 export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransactionFormProps) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { data: existingAttachments, refetch: refetchAttachments } = useQuery({
     queryKey: ['transaction-attachments', initialData?.id],
     queryFn: async () => {
@@ -62,9 +65,13 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setIsSubmitting(true);
+      const loadingToast = toast.loading(initialData ? 'Updating transaction...' : 'Adding transaction...');
+      
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        toast.dismiss(loadingToast);
         toast.error('You must be logged in to add transactions');
         return;
       }
@@ -132,12 +139,15 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
         if (attachmentError) throw attachmentError;
       }
 
+      toast.dismiss(loadingToast);
       toast.success(initialData ? 'Transaction updated successfully' : 'Transaction added successfully');
-      onSuccess();
       form.reset();
+      onSuccess();
     } catch (error: any) {
       console.error('Error with transaction:', error);
       toast.error(error.message || (initialData ? 'Error updating transaction' : 'Error adding transaction'));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -158,8 +168,8 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
           <DateField form={form} />
           <NotesField form={form} />
           <AttachmentField form={form} existingAttachments={existingAttachments} />
-          <Button type="submit" className="w-full">
-            {initialData ? 'Update Transaction' : 'Add Transaction'}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Processing...' : (initialData ? 'Update Transaction' : 'Add Transaction')}
           </Button>
         </form>
       </Form>
