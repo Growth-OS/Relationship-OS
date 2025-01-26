@@ -38,19 +38,12 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Note deleted successfully",
-      });
+      toast.success("Note deleted successfully");
 
       refetch();
     } catch (error: any) {
       console.error("Error deleting note:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete note",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to delete note");
     }
   };
 

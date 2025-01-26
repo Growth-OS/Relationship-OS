@@ -36,20 +36,13 @@ export const NoteEditor = ({ projectId, onNoteAdded }: NoteEditorProps) => {
 
       if (insertError) throw insertError;
 
-      toast({
-        title: "Success",
-        description: "Note added successfully",
-      });
+      toast.success("Note added successfully");
 
       setNewNote("");
       onNoteAdded();
     } catch (error: any) {
       console.error("Error adding note:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add note",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to add note");
     }
   };
 
