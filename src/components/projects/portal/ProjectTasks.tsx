@@ -17,6 +17,10 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
   };
 
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
+  };
+
   return (
     <div className="w-full">
       <Card className="p-6 space-y-6">
@@ -40,7 +44,12 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
         </div>
         
         <Card className="p-4 bg-muted/50">
-          <CreateTaskForm projectId={projectId} source="projects" />
+          <CreateTaskForm 
+            projectId={projectId}
+            source="projects"
+            sourceId={projectId}
+            onSuccess={handleSuccess}
+          />
         </Card>
 
         <Separator className="my-6" />
