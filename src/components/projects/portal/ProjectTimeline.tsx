@@ -24,14 +24,18 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["project-tasks", projectId],
     queryFn: async () => {
+      console.log("Fetching tasks for project:", projectId); // Debug log
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
-        .eq("completed", false) // Only fetch non-completed tasks
-        .order("due_date");
+        .eq("completed", false); // Only fetch non-completed tasks
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching tasks:", error); // Debug log
+        throw error;
+      }
+      console.log("Fetched tasks:", data); // Debug log
       return data as Task[];
     },
   });
