@@ -6,6 +6,7 @@ import { ProjectFiles } from "./portal/ProjectFiles";
 import { ProjectNotes } from "./portal/ProjectNotes";
 import { ProjectTasks } from "./portal/ProjectTasks";
 import { ProjectTimeline } from "./portal/ProjectTimeline";
+import { ProjectAllTasks } from "./portal/ProjectAllTasks";
 import { cn } from "@/lib/utils";
 
 interface Project {
@@ -31,7 +32,7 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[90vw] w-full lg:max-w-7xl h-[90vh] flex flex-col p-0 gap-0 bg-white/80 backdrop-blur-sm border border-gray-100">
-        <Tabs defaultValue="timeline" className="flex-1 overflow-hidden">
+        <Tabs defaultValue="all-tasks" className="flex-1 overflow-hidden">
           <div className="p-8 pb-4 border-b border-gray-100 bg-gradient-to-br from-white to-gray-50/50">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -51,12 +52,13 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
             
             <TabsList className="w-full justify-start gap-2 h-auto p-0 bg-transparent">
               {[
+                { value: "all-tasks", label: "All Tasks" },
                 { value: "timeline", label: "Timeline" },
                 { value: "details", label: "Details" },
                 { value: "credentials", label: "Credentials" },
                 { value: "files", label: "Files" },
                 { value: "notes", label: "Notes" },
-                { value: "tasks", label: "Tasks" }
+                { value: "tasks", label: "Add Tasks" }
               ].map((tab) => (
                 <TabsTrigger
                   key={tab.value}
@@ -75,6 +77,9 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
           </div>
 
           <div className="flex-1 overflow-y-auto">
+            <TabsContent value="all-tasks" className="mt-0 h-full p-8">
+              <ProjectAllTasks projectId={project.id} />
+            </TabsContent>
             <TabsContent value="timeline" className="mt-0 h-full">
               <ProjectTimeline projectId={project.id} />
             </TabsContent>
