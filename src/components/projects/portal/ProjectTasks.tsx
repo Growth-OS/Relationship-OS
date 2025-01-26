@@ -45,7 +45,6 @@ export const ProjectTasks = ({ projectId }: ProjectTasksProps) => {
         
         <Card className="p-4 bg-muted/50">
           <CreateTaskForm 
-            projectId={projectId}
             source="projects"
             sourceId={projectId}
             onSuccess={handleSuccess}
