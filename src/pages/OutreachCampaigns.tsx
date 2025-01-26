@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CampaignsList } from "@/components/campaigns/CampaignsList";
 import { Lead, LeadSource } from "@/components/leads/types/lead";
 import { BulkActions } from "@/components/leads/components/BulkActions";
+import { Progress } from "@/components/ui/progress";
+import { Card } from "@/components/ui/card";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -20,6 +22,32 @@ const OutreachCampaigns = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
+
+  // Add a new query for campaign tasks statistics
+  const { data: taskStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['campaign-task-stats'],
+    queryFn: async () => {
+      const { data: tasks, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('source', 'outreach');
+      
+      if (error) {
+        console.error('Error fetching task stats:', error);
+        throw error;
+      }
+
+      const totalTasks = tasks.length;
+      const completedTasks = tasks.filter(task => task.completed).length;
+      const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+      return {
+        total: totalTasks,
+        completed: completedTasks,
+        completionRate: Math.round(completionRate)
+      };
+    },
+  });
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['leads'],
@@ -81,6 +109,34 @@ const OutreachCampaigns = () => {
             Manage your outreach campaigns and leads
           </p>
         </div>
+      </div>
+
+      {/* Add Campaign Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-2">Campaign Tasks</h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Completion Rate</span>
+              <span>{taskStats?.completionRate || 0}%</span>
+            </div>
+            <Progress 
+              value={taskStats?.completionRate || 0} 
+              className="h-2"
+              indicatorClassName={`${
+                (taskStats?.completionRate || 0) > 66
+                  ? 'bg-green-500'
+                  : (taskStats?.completionRate || 0) > 33
+                  ? 'bg-yellow-500'
+                  : 'bg-red-500'
+              }`}
+            />
+            <div className="flex justify-between text-sm mt-2">
+              <span>{taskStats?.completed || 0} completed</span>
+              <span>{taskStats?.total || 0} total</span>
+            </div>
+          </div>
+        </Card>
       </div>
 
       <Tabs defaultValue="campaigns">
