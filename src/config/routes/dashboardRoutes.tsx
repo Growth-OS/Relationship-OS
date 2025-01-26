@@ -6,7 +6,6 @@ import ProjectView from "@/pages/ProjectView";
 import Deals from "@/pages/Deals";
 import Prospects from "@/pages/Prospects";
 import OutreachCampaigns from "@/pages/OutreachCampaigns";
-import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import Calendar from "@/pages/Calendar";
 import Reporting from "@/pages/Reporting";
 import Finances from "@/pages/Finances";
@@ -44,10 +43,6 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "outreach-campaigns",
       element: <OutreachCampaigns />,
-    },
-    {
-      path: "quarterly-timeline",
-      element: <ProjectsQuarterlyTimeline />,
     },
     {
       path: "calendar",
