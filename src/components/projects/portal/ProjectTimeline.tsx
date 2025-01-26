@@ -25,6 +25,16 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
     queryKey: ["project-tasks", projectId],
     queryFn: async () => {
       console.log("Fetching tasks for project:", projectId); // Debug log
+      
+      // First, let's check all tasks for this project
+      const { data: allTasks, error: allTasksError } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("project_id", projectId);
+      
+      console.log("All tasks for project:", allTasks); // Debug log
+      
+      // Then get only non-completed tasks
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
@@ -35,7 +45,12 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
         console.error("Error fetching tasks:", error); // Debug log
         throw error;
       }
-      console.log("Fetched tasks:", data); // Debug log
+      console.log("Non-completed tasks:", data); // Debug log
+      
+      // Log tasks that have due dates
+      const tasksWithDueDates = data?.filter(task => task.due_date);
+      console.log("Tasks with due dates:", tasksWithDueDates);
+      
       return data as Task[];
     },
   });
