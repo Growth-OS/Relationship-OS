@@ -25,7 +25,7 @@ export const SidebarNavigation = () => {
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
     { icon: Folder, label: "Templates", path: "/dashboard/templates" },
-    { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
+    { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks", badge: 0 },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Plane, label: "Travels", path: "/dashboard/travels" },
     { 
@@ -76,6 +76,7 @@ export const SidebarNavigation = () => {
               path={item.path}
               isActive={!item.external && isPathActive(item.path)}
               external={item.external}
+              badge={item.badge}
             />
           ))}
         </div>
