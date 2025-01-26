@@ -1,13 +1,16 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
-import { FileIcon } from "lucide-react";
+import { FileIcon, Trash2 } from "lucide-react";
 import heic2any from "heic2any";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AttachmentFieldProps {
   form: UseFormReturn<any>;
   existingAttachments?: Array<{
+    id: string;
     file_name: string;
     file_path: string;
   }>;
@@ -55,6 +58,32 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
     form.setValue('files', processedFiles);
   };
 
+  const handleDeleteAttachment = async (attachmentId: string, filePath: string) => {
+    try {
+      // Delete the file from storage
+      const { error: storageError } = await supabase.storage
+        .from('financial_docs')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete the attachment record from the database
+      const { error: dbError } = await supabase
+        .from('transaction_attachments')
+        .delete()
+        .eq('id', attachmentId);
+
+      if (dbError) throw dbError;
+
+      toast.success("File deleted successfully");
+      // Trigger a refetch of the transaction data
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast.error("Failed to delete file");
+    }
+  };
+
   return (
     <FormField
       control={form.control}
@@ -67,10 +96,20 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
               {existingAttachments.map((attachment) => (
                 <div 
                   key={attachment.file_path} 
-                  className="flex items-center gap-2 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center justify-between gap-2 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileIcon className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{attachment.file_name}</span>
+                  <div className="flex items-center gap-2">
+                    <FileIcon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{attachment.file_name}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteAttachment(attachment.id, attachment.file_path)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
                 </div>
               ))}
             </div>
