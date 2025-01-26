@@ -4,6 +4,7 @@ import { dashboardRoutes } from "./routes/dashboardRoutes";
 import { settingsRoutes } from "./routes/settingsRoutes";
 import { contentRoutes } from "./routes/contentRoutes";
 import { miscRoutes } from "./routes/miscRoutes";
+import { projectRoutes } from "./routes/projectRoutes";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import Login from "@/pages/Login";
 
@@ -24,12 +25,22 @@ export const router = createBrowserRouter([
         index: true,
         element: <Navigate to="/dashboard" replace />,
       },
-      dashboardRoutes,
-      contentRoutes,
-      miscRoutes,
       {
-        path: "dashboard/settings/*",
-        children: [settingsRoutes],
+        path: "dashboard",
+        children: [
+          {
+            index: true,
+            element: <Navigate to="projects" replace />,
+          },
+          projectRoutes,
+          dashboardRoutes,
+          contentRoutes,
+          miscRoutes,
+          {
+            path: "settings/*",
+            children: [settingsRoutes],
+          },
+        ],
       },
     ],
   },

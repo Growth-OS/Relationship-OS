@@ -5,10 +5,10 @@ import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const projectRoutes: RouteObject = {
-  path: "dashboard",
+  path: "projects",
   children: [
     {
-      path: "projects",
+      index: true,
       element: (
         <ProtectedRoute>
           <Projects />
@@ -16,7 +16,7 @@ export const projectRoutes: RouteObject = {
       ),
     },
     {
-      path: "projects/:projectId/*",
+      path: ":projectId/*",
       element: (
         <ProtectedRoute>
           <ProjectView />
