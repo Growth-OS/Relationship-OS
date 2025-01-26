@@ -18,10 +18,8 @@ export const useFileOperations = () => {
       URL.revokeObjectURL(url);
     } catch (error: any) {
       console.error("Error downloading file:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to download file",
-        variant: "destructive",
+      toast.error("Failed to download file", {
+        description: error.message || "An unexpected error occurred"
       });
     }
   };
@@ -41,16 +39,11 @@ export const useFileOperations = () => {
 
       if (dbError) throw dbError;
 
-      toast({
-        title: "Success",
-        description: "File deleted successfully",
-      });
+      toast.success("File deleted successfully");
     } catch (error: any) {
       console.error("Error deleting file:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete file",
-        variant: "destructive",
+      toast.error("Failed to delete file", {
+        description: error.message || "An unexpected error occurred"
       });
     }
   };

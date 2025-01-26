@@ -73,16 +73,11 @@ export const useFileUpload = (projectId: string, onSuccess: () => void) => {
       setUploadProgress(100);
       onSuccess();
       
-      toast({
-        title: "Success",
-        description: "File uploaded successfully",
-      });
+      toast.success("File uploaded successfully");
     } catch (error: any) {
       console.error("Error uploading file:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to upload file",
-        variant: "destructive",
+      toast.error("Failed to upload file", {
+        description: error.message || "An unexpected error occurred"
       });
     } finally {
       setUploading(false);
