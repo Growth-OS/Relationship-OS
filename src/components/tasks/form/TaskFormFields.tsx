@@ -72,6 +72,9 @@ export const TaskFormFields = ({ form }: TaskFormFieldsProps) => {
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
                     initialFocus
+                    disabled={(date) =>
+                      date < new Date(new Date().setHours(0, 0, 0, 0) - 86400000)
+                    }
                   />
                 </PopoverContent>
               </Popover>
