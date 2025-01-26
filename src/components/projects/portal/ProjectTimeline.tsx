@@ -34,22 +34,19 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
       
       console.log("All tasks for project:", allTasks);
       
-      // Get non-completed tasks (pending tasks)
+      // Get all non-completed tasks, regardless of due date
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
-        .eq("completed", false); // This is correct - we want pending tasks
+        .eq("completed", false)
+        .order('due_date', { ascending: true }); // Order by due date
 
       if (error) {
         console.error("Error fetching tasks:", error);
         throw error;
       }
-      console.log("Pending tasks:", data);
-      
-      // Log tasks that have due dates
-      const tasksWithDueDates = data?.filter(task => task.due_date);
-      console.log("Tasks with due dates:", tasksWithDueDates);
+      console.log("All pending tasks:", data);
       
       return data as Task[];
     },
