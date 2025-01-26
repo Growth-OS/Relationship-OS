@@ -33,7 +33,7 @@ export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: C
     defaultValues: {
       title: defaultValues?.title || "",
       description: defaultValues?.description || "",
-      due_date: "",
+      due_date: defaultValues?.due_date || new Date().toISOString().split('T')[0],
       priority: "medium",
       source: source || "other",
       source_id: sourceId,
@@ -50,6 +50,7 @@ export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: C
         .insert([{
           ...values,
           user_id: user.id,
+          due_date: values.due_date, // Use the exact date selected by the user
         }]);
 
       if (error) throw error;
