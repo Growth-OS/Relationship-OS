@@ -26,28 +26,18 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
     queryFn: async () => {
       console.log("ProjectTimeline: Fetching tasks for project:", projectId);
       
-      // First, let's check all tasks for this project
-      const { data: allTasks, error: allTasksError } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("project_id", projectId);
-      
-      console.log("ProjectTimeline: All tasks found for project:", allTasks?.length || 0, "tasks");
-      
-      // Get all non-completed tasks, regardless of due date
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
-        .eq("completed", false)
-        .order('due_date', { ascending: true }); // Order by due date
+        .order('due_date', { ascending: true });
 
       if (error) {
         console.error("ProjectTimeline: Error fetching tasks:", error);
         throw error;
       }
 
-      console.log("ProjectTimeline: Found", data?.length || 0, "pending tasks");
+      console.log("ProjectTimeline: Found", data?.length || 0, "tasks");
       console.log("ProjectTimeline: Tasks data:", data);
       
       return data as Task[];
@@ -160,7 +150,7 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
 
         {sortedDates.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            No pending tasks found for this project
+            No tasks found for this project
           </div>
         )}
       </div>
