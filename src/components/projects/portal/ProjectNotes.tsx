@@ -72,6 +72,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         description: "Note added successfully",
       });
 
+      // Clear the note text after successful submission
       setNewNote("");
       refetch();
     } catch (error: any) {
