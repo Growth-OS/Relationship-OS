@@ -72,7 +72,6 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         description: "Note added successfully",
       });
 
-      // Clear the note text after successful submission
       setNewNote("");
       refetch();
     } catch (error: any) {
@@ -207,7 +206,7 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
                       </AlertDialog>
                     </div>
                     <div
-                      className="prose dark:prose-invert text-sm max-w-none"
+                      className="prose dark:prose-invert text-sm max-w-none text-left"
                       dangerouslySetInnerHTML={{ __html: note.message }}
                     />
                   </Card>
