@@ -1,9 +1,10 @@
 import { RouteObject } from "react-router-dom";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Navigate } from "react-router-dom";
 import SettingsLayout from "@/components/settings/SettingsLayout";
-import BackupSettings from "@/pages/BackupSettings";
 import BrandingSettings from "@/pages/BrandingSettings";
+import BackupSettings from "@/pages/BackupSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const settingsRoutes: RouteObject = {
   element: (
