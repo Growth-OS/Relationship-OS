@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format, isToday, isWeekend } from "date-fns";
+import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { Calendar, CheckCircle, Flag } from "lucide-react";
+import { Calendar, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
+        .eq("completed", false) // Only fetch non-completed tasks
         .order("due_date");
 
       if (error) throw error;
@@ -101,19 +102,15 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
                   key={task.id}
                   className={cn(
                     "p-4 transition-all hover:shadow-md",
-                    task.completed
-                      ? "bg-green-50 border-green-100"
-                      : task.priority === "high"
+                    task.priority === "high"
                       ? "bg-red-50 border-red-100"
                       : "bg-blue-50 border-blue-100"
                   )}
                 >
                   <div className="flex items-start gap-3">
-                    {task.completed ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    ) : task.priority === "high" ? (
+                    {task.priority === "high" && (
                       <Flag className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    ) : null}
+                    )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-4">
                         <h4 className="font-medium text-gray-900 truncate">
@@ -122,14 +119,12 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
                         <Badge
                           variant="secondary"
                           className={cn(
-                            task.completed
-                              ? "bg-green-100 text-green-800"
-                              : task.priority === "high"
+                            task.priority === "high"
                               ? "bg-red-100 text-red-800"
                               : "bg-blue-100 text-blue-800"
                           )}
                         >
-                          {task.completed ? "Completed" : task.priority || "Normal"}
+                          {task.priority || "Normal"}
                         </Badge>
                       </div>
                       {task.description && (
@@ -147,7 +142,7 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
 
         {sortedDates.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            No tasks found for this project
+            No pending tasks found for this project
           </div>
         )}
       </div>
