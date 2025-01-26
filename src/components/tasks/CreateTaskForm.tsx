@@ -42,7 +42,7 @@ export const CreateTaskForm = ({ onSuccess, source, sourceId, projectId, default
     defaultValues: {
       title: defaultValues?.title || "",
       description: defaultValues?.description || "",
-      due_date: new Date().toISOString().split('T')[0], // Set default to today's date
+      due_date: "", // Remove default date so user must explicitly choose one
       priority: "medium",
       source: source || "other",
     },
