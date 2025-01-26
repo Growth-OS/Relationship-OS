@@ -16,10 +16,11 @@ export const FileUploadZone = ({ uploading, onFileSelect }: FileUploadZoneProps)
     }
   }, [onFileSelect]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     disabled: uploading,
-    multiple: false
+    multiple: false,
+    noClick: true // Disable click on the entire zone
   });
 
   return (
@@ -28,7 +29,7 @@ export const FileUploadZone = ({ uploading, onFileSelect }: FileUploadZoneProps)
       className={`
         border-2 border-dashed rounded-lg p-8 transition-colors duration-200 ease-in-out
         ${isDragActive ? 'border-primary bg-primary/5' : 'border-gray-200 dark:border-gray-800'}
-        ${uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-primary/50'}
+        ${uploading ? 'opacity-50 cursor-not-allowed' : 'cursor-default'}
       `}
     >
       <div className="flex flex-col items-center justify-center gap-4">
@@ -56,7 +57,15 @@ export const FileUploadZone = ({ uploading, onFileSelect }: FileUploadZoneProps)
           )}
         </div>
 
-        <Button variant="outline" disabled={uploading} type="button" onClick={e => e.stopPropagation()}>
+        <Button 
+          variant="outline" 
+          disabled={uploading} 
+          type="button" 
+          onClick={(e) => {
+            e.stopPropagation();
+            open();
+          }}
+        >
           <FileUp className="h-4 w-4 mr-2" />
           Browse Files
         </Button>
