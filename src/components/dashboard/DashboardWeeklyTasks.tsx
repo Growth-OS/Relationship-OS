@@ -57,7 +57,7 @@ export const DashboardWeeklyTasks = () => {
       });
 
       // Make the API call
-      await handleTaskComplete(taskId, completed);
+      await handleTaskComplete(taskId, completed, tasks || []);
       
       // Show success notification
       toast.success(completed ? "Task completed" : "Task uncompleted");
