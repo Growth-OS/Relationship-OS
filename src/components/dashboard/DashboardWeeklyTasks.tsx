@@ -30,6 +30,7 @@ export const DashboardWeeklyTasks = () => {
           substack_posts(id, title)
         `)
         .eq("user_id", user.user.id)
+        .eq("completed", false)  // Only fetch incomplete tasks
         .gte("due_date", startDate.toISOString())
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
