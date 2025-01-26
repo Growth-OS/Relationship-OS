@@ -70,11 +70,19 @@ export const TaskFormFields = ({ form }: TaskFormFieldsProps) => {
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => field.onChange(date?.toISOString().split('T')[0])}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Ensure we're working with the local date
+                        const localDate = new Date(date.setHours(12, 0, 0, 0));
+                        field.onChange(localDate.toISOString().split('T')[0]);
+                      }
+                    }}
                     initialFocus
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0) - 86400000)
-                    }
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return date < today;
+                    }}
                   />
                 </PopoverContent>
               </Popover>
