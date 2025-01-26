@@ -32,11 +32,22 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[90vw] w-full lg:max-w-7xl h-[90vh] flex flex-col p-0 gap-0 bg-white/80 backdrop-blur-sm border border-gray-100">
         <Tabs defaultValue="timeline" className="flex-1 overflow-hidden">
-          <div className="p-8 pb-0 border-b border-gray-100 bg-gradient-to-br from-white to-gray-50/50">
-            <h2 className="text-3xl font-semibold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-              {project.name}
-            </h2>
-            <p className="text-gray-600 mb-6 text-lg">{project.client_name}</p>
+          <div className="p-8 pb-4 border-b border-gray-100 bg-gradient-to-br from-white to-gray-50/50">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+                  {project.name}
+                </h2>
+                <p className="text-gray-600 text-lg">{project.client_name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Project Timeline</span>
+                <div className="h-6 w-px bg-gray-200" />
+                <span className="text-sm font-medium text-gray-900">
+                  {new Date(project.start_date).toLocaleDateString('en-GB')} - {new Date(project.end_date).toLocaleDateString('en-GB')}
+                </span>
+              </div>
+            </div>
             
             <TabsList className="w-full justify-start gap-2 h-auto p-0 bg-transparent">
               {[
@@ -63,23 +74,23 @@ export const ProjectPortal = ({ project, isOpen, onClose }: ProjectPortalProps) 
             </TabsList>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto">
             <TabsContent value="timeline" className="mt-0 h-full">
               <ProjectTimeline projectId={project.id} />
             </TabsContent>
-            <TabsContent value="details" className="mt-0 h-full">
+            <TabsContent value="details" className="mt-0 h-full p-8">
               <ProjectDetails project={project} onClose={onClose} />
             </TabsContent>
-            <TabsContent value="credentials" className="mt-0 h-full">
+            <TabsContent value="credentials" className="mt-0 h-full p-8">
               <ProjectCredentials projectId={project.id} />
             </TabsContent>
-            <TabsContent value="files" className="mt-0 h-full">
+            <TabsContent value="files" className="mt-0 h-full p-8">
               <ProjectFiles projectId={project.id} />
             </TabsContent>
-            <TabsContent value="notes" className="mt-0 h-full">
+            <TabsContent value="notes" className="mt-0 h-full p-8">
               <ProjectNotes projectId={project.id} />
             </TabsContent>
-            <TabsContent value="tasks" className="mt-0 h-full">
+            <TabsContent value="tasks" className="mt-0 h-full p-8">
               <ProjectTasks projectId={project.id} />
             </TabsContent>
           </div>
