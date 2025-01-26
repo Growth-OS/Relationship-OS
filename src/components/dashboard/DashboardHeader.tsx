@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 interface DashboardHeaderProps {
   firstName: string;
@@ -61,7 +62,7 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     {
       label: "New Task",
       icon: ListTodo,
-      onClick: () => navigate("/dashboard/tasks/new"),
+      component: CreateTaskButton,
       color: "bg-purple-100 text-purple-700 hover:bg-purple-200",
     },
     {
@@ -121,15 +122,26 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
             <h2 className="text-lg font-semibold">Quick Actions</h2>
             <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
-                <Button
-                  key={action.label}
-                  variant="ghost"
-                  className={`${action.color} gap-2`}
-                  onClick={action.onClick}
-                >
-                  <action.icon className="h-4 w-4" />
-                  {action.label}
-                </Button>
+                action.component ? (
+                  <action.component
+                    key={action.label}
+                    variant="ghost"
+                    className={`${action.color} gap-2`}
+                  >
+                    <action.icon className="h-4 w-4" />
+                    {action.label}
+                  </action.component>
+                ) : (
+                  <Button
+                    key={action.label}
+                    variant="ghost"
+                    className={`${action.color} gap-2`}
+                    onClick={action.onClick}
+                  >
+                    <action.icon className="h-4 w-4" />
+                    {action.label}
+                  </Button>
+                )
               ))}
             </div>
           </div>
