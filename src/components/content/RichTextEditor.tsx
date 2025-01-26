@@ -28,6 +28,7 @@ export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichT
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[200px] text-left',
         spellcheck: 'false',
+        style: 'text-align: left',
       },
     },
   });
