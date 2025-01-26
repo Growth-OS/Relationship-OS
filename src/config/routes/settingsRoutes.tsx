@@ -6,13 +6,16 @@ import BrandingSettings from "@/pages/BrandingSettings";
 import ProfileSettings from "@/pages/ProfileSettings";
 
 export const settingsRoutes: RouteObject = {
-  path: "settings",
   element: (
     <ProtectedRoute>
       <SettingsLayout />
     </ProtectedRoute>
   ),
   children: [
+    {
+      index: true,
+      element: <Navigate to="profile" />,
+    },
     {
       path: "profile",
       element: <ProfileSettings />,

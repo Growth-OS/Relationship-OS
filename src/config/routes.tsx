@@ -23,7 +23,10 @@ export const router = createBrowserRouter([
         element: <Navigate to="/dashboard" replace />,
       },
       dashboardRoutes,
-      settingsRoutes,
+      {
+        path: "dashboard/settings/*",
+        children: [settingsRoutes],
+      },
     ],
   },
 ]);
