@@ -3,14 +3,14 @@ import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ProjectFormFields } from "../form/ProjectFormFields";
 import { ProjectDateFields } from "../form/ProjectDateFields";
 import { ProjectBudgetField } from "../form/ProjectBudgetField";
 import { ProjectFormData } from "../form/types";
-import { Separator } from "@/components/ui/separator";
-import { CalendarDays, Building2, BadgeDollarSign } from "lucide-react";
+import { CalendarDays, Building2, BadgeDollarSign, Activity } from "lucide-react";
 
 interface Project {
   id: string;
@@ -117,6 +117,34 @@ export const ProjectDetails = ({ project, onClose }: ProjectDetailsProps) => {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleUpdate)} className="space-y-8 max-w-4xl mx-auto">
         <div className="grid gap-8">
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Activity className="w-5 h-5 text-gray-500" />
+              <h3 className="text-lg font-semibold">Status</h3>
+            </div>
+            <div className="p-4 bg-gray-50/50 rounded-lg border border-gray-100">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Project Status</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="on_hold">On Hold</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </section>
+
           <section>
             <div className="flex items-center gap-2 mb-4">
               <CalendarDays className="w-5 h-5 text-gray-500" />
