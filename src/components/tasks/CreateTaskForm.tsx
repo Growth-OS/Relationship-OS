@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { TaskFormFields } from "./form/TaskFormFields";
-import { TaskFormProps } from "./types";
+import { TaskFormValues, TaskSource } from "./types";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -18,10 +18,17 @@ const formSchema = z.object({
   source_id: z.string().optional(),
 });
 
-export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: TaskFormProps) => {
+interface CreateTaskFormProps {
+  onSuccess?: () => void;
+  defaultValues?: Partial<TaskFormValues>;
+  source?: TaskSource;
+  sourceId?: string;
+}
+
+export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: CreateTaskFormProps) => {
   const queryClient = useQueryClient();
 
-  const form = useForm({
+  const form = useForm<TaskFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: defaultValues?.title || "",
@@ -33,19 +40,17 @@ export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: T
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: TaskFormValues) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
       const { error } = await supabase
         .from("tasks")
-        .insert([
-          {
-            ...values,
-            user_id: user.id,
-          },
-        ]);
+        .insert([{
+          ...values,
+          user_id: user.id,
+        }]);
 
       if (error) throw error;
 
