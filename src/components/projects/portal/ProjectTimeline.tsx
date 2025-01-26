@@ -24,7 +24,7 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["project-tasks", projectId],
     queryFn: async () => {
-      console.log("Fetching tasks for project:", projectId); // Debug log
+      console.log("Fetching tasks for project:", projectId);
       
       // First, let's check all tasks for this project
       const { data: allTasks, error: allTasksError } = await supabase
@@ -32,20 +32,20 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
         .select("*")
         .eq("project_id", projectId);
       
-      console.log("All tasks for project:", allTasks); // Debug log
+      console.log("All tasks for project:", allTasks);
       
-      // Then get only non-completed tasks
+      // Get non-completed tasks (pending tasks)
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("project_id", projectId)
-        .eq("completed", false); // Only fetch non-completed tasks
+        .eq("completed", false); // This is correct - we want pending tasks
 
       if (error) {
-        console.error("Error fetching tasks:", error); // Debug log
+        console.error("Error fetching tasks:", error);
         throw error;
       }
-      console.log("Non-completed tasks:", data); // Debug log
+      console.log("Pending tasks:", data);
       
       // Log tasks that have due dates
       const tasksWithDueDates = data?.filter(task => task.due_date);
