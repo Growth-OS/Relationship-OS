@@ -2,6 +2,8 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input";
 import { UseFormReturn } from "react-hook-form";
 import { FileIcon } from "lucide-react";
+import heic2any from "heic2any";
+import { toast } from "sonner";
 
 interface AttachmentFieldProps {
   form: UseFormReturn<any>;
@@ -12,6 +14,47 @@ interface AttachmentFieldProps {
 }
 
 export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldProps) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const processedFiles: File[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // Check if file is HEIC
+      if (file.type === "image/heic" || file.type === "image/heif" || file.name.toLowerCase().endsWith('.heic')) {
+        try {
+          toast.info("Converting HEIC file...");
+          const blob = await heic2any({
+            blob: file,
+            toType: "image/jpeg",
+            quality: 0.8
+          });
+
+          // Create a new file from the converted blob
+          const convertedFile = new File(
+            [Array.isArray(blob) ? blob[0] : blob], 
+            file.name.replace(/\.heic$/i, '.jpg'),
+            { type: 'image/jpeg' }
+          );
+          
+          processedFiles.push(convertedFile);
+          toast.success("HEIC file converted successfully");
+        } catch (error) {
+          console.error("Error converting HEIC file:", error);
+          toast.error("Failed to convert HEIC file");
+          return;
+        }
+      } else {
+        processedFiles.push(file);
+      }
+    }
+
+    form.setValue('files', processedFiles);
+  };
+
   return (
     <FormField
       control={form.control}
@@ -35,8 +78,8 @@ export const AttachmentField = ({ form, existingAttachments }: AttachmentFieldPr
           <FormControl>
             <Input
               type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => onChange(e.target.files)}
+              accept="image/*,.pdf,.heic,.HEIC"
+              onChange={handleFileChange}
               className="cursor-pointer file:cursor-pointer"
               {...field}
             />
