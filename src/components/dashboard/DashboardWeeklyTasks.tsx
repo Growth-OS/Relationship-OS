@@ -30,7 +30,6 @@ export const DashboardWeeklyTasks = () => {
           substack_posts(id, title)
         `)
         .eq("user_id", user.user.id)
-        .eq("completed", false)
         .gte("due_date", startDate.toISOString())
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
@@ -45,13 +44,25 @@ export const DashboardWeeklyTasks = () => {
     },
   });
 
-  const handleTaskCompleteWithRefresh = async (taskId: string, completed: boolean, tasks: TaskData[]) => {
+  const handleTaskCompleteWithRefresh = async (taskId: string, completed: boolean) => {
     try {
-      await handleTaskComplete(taskId, completed, tasks);
-      // Invalidate and refetch the weekly tasks query
+      // Optimistically update the UI
+      queryClient.setQueryData(["weekly-tasks"], (oldData: TaskData[] | undefined) => {
+        if (!oldData) return oldData;
+        return oldData.map(task => 
+          task.id === taskId ? { ...task, completed } : task
+        );
+      });
+
+      // Make the API call
+      await handleTaskComplete(taskId, completed, tasks || []);
+      
+      // Invalidate and refetch to ensure data consistency
       await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
     } catch (error) {
       console.error("Error completing task:", error);
+      // Revert optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
     }
   };
 
@@ -89,7 +100,7 @@ export const DashboardWeeklyTasks = () => {
             key={source}
             source={source as TaskSource}
             tasks={sourceTasks || []}
-            onComplete={(taskId, completed) => handleTaskCompleteWithRefresh(taskId, completed, tasks || [])}
+            onComplete={handleTaskCompleteWithRefresh}
             onUpdate={handleTaskUpdate}
           />
         ))}
