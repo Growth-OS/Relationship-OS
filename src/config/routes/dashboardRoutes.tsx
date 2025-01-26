@@ -12,6 +12,7 @@ import Finances from "@/pages/Finances";
 import Affiliates from "@/pages/Affiliates";
 import Development from "@/pages/Development";
 import Invoices from "@/pages/Invoices";
+import Tasks from "@/pages/Tasks";
 
 export const dashboardRoutes: RouteObject = {
   path: "dashboard",
@@ -67,6 +68,10 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "invoices",
       element: <Invoices />,
+    },
+    {
+      path: "tasks",
+      element: <Tasks />,
     },
   ],
 };
