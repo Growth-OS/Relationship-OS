@@ -1,5 +1,4 @@
-import { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { RouteObject, Navigate } from "react-router-dom";
 import SettingsLayout from "@/components/settings/SettingsLayout";
 import BrandingSettings from "@/pages/BrandingSettings";
 import BackupSettings from "@/pages/BackupSettings";
