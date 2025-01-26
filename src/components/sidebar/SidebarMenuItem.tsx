@@ -4,6 +4,12 @@ import { LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SidebarMenuItemProps {
   icon: LucideIcon;
@@ -25,63 +31,73 @@ export const SidebarMenuItem = ({
   external 
 }: SidebarMenuItemProps) => {
   const commonClasses = cn(
-    "flex items-center justify-between px-4 py-2 rounded-lg transition-colors",
+    "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
     isActive
       ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
   );
 
+  const content = (
+    <div className="relative">
+      <Icon className="w-5 h-5" />
+      {badge !== undefined && (
+        <Badge 
+          variant="secondary" 
+          className="absolute -top-2 -right-2 min-w-[18px] h-[18px] p-0 flex items-center justify-center bg-purple-100 text-purple-900 text-xs dark:bg-purple-900 dark:text-purple-100"
+        >
+          {badge}
+        </Badge>
+      )}
+      {beta && (
+        <Badge 
+          variant="secondary" 
+          className="absolute -top-2 -right-2 min-w-[18px] h-[18px] p-0 flex items-center justify-center"
+        >
+          <Sparkles className="w-3 h-3" />
+        </Badge>
+      )}
+    </div>
+  );
+
+  const tooltipContent = (
+    <TooltipContent side="right">
+      <p>{label}</p>
+    </TooltipContent>
+  );
+
   if (external) {
     return (
-      <a
-        href={path}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={commonClasses}
-      >
-        <div className="flex items-center">
-          <Icon className="w-5 h-5 mr-3" />
-          <span>{label}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          {badge !== undefined && (
-            <Badge variant="secondary" className="bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100">
-              {badge}
-            </Badge>
-          )}
-          {beta && (
-            <Badge variant="secondary" className="ml-auto text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Beta
-            </Badge>
-          )}
-        </div>
-      </a>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <a
+              href={path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={commonClasses}
+            >
+              {content}
+            </a>
+          </TooltipTrigger>
+          {tooltipContent}
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 
   return (
-    <Link
-      to={path}
-      className={commonClasses}
-    >
-      <div className="flex items-center">
-        <Icon className="w-5 h-5 mr-3" />
-        <span>{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        {badge !== undefined && (
-          <Badge variant="secondary" className="bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100">
-            {badge}
-          </Badge>
-        )}
-        {beta && (
-          <Badge variant="secondary" className="ml-auto text-xs">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Beta
-          </Badge>
-        )}
-      </div>
-    </Link>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Link
+            to={path}
+            className={commonClasses}
+          >
+            {content}
+          </Link>
+        </TooltipTrigger>
+        {tooltipContent}
+      </Tooltip>
+    </TooltipProvider>
   );
 };

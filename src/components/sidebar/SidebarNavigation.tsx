@@ -65,21 +65,19 @@ export const SidebarNavigation = () => {
   ];
 
   return (
-    <>
-      <nav className="space-y-1 flex-1">
-        <div className="mb-6">
-          {mainMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.path}
-              icon={item.icon}
-              label={item.label}
-              path={item.path}
-              isActive={!item.external && isPathActive(item.path)}
-              external={item.external}
-            />
-          ))}
-        </div>
-      </nav>
-    </>
+    <nav className="space-y-1 flex-1 flex flex-col items-center">
+      <div className="space-y-2">
+        {mainMenuItems.map((item) => (
+          <SidebarMenuItem
+            key={item.path}
+            icon={item.icon}
+            label={item.label}
+            path={item.path}
+            isActive={!item.external && isPathActive(item.path)}
+            external={item.external}
+          />
+        ))}
+      </div>
+    </nav>
   );
 };
