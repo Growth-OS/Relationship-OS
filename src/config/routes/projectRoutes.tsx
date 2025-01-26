@@ -16,7 +16,7 @@ export const projectRoutes: RouteObject = {
       ),
     },
     {
-      path: "projects/:projectId",
+      path: "projects/:projectId/*",
       element: (
         <ProtectedRoute>
           <ProjectView />

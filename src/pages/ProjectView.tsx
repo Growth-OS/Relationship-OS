@@ -9,9 +9,12 @@ import { ProjectCredentials } from "@/components/projects/portal/ProjectCredenti
 import { ProjectFiles } from "@/components/projects/portal/ProjectFiles";
 import { ProjectNotes } from "@/components/projects/portal/ProjectNotes";
 import { ProjectTasks } from "@/components/projects/portal/ProjectTasks";
+import { ProjectTimeline } from "@/components/projects/portal/ProjectTimeline";
 import { ProjectStats } from "@/components/projects/ProjectStats";
+import { ProjectAllTasks } from "@/components/projects/portal/ProjectAllTasks";
 import { ArrowLeft, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const ProjectView = () => {
   const { projectId } = useParams();
@@ -36,7 +39,10 @@ const ProjectView = () => {
         .eq("id", projectId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Failed to load project");
+        throw error;
+      }
       return data;
     },
   });
@@ -106,14 +112,16 @@ const ProjectView = () => {
         }} 
       />
 
-      <Tabs defaultValue="details" className="flex-1">
+      <Tabs defaultValue="timeline" className="flex-1">
         <TabsList className="w-full justify-start gap-2 h-auto p-1 bg-gray-100/50 rounded-lg">
           {[
+            { value: "timeline", label: "Timeline" },
+            { value: "all-tasks", label: "All Tasks" },
             { value: "details", label: "Details" },
             { value: "credentials", label: "Credentials" },
             { value: "files", label: "Files" },
             { value: "notes", label: "Notes" },
-            { value: "tasks", label: "Tasks" }
+            { value: "tasks", label: "Add Tasks" }
           ].map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -131,6 +139,12 @@ const ProjectView = () => {
         </TabsList>
 
         <div className="mt-6">
+          <TabsContent value="timeline">
+            <ProjectTimeline projectId={project.id} />
+          </TabsContent>
+          <TabsContent value="all-tasks">
+            <ProjectAllTasks projectId={project.id} />
+          </TabsContent>
           <TabsContent value="details">
             <ProjectDetails project={project} onClose={() => navigate("/dashboard/projects")} />
           </TabsContent>
