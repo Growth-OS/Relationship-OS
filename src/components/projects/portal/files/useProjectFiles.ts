@@ -28,8 +28,10 @@ export const useProjectFiles = (projectId: string) => {
       setUploading(true);
       setUploadProgress(0);
 
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).substring(2, 15);
       const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `${timestamp}-${randomString}.${fileExt}`;
       const filePath = `${projectId}/${fileName}`;
 
       // Create a channel for upload progress
@@ -41,7 +43,7 @@ export const useProjectFiles = (projectId: string) => {
             .from("project_files")
             .upload(filePath, file, {
               cacheControl: "3600",
-              upsert: false
+              upsert: true // Changed to true to handle duplicate files
             });
 
           if (uploadResult.error) throw uploadResult.error;
