@@ -29,7 +29,8 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
-        .eq("project_id", projectId)
+        .eq("source", "projects")
+        .eq("source_id", projectId)
         .order('due_date', { ascending: true });
 
       if (error) {
