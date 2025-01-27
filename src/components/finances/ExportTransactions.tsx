@@ -10,32 +10,42 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { useTransactionsFetch } from "./hooks/useTransactionsFetch";
 
 export const ExportTransactions = () => {
+  const [selectedDate] = useState(new Date());
+  const { fetchTransactions, isGenerating, setIsGenerating } = useTransactionsFetch();
+
   const handleExport = async (format: 'csv' | 'pdf' | 'zip') => {
     try {
+      setIsGenerating(true);
+      const transactions = await fetchTransactions(selectedDate);
+
       switch (format) {
         case 'csv':
-          await CSVExporter.export();
+          await CSVExporter.export(transactions, selectedDate);
           break;
         case 'pdf':
-          await PDFExporter.export();
+          await PDFExporter.export(transactions, selectedDate);
           break;
         case 'zip':
-          await ZIPExporter.export();
+          await ZIPExporter.export(transactions, selectedDate);
           break;
       }
       toast.success(`Transactions exported as ${format.toUpperCase()} successfully`);
     } catch (error) {
       console.error('Export error:', error);
       toast.error('Error exporting transactions');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" disabled={isGenerating}>
           <Download className="h-4 w-4 mr-2" />
           Export
         </Button>
