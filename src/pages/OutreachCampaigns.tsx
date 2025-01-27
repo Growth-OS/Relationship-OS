@@ -14,6 +14,7 @@ import { Lead, LeadSource } from "@/components/leads/types/lead";
 import { BulkActions } from "@/components/leads/components/BulkActions";
 import { Progress } from "@/components/ui/progress";
 import { Card } from "@/components/ui/card";
+import { CreateCampaignDialog } from "@/components/prospects/components/sequence-form/CreateCampaignDialog";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -111,6 +112,7 @@ const OutreachCampaigns = () => {
                 Manage your outreach campaigns and leads
               </p>
             </div>
+            <CreateCampaignDialog onSuccess={() => {}} />
           </div>
         </div>
       </div>
@@ -179,7 +181,6 @@ const OutreachCampaigns = () => {
                   </DialogHeader>
                   <CSVUploadDialog onSuccess={() => {
                     setUploadDialogOpen(false);
-                    refetch();
                     toast.success("Leads uploaded successfully");
                   }} />
                 </DialogContent>
@@ -198,7 +199,6 @@ const OutreachCampaigns = () => {
                   </DialogHeader>
                   <CreateLeadForm onSuccess={() => {
                     setCreateDialogOpen(false);
-                    refetch();
                     toast.success("Lead added successfully");
                   }} />
                 </DialogContent>
