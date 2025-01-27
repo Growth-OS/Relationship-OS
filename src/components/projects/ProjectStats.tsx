@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Building2, ListTodo, Receipt, Clock } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProjectStatsProps {
   project: {
@@ -9,11 +11,6 @@ interface ProjectStatsProps {
     budget?: number;
     start_date?: string;
     end_date?: string;
-    tasks?: {
-      id: string;
-      title: string;
-      completed: boolean;
-    }[];
     project_documents?: {
       id: string;
     }[];
@@ -21,6 +18,21 @@ interface ProjectStatsProps {
 }
 
 export const ProjectStats = ({ project }: ProjectStatsProps) => {
+  // Fetch tasks using the same query as Timeline and All Tasks
+  const { data: tasks = [] } = useQuery({
+    queryKey: ["project-tasks", project.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("source", "projects")
+        .eq("source_id", project.id);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -34,9 +46,9 @@ export const ProjectStats = ({ project }: ProjectStatsProps) => {
     }
   };
 
-  // Calculate task statistics
-  const totalTasks = project.tasks?.length || 0;
-  const completedTasks = project.tasks?.filter(task => task.completed)?.length || 0;
+  // Calculate task statistics using the fetched tasks
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(task => task.completed).length;
   const totalDocuments = project.project_documents?.length || 0;
 
   const stats = [
