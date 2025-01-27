@@ -99,7 +99,6 @@ const ProjectView = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold">{project.name}</h1>
-                <p className="text-gray-300 text-lg">{project.client_name}</p>
               </div>
             </div>
           </div>
