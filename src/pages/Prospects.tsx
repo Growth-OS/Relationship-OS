@@ -76,7 +76,7 @@ const Prospects = () => {
         <div className="relative z-10 px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="text-left">
-              <h1 className="text-2xl font-semibold text-foreground">Prospects</h1>
+              <h1 className="text-2xl font-medium text-foreground">Prospects</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Manage and track your business prospects
               </p>
