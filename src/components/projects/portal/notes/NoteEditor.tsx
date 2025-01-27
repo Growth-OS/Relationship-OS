@@ -14,7 +14,10 @@ export const NoteEditor = ({ projectId, onNoteAdded }: NoteEditorProps) => {
   const [newNote, setNewNote] = useState("");
 
   const handleAddNote = async () => {
-    if (!newNote.trim()) return;
+    if (!newNote.trim()) {
+      toast.error("Please enter a note");
+      return;
+    }
 
     try {
       const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -37,9 +40,8 @@ export const NoteEditor = ({ projectId, onNoteAdded }: NoteEditorProps) => {
       if (insertError) throw insertError;
 
       toast.success("Note added successfully");
-
-      setNewNote("");
-      onNoteAdded();
+      setNewNote(""); // Clear the input after successful addition
+      onNoteAdded(); // Refresh the notes list
     } catch (error: any) {
       console.error("Error adding note:", error);
       toast.error(error.message || "Failed to add note");

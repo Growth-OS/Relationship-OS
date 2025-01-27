@@ -24,7 +24,10 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         .eq("project_id", projectId)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Failed to load notes");
+        throw error;
+      }
       return data;
     },
   });
@@ -39,7 +42,6 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
       if (error) throw error;
 
       toast.success("Note deleted successfully");
-
       refetch();
     } catch (error: any) {
       console.error("Error deleting note:", error);
