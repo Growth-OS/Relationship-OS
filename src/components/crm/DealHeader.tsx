@@ -24,7 +24,7 @@ export const DealHeader = ({ open, setOpen }: DealHeaderProps) => {
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button 
-                className="bg-black hover:bg-black/90 text-white transition-colors shadow-sm hover:shadow-md"
+                className="bg-white hover:bg-white/90 text-black transition-colors shadow-sm hover:shadow-md"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Deal
