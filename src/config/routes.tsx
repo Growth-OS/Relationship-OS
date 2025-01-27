@@ -33,7 +33,11 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <Navigate to="projects" replace />,
+            element: <Navigate to="/dashboard/home" replace />,
+          },
+          {
+            path: "home",
+            element: <Dashboard />,
           },
           projectRoutes,
           dashboardRoutes,

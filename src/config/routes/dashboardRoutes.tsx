@@ -20,10 +20,6 @@ import { settingsRoutes } from "./settingsRoutes";
 export const dashboardRoutes: RouteObject = {
   children: [
     {
-      index: true,
-      element: <Dashboard />,
-    },
-    {
       path: "templates",
       element: <Templates />,
     },
