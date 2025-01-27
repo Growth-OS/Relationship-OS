@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Plus, Grid, List, ExternalLink, Calendar, Tag, Pencil, Trash2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CreateTemplateForm } from "@/components/templates/CreateTemplateForm";
@@ -79,43 +79,50 @@ const Templates = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-2xl font-bold">Templates</CardTitle>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-primary text-white' : ''}
-            >
-              <Grid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-primary text-white' : ''}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Template
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
-                </DialogHeader>
-                <CreateTemplateForm onSuccess={handleSuccess} initialData={editingTemplate} />
-              </DialogContent>
-            </Dialog>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">Templates</h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Manage and organise your document templates
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('grid')}
+                className={viewMode === 'grid' ? 'bg-primary text-white' : ''}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className={viewMode === 'list' ? 'bg-primary text-white' : ''}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-white hover:bg-white/90 text-black transition-colors shadow-sm hover:shadow-md">
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Template
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{editingTemplate ? 'Edit Template' : 'Create New Template'}</DialogTitle>
+                  </DialogHeader>
+                  <CreateTemplateForm onSuccess={handleSuccess} initialData={editingTemplate} />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </div>
 
       <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
         {templates?.map((template) => (
