@@ -10,9 +10,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const Finances = () => {
   return (
     <div className="space-y-4 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between bg-background">
         <div className="text-left">
-          <h1 className="text-2xl font-bold text-primary mb-1">Finances</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-1">Finances</h1>
           <p className="text-sm text-muted-foreground">Manage your income and expenses</p>
         </div>
         <div className="flex gap-2">
