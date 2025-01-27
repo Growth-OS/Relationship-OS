@@ -6,6 +6,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 
 export const MonthlyReport = () => {
   const [open, setOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleMonthSelect = (month: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(month);
+    setSelectedDate(newDate);
+  };
+
+  const handleYearSelect = (year: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setFullYear(year);
+    setSelectedDate(newDate);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -19,7 +32,11 @@ export const MonthlyReport = () => {
         <DialogHeader>
           <DialogTitle>Monthly Report</DialogTitle>
         </DialogHeader>
-        <MonthYearSelector />
+        <MonthYearSelector 
+          selectedDate={selectedDate}
+          onMonthSelect={handleMonthSelect}
+          onYearSelect={handleYearSelect}
+        />
       </DialogContent>
     </Dialog>
   );
