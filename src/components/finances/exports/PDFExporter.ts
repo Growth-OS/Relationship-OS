@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { createCoverPage } from "./pdf/PDFCoverPage";
 import { createTransactionsPage } from "./pdf/PDFTransactionsPage";
 
-export class PDFExporter {
+export default class PDFExporter {
   static async export(transactions: any[], selectedDate: Date) {
     try {
       if (!transactions || transactions.length === 0) {

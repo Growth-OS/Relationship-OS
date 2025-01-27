@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
-import { CSVExporter } from "./exports/CSVExporter";
-import { PDFExporter } from "./exports/PDFExporter";
-import { ZIPExporter } from "./exports/ZIPExporter";
+import CSVExporter from "./exports/CSVExporter";
+import PDFExporter from "./exports/PDFExporter";
+import ZIPExporter from "./exports/ZIPExporter";
 import {
   DropdownMenu,
   DropdownMenuContent,

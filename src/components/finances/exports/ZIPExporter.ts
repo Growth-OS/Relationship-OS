@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import JSZip from "jszip";
 import { supabase } from "@/integrations/supabase/client";
 
-export class ZIPExporter {
+export default class ZIPExporter {
   static async export(transactions: any[], selectedDate: Date) {
     try {
       // Create ZIP file

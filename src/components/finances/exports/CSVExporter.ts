@@ -2,7 +2,7 @@ import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export class CSVExporter {
+export default class CSVExporter {
   static async export(transactions: any[], selectedDate: Date) {
     try {
       // Prepare CSV data
