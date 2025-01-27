@@ -95,7 +95,7 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
       <div className="relative z-10 px-6 py-8">
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="text-left">
+            <div className="text-center w-full">
               <h1 className="text-2xl font-medium text-white">
                 {greeting}, {firstName}!
               </h1>
