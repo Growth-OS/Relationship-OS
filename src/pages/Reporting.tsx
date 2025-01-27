@@ -90,20 +90,22 @@ const Reporting = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <div className="text-left">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Reporting Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Track and analyse your business metrics
-            </p>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">
+                Reporting Dashboard
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Track and analyse your business metrics across all modules
+              </p>
+            </div>
+            <ModuleFilter 
+              value={selectedModule} 
+              onChange={setSelectedModule} 
+            />
           </div>
-          <ModuleFilter 
-            value={selectedModule} 
-            onChange={setSelectedModule} 
-          />
         </div>
       </div>
 
