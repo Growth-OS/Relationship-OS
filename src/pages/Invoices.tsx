@@ -43,18 +43,23 @@ const Invoices = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="flex justify-between items-center">
-          <div className="text-left">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Invoices</h1>
-            <p className="text-muted-foreground">
-              Create and manage your invoices
-            </p>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">Invoices</h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Create and manage your invoices efficiently
+              </p>
+            </div>
+            <Button 
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="bg-white hover:bg-white/90 text-black transition-colors shadow-sm hover:shadow-md"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Button>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create Invoice
-          </Button>
         </div>
       </div>
 
