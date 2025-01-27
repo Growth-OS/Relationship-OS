@@ -121,13 +121,14 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
                       <Flag className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-4">
-                        <h4 className="font-medium text-gray-900 truncate">
+                      <div className="flex items-start justify-between gap-4">
+                        <h4 className="font-medium text-gray-900 text-left">
                           {task.title}
                         </h4>
                         <Badge
                           variant="secondary"
                           className={cn(
+                            "flex-shrink-0",
                             task.priority === "high"
                               ? "bg-red-100 text-red-800"
                               : "bg-blue-100 text-blue-800"
@@ -137,7 +138,7 @@ export const ProjectTimeline = ({ projectId }: ProjectTimelineProps) => {
                         </Badge>
                       </div>
                       {task.description && (
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 mt-1 text-left">
                           {task.description}
                         </p>
                       )}
