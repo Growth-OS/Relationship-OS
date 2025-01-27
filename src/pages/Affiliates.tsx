@@ -97,34 +97,36 @@ const Affiliates = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <Card className="p-6">
-        <div className="flex justify-between items-center">
-          <div className="text-left">
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Affiliate Partners
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage your affiliate relationships and track performance
-            </p>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex justify-between items-center">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">
+                Affiliate Partners
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Manage your affiliate relationships and track performance
+              </p>
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-white text-primary hover:bg-gray-100">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Partner
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Partner</DialogTitle>
+                </DialogHeader>
+                <AffiliateForm onSuccess={() => setIsAddDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
           </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Partner
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Add New Partner</DialogTitle>
-              </DialogHeader>
-              <AffiliateForm onSuccess={() => setIsAddDialogOpen(false)} />
-            </DialogContent>
-          </Dialog>
         </div>
-      </Card>
+      </div>
 
-      <Card className="p-6">
+      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
         <StatsCards 
           totalPartners={partners?.length ?? 0}
           monthlyEarnings={monthlyEarnings}
@@ -132,14 +134,14 @@ const Affiliates = () => {
         />
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-medium text-white">
                 Partners
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-gray-300 mt-1">
                 View and manage your affiliate partnerships
               </p>
             </div>
@@ -148,20 +150,20 @@ const Affiliates = () => {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-medium text-white">
                 Earnings
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-gray-300 mt-1">
                 Track and record affiliate earnings
               </p>
             </div>
             <Dialog open={isAddEarningOpen} onOpenChange={setIsAddEarningOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="bg-white text-primary hover:bg-gray-100">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Earning
                 </Button>
