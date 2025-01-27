@@ -102,12 +102,16 @@ const OutreachCampaigns = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-        <div className="text-left">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Outreach Campaigns</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Manage your outreach campaigns and leads
-          </p>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">Outreach Campaigns</h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Manage your outreach campaigns and leads
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
