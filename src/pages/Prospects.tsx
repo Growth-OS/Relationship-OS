@@ -72,7 +72,7 @@ const Prospects = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="relative overflow-hidden rounded-lg bg-[#FAFAFA] dark:bg-gray-900 border border-purple-200/10 shadow-sm">
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
         <div className="relative z-10 px-6 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="text-left">
