@@ -7,11 +7,13 @@ import { miscRoutes } from "./routes/miscRoutes";
 import { projectRoutes } from "./routes/projectRoutes";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import Login from "@/pages/Login";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+    errorElement: <ErrorBoundary />,
   },
   {
     path: "/",
@@ -20,6 +22,7 @@ export const router = createBrowserRouter([
         <Layout />
       </AuthProvider>
     ),
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,

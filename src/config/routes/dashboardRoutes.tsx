@@ -13,6 +13,9 @@ import Affiliates from "@/pages/Affiliates";
 import Development from "@/pages/Development";
 import Invoices from "@/pages/Invoices";
 import Tasks from "@/pages/Tasks";
+import Travels from "@/pages/Travels";
+import SubstackPosts from "@/pages/SubstackPosts";
+import { settingsRoutes } from "./settingsRoutes";
 
 export const dashboardRoutes: RouteObject = {
   path: "dashboard",
@@ -40,10 +43,6 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "prospects",
       element: <Prospects />,
-    },
-    {
-      path: "outreach",
-      element: <OutreachCampaigns />,
     },
     {
       path: "outreach-campaigns",
@@ -76,6 +75,18 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "tasks",
       element: <Tasks />,
+    },
+    {
+      path: "travels",
+      element: <Travels />,
+    },
+    {
+      path: "substack",
+      element: <SubstackPosts />,
+    },
+    {
+      path: "settings/*",
+      children: [settingsRoutes],
     },
   ],
 };
