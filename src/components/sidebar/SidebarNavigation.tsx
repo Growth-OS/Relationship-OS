@@ -4,7 +4,7 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
-  Sparkles, BookOpen, Plane, Target, Folder
+  Sparkles, BookOpen, Plane, Target, Folder, Settings
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -65,8 +65,8 @@ export const SidebarNavigation = () => {
   ];
 
   return (
-    <nav className="space-y-1 flex-1 flex flex-col items-center">
-      <div className="space-y-2">
+    <nav className="space-y-1 flex-1 flex flex-col items-center overflow-y-auto">
+      <div className="space-y-1">
         {mainMenuItems.map((item) => (
           <SidebarMenuItem
             key={item.path}
