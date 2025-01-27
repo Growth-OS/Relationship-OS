@@ -9,9 +9,14 @@ interface ProjectStatsProps {
     budget?: number;
     start_date?: string;
     end_date?: string;
-    totalTasks: number;
-    completedTasks: number;
-    totalDocuments: number;
+    tasks?: {
+      id: string;
+      title: string;
+      completed: boolean;
+    }[];
+    project_documents?: {
+      id: string;
+    }[];
   };
 }
 
@@ -29,6 +34,11 @@ export const ProjectStats = ({ project }: ProjectStatsProps) => {
     }
   };
 
+  // Calculate task statistics
+  const totalTasks = project.tasks?.length || 0;
+  const completedTasks = project.tasks?.filter(task => task.completed)?.length || 0;
+  const totalDocuments = project.project_documents?.length || 0;
+
   const stats = [
     {
       title: "Project Status",
@@ -44,13 +54,13 @@ export const ProjectStats = ({ project }: ProjectStatsProps) => {
     },
     {
       title: "Tasks Progress",
-      value: `${project.completedTasks}/${project.totalTasks}`,
+      value: `${completedTasks}/${totalTasks}`,
       icon: ListTodo,
       color: "text-blue-400 bg-blue-950/20",
     },
     {
       title: "Documents",
-      value: project.totalDocuments.toString(),
+      value: totalDocuments.toString(),
       icon: Receipt,
       color: "text-orange-400 bg-orange-950/20",
     },
