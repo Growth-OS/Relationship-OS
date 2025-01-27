@@ -7,6 +7,7 @@ import { miscRoutes } from "./routes/miscRoutes";
 import { projectRoutes } from "./routes/projectRoutes";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 export const router = createBrowserRouter([
