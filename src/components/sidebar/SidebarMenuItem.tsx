@@ -31,7 +31,7 @@ export const SidebarMenuItem = ({
   external 
 }: SidebarMenuItemProps) => {
   const commonClasses = cn(
-    "flex items-center justify-center w-10 h-10 rounded-lg transition-colors",
+    "flex items-center justify-center w-9 h-9 rounded-lg transition-colors", // Reduced from w-10 h-10
     isActive
       ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
@@ -39,11 +39,11 @@ export const SidebarMenuItem = ({
 
   const content = (
     <div className="relative">
-      <Icon className="w-5 h-5" />
+      <Icon className="w-4 h-4" /> {/* Reduced from w-5 h-5 */}
       {badge !== undefined && (
         <Badge 
           variant="secondary" 
-          className="absolute -top-2 -right-2 min-w-[18px] h-[18px] p-0 flex items-center justify-center bg-purple-100 text-purple-900 text-xs dark:bg-purple-900 dark:text-purple-100"
+          className="absolute -top-2 -right-2 min-w-[16px] h-[16px] p-0 flex items-center justify-center bg-purple-100 text-purple-900 text-xs dark:bg-purple-900 dark:text-purple-100"
         >
           {badge}
         </Badge>
@@ -51,7 +51,7 @@ export const SidebarMenuItem = ({
       {beta && (
         <Badge 
           variant="secondary" 
-          className="absolute -top-2 -right-2 min-w-[18px] h-[18px] p-0 flex items-center justify-center"
+          className="absolute -top-2 -right-2 min-w-[16px] h-[16px] p-0 flex items-center justify-center"
         >
           <Sparkles className="w-3 h-3" />
         </Badge>
