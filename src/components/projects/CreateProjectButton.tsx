@@ -10,7 +10,9 @@ export const CreateProjectButton = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button 
+          className="bg-white hover:bg-white/90 text-black transition-colors shadow-sm hover:shadow-md"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Project
         </Button>
