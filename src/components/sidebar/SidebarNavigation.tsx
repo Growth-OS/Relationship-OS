@@ -61,7 +61,12 @@ export const SidebarNavigation = () => {
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
     { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
-    { icon: Bug, label: "Development", path: "/dashboard/development" },
+    { 
+      icon: Bug, 
+      label: "Development", 
+      path: "https://lovable.dev/projects/6496a71f-82eb-448d-83e9-3f83d5ae630c",
+      external: true 
+    },
   ];
 
   return (
