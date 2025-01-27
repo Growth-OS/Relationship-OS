@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ProjectsGrid } from "@/components/projects/ProjectsGrid";
 import { CreateProjectButton } from "@/components/projects/CreateProjectButton";
 import { toast } from "sonner";
 import { Briefcase, Clock, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Projects = () => {
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "completed">("active");
@@ -39,14 +39,20 @@ const Projects = () => {
   return (
     <div className="container mx-auto p-6 space-y-6 animate-fade-in">
       {/* Header Section */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage and track your client projects
-          </p>
+      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+        <div className="relative z-10 px-6 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="text-left">
+              <h1 className="text-2xl font-medium text-white">
+                Projects
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
+                Manage and track your client projects
+              </p>
+            </div>
+            <CreateProjectButton />
+          </div>
         </div>
-        <CreateProjectButton />
       </div>
 
       {/* Controls Section */}
