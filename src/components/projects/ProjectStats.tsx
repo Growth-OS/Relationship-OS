@@ -19,13 +19,13 @@ export const ProjectStats = ({ project }: ProjectStatsProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20";
+        return "text-emerald-400 bg-emerald-950/20";
       case "completed":
-        return "text-blue-500 bg-blue-50 dark:bg-blue-900/20";
+        return "text-blue-400 bg-blue-950/20";
       case "on_hold":
-        return "text-amber-500 bg-amber-50 dark:bg-amber-900/20";
+        return "text-amber-400 bg-amber-950/20";
       default:
-        return "text-gray-500 bg-gray-50 dark:bg-gray-900/20";
+        return "text-gray-400 bg-gray-800/20";
     }
   };
 
@@ -40,33 +40,36 @@ export const ProjectStats = ({ project }: ProjectStatsProps) => {
       title: "Budget",
       value: project.budget ? `€${project.budget.toLocaleString()}` : "Not Set",
       icon: Building2,
-      color: "text-purple-500 bg-purple-50 dark:bg-purple-900/20",
+      color: "text-purple-400 bg-purple-950/20",
     },
     {
       title: "Tasks Progress",
       value: `${project.completedTasks}/${project.totalTasks}`,
       icon: ListTodo,
-      color: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
+      color: "text-blue-400 bg-blue-950/20",
     },
     {
       title: "Documents",
       value: project.totalDocuments.toString(),
       icon: Receipt,
-      color: "text-orange-500 bg-orange-50 dark:bg-orange-900/20",
+      color: "text-orange-400 bg-orange-950/20",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="p-6 hover:shadow-md transition-shadow">
+        <Card 
+          key={index} 
+          className="p-4 border-0 bg-gray-800/20 backdrop-blur-sm hover:bg-gray-800/30 transition-all duration-200"
+        >
           <div className="flex items-center space-x-4">
             <div className={`p-2 rounded-full ${stat.color}`}>
-              <stat.icon className="h-6 w-6" />
+              <stat.icon className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-              <h3 className="text-2xl font-bold">{stat.value}</h3>
+              <p className="text-sm font-medium text-gray-400">{stat.title}</p>
+              <h3 className="text-xl font-bold text-white">{stat.value}</h3>
             </div>
           </div>
         </Card>
