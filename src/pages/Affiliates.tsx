@@ -126,7 +126,7 @@ const Affiliates = () => {
         </div>
       </div>
 
-      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
+      <Card className="p-6">
         <StatsCards 
           totalPartners={partners?.length ?? 0}
           monthlyEarnings={monthlyEarnings}
@@ -134,14 +134,14 @@ const Affiliates = () => {
         />
       </Card>
 
-      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
+      <Card className="p-6">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h2 className="text-xl font-medium text-white">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Partners
               </h2>
-              <p className="text-sm text-gray-300 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 View and manage your affiliate partnerships
               </p>
             </div>
@@ -150,20 +150,20 @@ const Affiliates = () => {
         </div>
       </Card>
 
-      <Card className="p-6 bg-[#161e2c] border-gray-800/40">
+      <Card className="p-6">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h2 className="text-xl font-medium text-white">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Earnings
               </h2>
-              <p className="text-sm text-gray-300 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Track and record affiliate earnings
               </p>
             </div>
             <Dialog open={isAddEarningOpen} onOpenChange={setIsAddEarningOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-white text-primary hover:bg-gray-100">
+                <Button>
                   <Plus className="w-4 h-4 mr-2" />
                   Add Earning
                 </Button>
