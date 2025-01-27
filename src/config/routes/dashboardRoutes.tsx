@@ -18,7 +18,6 @@ import SubstackPosts from "@/pages/SubstackPosts";
 import { settingsRoutes } from "./settingsRoutes";
 
 export const dashboardRoutes: RouteObject = {
-  path: "dashboard",
   children: [
     {
       index: true,
