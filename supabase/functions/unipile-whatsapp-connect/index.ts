@@ -18,16 +18,17 @@ serve(async (req) => {
 
     console.log('Initializing WhatsApp connection request...')
     
-    // Initialize Unipile client
-    const unipileUrl = `${UNIPILE_DSN}/v1`
-    
-    // Request QR code from Unipile
-    const response = await fetch(`${unipileUrl}/account/whatsapp/connect`, {
+    // Make request to Unipile API to create WhatsApp account
+    const response = await fetch(`${UNIPILE_DSN}/api/v1/accounts`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${UNIPILE_API_KEY}`,
+        'X-API-KEY': UNIPILE_API_KEY,
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        provider: 'WHATSAPP'
+      })
     })
 
     if (!response.ok) {
@@ -37,12 +38,20 @@ serve(async (req) => {
     }
 
     const data = await response.json()
-    console.log('Successfully generated WhatsApp QR code')
+    console.log('Successfully received WhatsApp connection data:', data)
+
+    // Extract QR code and session ID from response
+    const qrCode = data.qr_code
+    const sessionId = data.session_id
+
+    if (!qrCode || !sessionId) {
+      throw new Error('Invalid response from Unipile API')
+    }
 
     return new Response(
       JSON.stringify({
-        qrCode: data.qrCode,
-        sessionId: data.sessionId
+        qrCode,
+        sessionId
       }),
       {
         headers: { 
