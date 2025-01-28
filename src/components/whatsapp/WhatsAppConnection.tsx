@@ -1,12 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Check } from "lucide-react";
+import { QrCode, Check, Loader } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import QRCode from "qrcode";
 
 export const WhatsAppConnection = () => {
   const [isConnecting, setIsConnecting] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // Poll connection status when we have a session ID
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch('/api/unipile/whatsapp/status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ sessionId })
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'connected') {
+          clearInterval(pollInterval);
+          toast.success("WhatsApp connected successfully!");
+          window.location.reload(); // Refresh to show chat interface
+        }
+      } catch (error) {
+        console.error("Error checking connection status:", error);
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [sessionId]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -17,7 +49,7 @@ export const WhatsAppConnection = () => {
         return;
       }
 
-      // Call Unipile to initiate WhatsApp connection
+      // Call our edge function to get QR code
       const response = await fetch('/api/unipile/whatsapp/connect', {
         method: 'POST',
         headers: {
@@ -28,17 +60,22 @@ export const WhatsAppConnection = () => {
 
       const data = await response.json();
       
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       if (data.qrCode) {
-        // Show QR code to user
-        // The QR code URL will be in data.qrCode
-        window.open(data.qrCode, '_blank');
+        // Convert QR code string to data URL
+        const qrDataUrl = await QRCode.toDataURL(data.qrCode);
+        setQrCodeDataUrl(qrDataUrl);
+        setSessionId(data.sessionId);
         toast.success("Please scan the QR code with WhatsApp to connect your account");
       } else {
-        toast.error("Failed to generate WhatsApp QR code");
+        throw new Error("No QR code received");
       }
     } catch (error) {
       console.error("WhatsApp connection error:", error);
-      toast.error("Failed to connect WhatsApp");
+      toast.error(error.message || "Failed to connect WhatsApp");
     } finally {
       setIsConnecting(false);
     }
@@ -46,28 +83,51 @@ export const WhatsAppConnection = () => {
 
   return (
     <Card className="flex flex-col items-center justify-center p-8 space-y-4">
-      <QrCode className="w-16 h-16 text-gray-400" />
+      {qrCodeDataUrl ? (
+        <img 
+          src={qrCodeDataUrl} 
+          alt="WhatsApp QR Code" 
+          className="w-64 h-64"
+        />
+      ) : (
+        <QrCode className="w-16 h-16 text-gray-400" />
+      )}
+      
       <h2 className="text-2xl font-semibold">Connect WhatsApp</h2>
+      
       <p className="text-center text-gray-500 max-w-md">
-        To use WhatsApp in this app, you'll need to connect your account. Click below to get a QR code, then scan it with your WhatsApp mobile app.
+        {qrCodeDataUrl 
+          ? "Open WhatsApp on your phone, tap Menu or Settings and select WhatsApp Web. Point your phone to this screen to capture the QR code."
+          : "To use WhatsApp in this app, you'll need to connect your account. Click below to get a QR code, then scan it with your WhatsApp mobile app."
+        }
       </p>
-      <Button 
-        onClick={handleConnect} 
-        disabled={isConnecting}
-        className="flex items-center gap-2"
-      >
-        {isConnecting ? (
-          <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            Connecting...
-          </>
-        ) : (
-          <>
-            <QrCode className="w-4 h-4" />
-            Connect WhatsApp
-          </>
-        )}
-      </Button>
+
+      {!qrCodeDataUrl && (
+        <Button 
+          onClick={handleConnect} 
+          disabled={isConnecting}
+          className="flex items-center gap-2"
+        >
+          {isConnecting ? (
+            <>
+              <Loader className="w-4 h-4 animate-spin" />
+              Generating QR Code...
+            </>
+          ) : (
+            <>
+              <QrCode className="w-4 h-4" />
+              Connect WhatsApp
+            </>
+          )}
+        </Button>
+      )}
+
+      {qrCodeDataUrl && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader className="w-4 h-4 animate-spin" />
+          Waiting for scan...
+        </div>
+      )}
     </Card>
   );
 };
