@@ -17,10 +17,17 @@ export const WhatsAppConnection = () => {
 
     const pollInterval = setInterval(async () => {
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast.error("Please sign in to connect WhatsApp");
+          return;
+        }
+
         const response = await fetch('/api/unipile/whatsapp/status', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
           },
           body: JSON.stringify({ sessionId })
         });
@@ -50,25 +57,19 @@ export const WhatsAppConnection = () => {
       }
 
       // Call our edge function to get QR code
-      const response = await fetch('/api/unipile/whatsapp/connect', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        }
+      const response = await supabase.functions.invoke('unipile-whatsapp-connect', {
+        method: 'POST'
       });
 
-      const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error);
+      if (response.error) {
+        throw new Error(response.error.message);
       }
 
-      if (data.qrCode) {
+      if (response.data?.qrCode) {
         // Convert QR code string to data URL
-        const qrDataUrl = await QRCode.toDataURL(data.qrCode);
+        const qrDataUrl = await QRCode.toDataURL(response.data.qrCode);
         setQrCodeDataUrl(qrDataUrl);
-        setSessionId(data.sessionId);
+        setSessionId(response.data.sessionId);
         toast.success("Please scan the QR code with WhatsApp to connect your account");
       } else {
         throw new Error("No QR code received");
