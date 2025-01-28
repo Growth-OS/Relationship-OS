@@ -40,7 +40,7 @@ export const dashboardRoutes: RouteObject = {
       element: <Prospects />,
     },
     {
-      path: "outreach-campaigns",
+      path: "outreach",
       element: <OutreachCampaigns />,
     },
     {
