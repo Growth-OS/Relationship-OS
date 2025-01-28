@@ -56,23 +56,24 @@ export const WhatsAppConnection = () => {
         return;
       }
 
-      // Call our edge function to get QR code
-      const response = await supabase.functions.invoke('unipile-whatsapp-connect', {
+      console.log('Requesting WhatsApp QR code...');
+      const { data, error } = await supabase.functions.invoke('unipile-whatsapp-connect', {
         method: 'POST'
       });
 
-      if (response.error) {
-        throw new Error(response.error.message);
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to connect to WhatsApp');
       }
 
-      if (response.data?.qrCode) {
-        // Convert QR code string to data URL
-        const qrDataUrl = await QRCode.toDataURL(response.data.qrCode);
+      if (data?.qrCode) {
+        console.log('QR code received, generating display...');
+        const qrDataUrl = await QRCode.toDataURL(data.qrCode);
         setQrCodeDataUrl(qrDataUrl);
-        setSessionId(response.data.sessionId);
+        setSessionId(data.sessionId);
         toast.success("Please scan the QR code with WhatsApp to connect your account");
       } else {
-        throw new Error("No QR code received");
+        throw new Error("No QR code received from server");
       }
     } catch (error) {
       console.error("WhatsApp connection error:", error);
