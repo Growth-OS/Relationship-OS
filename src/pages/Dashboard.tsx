@@ -4,7 +4,6 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTasks";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardTravelWidget } from "@/components/dashboard/DashboardTravelWidget";
-import { WhatsAppChat } from "@/components/whatsapp/WhatsAppChat";
 
 const Dashboard = () => {
   const { data: user } = useQuery({
@@ -32,7 +31,7 @@ const Dashboard = () => {
             <DashboardWeeklyTasks />
           </div>
           <div className="lg:col-span-1">
-            <WhatsAppChat />
+            <DashboardTravelWidget />
           </div>
         </div>
       </div>
