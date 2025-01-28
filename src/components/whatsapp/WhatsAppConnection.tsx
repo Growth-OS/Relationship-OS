@@ -23,18 +23,13 @@ export const WhatsAppConnection = () => {
           return;
         }
 
-        const response = await fetch('/api/unipile/whatsapp/status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({ sessionId })
+        const response = await supabase.functions.invoke('unipile-whatsapp', {
+          body: { action: 'status', sessionId }
         });
 
-        const data = await response.json();
+        if (response.error) throw response.error;
         
-        if (data.status === 'connected') {
+        if (response.data?.status === 'connected') {
           clearInterval(pollInterval);
           toast.success("WhatsApp connected successfully!");
           window.location.reload(); // Refresh to show chat interface
@@ -57,14 +52,11 @@ export const WhatsAppConnection = () => {
       }
 
       console.log('Requesting WhatsApp QR code...');
-      const { data, error } = await supabase.functions.invoke('unipile-whatsapp-connect', {
-        method: 'POST'
+      const { data, error } = await supabase.functions.invoke('unipile-whatsapp', {
+        body: { action: 'connect' }
       });
 
-      if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(error.message || 'Failed to connect to WhatsApp');
-      }
+      if (error) throw error;
 
       if (data?.qrCode) {
         console.log('QR code received, generating display...');
