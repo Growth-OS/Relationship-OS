@@ -20,7 +20,7 @@ serve(async (req) => {
       throw new Error('UNIPILE_API_KEY not found');
     }
 
-    const response = await fetch('https://api6.unipile.com:13619/api/v1/accounts', {
+    const response = await fetch('https://api8.unipile.com:13814/api/v1/accounts', {
       method: 'GET',
       headers: {
         'X-API-KEY': unipileApiKey,
