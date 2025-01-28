@@ -32,9 +32,17 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
         .eq('user_id', user.id)
         .neq('stage', 'lost');
 
+      // Get active projects
+      const { count: activeProjects } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
       return {
         tasksDueToday: tasksDueToday || 0,
         activeDeals: activeDeals || 0,
+        activeProjects: activeProjects || 0,
       };
     },
   });
@@ -68,7 +76,7 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
           <div className="flex justify-center">
             <div className="space-y-4 max-w-lg w-full">
               <h2 className="text-lg font-semibold text-white text-center">Today's Highlights</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                   <div className="text-2xl font-bold text-white">{highlights?.tasksDueToday}</div>
                   <div className="text-sm text-gray-300">Tasks Due Today</div>
@@ -76,6 +84,10 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
                 <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                   <div className="text-2xl font-bold text-white">{highlights?.activeDeals}</div>
                   <div className="text-sm text-gray-300">Active Deals</div>
+                </div>
+                <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="text-2xl font-bold text-white">{highlights?.activeProjects}</div>
+                  <div className="text-sm text-gray-300">Active Projects</div>
                 </div>
               </div>
             </div>
