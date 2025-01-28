@@ -4,8 +4,6 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardWeeklyTasks } from "@/components/dashboard/DashboardWeeklyTasks";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardTravelWidget } from "@/components/dashboard/DashboardTravelWidget";
-import { DealProgressReport } from "@/components/dashboard/DealProgressReport";
-import { UpcomingTravelReport } from "@/components/dashboard/UpcomingTravelReport";
 
 const Dashboard = () => {
   const { data: user } = useQuery({
@@ -29,13 +27,12 @@ const Dashboard = () => {
         <DashboardStats />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DashboardWeeklyTasks />
-          <DealProgressReport />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <DashboardTravelWidget />
-          <UpcomingTravelReport />
+          <div className="lg:col-span-2">
+            <DashboardWeeklyTasks />
+          </div>
+          <div className="lg:col-span-2">
+            <DashboardTravelWidget />
+          </div>
         </div>
       </div>
     </div>
