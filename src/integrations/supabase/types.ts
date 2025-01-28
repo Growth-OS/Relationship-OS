@@ -1635,6 +1635,185 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_chats: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          group_description: string | null
+          group_name: string | null
+          id: string
+          is_group: boolean | null
+          last_message_at: string | null
+          unread_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          group_description?: string | null
+          group_name?: string | null
+          id?: string
+          is_group?: boolean | null
+          last_message_at?: string | null
+          unread_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          group_description?: string | null
+          group_name?: string | null
+          id?: string
+          is_group?: boolean | null
+          last_message_at?: string | null
+          unread_count?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_chats_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_contacts: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          last_seen: string | null
+          name: string | null
+          phone_number: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string | null
+          name?: string | null
+          phone_number: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string | null
+          name?: string | null
+          phone_number?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_group_members: {
+        Row: {
+          chat_id: string
+          contact_id: string
+          id: string
+          is_admin: boolean | null
+          joined_at: string
+        }
+        Insert: {
+          chat_id: string
+          contact_id: string
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string
+        }
+        Update: {
+          chat_id?: string
+          contact_id?: string
+          id?: string
+          is_admin?: boolean | null
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_group_members_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_group_members_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_messages: {
+        Row: {
+          chat_id: string
+          content: string | null
+          created_at: string
+          delivered_at: string | null
+          id: string
+          is_outbound: boolean | null
+          media_type: string | null
+          media_url: string | null
+          message_type: string
+          read_at: string | null
+          reply_to_message_id: string | null
+          status: Database["public"]["Enums"]["message_status"] | null
+          user_id: string
+        }
+        Insert: {
+          chat_id: string
+          content?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          is_outbound?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          message_type?: string
+          read_at?: string | null
+          reply_to_message_id?: string | null
+          status?: Database["public"]["Enums"]["message_status"] | null
+          user_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          is_outbound?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          message_type?: string
+          read_at?: string | null
+          reply_to_message_id?: string | null
+          status?: Database["public"]["Enums"]["message_status"] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       invoice_metrics: {
@@ -1713,6 +1892,7 @@ export type Database = {
         | "conference"
         | "other"
         | "accelerator"
+      message_status: "sent" | "delivered" | "read"
       module_permission:
         | "dashboard"
         | "prospects"
