@@ -4,7 +4,8 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
-  Sparkles, BookOpen, Plane, Target, Folder, Settings
+  Sparkles, BookOpen, Plane, Target, Folder, Settings,
+  Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -56,6 +57,12 @@ export const SidebarNavigation = () => {
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 
+    },
+    { 
+      icon: Instagram,
+      label: "Instagram",
+      path: "https://www.instagram.com/therelationshipofsales/",
+      external: true
     },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
