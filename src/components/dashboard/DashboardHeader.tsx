@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { PlusCircle, Calendar, Briefcase, ListTodo, Receipt, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { CreateTaskButton } from "@/components/tasks/CreateTaskButton";
 
 interface DashboardHeaderProps {
   firstName: string;
@@ -13,7 +9,6 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
   const [greeting, setGreeting] = useState("");
-  const navigate = useNavigate();
 
   const { data: highlights } = useQuery({
     queryKey: ['dashboard-highlights'],
@@ -57,57 +52,22 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     }
   }, []);
 
-  const quickActions = [
-    {
-      label: "New Task",
-      icon: ListTodo,
-      component: CreateTaskButton,
-      color: "bg-purple-100 text-purple-700 hover:bg-purple-200",
-    },
-    {
-      label: "New Deal",
-      icon: Briefcase,
-      onClick: () => navigate("/dashboard/deals/new"),
-      color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    },
-    {
-      label: "New Invoice",
-      icon: Receipt,
-      onClick: () => navigate("/dashboard/invoices/new"),
-      color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
-    },
-    {
-      label: "Add Transaction",
-      icon: Wallet,
-      onClick: () => navigate("/dashboard/finances/new"),
-      color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
-    },
-    {
-      label: "Schedule",
-      icon: Calendar,
-      onClick: () => navigate("/dashboard/calendar"),
-      color: "bg-green-100 text-green-700 hover:bg-green-200",
-    },
-  ];
-
   return (
     <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
       <div className="relative z-10 px-6 py-8">
         <div className="space-y-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="text-center w-full">
-              <h1 className="text-2xl font-medium text-white">
-                {greeting}, {firstName}!
-              </h1>
-              <p className="text-sm text-gray-300 mt-1">
-                Here's what's happening today, {format(new Date(), 'do MMMM yyyy')}
-              </p>
-            </div>
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-2xl font-medium text-white">
+              {greeting}, {firstName}!
+            </h1>
+            <p className="text-sm text-gray-300 mt-1">
+              Here's what's happening today, {format(new Date(), 'do MMMM yyyy')}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Today's Highlights</h2>
+          <div className="flex justify-center">
+            <div className="space-y-4 max-w-lg w-full">
+              <h2 className="text-lg font-semibold text-white text-center">Today's Highlights</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
                   <div className="text-2xl font-bold text-white">{highlights?.tasksDueToday}</div>
@@ -117,34 +77,6 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
                   <div className="text-2xl font-bold text-white">{highlights?.activeDeals}</div>
                   <div className="text-sm text-gray-300">Active Deals</div>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Quick Actions</h2>
-              <div className="flex flex-wrap gap-2">
-                {quickActions.map((action) => (
-                  action.component ? (
-                    <action.component
-                      key={action.label}
-                      variant="ghost"
-                      className={`${action.color} gap-2`}
-                    >
-                      <action.icon className="h-4 w-4" />
-                      {action.label}
-                    </action.component>
-                  ) : (
-                    <Button
-                      key={action.label}
-                      variant="ghost"
-                      className={`${action.color} gap-2`}
-                      onClick={action.onClick}
-                    >
-                      <action.icon className="h-4 w-4" />
-                      {action.label}
-                    </Button>
-                  )
-                ))}
               </div>
             </div>
           </div>
