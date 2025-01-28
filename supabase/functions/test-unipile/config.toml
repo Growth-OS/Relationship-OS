@@ -1,1 +1,2 @@
-project_id = "steunfbcpofecftasvin"
+[functions.test-unipile]
+verify_jwt = false

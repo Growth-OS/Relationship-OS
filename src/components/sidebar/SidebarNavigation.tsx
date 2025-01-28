@@ -5,7 +5,7 @@ import {
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
   Sparkles, BookOpen, Plane, Target, Folder, Settings,
-  Instagram, MessageCircle
+  Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -29,7 +29,6 @@ export const SidebarNavigation = () => {
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Plane, label: "Travels", path: "/dashboard/travels" },
-    { icon: MessageCircle, label: "WhatsApp", path: "/dashboard/whatsapp" },
     { 
       icon: Mail, 
       label: "Superhuman", 

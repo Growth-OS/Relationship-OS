@@ -15,7 +15,6 @@ import Invoices from "@/pages/Invoices";
 import Tasks from "@/pages/Tasks";
 import Travels from "@/pages/Travels";
 import SubstackPosts from "@/pages/SubstackPosts";
-import WhatsApp from "@/pages/WhatsApp";
 import { settingsRoutes } from "./settingsRoutes";
 
 export const dashboardRoutes: RouteObject = {
@@ -79,10 +78,6 @@ export const dashboardRoutes: RouteObject = {
     {
       path: "substack",
       element: <SubstackPosts />,
-    },
-    {
-      path: "whatsapp",
-      element: <WhatsApp />,
     },
     {
       path: "settings/*",
