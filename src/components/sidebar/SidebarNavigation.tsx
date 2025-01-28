@@ -50,7 +50,7 @@ export const SidebarNavigation = () => {
     { 
       icon: Instagram,
       label: "Instagram",
-      path: "https://www.instagram.com/therelationshipofsales/",
+      path: "https://www.instagram.com/relationshipofsales/",
       external: true
     },
     { 
