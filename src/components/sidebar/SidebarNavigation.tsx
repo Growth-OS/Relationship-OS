@@ -48,6 +48,12 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
+      icon: Instagram,
+      label: "Instagram",
+      path: "https://www.instagram.com/therelationshipofsales/",
+      external: true
+    },
+    { 
       icon: BookOpen,
       label: "Substack",
       path: "/dashboard/substack"
@@ -57,12 +63,6 @@ export const SidebarNavigation = () => {
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 
-    },
-    { 
-      icon: Instagram,
-      label: "Instagram",
-      path: "https://www.instagram.com/therelationshipofsales/",
-      external: true
     },
     { icon: Users, label: "Affiliates", path: "/dashboard/affiliates" },
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
