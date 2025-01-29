@@ -1,10 +1,13 @@
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
-import { Plane, Building2, MapPin } from "lucide-react";
+import { Plane, Building2, MapPin, Pencil } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CreateTravelForm } from "./CreateTravelForm";
 
 // Define the travel status type to match the database enum
 type TravelStatus = 'upcoming' | 'completed' | 'cancelled';
@@ -104,19 +107,31 @@ export const TravelsList = ({ travels, isLoading, onTravelUpdated }: TravelsList
                       <MapPin className="w-4 h-4 text-gray-500" />
                       <h3 className="font-semibold">Journey Details</h3>
                     </div>
-                    <Select
-                      value={travel.status}
-                      onValueChange={(value: TravelStatus) => handleStatusChange(travel.id, value)}
-                    >
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="upcoming">Upcoming</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <CreateTravelForm onSuccess={onTravelUpdated} editTravel={travel} />
+                        </DialogContent>
+                      </Dialog>
+                      <Select
+                        value={travel.status}
+                        onValueChange={(value: TravelStatus) => handleStatusChange(travel.id, value)}
+                      >
+                        <SelectTrigger className="w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="upcoming">Upcoming</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   {/* Status Badge */}
