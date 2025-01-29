@@ -5,7 +5,7 @@ import {
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
   Sparkles, BookOpen, Plane, Target, Folder, Settings,
-  Instagram
+  Linkedin, Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -36,7 +36,7 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
-      icon: MessageSquare, 
+      icon: Linkedin, 
       label: "LinkedIn", 
       path: "https://app.trykondo.com/inboxes/focused",
       external: true 
