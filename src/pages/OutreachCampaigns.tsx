@@ -19,75 +19,107 @@ import { CreateCampaignDialog } from "@/components/prospects/components/sequence
 const ITEMS_PER_PAGE = 100;
 
 const OutreachCampaigns = () => {
+  console.log("Rendering OutreachCampaigns component"); // Debug log
+
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
 
-  // Add a new query for campaign tasks statistics
-  const { data: taskStats, isLoading: statsLoading } = useQuery({
+  // Add error logging to the task stats query
+  const { data: taskStats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['campaign-task-stats'],
     queryFn: async () => {
-      const { data: tasks, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('source', 'outreach');
-      
-      if (error) {
-        console.error('Error fetching task stats:', error);
+      console.log("Fetching campaign task stats"); // Debug log
+      try {
+        const { data: tasks, error } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('source', 'outreach');
+        
+        if (error) {
+          console.error('Error fetching task stats:', error);
+          throw error;
+        }
+
+        console.log("Fetched tasks:", tasks); // Debug log
+
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter(task => task.completed).length;
+        const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        return {
+          total: totalTasks,
+          completed: completedTasks,
+          completionRate: Math.round(completionRate)
+        };
+      } catch (error) {
+        console.error("Error in task stats query:", error);
         throw error;
       }
-
-      const totalTasks = tasks.length;
-      const completedTasks = tasks.filter(task => task.completed).length;
-      const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-      return {
-        total: totalTasks,
-        completed: completedTasks,
-        completionRate: Math.round(completionRate)
-      };
     },
   });
 
-  const { data, isLoading, refetch } = useQuery({
+  // Add error logging to the leads query
+  const { data, isLoading, error: leadsError, refetch } = useQuery({
     queryKey: ['leads'],
     queryFn: async () => {
-      const { count, error: countError } = await supabase
-        .from('leads')
-        .select('*', { count: 'exact', head: true });
-      
-      if (countError) {
-        console.error('Error fetching count:', countError);
-        throw countError;
+      console.log("Fetching leads data"); // Debug log
+      try {
+        const { count, error: countError } = await supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true });
+        
+        if (countError) {
+          console.error('Error fetching count:', countError);
+          throw countError;
+        }
+
+        const { data: leadsData, error: dataError } = await supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (dataError) {
+          console.error('Error fetching leads:', dataError);
+          throw dataError;
+        }
+
+        console.log("Fetched leads:", leadsData); // Debug log
+
+        const typedLeads = leadsData?.map(lead => ({
+          ...lead,
+          source: (lead.source || 'other') as LeadSource
+        })) || [];
+
+        const totalPages = count ? Math.max(1, Math.ceil(count / ITEMS_PER_PAGE)) : 1;
+
+        return {
+          leads: typedLeads,
+          totalCount: count || 0,
+          totalPages: count && count > ITEMS_PER_PAGE ? totalPages : 1
+        };
+      } catch (error) {
+        console.error("Error in leads query:", error);
+        throw error;
       }
-
-      const { data: leadsData, error: dataError } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (dataError) {
-        console.error('Error fetching leads:', dataError);
-        throw dataError;
-      }
-
-      const typedLeads = leadsData?.map(lead => ({
-        ...lead,
-        source: (lead.source || 'other') as LeadSource
-      })) || [];
-
-      // Only calculate pages if we have more than ITEMS_PER_PAGE
-      const totalPages = count ? Math.max(1, Math.ceil(count / ITEMS_PER_PAGE)) : 1;
-
-      return {
-        leads: typedLeads,
-        totalCount: count || 0,
-        totalPages: count && count > ITEMS_PER_PAGE ? totalPages : 1
-      };
     },
     staleTime: 5000,
   });
+
+  // Handle any errors
+  if (statsError || leadsError) {
+    console.error("Errors:", { statsError, leadsError });
+    return (
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
+        <p className="text-gray-600 mb-4">
+          {statsError?.message || leadsError?.message || "An unexpected error occurred"}
+        </p>
+        <Button onClick={() => refetch()}>Try Again</Button>
+      </div>
+    );
+  }
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
