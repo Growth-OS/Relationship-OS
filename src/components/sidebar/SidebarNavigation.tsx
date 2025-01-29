@@ -19,6 +19,14 @@ export const SidebarNavigation = () => {
     return location.pathname.startsWith(path);
   };
 
+  const AIIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <img 
+      src="/lovable-uploads/f8837421-1e5c-4f46-9f73-c835fceeb13e.png" 
+      alt="AI"
+      className={className}
+    />
+  );
+
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
@@ -59,13 +67,7 @@ export const SidebarNavigation = () => {
       path: "/dashboard/substack"
     },
     { 
-      icon: () => (
-        <img 
-          src="/lovable-uploads/f8837421-1e5c-4f46-9f73-c835fceeb13e.png" 
-          alt="AI"
-          className="w-5 h-5"
-        />
-      ), 
+      icon: AIIcon,
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 

@@ -11,8 +11,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+type IconComponent = LucideIcon | React.FC<{ className?: string }>;
+
 interface SidebarMenuItemProps {
-  icon: LucideIcon | (() => JSX.Element);
+  icon: IconComponent;
   label: string;
   path: string;
   isActive: boolean;
