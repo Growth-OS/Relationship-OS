@@ -5,7 +5,7 @@ import {
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
   Sparkles, BookOpen, Plane, Target, Folder, Settings,
-  Linkedin, Instagram, MessageSquare as ChatGPT
+  Linkedin, Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -59,7 +59,7 @@ export const SidebarNavigation = () => {
       path: "/dashboard/substack"
     },
     { 
-      icon: ChatGPT, 
+      icon: Sparkles, 
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 
