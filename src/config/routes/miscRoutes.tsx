@@ -8,7 +8,6 @@ import OutreachCampaigns from "@/pages/OutreachCampaigns";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const miscRoutes: RouteObject = {
-  path: "dashboard",
   children: [
     {
       path: "calendar",
