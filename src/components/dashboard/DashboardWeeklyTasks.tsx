@@ -28,17 +28,10 @@ export const DashboardWeeklyTasks = () => {
           *,
           projects(id, name),
           deals(id, company_name),
-          substack_posts(id, title),
-          leads!tasks_source_id_fkey(
-            id,
-            lead_campaigns(
-              campaign_id,
-              outreach_campaigns(id, name)
-            )
-          )
+          substack_posts(id, title)
         `)
         .eq("user_id", user.user.id)
-        .eq("completed", false)
+        .eq("completed", false)  // Only fetch incomplete tasks
         .gte("due_date", startDate.toISOString())
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
@@ -48,19 +41,8 @@ export const DashboardWeeklyTasks = () => {
         throw error;
       }
 
-      // Transform the data to match our TaskData interface
-      const transformedData = data?.map(task => {
-        if (task.source === 'outreach' && task.leads?.lead_campaigns?.[0]?.outreach_campaigns) {
-          return {
-            ...task,
-            outreach_campaign: task.leads.lead_campaigns[0].outreach_campaigns
-          };
-        }
-        return task;
-      });
-
-      console.log("Fetched tasks:", transformedData);
-      return transformedData as TaskData[];
+      console.log("Fetched tasks:", data);
+      return data as TaskData[];
     },
   });
 

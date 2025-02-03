@@ -26,8 +26,7 @@ export const useTaskQuery = ({ sourceType, sourceId, showArchived }: TaskQueryPa
           *,
           projects(id, name),
           deals(id, company_name),
-          substack_posts(id, title),
-          outreach_campaigns(id, name)
+          substack_posts(id, title)
         `, { count: 'exact' })
         .eq('user_id', user.id);
 
