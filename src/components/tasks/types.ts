@@ -23,6 +23,14 @@ export interface TaskData {
     id: string;
     title: string;
   };
+  leads?: {
+    id: string;
+    company_name: string;
+  };
+  outreach_campaigns?: {
+    id: string;
+    name: string;
+  };
   ai_generated_message?: string;
   generation_prompt?: string;
   last_generation_date?: string;
