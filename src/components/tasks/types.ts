@@ -21,6 +21,19 @@ export interface TaskData {
   recurrence_interval?: string;
   last_completed_date?: string;
   next_occurrence_date?: string;
+  // Add joined table data
+  projects?: {
+    id: string;
+    name: string;
+  };
+  deals?: {
+    id: string;
+    company_name: string;
+  };
+  substack_posts?: {
+    id: string;
+    title: string;
+  };
 }
 
 export interface TaskFormValues {
