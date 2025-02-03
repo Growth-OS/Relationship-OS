@@ -28,7 +28,7 @@ export const TaskDetails = ({ task }: TaskDetailsProps) => {
       )}
       {task.source === 'outreach' && (
         <Badge variant="outline" className="text-purple-600">
-          {task.outreach_campaign?.name || 'Outreach Task'}
+          Outreach Task
         </Badge>
       )}
     </div>

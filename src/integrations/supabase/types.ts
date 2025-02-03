@@ -1290,13 +1290,9 @@ export type Database = {
           due_date: string | null
           generation_prompt: string | null
           id: string
-          is_recurring: boolean | null
-          last_completed_date: string | null
           last_generation_date: string | null
-          next_occurrence_date: string | null
           priority: string | null
           project_id: string | null
-          recurrence_interval: string | null
           source: Database["public"]["Enums"]["task_source"] | null
           source_id: string | null
           substack_post_id: string | null
@@ -1312,13 +1308,9 @@ export type Database = {
           due_date?: string | null
           generation_prompt?: string | null
           id?: string
-          is_recurring?: boolean | null
-          last_completed_date?: string | null
           last_generation_date?: string | null
-          next_occurrence_date?: string | null
           priority?: string | null
           project_id?: string | null
-          recurrence_interval?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
@@ -1334,13 +1326,9 @@ export type Database = {
           due_date?: string | null
           generation_prompt?: string | null
           id?: string
-          is_recurring?: boolean | null
-          last_completed_date?: string | null
           last_generation_date?: string | null
-          next_occurrence_date?: string | null
           priority?: string | null
           project_id?: string | null
-          recurrence_interval?: string | null
           source?: Database["public"]["Enums"]["task_source"] | null
           source_id?: string | null
           substack_post_id?: string | null
