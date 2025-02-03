@@ -29,10 +29,12 @@ export const DashboardWeeklyTasks = () => {
           projects(id, name),
           deals(id, company_name),
           substack_posts(id, title),
-          leads!tasks_source_id_fkey(id, company_name),
-          outreach_campaigns!inner(
+          leads!tasks_source_id_fkey(
             id,
-            name
+            lead_campaigns(
+              campaign_id,
+              outreach_campaigns(id, name)
+            )
           )
         `)
         .eq("user_id", user.user.id)
@@ -46,8 +48,19 @@ export const DashboardWeeklyTasks = () => {
         throw error;
       }
 
-      console.log("Fetched tasks:", data);
-      return data as TaskData[];
+      // Transform the data to match our TaskData interface
+      const transformedData = data?.map(task => {
+        if (task.source === 'outreach' && task.leads?.lead_campaigns?.[0]?.outreach_campaigns) {
+          return {
+            ...task,
+            outreach_campaign: task.leads.lead_campaigns[0].outreach_campaigns
+          };
+        }
+        return task;
+      });
+
+      console.log("Fetched tasks:", transformedData);
+      return transformedData as TaskData[];
     },
   });
 
