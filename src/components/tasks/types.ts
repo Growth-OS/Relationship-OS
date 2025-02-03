@@ -34,6 +34,10 @@ export interface TaskData {
     id: string;
     title: string;
   };
+  outreach_campaign?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface TaskFormValues {
