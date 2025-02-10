@@ -1,6 +1,3 @@
-import { Project } from "@/integrations/supabase/types/projects";
-import { Deal } from "@/integrations/supabase/types/deals";
-
 export type TaskSource = 'content' | 'other' | 'deals' | 'projects' | 'ideas' | 'substack' | 'outreach';
 
 export interface TaskData {
@@ -17,15 +14,26 @@ export interface TaskData {
   project_id?: string;
   deal_id?: string;
   substack_post_id?: string;
-  projects?: Project;
-  deals?: Deal;
+  ai_generated_message?: string;
+  generation_prompt?: string;
+  last_generation_date?: string;
+  is_recurring?: boolean;
+  recurrence_interval?: string;
+  last_completed_date?: string;
+  next_occurrence_date?: string;
+  // Add joined table data
+  projects?: {
+    id: string;
+    name: string;
+  };
+  deals?: {
+    id: string;
+    company_name: string;
+  };
   substack_posts?: {
     id: string;
     title: string;
   };
-  ai_generated_message?: string;
-  generation_prompt?: string;
-  last_generation_date?: string;
 }
 
 export interface TaskFormValues {
@@ -35,6 +43,8 @@ export interface TaskFormValues {
   priority: string;
   source?: TaskSource;
   source_id?: string;
+  is_recurring?: boolean;
+  recurrence_interval?: string;
 }
 
 export interface TaskListProps {

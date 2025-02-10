@@ -16,6 +16,8 @@ const formSchema = z.object({
   priority: z.string(),
   source: z.string().optional(),
   source_id: z.string().optional(),
+  is_recurring: z.boolean().optional(),
+  recurrence_interval: z.string().optional(),
 });
 
 interface CreateTaskFormProps {
@@ -37,6 +39,8 @@ export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: C
       priority: "medium",
       source: source || "other",
       source_id: sourceId,
+      is_recurring: false,
+      recurrence_interval: "monthly",
     },
   });
 
@@ -50,7 +54,8 @@ export const CreateTaskForm = ({ onSuccess, defaultValues, source, sourceId }: C
         .insert([{
           ...values,
           user_id: user.id,
-          due_date: values.due_date, // Use the exact date selected by the user
+          due_date: values.due_date,
+          next_occurrence_date: values.is_recurring ? values.due_date : null,
         }]);
 
       if (error) throw error;
