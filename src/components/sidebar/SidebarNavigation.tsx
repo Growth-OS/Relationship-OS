@@ -4,8 +4,7 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
-  BookOpen, Plane, Target, Folder, Settings,
-  Linkedin, Instagram
+  Sparkles, BookOpen, Plane, GanttChart, Target
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -19,21 +18,13 @@ export const SidebarNavigation = () => {
     return location.pathname.startsWith(path);
   };
 
-  const AIIcon: React.FC<{ className?: string }> = ({ className }) => (
-    <img 
-      src="/lovable-uploads/f8837421-1e5c-4f46-9f73-c835fceeb13e.png" 
-      alt="AI"
-      className={className}
-    />
-  );
-
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: UserPlus, label: "Prospects", path: "/dashboard/prospects" },
     { icon: Target, label: "Outreach Campaigns", path: "/dashboard/outreach-campaigns" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { icon: Folder, label: "Templates", path: "/dashboard/templates" },
+    { icon: GanttChart, label: "Timeline", path: "/dashboard/quarterly-timeline" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Plane, label: "Travels", path: "/dashboard/travels" },
@@ -44,7 +35,7 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
-      icon: Linkedin, 
+      icon: MessageSquare, 
       label: "LinkedIn", 
       path: "https://app.trykondo.com/inboxes/focused",
       external: true 
@@ -56,18 +47,12 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
-      icon: Instagram,
-      label: "Instagram",
-      path: "https://www.instagram.com/relationshipofsales/",
-      external: true
-    },
-    { 
       icon: BookOpen,
       label: "Substack",
       path: "/dashboard/substack"
     },
     { 
-      icon: AIIcon,
+      icon: Sparkles, 
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 
@@ -76,28 +61,25 @@ export const SidebarNavigation = () => {
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
     { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
-    { 
-      icon: Bug, 
-      label: "Development", 
-      path: "https://lovable.dev/projects/6496a71f-82eb-448d-83e9-3f83d5ae630c",
-      external: true 
-    },
+    { icon: Bug, label: "Development", path: "/dashboard/development" },
   ];
 
   return (
-    <nav className="space-y-1 flex-1 flex flex-col items-center overflow-y-auto">
-      <div className="space-y-1">
-        {mainMenuItems.map((item) => (
-          <SidebarMenuItem
-            key={item.path}
-            icon={item.icon}
-            label={item.label}
-            path={item.path}
-            isActive={!item.external && isPathActive(item.path)}
-            external={item.external}
-          />
-        ))}
-      </div>
-    </nav>
+    <>
+      <nav className="space-y-1 flex-1">
+        <div className="mb-6">
+          {mainMenuItems.map((item) => (
+            <SidebarMenuItem
+              key={item.path}
+              icon={item.icon}
+              label={item.label}
+              path={item.path}
+              isActive={!item.external && isPathActive(item.path)}
+              external={item.external}
+            />
+          ))}
+        </div>
+      </nav>
+    </>
   );
 };

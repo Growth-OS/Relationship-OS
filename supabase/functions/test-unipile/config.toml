@@ -1,0 +1,2 @@
+[functions.test-unipile]
+verify_jwt = false

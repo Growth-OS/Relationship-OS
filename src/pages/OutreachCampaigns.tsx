@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Target, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,114 +13,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CampaignsList } from "@/components/campaigns/CampaignsList";
 import { Lead, LeadSource } from "@/components/leads/types/lead";
 import { BulkActions } from "@/components/leads/components/BulkActions";
-import { Progress } from "@/components/ui/progress";
-import { Card } from "@/components/ui/card";
-import { CreateCampaignDialog } from "@/components/prospects/components/sequence-form/CreateCampaignDialog";
 
-const ITEMS_PER_PAGE = 100;
+const ITEMS_PER_PAGE = 10;
 
 const OutreachCampaigns = () => {
-  console.log("Rendering OutreachCampaigns component"); // Debug log
-
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
 
-  // Add error logging to the task stats query
-  const { data: taskStats, isLoading: statsLoading, error: statsError } = useQuery({
-    queryKey: ['campaign-task-stats'],
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['leads', currentPage],
     queryFn: async () => {
-      console.log("Fetching campaign task stats"); // Debug log
-      try {
-        const { data: tasks, error } = await supabase
-          .from('tasks')
-          .select('*')
-          .eq('source', 'outreach');
-        
-        if (error) {
-          console.error('Error fetching task stats:', error);
-          throw error;
-        }
+      const countQuery = supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true });
 
-        console.log("Fetched tasks:", tasks); // Debug log
-
-        const totalTasks = tasks.length;
-        const completedTasks = tasks.filter(task => task.completed).length;
-        const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
-
-        return {
-          total: totalTasks,
-          completed: completedTasks,
-          completionRate: Math.round(completionRate)
-        };
-      } catch (error) {
-        console.error("Error in task stats query:", error);
-        throw error;
+      const { count, error: countError } = await countQuery;
+      
+      if (countError) {
+        console.error('Error fetching count:', countError);
+        throw countError;
       }
-    },
-  });
 
-  // Add error logging to the leads query
-  const { data, isLoading, error: leadsError, refetch } = useQuery({
-    queryKey: ['leads'],
-    queryFn: async () => {
-      console.log("Fetching leads data"); // Debug log
-      try {
-        const { count, error: countError } = await supabase
-          .from('leads')
-          .select('*', { count: 'exact', head: true });
-        
-        if (countError) {
-          console.error('Error fetching count:', countError);
-          throw countError;
-        }
-
-        const { data: leadsData, error: dataError } = await supabase
-          .from('leads')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        if (dataError) {
-          console.error('Error fetching leads:', dataError);
-          throw dataError;
-        }
-
-        console.log("Fetched leads:", leadsData); // Debug log
-
-        const typedLeads = leadsData?.map(lead => ({
-          ...lead,
-          source: (lead.source || 'other') as LeadSource
-        })) || [];
-
-        const totalPages = count ? Math.max(1, Math.ceil(count / ITEMS_PER_PAGE)) : 1;
-
-        return {
-          leads: typedLeads,
-          totalCount: count || 0,
-          totalPages: count && count > ITEMS_PER_PAGE ? totalPages : 1
-        };
-      } catch (error) {
-        console.error("Error in leads query:", error);
-        throw error;
+      const { data: leadsData, error: dataError } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE - 1);
+      
+      if (dataError) {
+        console.error('Error fetching leads:', dataError);
+        throw dataError;
       }
+
+      const typedLeads = leadsData?.map(lead => ({
+        ...lead,
+        source: (lead.source || 'other') as LeadSource
+      })) || [];
+
+      return {
+        leads: typedLeads,
+        totalCount: count || 0,
+      };
     },
     staleTime: 5000,
   });
 
-  // Handle any errors
-  if (statsError || leadsError) {
-    console.error("Errors:", { statsError, leadsError });
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Data</h2>
-        <p className="text-gray-600 mb-4">
-          {statsError?.message || leadsError?.message || "An unexpected error occurred"}
-        </p>
-        <Button onClick={() => refetch()}>Try Again</Button>
-      </div>
-    );
-  }
+  const totalPages = Math.ceil((data?.totalCount || 0) / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -135,46 +76,13 @@ const OutreachCampaigns = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
-        <div className="relative z-10 px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="text-left">
-              <h1 className="text-2xl font-medium text-white">Outreach Campaigns</h1>
-              <p className="text-sm text-gray-300 mt-1">
-                Manage your outreach campaigns and leads
-              </p>
-            </div>
-            <CreateCampaignDialog onSuccess={() => {}} />
-          </div>
+      <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="text-left">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Outreach Campaigns</h1>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Manage your outreach campaigns and leads
+          </p>
         </div>
-      </div>
-
-      {/* Add Campaign Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-2">Campaign Tasks</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Completion Rate</span>
-              <span>{taskStats?.completionRate || 0}%</span>
-            </div>
-            <Progress 
-              value={taskStats?.completionRate || 0} 
-              className="h-2"
-              indicatorClassName={`${
-                (taskStats?.completionRate || 0) > 66
-                  ? 'bg-green-500'
-                  : (taskStats?.completionRate || 0) > 33
-                  ? 'bg-yellow-500'
-                  : 'bg-red-500'
-              }`}
-            />
-            <div className="flex justify-between text-sm mt-2">
-              <span>{taskStats?.completed || 0} completed</span>
-              <span>{taskStats?.total || 0} total</span>
-            </div>
-          </div>
-        </Card>
       </div>
 
       <Tabs defaultValue="campaigns">
@@ -213,6 +121,7 @@ const OutreachCampaigns = () => {
                   </DialogHeader>
                   <CSVUploadDialog onSuccess={() => {
                     setUploadDialogOpen(false);
+                    refetch();
                     toast.success("Leads uploaded successfully");
                   }} />
                 </DialogContent>
@@ -231,6 +140,7 @@ const OutreachCampaigns = () => {
                   </DialogHeader>
                   <CreateLeadForm onSuccess={() => {
                     setCreateDialogOpen(false);
+                    refetch();
                     toast.success("Lead added successfully");
                   }} />
                 </DialogContent>
@@ -240,19 +150,13 @@ const OutreachCampaigns = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
               <BulkActions 
                 selectedIds={selectedLeadIds}
-                onSelectAll={() => {
-                  if (data?.leads) {
-                    setSelectedLeadIds(prev => 
-                      prev.length === data.leads.length ? [] : data.leads.map(lead => lead.id)
-                    );
-                  }
-                }}
+                onSelectAll={handleSelectAll}
                 leads={data?.leads}
               />
               <LeadsTable 
                 leads={data?.leads || []}
                 currentPage={currentPage}
-                totalPages={data?.totalPages || 1}
+                totalPages={totalPages}
                 onPageChange={handlePageChange}
                 isLoading={isLoading}
                 selectedIds={selectedLeadIds}

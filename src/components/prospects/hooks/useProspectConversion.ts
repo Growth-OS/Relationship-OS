@@ -1,11 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { Prospect } from "../types/prospect";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const useProspectConversion = () => {
-  const queryClient = useQueryClient();
-
   const handleConvertToLead = async (prospect: Prospect) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -14,10 +11,9 @@ export const useProspectConversion = () => {
         return;
       }
 
-      console.log('Converting prospect to deal:', prospect);
+      console.log('Converting prospect to lead:', prospect);
 
-      // Create new deal
-      const { data: dealData, error: dealError } = await supabase
+      const { error } = await supabase
         .from('deals')
         .insert({
           user_id: user.id,
@@ -27,41 +23,29 @@ export const useProspectConversion = () => {
           contact_job_title: prospect.contact_job_title,
           stage: 'lead',
           source: prospect.source,
-          notes: prospect.notes,
-          company_website: prospect.company_website,
-          deal_value: 0, // Default value
-          last_activity_date: new Date().toISOString()
-        })
-        .select()
-        .single();
+          notes: prospect.notes
+        });
 
-      if (dealError) {
-        console.error('Error creating deal:', dealError);
-        throw dealError;
+      if (error) {
+        console.error('Error converting prospect to lead:', error);
+        throw error;
       }
 
       // Update prospect status
-      const { error: prospectError } = await supabase
+      const { error: updateError } = await supabase
         .from('prospects')
-        .update({ 
-          status: 'converted',
-          is_converted_to_deal: true 
-        })
+        .update({ status: 'converted' })
         .eq('id', prospect.id);
 
-      if (prospectError) {
-        console.error('Error updating prospect status:', prospectError);
-        throw prospectError;
+      if (updateError) {
+        console.error('Error updating prospect status:', updateError);
+        throw updateError;
       }
 
-      // Invalidate both prospects and deals queries to refresh the UI
-      await queryClient.invalidateQueries({ queryKey: ['prospects'] });
-      await queryClient.invalidateQueries({ queryKey: ['deals'] });
-      
-      toast.success('Prospect converted to deal successfully');
+      toast.success('Prospect converted to lead successfully');
     } catch (error) {
       console.error('Error in conversion:', error);
-      toast.error('Failed to convert prospect to deal');
+      toast.error('Failed to convert prospect to lead');
     }
   };
 

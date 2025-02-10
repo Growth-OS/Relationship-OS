@@ -59,11 +59,9 @@ export const ConvertToDealDialog = ({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('Starting deal conversion for:', prospects[0]?.company_name);
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        console.error('No authenticated user found');
         toast.error('You must be logged in to create a deal');
         return;
       }
@@ -119,7 +117,7 @@ export const ConvertToDealDialog = ({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      console.error('Error in conversion:', error);
+      console.error('Error converting to deal:', error);
       toast.error('Failed to convert to deal');
     }
   };

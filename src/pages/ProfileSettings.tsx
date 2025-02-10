@@ -21,22 +21,38 @@ const ProfileSettings = () => {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error during sign out:", error);
-        toast.error("Error signing out, please try again");
+      // First check if we have a valid session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session check error:", sessionError);
+        // If there's a session error, force a clean logout
+        localStorage.clear();
+        navigate('/login');
         return;
       }
-      
-      // Clear any local storage data
-      localStorage.clear();
-      
-      // Navigate to login page
-      navigate('/login');
-      
-      toast.success('Signed out successfully');
+
+      if (!session) {
+        console.log("No active session found, performing local cleanup");
+        localStorage.clear();
+        navigate('/login');
+        return;
+      }
+
+      // Attempt to sign out
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) {
+        console.error("Error during sign out:", error);
+        // Even if there's an error, ensure user is logged out locally
+        localStorage.clear();
+        navigate('/login');
+        toast.error("Error signing out, please try again");
+      }
     } catch (error) {
       console.error("Error during logout process:", error);
+      // Ensure user is logged out locally even if there's an error
+      localStorage.clear();
+      navigate('/login');
       toast.error("Error signing out, please try again");
     }
   };

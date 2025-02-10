@@ -1,25 +1,16 @@
 import { RouteObject } from "react-router-dom";
 import Projects from "@/pages/Projects";
-import ProjectView from "@/pages/ProjectView";
 import ProjectsQuarterlyTimeline from "@/pages/ProjectsQuarterlyTimeline";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const projectRoutes: RouteObject = {
-  path: "projects",
+  path: "dashboard",
   children: [
     {
-      index: true,
+      path: "projects",
       element: (
         <ProtectedRoute>
           <Projects />
-        </ProtectedRoute>
-      ),
-    },
-    {
-      path: ":projectId/*",
-      element: (
-        <ProtectedRoute>
-          <ProjectView />
         </ProtectedRoute>
       ),
     },

@@ -1,55 +1,39 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { dashboardRoutes } from "./routes/dashboardRoutes";
-import { settingsRoutes } from "./routes/settingsRoutes";
-import { contentRoutes } from "./routes/contentRoutes";
-import { miscRoutes } from "./routes/miscRoutes";
-import { projectRoutes } from "./routes/projectRoutes";
-import { AuthProvider } from "@/components/auth/AuthProvider";
 import Login from "@/pages/Login";
-import Dashboard from "@/pages/Dashboard";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
+import { Navigate } from "react-router-dom";
+import { dashboardRoutes } from "./routes/dashboardRoutes";
+import { projectRoutes } from "./routes/projectRoutes";
+import { crmRoutes } from "./routes/crmRoutes";
+import { contentRoutes } from "./routes/contentRoutes";
+import { financeRoutes } from "./routes/financeRoutes";
+import { settingsRoutes } from "./routes/settingsRoutes";
+import { taskRoutes } from "./routes/taskRoutes";
+import { miscRoutes } from "./routes/miscRoutes";
 
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorBoundary />,
-  },
-  {
     path: "/",
-    element: (
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
-    ),
+    element: <Layout />,
     errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
         element: <Navigate to="/dashboard" replace />,
       },
-      {
-        path: "dashboard",
-        children: [
-          {
-            index: true,
-            element: <Navigate to="/dashboard/home" replace />,
-          },
-          {
-            path: "home",
-            element: <Dashboard />,
-          },
-          ...projectRoutes.children,
-          ...dashboardRoutes.children,
-          ...contentRoutes.children,
-          ...miscRoutes.children,
-          {
-            path: "settings/*",
-            children: [settingsRoutes],
-          },
-        ],
-      },
+      dashboardRoutes,
+      projectRoutes,
+      crmRoutes,
+      contentRoutes,
+      financeRoutes,
+      settingsRoutes,
+      taskRoutes,
+      miscRoutes,
     ],
+  },
+  {
+    path: "login",
+    element: <Login />,
   },
 ]);

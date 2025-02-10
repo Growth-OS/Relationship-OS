@@ -3,15 +3,18 @@ import Tasks from "@/pages/Tasks";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 export const taskRoutes: RouteObject = {
-  path: "tasks",
-  element: (
-    <ProtectedRoute>
-      <Tasks />
-    </ProtectedRoute>
-  ),
+  path: "dashboard",
   children: [
     {
-      path: "new",
+      path: "tasks",
+      element: (
+        <ProtectedRoute>
+          <Tasks />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "tasks/new",
       element: (
         <ProtectedRoute>
           <Tasks />

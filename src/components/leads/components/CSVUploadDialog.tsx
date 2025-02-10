@@ -77,7 +77,9 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             contact_linkedin: lead.linkedin || lead['linkedin profile'] || '',
             contact_job_title: lead['job title'] || lead.position || '',
             notes: lead.notes || lead.note || lead.other || '',
-            source: lead.source || 'other',  // Now using the source directly from CSV
+            source: lead.source && ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'].includes(lead.source.toLowerCase()) 
+              ? lead.source.toLowerCase() 
+              : 'other',
             status: 'new'
           });
         }

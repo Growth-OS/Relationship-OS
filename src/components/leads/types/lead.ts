@@ -11,6 +11,12 @@ export interface Lead {
   source: LeadSource;
   status?: string;
   user_id?: string;
+  ai_summary?: string;
+  website_content?: string;
+  last_ai_analysis_date?: string;
+  scraping_status?: string;
+  last_scrape_attempt?: string;
+  scraping_error?: string;
 }
 
 export type LeadSource = 'website' | 'referral' | 'linkedin' | 'cold_outreach' | 'conference' | 'accelerator' | 'other';

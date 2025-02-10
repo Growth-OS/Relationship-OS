@@ -44,10 +44,7 @@ export const CreateTaskButton = ({
             <Plus className="h-4 w-4" />
           </Button>
         ) : (
-          <Button 
-            variant="secondary" 
-            className={`bg-white text-primary hover:bg-gray-100 ${className}`}
-          >
+          <Button variant={variant} className={className}>
             <Plus className="h-4 w-4 mr-2" />
             Create Task
           </Button>

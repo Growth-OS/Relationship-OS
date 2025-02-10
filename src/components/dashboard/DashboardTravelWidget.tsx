@@ -17,7 +17,7 @@ export const DashboardTravelWidget = () => {
         .from("travels")
         .select("*")
         .eq("status", "upcoming")
-        .gte("departure_date", currentDate.toISOString())
+        .gte("departure_date", startOfQuarter(currentDate).toISOString())
         .lte("departure_date", endOfQuarter(currentDate).toISOString())
         .order("departure_date", { ascending: true });
 

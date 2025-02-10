@@ -36,44 +36,39 @@ const SubstackPosts = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
-        <div className="relative z-10 px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div className="text-left">
-              <h1 className="text-2xl font-medium text-white">Substack Posts</h1>
-              <p className="text-sm text-gray-300 mt-1">
-                Manage and create your Substack content
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                <Button
-                  variant={view === "grid" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setView("grid")}
-                  className="gap-2"
-                >
-                  <Grid2X2 className="w-4 h-4" />
-                  Grid
-                </Button>
-                <Button
-                  variant={view === "pipeline" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setView("pipeline")}
-                  className="gap-2"
-                >
-                  <KanbanSquare className="w-4 h-4" />
-                  Pipeline
-                </Button>
-              </div>
-              <Button 
-                onClick={() => navigate("new")}
-                className="bg-white text-primary hover:bg-gray-100"
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="text-left">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Substack Posts</h1>
+            <p className="text-muted-foreground">
+              Manage and create your Substack content
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <Button
+                variant={view === "grid" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setView("grid")}
+                className="gap-2"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                New Post
+                <Grid2X2 className="w-4 h-4" />
+                Grid
+              </Button>
+              <Button
+                variant={view === "pipeline" ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setView("pipeline")}
+                className="gap-2"
+              >
+                <KanbanSquare className="w-4 h-4" />
+                Pipeline
               </Button>
             </div>
+            <Button onClick={() => navigate("new")}>
+              <Plus className="w-4 h-4 mr-2" />
+              New Post
+            </Button>
           </div>
         </div>
       </div>

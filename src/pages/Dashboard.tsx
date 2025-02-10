@@ -27,12 +27,8 @@ const Dashboard = () => {
         <DashboardStats />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="lg:col-span-1">
-            <DashboardWeeklyTasks />
-          </div>
-          <div className="lg:col-span-1">
-            <DashboardTravelWidget />
-          </div>
+          <DashboardWeeklyTasks />
+          <DashboardTravelWidget />
         </div>
       </div>
     </div>

@@ -35,8 +35,7 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
           transaction_attachments (
             id,
             file_name,
-            file_path,
-            file_type
+            file_path
           )
         `)
         .order('date', { ascending: false });
@@ -74,21 +73,6 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
 
   const handleDelete = async (transactionId: string) => {
     try {
-      // First, delete any associated attachments from storage
-      const { data: attachments } = await supabase
-        .from('transaction_attachments')
-        .select('file_path')
-        .eq('transaction_id', transactionId);
-
-      if (attachments && attachments.length > 0) {
-        const filePaths = attachments.map(a => a.file_path);
-        const { error: storageError } = await supabase.storage
-          .from('financial_docs')
-          .remove(filePaths);
-
-        if (storageError) throw storageError;
-      }
-
       const { error } = await supabase
         .from('financial_transactions')
         .delete()
@@ -192,7 +176,7 @@ export const TransactionsList = ({ type }: TransactionsListProps) => {
         onOpenChange={(open) => {
           if (!open) {
             setEditingTransaction(null);
-            refetch();
+            refetch(); // Refetch transactions when dialog closes
           }
         }}
       >

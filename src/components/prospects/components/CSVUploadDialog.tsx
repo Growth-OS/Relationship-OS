@@ -9,6 +9,14 @@ interface CSVUploadDialogProps {
   onSuccess: () => void;
 }
 
+const formatUrl = (url: string): string => {
+  if (!url) return '';
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  return url.replace(/\/+$/, '');
+};
+
 export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -16,6 +24,23 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const analyzeWebsite = async (leadId: string, websiteUrl: string) => {
+    try {
+      const formattedUrl = formatUrl(websiteUrl);
+      if (!formattedUrl) return;
+
+      await supabase.functions.invoke('chat-with-data', {
+        body: {
+          action: 'analyze_company',
+          leadId: leadId,
+          websiteUrl: formattedUrl,
+        },
+      });
+    } catch (error) {
+      console.error('Error analyzing website:', error);
+    }
   };
 
   const processCSV = async (file: File) => {
@@ -67,7 +92,9 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             first_name: lead['first name'],
             company_website: lead.website || lead['company website'] || '',
             notes: lead.notes || lead.note || lead.other || '',
-            source: lead.source || 'other',
+            source: lead.source && ['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other'].includes(lead.source.toLowerCase()) 
+              ? lead.source.toLowerCase() 
+              : 'other',
             status: 'new'
           });
         }
@@ -91,11 +118,21 @@ export const CSVUploadDialog = ({ onSuccess }: CSVUploadDialogProps) => {
             user_id: user.id
           }));
 
-          const { error: insertError } = await supabase
+          const { data: insertedLeads, error: insertError } = await supabase
             .from('leads')
-            .insert(batch);
+            .insert(batch)
+            .select();
 
           if (insertError) throw insertError;
+
+          // Trigger website analysis for each lead with a website URL
+          if (insertedLeads) {
+            for (const lead of insertedLeads) {
+              if (lead.company_website) {
+                await analyzeWebsite(lead.id, lead.company_website);
+              }
+            }
+          }
         }
 
         toast.success(`Successfully uploaded ${leads.length} leads`);

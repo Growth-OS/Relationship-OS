@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { StickyNote } from "lucide-react";
-import { toast } from "sonner";
-import { NoteEditor } from "./notes/NoteEditor";
-import { NotesList } from "./notes/NotesList";
+import { RichTextEditor } from "@/components/content/RichTextEditor";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface ProjectNotesProps {
   projectId: string;
 }
 
 export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const notesPerPage = 8;
+  const [newNote, setNewNote] = useState("");
+  const { toast } = useToast();
 
   const { data: notes = [], refetch } = useQuery({
     queryKey: ["project-notes", projectId],
@@ -24,13 +35,50 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
         .eq("project_id", projectId)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        toast.error("Failed to load notes");
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
   });
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+
+    try {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) throw userError;
+      
+      if (!userData.user) {
+        throw new Error("No authenticated user found");
+      }
+
+      const { error: insertError } = await supabase
+        .from("project_chat_history")
+        .insert({
+          project_id: projectId,
+          message: newNote,
+          role: "user",
+          user_id: userData.user.id
+        });
+
+      if (insertError) throw insertError;
+
+      toast({
+        title: "Success",
+        description: "Note added successfully",
+      });
+
+      setNewNote("");
+      refetch();
+    } catch (error: any) {
+      console.error("Error adding note:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add note",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDeleteNote = async (noteId: string) => {
     try {
@@ -41,42 +89,70 @@ export const ProjectNotes = ({ projectId }: ProjectNotesProps) => {
 
       if (error) throw error;
 
-      toast.success("Note deleted successfully");
+      toast({
+        title: "Success",
+        description: "Note deleted successfully",
+      });
+
       refetch();
     } catch (error: any) {
       console.error("Error deleting note:", error);
-      toast.error(error.message || "Failed to delete note");
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete note",
+        variant: "destructive",
+      });
     }
   };
 
-  const totalPages = Math.ceil(notes.length / notesPerPage);
-  const paginatedNotes = notes.slice(
-    (currentPage - 1) * notesPerPage,
-    currentPage * notesPerPage
-  );
-
   return (
-    <div className="w-full">
-      <Card className="p-6">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-card-foreground flex items-center gap-2">
-              <StickyNote className="h-5 w-5 text-primary" />
-              Project Notes
-            </h3>
-          </div>
-
-          <NoteEditor projectId={projectId} onNoteAdded={refetch} />
-
-          <NotesList
-            notes={paginatedNotes}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onDelete={handleDeleteNote}
-            onPageChange={setCurrentPage}
-          />
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <RichTextEditor content={newNote} onChange={setNewNote} useTemplate={false} />
+        <div className="flex justify-end">
+          <Button onClick={handleAddNote}>Add Note</Button>
         </div>
-      </Card>
+      </div>
+
+      <div className="space-y-4">
+        {notes.map((note) => (
+          <div
+            key={note.id}
+            className="bg-white dark:bg-gray-800 p-4 rounded-lg border space-y-2"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">
+                {format(new Date(note.created_at), "PPp")}
+              </span>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Note</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete this note? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <div
+              className="prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: note.message }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

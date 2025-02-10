@@ -62,12 +62,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         case 'SIGNED_IN':
           if (session) {
             setIsAuthenticated(true);
-            // Only redirect if we're on the login page
-            if (location.pathname === '/login') {
-              const returnPath = localStorage.getItem('return_path') || '/dashboard';
-              localStorage.removeItem('return_path');
-              navigate(returnPath, { replace: true });
-            }
+            const returnPath = localStorage.getItem('return_path') || '/dashboard';
+            localStorage.removeItem('return_path');
+            navigate(returnPath, { replace: true });
           }
           break;
 
@@ -91,7 +88,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, location.pathname]);
+  }, [navigate]);
 
   if (isLoading) {
     return (
@@ -103,7 +100,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Save the current path before redirecting to login
   if (!isAuthenticated && location.pathname !== '/login') {
-    localStorage.setItem('return_path', location.pathname);
+    const returnPath = location.pathname !== '/login' ? location.pathname : '/dashboard';
+    localStorage.setItem('return_path', returnPath);
     return <Navigate to="/login" replace />;
   }
 

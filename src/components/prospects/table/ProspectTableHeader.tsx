@@ -18,14 +18,14 @@ export const ProspectTableHeader = ({ isAllSelected, onSelectAll }: ProspectTabl
             />
           </div>
         </TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Company</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Source</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Job Title</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Email</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">LinkedIn</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Website</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Status</TableHead>
-        <TableHead className="text-left text-sm font-medium text-muted-foreground">Actions</TableHead>
+        <TableHead className="text-left">Company</TableHead>
+        <TableHead className="text-left">Source</TableHead>
+        <TableHead className="text-left">Job Title</TableHead>
+        <TableHead className="text-left">Email</TableHead>
+        <TableHead className="text-left">LinkedIn</TableHead>
+        <TableHead className="text-left">Website</TableHead>
+        <TableHead className="text-left">Status</TableHead>
+        <TableHead className="text-left">Actions</TableHead>
       </TableRow>
     </TableHeader>
   );

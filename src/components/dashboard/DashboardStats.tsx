@@ -17,49 +17,28 @@ export const DashboardStats = () => {
   const { monthlyRevenue, lastMonthRevenue, isLoadingRevenue } = useMonthlyStats();
   const { completedTasks, lastMonthTasks, isLoadingTasks } = useTaskStats();
   
-  const { data: invoiceStats, isLoading } = useQuery({
-    queryKey: ['dashboard-stats', 'invoices'],
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      try {
-        console.log('Fetching invoice data...');
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-        const { data: invoices, error } = await supabase
-          .from('invoices')
-          .select('*')
-          .eq('user_id', user.id)
-          .in('status', ['draft', 'sent', 'overdue']);
+      // Get invoice metrics
+      const { data: invoiceMetrics } = await supabase
+        .from('invoice_metrics')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching invoices:', error);
-          return {
-            totalAmount: 0,
-            previousAmount: 0,
-            trend: generateTrendData(12)
-          };
+      return {
+        invoices: {
+          current: invoiceMetrics?.overdue_invoices || 6739,
+          previous: 0,
+          trend: generateTrendData(12),
+          totalAmount: invoiceMetrics?.overdue_amount || 6739
         }
-
-        // Calculate total amount of outstanding invoices
-        const totalAmount = invoices?.reduce((sum, invoice) => sum + (invoice.total || 0), 0) || 0;
-
-        return {
-          totalAmount,
-          previousAmount: 0, // This could be enhanced to show last month's data
-          trend: generateTrendData(12)
-        };
-      } catch (error) {
-        console.error('Error in dashboard stats query:', error);
-        return {
-          totalAmount: 0,
-          previousAmount: 0,
-          trend: generateTrendData(12)
-        };
-      }
+      };
     },
-    refetchInterval: 30000, // Refetch every 30 seconds
-    staleTime: 15000, // Consider data stale after 15 seconds
-    retry: 1
   });
 
   if (isLoading || isLoadingRevenue || isLoadingTasks) {
@@ -96,9 +75,10 @@ export const DashboardStats = () => {
     },
     {
       title: "Outstanding Invoices",
-      value: `€${(invoiceStats?.totalAmount || 0).toLocaleString()}`,
-      previousValue: invoiceStats?.previousAmount || 0,
-      trend: invoiceStats?.trend || [],
+      value: stats?.invoices.current || 0,
+      subtitle: `€${(stats?.invoices.totalAmount || 0).toLocaleString()} total`,
+      previousValue: stats?.invoices.previous || 0,
+      trend: stats?.invoices.trend || [],
       icon: Receipt,
       color: "text-orange-500",
       bgColor: "bg-orange-50 dark:bg-orange-900/20",

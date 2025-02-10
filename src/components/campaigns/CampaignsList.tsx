@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Target } from "lucide-react";
+import { CreateCampaignDialog } from "@/components/prospects/components/sequence-form/CreateCampaignDialog";
 import { CampaignCard } from "./CampaignCard";
 import { CampaignStepsDialog } from "./CampaignStepsDialog";
 import { useState } from "react";
@@ -76,6 +77,10 @@ export const CampaignsList = () => {
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <CreateCampaignDialog onSuccess={refetch} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {campaigns?.map((campaign) => (
           <CampaignCard
@@ -103,6 +108,7 @@ export const CampaignsList = () => {
             <p className="text-muted-foreground mb-4">
               Create your first outreach campaign to get started
             </p>
+            <CreateCampaignDialog onSuccess={refetch} />
           </CardContent>
         </Card>
       )}

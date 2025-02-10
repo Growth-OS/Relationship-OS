@@ -15,7 +15,6 @@ import { AttachmentField } from "./form-fields/AttachmentField";
 import { FinancialTransaction } from "@/integrations/supabase/types/finances";
 import { useQuery } from "@tanstack/react-query";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
 
 const formSchema = z.object({
   type: z.enum(['income', 'expense']),
@@ -33,9 +32,8 @@ interface CreateTransactionFormProps {
 }
 
 export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransactionFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const { data: existingAttachments, refetch: refetchAttachments } = useQuery({
+  // Fetch existing attachments if editing
+  const { data: existingAttachments } = useQuery({
     queryKey: ['transaction-attachments', initialData?.id],
     queryFn: async () => {
       if (!initialData?.id) return [];
@@ -65,21 +63,30 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      setIsSubmitting(true);
-      const loadingToast = toast.loading(initialData ? 'Updating transaction...' : 'Adding transaction...');
-      
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.dismiss(loadingToast);
         toast.error('You must be logged in to add transactions');
         return;
       }
 
-      let transactionId = initialData?.id;
+      if (initialData) {
+        // Update existing transaction
+        const { error: transactionError } = await supabase
+          .from('financial_transactions')
+          .update({
+            type: values.type,
+            amount: values.amount,
+            description: values.description,
+            category: values.category,
+            date: values.date,
+            notes: values.notes,
+          })
+          .eq('id', initialData.id);
 
-      // If we're creating a new transaction
-      if (!transactionId) {
+        if (transactionError) throw transactionError;
+      } else {
+        // Insert new transaction
         const { data: transaction, error: transactionError } = await supabase
           .from('financial_transactions')
           .insert({
@@ -95,59 +102,40 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
           .single();
 
         if (transactionError) throw transactionError;
-        transactionId = transaction.id;
-      } else {
-        // Update existing transaction
-        const { error: transactionError } = await supabase
-          .from('financial_transactions')
-          .update({
-            type: values.type,
-            amount: values.amount,
-            description: values.description,
-            category: values.category,
-            date: values.date,
-            notes: values.notes,
-          })
-          .eq('id', transactionId);
 
-        if (transactionError) throw transactionError;
+        // Handle file uploads for new transactions
+        const files = form.getValues('files') as FileList;
+        if (files?.[0] && transaction) {
+          const file = files[0];
+          const fileExt = file.name.split('.').pop();
+          const timestamp = Date.now();
+          const filePath = `${user.id}/${transaction.id}/${timestamp}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('financial_docs')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { error: attachmentError } = await supabase
+            .from('transaction_attachments')
+            .insert({
+              transaction_id: transaction.id,
+              file_path: filePath,
+              file_name: file.name,
+              file_type: file.type,
+            });
+
+          if (attachmentError) throw attachmentError;
+        }
       }
 
-      // Handle file upload if there's a file
-      const files = form.getValues('files') as FileList;
-      if (files?.[0]) {
-        const file = files[0];
-        const fileExt = file.name.split('.').pop();
-        const timestamp = Date.now();
-        const filePath = `${user.id}/${transactionId}/${timestamp}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('financial_docs')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { error: attachmentError } = await supabase
-          .from('transaction_attachments')
-          .insert({
-            transaction_id: transactionId,
-            file_path: filePath,
-            file_name: file.name,
-            file_type: file.type,
-          });
-
-        if (attachmentError) throw attachmentError;
-      }
-
-      toast.dismiss(loadingToast);
       toast.success(initialData ? 'Transaction updated successfully' : 'Transaction added successfully');
-      form.reset();
       onSuccess();
+      form.reset();
     } catch (error: any) {
       console.error('Error with transaction:', error);
       toast.error(error.message || (initialData ? 'Error updating transaction' : 'Error adding transaction'));
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -168,8 +156,8 @@ export const CreateTransactionForm = ({ onSuccess, initialData }: CreateTransact
           <DateField form={form} />
           <NotesField form={form} />
           <AttachmentField form={form} existingAttachments={existingAttachments} />
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Processing...' : (initialData ? 'Update Transaction' : 'Add Transaction')}
+          <Button type="submit" className="w-full">
+            {initialData ? 'Update Transaction' : 'Add Transaction'}
           </Button>
         </form>
       </Form>

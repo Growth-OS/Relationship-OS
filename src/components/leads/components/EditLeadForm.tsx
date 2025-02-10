@@ -17,7 +17,7 @@ const formSchema = z.object({
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_job_title: z.string().optional(),
   contact_linkedin: z.string().url().optional().or(z.literal("")),
-  source: z.string().min(1, "Source is required"),
+  source: z.enum(['website', 'referral', 'linkedin', 'cold_outreach', 'conference', 'accelerator', 'other']).optional().default('other'),
   notes: z.string().optional(),
   first_name: z.string().min(1, "First name is required"),
 });
@@ -36,7 +36,7 @@ export const EditLeadForm = ({ lead, onSuccess }: EditLeadFormProps) => {
       contact_email: lead.contact_email || "",
       contact_job_title: lead.contact_job_title || "",
       contact_linkedin: lead.contact_linkedin || "",
-      source: lead.source || "",
+      source: lead.source || "other",
       notes: lead.notes || "",
       first_name: lead.first_name || "",
     },

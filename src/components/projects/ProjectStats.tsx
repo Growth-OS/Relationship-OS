@@ -1,101 +1,71 @@
 import { Card } from "@/components/ui/card";
-import { Building2, ListTodo, Receipt, Clock } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Clock, CheckCircle, AlertCircle, DollarSign } from "lucide-react";
 
-interface ProjectStatsProps {
-  project: {
-    id: string;
-    name: string;
-    status: string;
-    budget?: number;
-    start_date?: string;
-    end_date?: string;
-    project_documents?: {
-      id: string;
-    }[];
-  };
+interface Project {
+  id: string;
+  status: string;
+  budget?: number;
 }
 
-export const ProjectStats = ({ project }: ProjectStatsProps) => {
-  // Fetch tasks using the same query as Timeline and All Tasks
-  const { data: tasks = [] } = useQuery({
-    queryKey: ["project-tasks", project.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .eq("source", "projects")
-        .eq("source_id", project.id);
+interface ProjectStatsProps {
+  projects: Project[];
+}
 
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "text-emerald-400 bg-emerald-950/20";
-      case "completed":
-        return "text-blue-400 bg-blue-950/20";
-      case "on_hold":
-        return "text-amber-400 bg-amber-950/20";
-      default:
-        return "text-gray-400 bg-gray-800/20";
-    }
-  };
-
-  // Calculate task statistics using the fetched tasks
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const totalDocuments = project.project_documents?.length || 0;
-
-  const stats = [
-    {
-      title: "Project Status",
-      value: project.status?.charAt(0).toUpperCase() + project.status?.slice(1) || "Not Set",
-      icon: Clock,
-      color: getStatusColor(project.status),
-    },
-    {
-      title: "Budget",
-      value: project.budget ? `€${project.budget.toLocaleString()}` : "Not Set",
-      icon: Building2,
-      color: "text-purple-400 bg-purple-950/20",
-    },
-    {
-      title: "Tasks Progress",
-      value: `${completedTasks}/${totalTasks}`,
-      icon: ListTodo,
-      color: "text-blue-400 bg-blue-950/20",
-    },
-    {
-      title: "Documents",
-      value: totalDocuments.toString(),
-      icon: Receipt,
-      color: "text-orange-400 bg-orange-950/20",
-    },
-  ];
+export const ProjectStats = ({ projects }: ProjectStatsProps) => {
+  const activeProjects = projects.filter((p) => p.status === "active").length;
+  const completedProjects = projects.filter((p) => p.status === "completed").length;
+  const onHoldProjects = projects.filter((p) => p.status === "on_hold").length;
+  const totalBudget = projects.reduce((sum, p) => sum + (p.budget || 0), 0);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-      {stats.map((stat, index) => (
-        <Card 
-          key={index} 
-          className="p-4 border-0 bg-gray-800/20 backdrop-blur-sm hover:bg-gray-800/30 transition-all duration-200"
-        >
-          <div className="flex items-center space-x-4">
-            <div className={`p-2 rounded-full ${stat.color}`}>
-              <stat.icon className="h-5 w-5" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-400">{stat.title}</p>
-              <h3 className="text-xl font-bold text-white">{stat.value}</h3>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card className="p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-4">
+          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+            <Clock className="h-6 w-6 text-blue-500 dark:text-blue-400" />
           </div>
-        </Card>
-      ))}
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Active Projects</p>
+            <h3 className="text-2xl font-bold">{activeProjects}</h3>
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-4">
+          <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-full">
+            <CheckCircle className="h-6 w-6 text-green-500 dark:text-green-400" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Completed</p>
+            <h3 className="text-2xl font-bold">{completedProjects}</h3>
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-4">
+          <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-full">
+            <AlertCircle className="h-6 w-6 text-yellow-500 dark:text-yellow-400" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">On Hold</p>
+            <h3 className="text-2xl font-bold">{onHoldProjects}</h3>
+          </div>
+        </div>
+      </Card>
+      
+      <Card className="p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-4">
+          <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-full">
+            <DollarSign className="h-6 w-6 text-purple-500 dark:text-purple-400" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Total Budget</p>
+            <h3 className="text-2xl font-bold">€{totalBudget.toLocaleString()}</h3>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
