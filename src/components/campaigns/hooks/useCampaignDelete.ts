@@ -20,7 +20,19 @@ export const useCampaignDelete = (onDelete?: () => void) => {
       const leadIds = leadCampaigns?.map(lc => lc.lead_id) || [];
       console.log('Found lead IDs:', leadIds);
 
-      // First delete lead campaign associations
+      // Delete tasks associated with these leads and the outreach source
+      const { error: tasksError } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('source', 'outreach')
+        .in('source_id', leadIds);
+
+      if (tasksError) {
+        console.error('Error deleting tasks:', tasksError);
+        throw tasksError;
+      }
+
+      // Delete lead campaign associations
       const { error: leadCampaignsError } = await supabase
         .from('lead_campaigns')
         .delete()
@@ -29,20 +41,6 @@ export const useCampaignDelete = (onDelete?: () => void) => {
       if (leadCampaignsError) {
         console.error('Error deleting lead campaigns:', leadCampaignsError);
         throw leadCampaignsError;
-      }
-
-      // Then delete tasks associated with these leads
-      if (leadIds.length > 0) {
-        const { error: tasksError } = await supabase
-          .from('tasks')
-          .delete()
-          .eq('source', 'other')
-          .in('source_id', leadIds);
-
-        if (tasksError) {
-          console.error('Error deleting tasks:', tasksError);
-          throw tasksError;
-        }
       }
 
       // Delete all campaign steps

@@ -8,16 +8,27 @@ export const DashboardActivityChart = () => {
   const { data: transactions, isLoading } = useQuery({
     queryKey: ['monthly-profit-loss'],
     queryFn: async () => {
-      const startDate = startOfYear(new Date());
-      
-      const { data, error } = await supabase
-        .from('financial_transactions')
-        .select('*')
-        .gte('date', startDate.toISOString())
-        .order('date');
-      
-      if (error) throw error;
-      return data;
+      try {
+        const startDate = startOfYear(new Date());
+        console.log('Fetching transactions from:', startDate.toISOString());
+        
+        const { data, error } = await supabase
+          .from('financial_transactions')
+          .select('*')
+          .gte('date', startDate.toISOString())
+          .order('date');
+        
+        if (error) {
+          console.error('Error fetching transactions:', error);
+          throw error;
+        }
+        
+        console.log('Fetched transactions:', data);
+        return data;
+      } catch (error) {
+        console.error('Error in transaction query:', error);
+        throw error;
+      }
     },
   });
 

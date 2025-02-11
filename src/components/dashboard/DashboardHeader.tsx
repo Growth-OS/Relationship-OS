@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { PlusCircle, Calendar, Briefcase, ListTodo, Receipt, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 
 interface DashboardHeaderProps {
   firstName: string;
@@ -13,7 +9,6 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
   const [greeting, setGreeting] = useState("");
-  const navigate = useNavigate();
 
   const { data: highlights } = useQuery({
     queryKey: ['dashboard-highlights'],
@@ -37,9 +32,17 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
         .eq('user_id', user.id)
         .neq('stage', 'lost');
 
+      // Get active projects
+      const { count: activeProjects } = await supabase
+        .from('projects')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
       return {
         tasksDueToday: tasksDueToday || 0,
         activeDeals: activeDeals || 0,
+        activeProjects: activeProjects || 0,
       };
     },
   });
@@ -57,84 +60,40 @@ export const DashboardHeader = ({ firstName }: DashboardHeaderProps) => {
     }
   }, []);
 
-  const quickActions = [
-    {
-      label: "New Task",
-      icon: ListTodo,
-      onClick: () => navigate("/dashboard/tasks/new"),
-      color: "bg-purple-100 text-purple-700 hover:bg-purple-200",
-    },
-    {
-      label: "New Deal",
-      icon: Briefcase,
-      onClick: () => navigate("/dashboard/deals/new"),
-      color: "bg-blue-100 text-blue-700 hover:bg-blue-200",
-    },
-    {
-      label: "New Invoice",
-      icon: Receipt,
-      onClick: () => navigate("/dashboard/invoices/new"),
-      color: "bg-amber-100 text-amber-700 hover:bg-amber-200",
-    },
-    {
-      label: "Add Transaction",
-      icon: Wallet,
-      onClick: () => navigate("/dashboard/finances/new"),
-      color: "bg-rose-100 text-rose-700 hover:bg-rose-200",
-    },
-    {
-      label: "Schedule",
-      icon: Calendar,
-      onClick: () => navigate("/dashboard/calendar"),
-      color: "bg-green-100 text-green-700 hover:bg-green-200",
-    },
-  ];
-
   return (
-    <Card className="p-6 bg-gradient-to-r from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border-none shadow-sm">
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            {greeting}, {firstName}!
-          </h1>
-          <p className="text-muted-foreground">
-            Here's what's happening today, {format(new Date(), 'do MMMM yyyy')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Today's Highlights</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border">
-                <div className="text-2xl font-bold">{highlights?.tasksDueToday}</div>
-                <div className="text-sm text-muted-foreground">Tasks Due Today</div>
-              </div>
-              <div className="p-4 bg-white dark:bg-gray-800 rounded-lg border">
-                <div className="text-2xl font-bold">{highlights?.activeDeals}</div>
-                <div className="text-sm text-muted-foreground">Active Deals</div>
-              </div>
-            </div>
+    <div className="relative overflow-hidden rounded-lg bg-[#161e2c] border border-gray-800/40 shadow-sm">
+      <div className="relative z-10 px-6 py-8">
+        <div className="space-y-6">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-2xl font-medium text-white">
+              {greeting}, {firstName}!
+            </h1>
+            <p className="text-sm text-gray-300 mt-1">
+              Here's what's happening today, {format(new Date(), 'do MMMM yyyy')}
+            </p>
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Quick Actions</h2>
-            <div className="flex flex-wrap gap-2">
-              {quickActions.map((action) => (
-                <Button
-                  key={action.label}
-                  variant="ghost"
-                  className={`${action.color} gap-2`}
-                  onClick={action.onClick}
-                >
-                  <action.icon className="h-4 w-4" />
-                  {action.label}
-                </Button>
-              ))}
+          <div className="flex justify-center">
+            <div className="space-y-4 max-w-lg w-full">
+              <h2 className="text-lg font-semibold text-white text-center">Today's Highlights</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="text-2xl font-bold text-white">{highlights?.tasksDueToday}</div>
+                  <div className="text-sm text-gray-300">Tasks Due Today</div>
+                </div>
+                <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="text-2xl font-bold text-white">{highlights?.activeDeals}</div>
+                  <div className="text-sm text-gray-300">Active Deals</div>
+                </div>
+                <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                  <div className="text-2xl font-bold text-white">{highlights?.activeProjects}</div>
+                  <div className="text-sm text-gray-300">Active Projects</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };

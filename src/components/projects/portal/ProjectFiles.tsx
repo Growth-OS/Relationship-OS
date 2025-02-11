@@ -1,36 +1,40 @@
 import { useProjectFiles } from "./files/useProjectFiles";
-import { FileUploadButton } from "./files/FileUploadButton";
-import { FileListItem } from "./files/FileListItem";
+import { FileUploadZone } from "./files/FileUploadZone";
+import { FileGrid } from "./files/FileGrid";
+import { Progress } from "@/components/ui/progress";
 
 export const ProjectFiles = ({ projectId }: { projectId: string }) => {
   const {
     files,
     uploading,
+    uploadProgress,
     handleFileUpload,
     handleDownload,
     handleDelete,
   } = useProjectFiles(projectId);
 
   return (
-    <div className="space-y-6">
-      <FileUploadButton 
+    <div className="w-full space-y-6">
+      <FileUploadZone 
         uploading={uploading} 
-        onFileSelect={handleFileUpload} 
+        onFileSelect={handleFileUpload}
+        uploadProgress={uploadProgress}
       />
 
-      <div className="grid gap-4">
-        {files.map((file) => (
-          <FileListItem
-            key={file.id}
-            file={file}
-            onDownload={handleDownload}
-            onDelete={handleDelete}
-          />
-        ))}
-        {files.length === 0 && (
-          <p className="text-center text-gray-500 py-8">No files uploaded yet</p>
-        )}
-      </div>
+      {uploading && (
+        <div className="space-y-2">
+          <Progress value={uploadProgress} className="h-2" />
+          <p className="text-sm text-muted-foreground text-center">
+            Uploading... {uploadProgress}%
+          </p>
+        </div>
+      )}
+
+      <FileGrid 
+        files={files}
+        onDownload={handleDownload}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

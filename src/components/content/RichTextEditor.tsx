@@ -26,8 +26,9 @@ export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichT
     editable: true,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[200px]',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none min-h-[200px] text-left',
         spellcheck: 'false',
+        style: 'text-align: left',
       },
     },
   });
@@ -40,7 +41,7 @@ export const RichTextEditor = ({ content, onChange, useTemplate = false }: RichT
     <div className="border rounded-lg overflow-hidden h-full flex flex-col">
       <EditorToolbar editor={editor} />
       <div className="p-4 flex-1 overflow-y-auto bg-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        <EditorContent editor={editor} className="prose max-w-none" />
+        <EditorContent editor={editor} className="prose max-w-none text-left" />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TaskGroup } from "./TaskGroup";
 import { useTaskOperations } from "@/components/tasks/hooks/useTaskOperations";
 import { TaskData, TaskSource } from "@/components/tasks/types";
+import { toast } from "sonner";
 
 export const DashboardWeeklyTasks = () => {
   const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
@@ -30,7 +31,7 @@ export const DashboardWeeklyTasks = () => {
           substack_posts(id, title)
         `)
         .eq("user_id", user.user.id)
-        .eq("completed", false)
+        .eq("completed", false)  // Only fetch incomplete tasks
         .gte("due_date", startDate.toISOString())
         .lte("due_date", endDate.toISOString())
         .order("due_date", { ascending: true });
@@ -45,13 +46,33 @@ export const DashboardWeeklyTasks = () => {
     },
   });
 
-  const handleTaskCompleteWithRefresh = async (taskId: string, completed: boolean, tasks: TaskData[]) => {
+  const handleTaskCompleteWithRefresh = async (taskId: string, completed: boolean) => {
     try {
-      await handleTaskComplete(taskId, completed, tasks);
-      // Invalidate and refetch the weekly tasks query
-      await queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
+      // Optimistically update the UI
+      queryClient.setQueryData(["weekly-tasks", startDate, endDate], (oldData: TaskData[] | undefined) => {
+        if (!oldData) return oldData;
+        return oldData.map(task => 
+          task.id === taskId ? { ...task, completed } : task
+        );
+      });
+
+      // Make the API call
+      await handleTaskComplete(taskId, completed, tasks || []);
+      
+      // Show success notification
+      toast.success(completed ? "Task completed" : "Task uncompleted");
+
+      // Invalidate and refetch to ensure data consistency
+      await queryClient.invalidateQueries({ 
+        queryKey: ["weekly-tasks"],
+        refetchType: "none" // Prevent automatic refetch which causes scroll jump
+      });
     } catch (error) {
       console.error("Error completing task:", error);
+      // Show error notification
+      toast.error("Failed to update task");
+      // Revert optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ["weekly-tasks"] });
     }
   };
 
@@ -89,7 +110,7 @@ export const DashboardWeeklyTasks = () => {
             key={source}
             source={source as TaskSource}
             tasks={sourceTasks || []}
-            onComplete={(taskId, completed) => handleTaskCompleteWithRefresh(taskId, completed, tasks || [])}
+            onComplete={handleTaskCompleteWithRefresh}
             onUpdate={handleTaskUpdate}
           />
         ))}

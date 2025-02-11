@@ -135,8 +135,11 @@ export const ProspectsTable = ({
         </div>
         <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Upload className="h-4 w-4" />
+            <Button 
+              variant="outline" 
+              className="inline-flex items-center shadow-sm shadow-black/5 rounded-lg"
+            >
+              <Upload className="h-4 w-4 mr-2" />
               Upload CSV
             </Button>
           </DialogTrigger>

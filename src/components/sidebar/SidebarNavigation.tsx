@@ -4,7 +4,8 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
-  Sparkles, BookOpen, Plane, GanttChart, Target
+  Sparkles, BookOpen, Plane, Target, Folder, Settings,
+  Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -24,7 +25,7 @@ export const SidebarNavigation = () => {
     { icon: Target, label: "Outreach Campaigns", path: "/dashboard/outreach-campaigns" },
     { icon: Briefcase, label: "Deals", path: "/dashboard/deals" },
     { icon: FolderOpen, label: "Projects", path: "/dashboard/projects" },
-    { icon: GanttChart, label: "Timeline", path: "/dashboard/quarterly-timeline" },
+    { icon: Folder, label: "Templates", path: "/dashboard/templates" },
     { icon: ListTodo, label: "Tasks", path: "/dashboard/tasks" },
     { icon: Calendar, label: "Calendar", path: "/dashboard/calendar" },
     { icon: Plane, label: "Travels", path: "/dashboard/travels" },
@@ -47,6 +48,12 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
+      icon: Instagram,
+      label: "Instagram",
+      path: "https://www.instagram.com/relationshipofsales/",
+      external: true
+    },
+    { 
       icon: BookOpen,
       label: "Substack",
       path: "/dashboard/substack"
@@ -61,25 +68,28 @@ export const SidebarNavigation = () => {
     { icon: Euro, label: "Finances", path: "/dashboard/finances" },
     { icon: FileText, label: "Invoices", path: "/dashboard/invoices" },
     { icon: ChartBar, label: "Reporting", path: "/dashboard/reporting" },
-    { icon: Bug, label: "Development", path: "/dashboard/development" },
+    { 
+      icon: Bug, 
+      label: "Development", 
+      path: "https://lovable.dev/projects/6496a71f-82eb-448d-83e9-3f83d5ae630c",
+      external: true 
+    },
   ];
 
   return (
-    <>
-      <nav className="space-y-1 flex-1">
-        <div className="mb-6">
-          {mainMenuItems.map((item) => (
-            <SidebarMenuItem
-              key={item.path}
-              icon={item.icon}
-              label={item.label}
-              path={item.path}
-              isActive={!item.external && isPathActive(item.path)}
-              external={item.external}
-            />
-          ))}
-        </div>
-      </nav>
-    </>
+    <nav className="space-y-1 flex-1 flex flex-col items-center overflow-y-auto">
+      <div className="space-y-1">
+        {mainMenuItems.map((item) => (
+          <SidebarMenuItem
+            key={item.path}
+            icon={item.icon}
+            label={item.label}
+            path={item.path}
+            isActive={!item.external && isPathActive(item.path)}
+            external={item.external}
+          />
+        ))}
+      </div>
+    </nav>
   );
 };

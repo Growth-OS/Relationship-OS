@@ -28,7 +28,7 @@ export const CreateCampaignDialog = ({ onSuccess }: CreateCampaignDialogProps) =
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           New Campaign
         </Button>
