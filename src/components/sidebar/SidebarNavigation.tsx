@@ -4,8 +4,8 @@ import {
   Home, Calendar, ListTodo, Users, ChartBar, Mail, 
   Briefcase, UserPlus, Euro, FolderOpen, MessageSquare,
   Bug, FileText, ChartLine, ChartPie, Database, 
-  Sparkles, BookOpen, Plane, Target, Folder, Settings,
-  Instagram
+  BookOpen, Plane, Target, Folder, Settings,
+  Linkedin, Instagram
 } from "lucide-react";
 import { SidebarMenuItem } from "./SidebarMenuItem";
 
@@ -18,6 +18,14 @@ export const SidebarNavigation = () => {
     }
     return location.pathname.startsWith(path);
   };
+
+  const AIIcon: React.FC<{ className?: string }> = ({ className }) => (
+    <img 
+      src="/lovable-uploads/f8837421-1e5c-4f46-9f73-c835fceeb13e.png" 
+      alt="AI"
+      className={className}
+    />
+  );
 
   const mainMenuItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
@@ -36,7 +44,7 @@ export const SidebarNavigation = () => {
       external: true 
     },
     { 
-      icon: MessageSquare, 
+      icon: Linkedin, 
       label: "LinkedIn", 
       path: "https://app.trykondo.com/inboxes/focused",
       external: true 
@@ -59,7 +67,7 @@ export const SidebarNavigation = () => {
       path: "/dashboard/substack"
     },
     { 
-      icon: Sparkles, 
+      icon: AIIcon,
       label: "AI", 
       path: "https://chat.openai.com",
       external: true 

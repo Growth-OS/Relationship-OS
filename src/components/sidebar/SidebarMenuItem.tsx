@@ -11,8 +11,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+type IconComponent = LucideIcon | React.FC<{ className?: string }>;
+
 interface SidebarMenuItemProps {
-  icon: LucideIcon;
+  icon: IconComponent;
   label: string;
   path: string;
   isActive: boolean;
@@ -31,7 +33,7 @@ export const SidebarMenuItem = ({
   external 
 }: SidebarMenuItemProps) => {
   const commonClasses = cn(
-    "flex items-center justify-center w-9 h-9 rounded-lg transition-colors", // Reduced from w-10 h-10
+    "flex items-center justify-center w-9 h-9 rounded-lg transition-colors",
     isActive
       ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
@@ -39,7 +41,7 @@ export const SidebarMenuItem = ({
 
   const content = (
     <div className="relative">
-      <Icon className="w-4 h-4" /> {/* Reduced from w-5 h-5 */}
+      <Icon className="w-4 h-4" />
       {badge !== undefined && (
         <Badge 
           variant="secondary" 
